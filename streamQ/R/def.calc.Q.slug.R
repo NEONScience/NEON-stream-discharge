@@ -1,0 +1,198 @@
+##############################################################################################
+#' @title Salt-based discharge calculations for a slug injection
+
+#' @author 
+#' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+
+#' @description This function calculates stream discharge from a slug salt tracer injection. This function will likely only work well for the NEON conductivity logger data.
+
+#' @importFrom pracma trapz
+#' @importFrom neonDataStackR stackByTable
+#' @importFrom utils read.csv
+#' @importFrom grDevices dev.new
+#' @importFrom grDevices dev.off
+#' @importFrom graphics identify
+#' @importFrom graphics plot
+#' @importFrom graphics title
+#' @importFrom graphics abline
+#' @importFrom graphics lines
+#' @importFrom stats lsfit
+
+#' @param inputFile Name of the data fram containing the information needed to calculate discharge from a slug tracer injection. If the headers are named: "slugMass" and "slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. Otherwise, the names of the columns need to be input for the function to work.
+#' @param slugMass Mass of the tracer injectate [g]
+#' @param dataDir User identifies the directory that contains the zipped data
+#' @param pick Plots the conductivity timeseries are created allowing users to select the integration range if set to TRUE, integrates over a range from the slugPourTime to the time when the conductivity returns to baseline if set to FALSE [boolean]
+#' @param plot Plots the conductivity timeseries with the baseline and integration range overlaid if set to TRUE, plots are not shown if set to FALSE [boolean]
+
+#' @return This function returns stream discharge [lps] appended as an additional column to the input data frame along with a quality flag (slugQF) where 1 means that a peak wasn't detected, 2 means the rising limb was not resolved, and 3 means the falling limb did not return to basline concentration.
+
+#' @references
+#' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
+
+#' @keywords surface water, streams, rivers, discharge, tracer, salt-based, slug
+
+#' @examples
+#' sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdFormatted)
+
+#' @seealso def.calc.Q.inj.R for calculating stream discharge from a constant rate injection
+
+#' @export
+
+# changelog and author contributions / copyrights
+#   Kaelin M. Cawley (2017-08-03)
+#     original creation
+##############################################################################################
+#This code is for calculating salt-based discharge for a slug
+def.calc.Q.slug <- function(
+  inputFile,
+  slugMass = inputFile$slugTracerMass,
+  dataDir = paste0(getwd(),"/NEON_discharge-stream-saltbased.zip"),
+  pick = F,
+  plot = F
+) {
+  
+  ##### Constants #####
+  #Conversion factor between specific conductance and concentration 
+  #Assumes Na+ and Cl- are both contributing to the conductivity
+  NaClCond = 0.12646 #S L mol-1 cm-1 #CRC handbook of chemistry and physics
+  Clmw = 35.45 #molecular weight of chloride g/mol
+  cuSmS = 1000000 #Convert Siemens to microsiemens
+  
+  #Peak threshold
+  pkRange = 5 #Number of points to test for peak slope
+  pkNum = 4 #Nummber of point that must be increasing/decreasing for peak slope
+  pCond = 1 #Percent of the final baseline
+  condDiff = 25 #Minimum difference between the peak and baseline conductivity
+  
+  ##### Calculations #####
+  #Stack field and external lab data if needed
+  if(!dir.exists(substr(dataDir, 1, (nchar(dataDir)-4)))){
+    stackByTable(dataDir)
+  }
+  
+  #Read in stacked logger data
+  loggerData <- read.csv(
+    paste(gsub("\\.zip","",dataDir), "stackedFiles", "sbd_conductivityFieldData.csv", sep = "/"), 
+    stringsAsFactors = F)
+  
+  #Convert the injectate mass from g to M
+  slugMass <- slugMass/Clmw
+  
+  #Convert the corrected slug concentration to conductivity
+  slugCond <- slugMass * NaClCond * cuSmS
+
+  inputFile$Q.slug <- NA
+  inputFile$slugQF <- NA
+  for(i in seq(along = inputFile$siteID)){
+    
+    if(is.na(inputFile$injectionType[i]) || 
+       inputFile$injectionType[i] == "NaCl" || 
+       nrow(loggerData[loggerData$hoboSampleID == inputFile$hoboSampleID[i],]) == 0){
+      next
+    }
+    stationLoggerData <- loggerData[loggerData$hoboSampleID == inputFile$hoboSampleID[i],]
+    stationLoggerData <- stationLoggerData[order(stationLoggerData$measurementNumber),]
+    
+    #If low range isn't collected use the full range
+    ifelse(all(is.na(stationLoggerData$lowRangeSpCondNonlinear)),
+           condData <- stationLoggerData$fullRangeSpCondNonlinear,
+           condData <- stationLoggerData$lowRangeSpCondNonlinear)
+    
+    #Plot the logger files to choose the integration range
+    if(pick == T){
+      invisible(dev.new(noRStudioGD = TRUE))
+      plot(stationLoggerData$measurementNumber, condData, xlab = "Measurement Number", ylab = "Specific Conductance")
+      title(main = paste0("At least 5 baseline points left of peak should be included in selection. \nThis is about the width of the '+' cursor on most screens.\n",stationLoggerData$hoboSampleID[i]))
+      ans <- identify(stationLoggerData$measurementNumber, n = 2, condData, pos = F, tolerance = 0.25)
+      Sys.sleep(1)
+      invisible(dev.off())
+      condData <- condData[min(ans):max(ans)]
+    }else{
+      
+      #Find slug peak, start with the max and look for 5 on either side that decrease
+      peakLoc <- min(which(condData == max(condData, na.rm = T)))
+      testedPeaks <- peakLoc
+      dataSeq <- seq(along = condData)
+      
+      for(j in dataSeq){
+        peakRiseA <- condData[(peakLoc-pkRange):(peakLoc-1)]
+        peakRiseB <- condData[(peakLoc-pkRange+1):(peakLoc)]
+        peakFallA <- condData[(peakLoc+1):(peakLoc+pkRange)]
+        peakFallB <- condData[peakLoc:(peakLoc+pkRange-1)]
+        
+        riseTest <- sum(peakRiseB-peakRiseA > 0) >= (pkNum/pkRange)
+        fallTest <- sum(peakFallB-peakFallA > 0) >= (pkNum/pkRange)
+        
+        if(riseTest & fallTest){
+          break
+        }else{
+          peakLoc <- min(which(condData == max(condData[!(dataSeq %in% testedPeaks)], na.rm = T)), na.rm = T)
+          testedPeaks[length(testedPeaks) +1] <- peakLoc
+        }
+        
+      }
+      
+      if(peakLoc == min(condData, na.rm = T)){
+        inputFile$slugQF[i] <- 1
+        warning(paste('No slug peak not detected for:', inputFile$hoboSampleID[i]))
+        next
+      }
+      
+      #Find pre-slug baseline, work left from the peak
+      intBL <- NA
+      for(k in seq(from = peakLoc, to = 11)){
+        dataRange <- (k-10):k
+        
+        #Check that it has a flat slope and is a flat line
+        if(abs(lsfit(dataRange, condData[dataRange])[[1]][2]) < 0.1){
+          intBL <- (k-10)
+          break
+        }
+      }
+      
+      if(is.na(intBL) || condData[intBL] > (condData[peakLoc] - condDiff)){
+        inputFile$slugQF[i] <- 2
+        warning(paste('Defined rising limb not detected for:', inputFile$hoboSampleID[i]))
+        next
+      }
+      
+      #Find post-slug baseline from the baseline conductivity
+      finBL <- NA
+      finBL <- min(which(condData[peakLoc:length(condData)] <= (condData[intBL]*(1 + pCond/100))), na.rm = T)+peakLoc
+      
+      if(condData[finBL] < (condData[intBL] * 0.75) | is.na(finBL) | length(finBL) < 1){
+        inputFile$slugQF[i] <- 3
+        warning(paste('Incomplete falling limb:', inputFile$hoboSampleID[i]))
+        next
+      }
+      
+      if(plot == T){
+        invisible(dev.new(noRStudioGD = TRUE))
+        plot((intBL-20):(finBL+20), condData[(intBL-20):(finBL+20)], xlab = "Measurement Number", ylab = "Specific Conductance")
+        title(main = stationLoggerData$hoboSampleID[i])
+        baseline <- lines((intBL-20):(finBL+20), rep(mean(condData[intBL:(intBL+5)]), times = (finBL-intBL+41)), col = 'blue', lwd = 2)
+        intStart <- abline(v = intBL, col = "green", lwd = 2)
+        intEnd <- abline(v = finBL, col = "red", lwd = 2)
+      }
+      
+      condData <- condData[intBL:finBL]
+      
+    }
+    
+    #Background correct the logger data
+    condData <- condData - mean(condData[1:5])
+    
+    #Calculate the area under the conductivity time series
+    areaResponse <- trapz(1:length(condData), condData)
+    
+    #Convert from integration over measurement number to time
+    areaResponse <- areaResponse*10 #Each measurement is 10 seconds apart
+    
+    #Calculate discharge
+    inputFile$Q.slug[i] <- slugCond[i] / areaResponse
+    
+  }
+  
+  return(inputFile)
+  
+}

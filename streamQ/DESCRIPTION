@@ -1,0 +1,15 @@
+Package: streamQ
+Title: Calculates stream discharge in lps from slug and constant rate injections
+Version: 0.0.0.9000
+Authors@R: person("Kaelin", "Cawley", email = "kcawley@battelleecology.org", role = c("aut", "cre"))
+Description: Contains functions to format data and calculate stream discharge in liters per second
+	(lps). For slug injections the area under the curve of a conductivity timeseries and injectate
+	mass are used as imputs. For constant rate injections the plateau concentration and background
+	tracer concentration are used as inputs.
+Depends: R (>= 3.3.2)
+Imports: neonDataStackR, pracma
+Remotes: NEONScience/NEON-utilities/neonDataStackR
+License: AGPL-3 + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
