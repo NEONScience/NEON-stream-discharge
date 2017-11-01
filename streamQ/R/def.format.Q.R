@@ -52,29 +52,38 @@ def.format.Q <- function(
   }
   
   #Read in stacked data
+  #Allows for using the reaeration tables in addition to the salt-based discharge tables
+  allFiles <- list.files(paste(gsub("\\.zip","",dataDir), "stackedFiles", sep = "/"))
+  bkDataLogFile <- allFiles[grepl("backgroundFieldCondData", allFiles)]
+  bkFieldSaltFile <- allFiles[grepl("backgroundFieldSaltData", allFiles)]
+  fieldDataFile <- allFiles[grepl("fieldData", allFiles)]
+  plDataCondFile <- allFiles[grepl("plateauMeasurementFieldData", allFiles)]
+  plSampFile <- allFiles[grepl("plateauSampleFieldData", allFiles)]
+  extSaltFile <- allFiles[grepl("externalLabDataSalt", allFiles)]
+  
   backgroundDataLogger <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", "sbd_backgroundFieldCondData.csv", sep = "/"), 
+    paste(gsub("\\.zip","",dataDir), "stackedFiles", bkDataLogFile, sep = "/"), 
     stringsAsFactors = F)
   
   backgroundDataSalt <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", "sbd_backgroundFieldSaltData.csv", sep = "/"), 
+    paste(gsub("\\.zip","",dataDir), "stackedFiles", bkFieldSaltFile, sep = "/"), 
     stringsAsFactors = F)
   
   fieldDataSite <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", "sbd_fieldData.csv", sep = "/"), 
+    paste(gsub("\\.zip","",dataDir), "stackedFiles", fieldDataFile, sep = "/"), 
     stringsAsFactors = F)
   fieldDataSite$namedLocation <- NULL #So that the merge goes smoothly
   
   plateauDataCond <- read.csv(
-    paste(gsub("\\.zip","",dataDir),"stackedFiles","sbd_plateauMeasurementFieldData.csv", sep = "/"), 
+    paste(gsub("\\.zip","",dataDir),"stackedFiles",plDataCondFile, sep = "/"), 
     stringsAsFactors = F)
   
   plateauDataSalt <- read.csv(
-    paste(gsub("\\.zip","",dataDir),"stackedFiles","sbd_plateauSampleFieldData.csv", sep = "/"), 
+    paste(gsub("\\.zip","",dataDir),"stackedFiles",plSampFile, sep = "/"), 
     stringsAsFactors = F)
   
   externalLabDataSalt <- read.csv(
-    paste(gsub("\\.zip","",dataDir),"stackedFiles","sbd_externalLabDataSalt.csv", sep = "/"), 
+    paste(gsub("\\.zip","",dataDir),"stackedFiles",extSaltFile, sep = "/"), 
     stringsAsFactors = F)
   
   #Remove two bad duplicates

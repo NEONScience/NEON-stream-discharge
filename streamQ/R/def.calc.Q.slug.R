@@ -71,8 +71,11 @@ def.calc.Q.slug <- function(
   }
   
   #Read in stacked logger data
+  #Allows for using the reaeration tables in addition to the salt-based discharge tables
+  allFiles <- list.files(paste(gsub("\\.zip","",dataDir), "stackedFiles", sep = "/"))
+  loggerFile <- allFiles[grepl("conductivityFieldData", allFiles)]
   loggerData <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", "sbd_conductivityFieldData.csv", sep = "/"), 
+    paste(gsub("\\.zip","",dataDir), "stackedFiles", loggerFile, sep = "/"), 
     stringsAsFactors = F)
   
   #Convert the injectate mass from g to M
