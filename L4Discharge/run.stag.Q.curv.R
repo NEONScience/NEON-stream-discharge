@@ -41,15 +41,16 @@
 # install_github("NEONScience/NEON-utilities/neonDataStackR", force = TRUE, dependencies = TRUE)
 # install_github("NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE, dependencies = TRUE)
 
-#Load needed library for Docker testing prior to GitHub package release
-setwd("/app/L4_discharge/")
-devtools::install("stageQCurve")
-library(stageQCurve)
+# #Load needed library for Docker testing prior to GitHub package release
+# setwd("/app/L4_discharge/")
+# devtools::install("stageQCurve")
+# library(stageQCurve)
 
 #Environment options and configurations
 options(stringsAsFactors = F)
 Sys.setenv(TZ='UTC')
 library(neonDataStackR)
+library(stageQCurve)
 
 #Run main function
 #The inputs are set as environment variables rather than R variables to make running the Docker container easier
