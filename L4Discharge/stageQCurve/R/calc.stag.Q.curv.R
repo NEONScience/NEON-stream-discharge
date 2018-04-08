@@ -46,13 +46,6 @@ calc.stag.Q.curv <- function(
   site = Sys.getenv("SITE")
 ){
   
-  print(DIRPATH)
-  print(BAMFOLD)
-  print(BAMFILE)
-  print(DATAWS)
-  print(BAMWS)
-  print(startDate)
-  print(site)
   #User inputs for site and date
   #If you enter a searchIntervalStart data that is not YYY-10-01, the script will determine the 
   #water year that started immediately before the date entered here and use it as the 
@@ -349,6 +342,13 @@ calc.stag.Q.curv <- function(
                                            "stackedFiles",
                                            "sdrc_gaugeDischargeMeas.csv", 
                                            sep = "/")))
+      #Make sure you're using only the data for the current site
+      prevGaugeData <- prevGaugeData[prevGaugeData$siteID == site,]
+      
+      #Make sure you aren't creating duplicates with a re-run of the same rating curve
+      allPrevEventID <- strsplit(prevRatingCurve$allEventID[prevRatingCurve$curveID == mostRecentCurveID],"\\|")
+      prevGaugeData <- prevGaugeData[prevGaugeData$eventID %in% allPrevEventID[[1]],]
+      prevGaugeData <- prevGaugeData[!(prevGaugeData$eventID %in% stageDataForCurve$eventID),]
       
       if(length(prevGaugeData)<1){
         failureMessage <- "Zero (0) records for previous year's rating curve gauge data retrieved"

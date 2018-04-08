@@ -26,15 +26,22 @@
 # #water year that started immediately before the date entered here and use it as the
 # #startDate
 # 
-# Sys.setenv(DIRPATH = "C:/Users/kcawley/Documents/GitHub/NEON-stream-discharge/L4Discharge/",
-#            BAMFOLD="BaM_beta/",
-#            BAMFILE="BaM_MiniDMSL.exe",#Windows version
-#            #BAMFILE="BaM_exe",#Linux version
-#            DATAWS="C:/Users/kcawley/Desktop/data/",
-#            BAMWS="BaM_beta/BaM_BaRatin/",
-#            STARTDATE = "2016-10-01",
-#            SITE = "HOPB")
-# 
+Sys.setenv(DIRPATH = "C:/Users/kcawley/Documents/GitHub/NEON-stream-discharge/L4Discharge/",
+           BAMFOLD="BaM_beta/",
+           BAMFILE="BaM_MiniDMSL.exe",#Windows version
+           #BAMFILE="BaM_exe",#Linux version
+           DATAWS="C:/Users/kcawley/Desktop/data/",
+           BAMWS="BaM_beta/BaM_BaRatin/",
+           STARTDATE = "2016-10-01",
+           SITE = "HOPB")
+#
+DIRPATH = Sys.getenv("DIRPATH")
+BAMFOLD = Sys.getenv("BAMFOLD")
+BAMFILE = Sys.getenv("BAMFILE")
+DATAWS = Sys.getenv("DATAWS")
+BAMWS = Sys.getenv("BAMWS")
+startDate = Sys.getenv("STARTDATE")
+site = Sys.getenv("SITE")
 # #Need to run this periodically if you're running the code outside of the Docker container
 # #as NEON packages get updated
 # library(devtools)
@@ -52,8 +59,30 @@ Sys.setenv(TZ='UTC')
 library(neonDataStackR)
 library(stageQCurve)
 
-#Run main function
-#The inputs are set as environment variables rather than R variables to make running the Docker container easier
+#Run main function to create a rating curve
+#The inputs are set as environment variables rather than R variables to allow for running the Docker container 
+#for diffrent sites and dates without rebuilding it
 calc.stag.Q.curv()
+
+#Plot rating curve prior and posterior parameter distributions
+#From MCMC outputs directly
+numCtrls <- nrow(read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Config_ControlMatrix.txt"))
+priorParams <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Config_Model.txt")
+Results_MCMC_Cooked <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Results_MCMC_Cooked.txt",header = T)
+pre.post.parm.plot(numCtrls,priorParams,Results_MCMC_Cooked,NEONformat=F)
+MCMC.sim.plot(numCtrls,Results_MCMC_Cooked,NEONformat=F)
+
+#From downloaded NEON data
+#TBD: pre.post.parm.plot(numCtrls,priorParams,Results_MCMC_Cooked,NEONformat=T)
+
+#Run BaM in prediction mode to get the information for the rating curve
+Hgrid <- BaM.run.pred.RC(minH = -0.05,maxH = 0.4)
+
+#Plot and save figures of BaM rating curve prediction run
+BaM.RC.out.plot(Hgrid=Hgrid)
+
+#Plot rating curve with gaugings data from NEON dowload
+
+
 
 
