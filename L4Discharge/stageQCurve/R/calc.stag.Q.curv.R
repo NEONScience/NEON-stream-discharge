@@ -7,7 +7,7 @@
 #' @description This script uses the BaM executable to calculate the parameters that define 
 #' the stage-discharge relationship for a site and water year using NEON data.
 
-#' @importFrom neonDataStackR stackByTable
+#' @importFrom neonUtilities stackByTable
 
 #' @param DIRPATH An environment variable that contains the location of the files in 
 #' the Docker container [string]

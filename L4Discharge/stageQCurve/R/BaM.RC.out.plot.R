@@ -47,8 +47,8 @@ BaM.RC.out.plot <- function(
   Qrc_TotalU_env <- read.table(paste0(DIRPATH, BAMWS, "Qrc_TotalU.env"), header = T)
   
   gaugings <- read.table(paste0(DIRPATH, BAMWS, "data/Gaugings.txt"), header = T)
-  gaugings$Q <- as.numeric(gaugings$Q)/1000 #Convert to cms from lps
-  gaugings$uQ <- as.numeric(gaugings$uQ)/100 #Convert to cms from lps
+  gaugings$Q <- as.numeric(gaugings$Q) #Convert to cms from lps
+  gaugings$uQ <- as.numeric(gaugings$uQ) #Convert to cms from lps
 
   #Plot rating curve
   pramUForPlottingTop <- cbind.data.frame(Hgrid,Qrc_ParamU_env$Q_q2.5)
@@ -57,12 +57,11 @@ BaM.RC.out.plot <- function(
   names(pramUForPlottingBottom) <- c("Hgrid","Q")
   pramUForPlotting <- rbind(pramUForPlottingTop,pramUForPlottingBottom[dim(pramUForPlottingBottom)[1]:1,])
 
-  #Currently these are off the charts, looking into why
-  # totalUTop <- cbind.data.frame(Hgrid,Qrc_TotalU_env$Q_q2.5)
-  # totalUBottom <- cbind.data.frame(Hgrid,Qrc_TotalU_env$Q_q97.5)
-  # names(totalUTop) <- c("Hgrid","Q")
-  # names(totalUBottom) <- c("Hgrid","Q")
-  # totalUForPlotting <- rbind(totalUTop,totalUBottom[dim(totalUBottom)[1]:1,])
+  totalUTop <- cbind.data.frame(Hgrid,Qrc_TotalU_env$Q_q2.5)
+  totalUBottom <- cbind.data.frame(Hgrid,Qrc_TotalU_env$Q_q97.5)
+  names(totalUTop) <- c("Hgrid","Q")
+  names(totalUBottom) <- c("Hgrid","Q")
+  totalUForPlotting <- rbind(totalUTop,totalUBottom[dim(totalUBottom)[1]:1,])
 
   priorTop <- cbind.data.frame(Hgrid, Qrc_Prior_env$Q_q2.5)
   priorBottom <- cbind.data.frame(Hgrid, Qrc_Prior_env$Q_q97.5)
@@ -80,9 +79,22 @@ BaM.RC.out.plot <- function(
        ylim = c(min(priorForPlotting$Q),max(priorForPlotting$Q)),
        xlab = "Stage (m)",
        ylab = "Discharge (cms)")
+  
+  #Plot log-scale
+  test.par <- par(mfrow=c(1,1))
+  par(mar=c(5.1,4.1,4.1,2.1))
+  Qrc_Maxpost_spag$V1[Qrc_Maxpost_spag$V1 <= 0] <- 0.000000001
+  plot(Hgrid,
+       Qrc_Maxpost_spag$V1,
+       type = "l",
+       log = "xy",
+       xlim = c(0.008,max(Hgrid)),
+       ylim = c(0.0005,max(priorForPlotting$Q)),
+       xlab = "Stage (m)",
+       ylab = "Discharge (cms)")
 
   #Work from background to foreground
-  #polygon(totalUForPlotting$Hgrid,totalUForPlotting$Q, col = "red", border = NA)
+  polygon(totalUForPlotting$Hgrid,totalUForPlotting$Q, col = "red", border = NA)
   polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = "lightpink", border = NA)
 

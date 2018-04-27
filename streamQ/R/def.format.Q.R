@@ -8,7 +8,7 @@
 #' data product to calculate stream discharge from slug and constant-rate injection. 
 #' No need to unzip the downloaded files, just place them all in the smae directory.
 
-#' @importFrom neonDataStackR stackByTable
+#' @importFrom neonUtilities stackByTable
 #' @importFrom utils read.csv
 
 #' @param dataDir User identifies the directory that contains the zipped data
@@ -48,7 +48,7 @@ def.format.Q <- function(
   
   #Stack field and external lab data
   if(!dir.exists(substr(dataDir, 1, (nchar(dataDir)-4)))){
-    stackByTable(dataDir)
+    stackByTable(dpID="DP1.20193.001",filepath=dataDir)
   }
   
   #Read in stacked data

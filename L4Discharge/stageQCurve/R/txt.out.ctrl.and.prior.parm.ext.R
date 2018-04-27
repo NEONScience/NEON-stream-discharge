@@ -7,7 +7,7 @@
 #' @description This function writes out the ControlMatrix and Model configurations for BaM.
 
 #' @import utils
-#' @import neonDataStackR
+#' @import neonUtilities
 
 #' @param site 4 letter SITE code [string]
 #' @param searchIntervalStartDate Start date for search interval [POSIXct]

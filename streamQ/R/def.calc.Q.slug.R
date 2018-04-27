@@ -7,7 +7,7 @@
 #' @description This function calculates stream discharge from a slug salt tracer injection. This function will likely only work well for the NEON conductivity logger data.
 
 #' @importFrom pracma trapz
-#' @importFrom neonDataStackR stackByTable
+#' @importFrom neonUtilities stackByTable
 #' @importFrom utils read.csv
 #' @importFrom grDevices dev.new
 #' @importFrom grDevices dev.off
@@ -67,7 +67,7 @@ def.calc.Q.slug <- function(
   ##### Calculations #####
   #Stack field and external lab data if needed
   if(!dir.exists(substr(dataDir, 1, (nchar(dataDir)-4)))){
-    stackByTable(dataDir)
+    stackByTable(dpID="DP1.20193.001",filepath=dataDir)
   }
   
   #Read in stacked logger data

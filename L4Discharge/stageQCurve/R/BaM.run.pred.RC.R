@@ -60,6 +60,36 @@ BaM.run.pred.RC <- function(
   
   #The prediction configurations should be good with the name and Nobs, change if needed
   
+  #Write out the gaugings file if needed
+  if(!file.exists(paste0(DIRPATH, BAMWS, "data/Gaugings.txt"))){
+    gaugingsStageData <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/data/L1_Results_sdrc_gaugeDischargeMeas_pub.txt", header = T)
+    #Write out the formatted data file to data folder for BaM
+    gagNam <- c('H','uH','bH','bHindx','Q','uQ','bQ','bQindx')
+    gaugings <- data.frame(matrix(data=NA, ncol=length(gagNam), nrow=length(gaugingsStageData$gaugeHeight)))
+    names(gaugings) <- gagNam
+    
+    #Zeroes below assume no uncertainty, may want to change that
+    gaugings$H <- gaugingsStageData$gaugeHeight #Stream stage values (m)
+    gaugings$uH <- 0.00 #May include in the future
+    gaugings$bH <- 0.00
+    gaugings$bHindx <- 0.00
+    gaugings$Q <- gaugingsStageData$streamDischarge #Stream discharge values (lps), re-calculated
+    gaugings$uQ <- gaugingsStageData$streamDischargeUnc
+    gaugings$bQ <- 0.00
+    gaugings$bQindx <- 0.00
+    
+    write.table(gaugings,
+                paste0(DIRPATH, BAMWS, "data/Gaugings.txt"),
+                sep = "\t",
+                row.names = F,
+                quote = F)
+    
+    #Write configuration and data files to the BaM folder for the water year
+    Config_Data <- readLines(paste0(DIRPATH, BAMWS, "Config_Data.txt"))
+    Config_Data[3] <- gsub("[0-9]{1,6}",nrow(gaugings),Config_Data[3]) #Replace the existing value with the current value
+    writeLines(Config_Data, paste0(DIRPATH, BAMWS, "Config_Data.txt")) #Specifies the calibration data
+  }
+  
   #R doesn't like the trailing slash
   BaM_path <- paste0(DIRPATH,gsub("/$","",BAMFOLD))
   if(!file.exists(BaM_path)){
