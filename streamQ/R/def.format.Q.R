@@ -61,8 +61,11 @@ def.format.Q <- function(
     dataFromAPI <- zipsByProduct(dpID,site,package="expanded",check.size=TRUE)
   }
   
-  if(dataDir == "API"){
+  if(dataDir == "API"&&dir.exists(paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep=""))){
     filepath <- paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep="")
+    folder <- TRUE
+  } else if(dataDir == "API"&&dir.exists(paste(getwd(), "/filesToStack", substr(reaDPID, 5, 9), sep=""))){
+    filepath <- paste(getwd(), "/filesToStack", substr(reaDPID, 5, 9), sep="")
     folder <- TRUE
   } else{
     filepath = dataDir
