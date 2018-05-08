@@ -51,9 +51,13 @@ def.format.Q <- function(
 ) {
   
   dpID <- "DP1.20193.001"
+  reaDPID <- "DP1.20190.001" #Reaeration DPID, a superset of the salt-based discharge data
   folder <- FALSE
-  #Pull files from the API to stack
-  if(dataDir == "API"&&!dir.exists(paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep=""))){
+  #Pull files from the API to stack if they aren't already downloaded
+  #Added additional check for data if it was already downloaded as part of reaeration
+  if(dataDir == "API"&&
+     !dir.exists(paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep=""))&&
+     !dir.exists(paste(getwd(), "/filesToStack", substr(reaDPID, 5, 9), sep=""))){
     dataFromAPI <- zipsByProduct(dpID,site,package="expanded",check.size=TRUE)
   }
   
