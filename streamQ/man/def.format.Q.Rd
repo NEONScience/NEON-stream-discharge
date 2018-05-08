@@ -5,10 +5,12 @@
 \title{Stream discharge formatting}
 \usage{
 def.format.Q(dataDir = paste0(getwd(),
-  "/NEON_discharge-stream-saltbased.zip"))
+  "/NEON_discharge-stream-saltbased.zip"), site = "all")
 }
 \arguments{
 \item{dataDir}{User identifies the directory that contains the zipped data}
+
+\item{site}{User identifies the site(s), defaults to "all" [string]}
 }
 \value{
 This function returns one data frame formatted for use with def.calc.Q.slug.R 
@@ -21,14 +23,14 @@ No need to unzip the downloaded files, just place them all in the smae directory
 }
 \examples{
 #where the data .zip file is in the working directory and has the default name, 
-sbdFormatted <- def.format.Q()
+#sbdFormatted <- def.format.Q()
 #where the data.zip file is in the downloads folder and has default name, 
-sbdFormatted <- def.format.Q(dataDir = path.expand("~/NEON_discharge-stream-saltbased.zip"))
+#sbdFormatted <- def.format.Q(dataDir = path.expand("~/NEON_discharge-stream-saltbased.zip"))
 #where the data.zip file is in the downloads folder and has a specified name,
-sbdFormatted <- def.format.Q(dataDir = path.expand("~/Downloads/non-standard-name.zip"))
+#sbdFormatted <- def.format.Q(dataDir = path.expand("~/Downloads/non-standard-name.zip"))
 #Using the example data in this package
-dataDirectory <- paste(path.package("neonStreamQ"),"inst\\\\extdata", sep = "\\\\")
-sbdFormatted <- def.format.Q(dataDir = dataDirectory)
+#dataDirectory <- paste(path.package("neonStreamQ"),"inst\\\\extdata", sep = "\\\\")
+#sbdFormatted <- def.format.Q(dataDir = dataDirectory)
 }
 \references{
 License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007

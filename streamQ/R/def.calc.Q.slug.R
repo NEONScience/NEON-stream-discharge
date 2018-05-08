@@ -4,7 +4,8 @@
 #' @author 
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
 
-#' @description This function calculates stream discharge from a slug salt tracer injection. This function will likely only work well for the NEON conductivity logger data.
+#' @description This function calculates stream discharge from a slug salt tracer injection. 
+#' This function will likely only work well for the NEON conductivity logger data.
 
 #' @importFrom pracma trapz
 #' @importFrom neonUtilities stackByTable
@@ -18,13 +19,23 @@
 #' @importFrom graphics lines
 #' @importFrom stats lsfit
 
-#' @param inputFile Name of the data fram containing the information needed to calculate discharge from a slug tracer injection. If the headers are named: "slugMass" and "slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. Otherwise, the names of the columns need to be input for the function to work.
+#' @param inputFile Name of the data fram containing the information needed to calculate 
+#' discharge from a slug tracer injection. If the headers are named: "slugMass" and 
+#' "slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. 
+#' Otherwise, the names of the columns need to be input for the function to work.
 #' @param slugMass Mass of the tracer injectate [g]
 #' @param dataDir User identifies the directory that contains the zipped data
-#' @param pick Plots the conductivity timeseries are created allowing users to select the integration range if set to TRUE, integrates over a range from the slugPourTime to the time when the conductivity returns to baseline if set to FALSE [boolean]
-#' @param plot Plots the conductivity timeseries with the baseline and integration range overlaid if set to TRUE, plots are not shown if set to FALSE [boolean]
+#' @param pick Plots the conductivity timeseries are created allowing users to select the 
+#' integration range if set to TRUE, integrates over a range from the slugPourTime to the 
+#' time when the conductivity returns to baseline if set to FALSE [boolean]
+#' @param plot Plots the conductivity timeseries with the baseline and integration range 
+#' overlaid if set to TRUE, plots are not shown if set to FALSE [boolean]
+#' @param site User identifies the site(s), defaults to "all" [string]
 
-#' @return This function returns stream discharge [lps] appended as an additional column to the input data frame along with a quality flag (slugQF) where 1 means that a peak wasn't detected, 2 means the rising limb was not resolved, and 3 means the falling limb did not return to basline concentration.
+#' @return This function returns stream discharge [lps] appended as an additional column 
+#' to the input data frame along with a quality flag (slugQF) where 1 means that a peak 
+#' wasn't detected, 2 means the rising limb was not resolved, and 3 means the falling 
+#' limb did not return to basline concentration.
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -32,7 +43,7 @@
 #' @keywords surface water, streams, rivers, discharge, tracer, salt-based, slug
 
 #' @examples
-#' sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdFormatted)
+#' #sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdFormatted)
 
 #' @seealso def.calc.Q.inj.R for calculating stream discharge from a constant rate injection
 
@@ -41,6 +52,8 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-08-03)
 #     original creation
+#   Kaelin M. Cawley (2017-05-08)
+#     added additional functionality for getting data from the NEON data API
 ##############################################################################################
 #This code is for calculating salt-based discharge for a slug
 def.calc.Q.slug <- function(
@@ -48,7 +61,8 @@ def.calc.Q.slug <- function(
   slugMass = inputFile$slugTracerMass,
   dataDir = paste0(getwd(),"/NEON_discharge-stream-saltbased.zip"),
   pick = F,
-  plot = F
+  plot = F,
+  site = "all"
 ) {
   
   ##### Constants #####
@@ -65,18 +79,45 @@ def.calc.Q.slug <- function(
   condDiff = 25 #Minimum difference between the peak and baseline conductivity
   
   ##### Calculations #####
-  #Stack field and external lab data if needed
-  if(!dir.exists(substr(dataDir, 1, (nchar(dataDir)-4)))){
-    stackByTable(dpID="DP1.20193.001",filepath=dataDir)
+  dpID <- "DP1.20193.001"
+  folder <- FALSE
+  if(dataDir == "API"){
+    filepath <- paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep="")
+  }else{
+    filepath <- dataDir
   }
   
-  #Read in stacked logger data
-  #Allows for using the reaeration tables in addition to the salt-based discharge tables
-  allFiles <- list.files(paste(gsub("\\.zip","",dataDir), "stackedFiles", sep = "/"))
-  loggerFile <- allFiles[grepl("conductivityFieldData", allFiles)]
-  loggerData <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", loggerFile, sep = "/"), 
-    stringsAsFactors = F)
+  #Stack field and external lab data if needed
+  if(!dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))){
+    #For when data is coming in from the API
+    dpID <- "DP1.20193.001"
+    #Pull files from the API to stack
+    if(dataDir == "API"){
+      folder <- FALSE
+      dataFromAPI <- zipsByProduct(dpID,site,package="expanded",check.size=TRUE)
+      filepath <- paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep="")
+      folder <- TRUE
+      API <- TRUE
+    }else{
+      filepath = dataDir
+    }
+    stackByTable(dpID=dpID,filepath=filepath,package="expanded",folder=folder)
+  }
+  
+  if(dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))&&
+     any(grepl("conductivityFieldData",list.files(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))))){
+    #Read in stacked logger data
+    #Allows for using the reaeration tables in addition to the salt-based discharge tables
+    allFiles <- list.files(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))
+    loggerFile <- allFiles[grepl("conductivityFieldData", allFiles)]
+    loggerData <- read.csv(
+      paste(gsub("\\.zip","",filepath), "stackedFiles", loggerFile, sep = "/"), 
+      stringsAsFactors = F)
+  }else{
+    print("Error, stacked files could not be read in for logger conductivity data")
+    return(NULL)
+  }
+
   
   #Convert the injectate mass from g to M
   slugMass <- slugMass/Clmw

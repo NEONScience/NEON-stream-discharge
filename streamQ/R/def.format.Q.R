@@ -9,9 +9,11 @@
 #' No need to unzip the downloaded files, just place them all in the smae directory.
 
 #' @importFrom neonUtilities stackByTable
+#' @importFrom neonUtilities zipsByProduct
 #' @importFrom utils read.csv
 
 #' @param dataDir User identifies the directory that contains the zipped data
+#' @param site User identifies the site(s), defaults to "all" [string]
 
 #' @return This function returns one data frame formatted for use with def.calc.Q.slug.R 
 #' and def.calc.Q.constantRate.R to calculate stream discharge
@@ -23,14 +25,14 @@
 
 #' @examples
 #' #where the data .zip file is in the working directory and has the default name, 
-#' sbdFormatted <- def.format.Q()
+#' #sbdFormatted <- def.format.Q()
 #' #where the data.zip file is in the downloads folder and has default name, 
-#' sbdFormatted <- def.format.Q(dataDir = path.expand("~/NEON_discharge-stream-saltbased.zip"))
+#' #sbdFormatted <- def.format.Q(dataDir = path.expand("~/NEON_discharge-stream-saltbased.zip"))
 #' #where the data.zip file is in the downloads folder and has a specified name,
-#' sbdFormatted <- def.format.Q(dataDir = path.expand("~/Downloads/non-standard-name.zip"))
+#' #sbdFormatted <- def.format.Q(dataDir = path.expand("~/Downloads/non-standard-name.zip"))
 #' #Using the example data in this package
-#' dataDirectory <- paste(path.package("neonStreamQ"),"inst\\extdata", sep = "\\")
-#' sbdFormatted <- def.format.Q(dataDir = dataDirectory)
+#' #dataDirectory <- paste(path.package("neonStreamQ"),"inst\\extdata", sep = "\\")
+#' #sbdFormatted <- def.format.Q(dataDir = dataDirectory)
 
 #' @seealso def.calc.Q.slug.R and def.calc.Q.inj.R to calculate stream discharge
 
@@ -39,52 +41,72 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-08-03)
 #     original creation
+#   Kaelin M. Cawley (2017-05-08)
+#     added additional functionality for getting data from the NEON data API
 ##############################################################################################
 #This code is for calculating salt-based discharge for a slug
 def.format.Q <- function(
-  dataDir = paste0(getwd(),"/NEON_discharge-stream-saltbased.zip")
+  dataDir = paste0(getwd(),"/NEON_discharge-stream-saltbased.zip"),
+  site = "all"
 ) {
   
+  dpID <- "DP1.20193.001"
+  folder <- FALSE
+  #Pull files from the API to stack
+  if(dataDir == "API"&&!dir.exists(paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep=""))){
+    dataFromAPI <- zipsByProduct(dpID,site,package="expanded",check.size=TRUE)
+  }
+  
+  if(dataDir == "API"){
+    filepath <- paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep="")
+    folder <- TRUE
+  } else{
+    filepath = dataDir
+  }
   
   #Stack field and external lab data
-  if(!dir.exists(substr(dataDir, 1, (nchar(dataDir)-4)))){
-    stackByTable(dpID="DP1.20193.001",filepath=dataDir)
+  if(!dir.exists(paste(gsub("\\.zip","",filepath), "/stackedFiles", sep = "/"))){
+    stackByTable(dpID=dpID,filepath=filepath,package="expanded",folder=folder)
   }
   
   #Read in stacked data
-  #Allows for using the reaeration tables in addition to the salt-based discharge tables
-  allFiles <- list.files(paste(gsub("\\.zip","",dataDir), "stackedFiles", sep = "/"))
-  bkDataLogFile <- allFiles[grepl("backgroundFieldCondData", allFiles)]
-  bkFieldSaltFile <- allFiles[grepl("backgroundFieldSaltData", allFiles)]
-  fieldDataFile <- allFiles[grepl("fieldData", allFiles)]
-  plDataCondFile <- allFiles[grepl("plateauMeasurementFieldData", allFiles)]
-  plSampFile <- allFiles[grepl("plateauSampleFieldData", allFiles)]
-  extSaltFile <- allFiles[grepl("externalLabDataSalt", allFiles)]
-  
-  backgroundDataLogger <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", bkDataLogFile, sep = "/"), 
-    stringsAsFactors = F)
-  
-  backgroundDataSalt <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", bkFieldSaltFile, sep = "/"), 
-    stringsAsFactors = F)
-  
-  fieldDataSite <- read.csv(
-    paste(gsub("\\.zip","",dataDir), "stackedFiles", fieldDataFile, sep = "/"), 
-    stringsAsFactors = F)
-  fieldDataSite$namedLocation <- NULL #So that the merge goes smoothly
-  
-  plateauDataCond <- read.csv(
-    paste(gsub("\\.zip","",dataDir),"stackedFiles",plDataCondFile, sep = "/"), 
-    stringsAsFactors = F)
-  
-  plateauDataSalt <- read.csv(
-    paste(gsub("\\.zip","",dataDir),"stackedFiles",plSampFile, sep = "/"), 
-    stringsAsFactors = F)
-  
-  externalLabDataSalt <- read.csv(
-    paste(gsub("\\.zip","",dataDir),"stackedFiles",extSaltFile, sep = "/"), 
-    stringsAsFactors = F)
+  if(dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))){
+    #Allows for using the reaeration tables in addition to the salt-based discharge tables
+    allFiles <- list.files(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))
+    bkDataLogFile <- allFiles[grepl("backgroundFieldCondData", allFiles)]
+    bkFieldSaltFile <- allFiles[grepl("backgroundFieldSaltData", allFiles)]
+    fieldDataFile <- allFiles[grepl("fieldData", allFiles)]
+    plDataCondFile <- allFiles[grepl("plateauMeasurementFieldData", allFiles)]
+    plSampFile <- allFiles[grepl("plateauSampleFieldData", allFiles)]
+    extSaltFile <- allFiles[grepl("externalLabDataSalt", allFiles)]
+    
+    backgroundDataLogger <- read.csv(
+      paste(gsub("\\.zip","",filepath), "stackedFiles", bkDataLogFile, sep = "/"), 
+      stringsAsFactors = F)
+    
+    backgroundDataSalt <- read.csv(
+      paste(gsub("\\.zip","",filepath), "stackedFiles", bkFieldSaltFile, sep = "/"), 
+      stringsAsFactors = F)
+    
+    fieldDataSite <- read.csv(
+      paste(gsub("\\.zip","",filepath), "stackedFiles", fieldDataFile, sep = "/"), 
+      stringsAsFactors = F)
+    fieldDataSite$namedLocation <- NULL #So that the merge goes smoothly
+    
+    plateauDataCond <- read.csv(
+      paste(gsub("\\.zip","",filepath),"stackedFiles",plDataCondFile, sep = "/"), 
+      stringsAsFactors = F)
+    
+    plateauDataSalt <- read.csv(
+      paste(gsub("\\.zip","",filepath),"stackedFiles",plSampFile, sep = "/"), 
+      stringsAsFactors = F)
+    
+    externalLabDataSalt <- read.csv(
+      paste(gsub("\\.zip","",filepath),"stackedFiles",extSaltFile, sep = "/"), 
+      stringsAsFactors = F)
+  }else{
+    stop("Error, stacked files could not be read in for conductivity data")
+  }
   
   #Remove two bad duplicates
   externalLabDataSalt <- externalLabDataSalt[!(externalLabDataSalt$saltSampleID == 'POSE.00.20140811.TCR' & externalLabDataSalt$laboratoryName == 'Loeke Lab at University of Kansas'),]

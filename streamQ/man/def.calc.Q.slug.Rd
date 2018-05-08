@@ -6,27 +6,39 @@
 \usage{
 def.calc.Q.slug(inputFile, slugMass = inputFile$slugTracerMass,
   dataDir = paste0(getwd(), "/NEON_discharge-stream-saltbased.zip"),
-  pick = F, plot = F)
+  pick = F, plot = F, site = "all")
 }
 \arguments{
-\item{inputFile}{Name of the data fram containing the information needed to calculate discharge from a slug tracer injection. If the headers are named: "slugMass" and "slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. Otherwise, the names of the columns need to be input for the function to work.}
+\item{inputFile}{Name of the data fram containing the information needed to calculate 
+discharge from a slug tracer injection. If the headers are named: "slugMass" and 
+"slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. 
+Otherwise, the names of the columns need to be input for the function to work.}
 
 \item{slugMass}{Mass of the tracer injectate [g]}
 
 \item{dataDir}{User identifies the directory that contains the zipped data}
 
-\item{pick}{Plots the conductivity timeseries are created allowing users to select the integration range if set to TRUE, integrates over a range from the slugPourTime to the time when the conductivity returns to baseline if set to FALSE [boolean]}
+\item{pick}{Plots the conductivity timeseries are created allowing users to select the 
+integration range if set to TRUE, integrates over a range from the slugPourTime to the 
+time when the conductivity returns to baseline if set to FALSE [boolean]}
 
-\item{plot}{Plots the conductivity timeseries with the baseline and integration range overlaid if set to TRUE, plots are not shown if set to FALSE [boolean]}
+\item{plot}{Plots the conductivity timeseries with the baseline and integration range 
+overlaid if set to TRUE, plots are not shown if set to FALSE [boolean]}
+
+\item{site}{User identifies the site(s), defaults to "all" [string]}
 }
 \value{
-This function returns stream discharge [lps] appended as an additional column to the input data frame along with a quality flag (slugQF) where 1 means that a peak wasn't detected, 2 means the rising limb was not resolved, and 3 means the falling limb did not return to basline concentration.
+This function returns stream discharge [lps] appended as an additional column 
+to the input data frame along with a quality flag (slugQF) where 1 means that a peak 
+wasn't detected, 2 means the rising limb was not resolved, and 3 means the falling 
+limb did not return to basline concentration.
 }
 \description{
-This function calculates stream discharge from a slug salt tracer injection. This function will likely only work well for the NEON conductivity logger data.
+This function calculates stream discharge from a slug salt tracer injection. 
+This function will likely only work well for the NEON conductivity logger data.
 }
 \examples{
-sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdFormatted)
+#sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdFormatted)
 }
 \references{
 License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
