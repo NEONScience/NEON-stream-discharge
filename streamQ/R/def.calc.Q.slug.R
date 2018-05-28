@@ -160,10 +160,13 @@ def.calc.Q.slug <- function(
       dataSeq <- seq(along = condData)
       
       for(j in dataSeq){
-        peakRiseA <- condData[(peakLoc-pkRange):(peakLoc-1)]
-        peakRiseB <- condData[(peakLoc-pkRange+1):(peakLoc)]
-        peakFallA <- condData[(peakLoc+1):(peakLoc+pkRange)]
-        peakFallB <- condData[peakLoc:(peakLoc+pkRange-1)]
+        peakLocStart <- ifelse((peakLoc-pkRange)<1,1,(peakLoc-pkRange))
+        peakLocEnd <- ifelse((peakLoc+pkRange)>length(condData),length(condData),(peakLoc+pkRange))
+        
+        peakRiseA <- condData[peakLocStart:(peakLoc-1)]
+        peakRiseB <- condData[(peakLocStart+1):(peakLoc)]
+        peakFallA <- condData[(peakLoc+1):peakLocEnd]
+        peakFallB <- condData[peakLoc:(peakLocEnd-1)]
         
         riseTest <- sum(peakRiseB-peakRiseA > 0) >= (pkNum/pkRange)
         fallTest <- sum(peakFallB-peakFallA > 0) >= (pkNum/pkRange)
@@ -180,6 +183,12 @@ def.calc.Q.slug <- function(
       if(peakLoc == min(condData, na.rm = T)){
         inputFile$slugQF[i] <- 1
         warning(paste('No slug peak not detected for:', inputFile$hoboSampleID[i]))
+        next
+      }
+      
+      if(length(condData)<10){
+        inputFile$slugQF[i] <- 2
+        warning(paste('Conductivity dataset less than 10 records long for: ', inputFile$hoboSampleID[i]))
         next
       }
       
