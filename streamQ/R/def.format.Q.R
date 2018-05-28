@@ -72,14 +72,16 @@ def.format.Q <- function(
   }
   
   #Stack field and external lab data
-  if(!dir.exists(paste(gsub("\\.zip","",filepath), "/stackedFiles", sep = "/"))){
+  if(!dir.exists(paste(gsub("\\.zip","",filepath), "/stackedFiles", sep = "/"))&&
+     file.exists(filepath)){
     stackByTable(dpID=dpID,filepath=filepath,package="expanded",folder=folder)
+    filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
   }
   
   #Read in stacked data
-  if(dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))){
+  if(dir.exists(filepath){
     #Allows for using the reaeration tables in addition to the salt-based discharge tables
-    allFiles <- list.files(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))
+    allFiles <- list.files(filepath)
     bkDataLogFile <- allFiles[grepl("backgroundFieldCondData", allFiles)]
     bkFieldSaltFile <- allFiles[grepl("backgroundFieldSaltData", allFiles)]
     fieldDataFile <- allFiles[grepl("fieldData", allFiles)]
@@ -88,36 +90,33 @@ def.format.Q <- function(
     extSaltFile <- allFiles[grepl("externalLabDataSalt", allFiles)]
     
     backgroundDataLogger <- read.csv(
-      paste(gsub("\\.zip","",filepath), "stackedFiles", bkDataLogFile, sep = "/"), 
+      paste(filepath, bkDataLogFile, sep = "/"), 
       stringsAsFactors = F)
     
     backgroundDataSalt <- read.csv(
-      paste(gsub("\\.zip","",filepath), "stackedFiles", bkFieldSaltFile, sep = "/"), 
+      paste(filepath, bkFieldSaltFile, sep = "/"), 
       stringsAsFactors = F)
     
     fieldDataSite <- read.csv(
-      paste(gsub("\\.zip","",filepath), "stackedFiles", fieldDataFile, sep = "/"), 
+      paste(filepath, fieldDataFile, sep = "/"), 
       stringsAsFactors = F)
-    fieldDataSite$namedLocation <- NULL #So that the merge goes smoothly
     
     plateauDataCond <- read.csv(
-      paste(gsub("\\.zip","",filepath),"stackedFiles",plDataCondFile, sep = "/"), 
+      paste(filepath,plDataCondFile, sep = "/"), 
       stringsAsFactors = F)
     
     plateauDataSalt <- read.csv(
-      paste(gsub("\\.zip","",filepath),"stackedFiles",plSampFile, sep = "/"), 
+      paste(filepath,plSampFile, sep = "/"), 
       stringsAsFactors = F)
     
     externalLabDataSalt <- read.csv(
-      paste(gsub("\\.zip","",filepath),"stackedFiles",extSaltFile, sep = "/"), 
+      paste(filepath,extSaltFile, sep = "/"), 
       stringsAsFactors = F)
-  }else{
+  } else{
     stop("Error, stacked files could not be read in for conductivity data")
   }
   
-  #Remove two bad duplicates
-  externalLabDataSalt <- externalLabDataSalt[!(externalLabDataSalt$saltSampleID == 'POSE.00.20140811.TCR' & externalLabDataSalt$laboratoryName == 'Loeke Lab at University of Kansas'),]
-  externalLabDataSalt <- externalLabDataSalt[!(externalLabDataSalt$saltSampleID == 'POSE.00.20141007.TCR' & externalLabDataSalt$laboratoryName == 'Loeke Lab at University of Kansas'),]
+  fieldDataSite$namedLocation <- NULL #So that the merge goes smoothly
   
   #A little error handling until there is a de-duping function
   extDuplicates <- externalLabDataSalt$saltSampleID[duplicated(externalLabDataSalt$saltSampleID)]

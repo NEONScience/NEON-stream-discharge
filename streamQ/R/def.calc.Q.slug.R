@@ -102,23 +102,24 @@ def.calc.Q.slug <- function(
       filepath = dataDir
     }
     stackByTable(dpID=dpID,filepath=filepath,package="expanded",folder=folder)
+  }else if(dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))){
+    filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
   }
   
-  if(dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))&&
-     any(grepl("conductivityFieldData",list.files(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))))){
+  if(dir.exists(filepath)&&
+     any(grepl("conductivityFieldData",list.files(filepath)))){
     #Read in stacked logger data
     #Allows for using the reaeration tables in addition to the salt-based discharge tables
-    allFiles <- list.files(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))
+    allFiles <- list.files(filepath)
     loggerFile <- allFiles[grepl("conductivityFieldData", allFiles)]
     loggerData <- read.csv(
-      paste(gsub("\\.zip","",filepath), "stackedFiles", loggerFile, sep = "/"), 
+      paste(filepath,loggerFile,sep = "/"), 
       stringsAsFactors = F)
   }else{
     print("Error, stacked files could not be read in for logger conductivity data")
     return(NULL)
   }
 
-  
   #Convert the injectate mass from g to M
   slugMass <- slugMass/Clmw
   
