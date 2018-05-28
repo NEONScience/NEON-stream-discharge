@@ -74,12 +74,12 @@ def.format.Q <- function(
   #Stack field and external lab data
   if(!dir.exists(paste(gsub("\\.zip","",filepath), "/stackedFiles", sep = "/"))&&
      file.exists(filepath)){
-    stackByTable(dpID=dpID,filepath=filepath,package="expanded",folder=folder)
+    stackByTable(dpID=dpID,filepath=filepath,folder=folder)
     filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
   }
   
   #Read in stacked data
-  if(dir.exists(filepath){
+  if(dir.exists(filepath)){
     #Allows for using the reaeration tables in addition to the salt-based discharge tables
     allFiles <- list.files(filepath)
     bkDataLogFile <- allFiles[grepl("backgroundFieldCondData", allFiles)]

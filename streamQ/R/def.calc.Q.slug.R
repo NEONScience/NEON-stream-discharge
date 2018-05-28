@@ -101,7 +101,7 @@ def.calc.Q.slug <- function(
     }else{
       filepath = dataDir
     }
-    stackByTable(dpID=dpID,filepath=filepath,package="expanded",folder=folder)
+    stackByTable(dpID=dpID,filepath=filepath,folder=folder)
   }else if(dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))){
     filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
   }
