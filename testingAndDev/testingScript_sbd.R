@@ -6,6 +6,7 @@ library(roxygen2)
 #install("neonUtilities")
 #install_github("NEONScience/NEON-utilities/neonUtilities", force = T)
 
+install_github("NEONScience/NEON-stream-discharge/streamQ", force = T)
 setwd("C:/Users/kcawley/Documents/GitHub/NEON-stream-discharge")
 install("streamQ")
 library(streamQ)

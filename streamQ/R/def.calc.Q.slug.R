@@ -88,7 +88,8 @@ def.calc.Q.slug <- function(
   }
   
   #Stack field and external lab data if needed
-  if(!dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))){
+  if(!dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))&&
+     file.exists(filepath)){
     #For when data is coming in from the API
     dpID <- "DP1.20193.001"
     #Pull files from the API to stack
@@ -102,7 +103,6 @@ def.calc.Q.slug <- function(
       filepath = dataDir
     }
     stackByTable(dpID=dpID,filepath=filepath,folder=folder)
-  }else if(dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))){
     filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
   }
   
