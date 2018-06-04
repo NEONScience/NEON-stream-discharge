@@ -84,7 +84,7 @@ def.format.Q <- function(
     allFiles <- list.files(filepath)
     bkDataLogFile <- allFiles[grepl("backgroundFieldCondData", allFiles)]
     bkFieldSaltFile <- allFiles[grepl("backgroundFieldSaltData", allFiles)]
-    fieldDataFile <- allFiles[grepl("fieldData", allFiles)]
+    fieldDataFile <- allFiles[grepl("sbd_fieldData|rea_fieldData", allFiles)]
     plDataCondFile <- allFiles[grepl("plateauMeasurementFieldData", allFiles)]
     plSampFile <- allFiles[grepl("plateauSampleFieldData", allFiles)]
     extSaltFile <- allFiles[grepl("externalLabDataSalt", allFiles)]
