@@ -1,6 +1,6 @@
 Package: streamQ
 Title: Calculates stream discharge in lps from slug and constant rate injections
-Version: 0.0.0.9001
+Version: 0.0.1
 Authors@R: person("Kaelin", "Cawley", email = "kcawley@battelleecology.org", role = c("aut", "cre"))
 Description: Contains functions to format data and calculate stream discharge in liters per second
 	(lps). For slug injections the area under the curve of a conductivity timeseries and injectate

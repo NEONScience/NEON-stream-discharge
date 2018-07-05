@@ -47,17 +47,16 @@ def.calc.Q.inj <- function(
   #Convert injRate to lps
   injRateLPS <- injRate * rateConv
   
-  #Calculate discharge with a little error handling for negative background subtractions
-  injCorr <- injConc - backgroundConc
+  #Calculate discharge according to eq 24, Chapter 7 of USGS Water Supply Paper 2175, "Measurement and computation of streamflow"
+  injPlat <- injConc-plateauConc
   plaCorr <- plateauConc - backgroundConc
-  
-  inputFile$Q.inj <- (injCorr)/(plaCorr) * injRateLPS
+  inputFile$Q.inj <- (injPlat)/(plaCorr) * injRateLPS
   
   #Clean and flag negative values
   inputFile$Q.inj[inputFile$Q.inj < 0] <- NA
   inputFile$lowInjectateQF <- 0
   inputFile$lowPlateauQF <- 0
-  inputFile$lowInjectateQF[injCorr < 0] <- 1
+  inputFile$lowInjectateQF[injPlat < 0] <- 1
   inputFile$lowPlateauQF[plaCorr < 0] <- 1
   
   #Round to significant figures

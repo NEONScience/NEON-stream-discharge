@@ -76,6 +76,8 @@ def.format.Q <- function(
      file.exists(filepath)){
     stackByTable(dpID=dpID,filepath=filepath,folder=folder)
     filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
+  }else if(dir.exists(paste(gsub("\\.zip","",filepath), "/stackedFiles", sep = "/"))){
+    filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
   }
   
   #Read in stacked data
@@ -206,7 +208,7 @@ def.format.Q <- function(
     pValues <- c(t(plateauDataCond[plateauDataCond$startDate == startDate &
                                      plateauDataCond$namedLocation == station,
                                    names(plateauDataCond) %in% plateauFields]))
-    #Remove outliers TBD
+    
     #Calculate the mean
     outputDF$plateauCond[i] <- mean(pValues, na.rm = T)
     
@@ -225,6 +227,7 @@ def.format.Q <- function(
         grepl(repRegex, externalLabDataSalt$saltSampleID)]
     
     #Remove outliers TBD
+    
     #Calculate the mean plateau concentration
     outputDF$plateauConc[i] <- mean(pSaltConc, na.rm = T)
   }

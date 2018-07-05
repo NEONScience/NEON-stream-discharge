@@ -17,6 +17,7 @@
 #' @importFrom graphics title
 #' @importFrom graphics abline
 #' @importFrom graphics lines
+#' @importFrom graphics points
 #' @importFrom stats lsfit
 
 #' @param inputFile Name of the data fram containing the information needed to calculate 
@@ -24,12 +25,8 @@
 #' "slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. 
 #' Otherwise, the names of the columns need to be input for the function to work.
 #' @param slugMass Mass of the tracer injectate [g]
+#' @param slugVol Volume of the tracer injectate [L]
 #' @param dataDir User identifies the directory that contains the zipped data
-#' @param pick Plots the conductivity timeseries are created allowing users to select the 
-#' integration range if set to TRUE, integrates over a range from the slugPourTime to the 
-#' time when the conductivity returns to baseline if set to FALSE [boolean]
-#' @param plot Plots the conductivity timeseries with the baseline and integration range 
-#' overlaid if set to TRUE, plots are not shown if set to FALSE [boolean]
 #' @param site User identifies the site(s), defaults to "all" [string]
 
 #' @return This function returns stream discharge [lps] appended as an additional column 
@@ -59,9 +56,8 @@
 def.calc.Q.slug <- function(
   inputFile,
   slugMass = inputFile$slugTracerMass,
+  slugVol = inputFile$carboyVolume,
   dataDir = paste0(getwd(),"/NEON_discharge-stream-saltbased.zip"),
-  pick = F,
-  plot = F,
   site = "all"
 ) {
   
@@ -69,14 +65,15 @@ def.calc.Q.slug <- function(
   #Conversion factor between specific conductance and concentration 
   #Assumes Na+ and Cl- are both contributing to the conductivity
   NaClCond = 0.12646 #S L mol-1 cm-1 #CRC handbook of chemistry and physics
-  Clmw = 35.45 #molecular weight of chloride g/mol
+  NaClmw = 58.44 #molecular weight of sodium chloride g/mol
   cuSmS = 1000000 #Convert Siemens to microsiemens
+  cgmg = 1000 #Convert g to mg
   
   #Peak threshold
-  pkRange = 5 #Number of points to test for peak slope
-  pkNum = 4 #Nummber of point that must be increasing/decreasing for peak slope
-  pCond = 1 #Percent of the final baseline
-  condDiff = 25 #Minimum difference between the peak and baseline conductivity
+  #pkRange = 5 #Number of points to test for peak slope
+  #pkNum = 4 #Nummber of point that must be increasing/decreasing for peak slope
+  #pCond = 1 #Percent of the final baseline
+  #condDiff = 25 #Minimum difference between the peak and baseline conductivity
   
   ##### Calculations #####
   dpID <- "DP1.20193.001"
@@ -104,6 +101,8 @@ def.calc.Q.slug <- function(
     }
     stackByTable(dpID=dpID,filepath=filepath,folder=folder)
     filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
+  }else if(dir.exists(paste(gsub("\\.zip","",filepath), "/stackedFiles", sep = "/"))){
+    filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
   }
   
   if(dir.exists(filepath)&&
@@ -120,18 +119,20 @@ def.calc.Q.slug <- function(
     return(NULL)
   }
 
-  #Convert the injectate mass from g to M
-  slugMass <- slugMass/Clmw
-  
-  #Convert the corrected slug concentration to conductivity
-  slugCond <- slugMass * NaClCond * cuSmS
+  #A little confusing to have this in different places
+  #Made one equation below in the loop
+  # #Convert the injectate mass from g to M
+  # slugMass <- slugMass/NaClmw
+  # 
+  # #Convert the corrected slug concentration to conductivity
+  # slugCond <- slugMass * NaClCond * cuSmS * 1/cgmg
 
   inputFile$Q.slug <- NA
   inputFile$slugQF <- NA
   for(i in seq(along = inputFile$siteID)){
-    
-    if(is.na(inputFile$injectionType[i]) || 
-       inputFile$injectionType[i] == "NaCl" || 
+    currEventID <- inputFile$eventID[i]
+    if(is.na(inputFile$injectionType[i]) ||
+       inputFile$injectionType[i] == "NaCl" ||
        nrow(loggerData[loggerData$hoboSampleID == inputFile$hoboSampleID[i],]) == 0){
       next
     }
@@ -144,7 +145,29 @@ def.calc.Q.slug <- function(
            condData <- stationLoggerData$lowRangeSpCondNonlinear)
     
     #Plot the logger files to choose the integration range
-    if(pick == T){
+    #Pretty much can't count on the automated version to always work
+    #Have to manually pick the peak range
+    #Create a plot where users select the range to pick the peak
+    invisible(dev.new(noRStudioGD = TRUE))
+    plot(stationLoggerData$measurementNumber, condData, xlab = "Measurement Number", ylab = "Specific Conductance")
+    #Have users choose if the plot has a defined peak
+    points(x = c(length(condData)*.1,length(condData)*.9),
+           y = c(max(condData,na.rm = T)*.8,max(condData,na.rm = T)*.8), 
+           col = c("green","red"), 
+           lwd = 2, 
+           pch = 19,
+           cex = 2)
+    title(main = paste0("Click green dot (upper lefthand) if the peak/plateau is identifiable. \nClick red dot (upper righthand) if not identifiable.\n",currEventID))
+    badPlotBox <- identify(x = c(length(condData)*.1,length(condData)*.9),
+                           y = c(max(condData,na.rm = T)*.8,max(condData,na.rm = T)*.8), 
+                           n = 1, 
+                           tolerance = 0.25, 
+                           labels = c("Good", "Bad"))
+    Sys.sleep(1)
+    invisible(dev.off())
+    
+    if(badPlotBox==1){
+      #If things look good, move on
       invisible(dev.new(noRStudioGD = TRUE))
       plot(stationLoggerData$measurementNumber, condData, xlab = "Measurement Number", ylab = "Specific Conductance")
       title(main = paste0("At least 5 baseline points left of peak should be included in selection. \nThis is about the width of the '+' cursor on most screens.\n",stationLoggerData$hoboSampleID[i]))
@@ -153,85 +176,90 @@ def.calc.Q.slug <- function(
       invisible(dev.off())
       condData <- condData[min(ans):max(ans)]
     }else{
-      
-      #Find slug peak, start with the max and look for 5 on either side that decrease
-      peakLoc <- min(which(condData == max(condData, na.rm = T)))
-      testedPeaks <- peakLoc
-      dataSeq <- seq(along = condData)
-      
-      for(j in dataSeq){
-        peakLocStart <- ifelse((peakLoc-pkRange)<1,1,(peakLoc-pkRange))
-        peakLocEnd <- ifelse((peakLoc+pkRange)>length(condData),length(condData),(peakLoc+pkRange))
-        
-        peakRiseA <- condData[peakLocStart:(peakLoc-1)]
-        peakRiseB <- condData[(peakLocStart+1):(peakLoc)]
-        peakFallA <- condData[(peakLoc+1):peakLocEnd]
-        peakFallB <- condData[peakLoc:(peakLocEnd-1)]
-        
-        riseTest <- sum(peakRiseB-peakRiseA > 0) >= (pkNum/pkRange)
-        fallTest <- sum(peakFallB-peakFallA > 0) >= (pkNum/pkRange)
-        
-        if(riseTest & fallTest){
-          break
-        }else{
-          peakLoc <- min(which(condData == max(condData[!(dataSeq %in% testedPeaks)], na.rm = T)), na.rm = T)
-          testedPeaks[length(testedPeaks) +1] <- peakLoc
-        }
-        
-      }
-      
-      if(peakLoc == min(condData, na.rm = T)){
-        inputFile$slugQF[i] <- 1
-        warning(paste('No slug peak not detected for:', inputFile$hoboSampleID[i]))
-        next
-      }
-      
-      if(length(condData)<10){
-        inputFile$slugQF[i] <- 2
-        warning(paste('Conductivity dataset less than 10 records long for: ', inputFile$hoboSampleID[i]))
-        next
-      }
-      
-      #Find pre-slug baseline, work left from the peak
-      intBL <- NA
-      for(k in seq(from = peakLoc, to = 11)){
-        dataRange <- (k-10):k
-        
-        #Check that it has a flat slope and is a flat line
-        if(abs(lsfit(dataRange, condData[dataRange])[[1]][2]) < 0.1){
-          intBL <- (k-10)
-          break
-        }
-      }
-      
-      if(is.na(intBL) || condData[intBL] > (condData[peakLoc] - condDiff)){
-        inputFile$slugQF[i] <- 2
-        warning(paste('Defined rising limb not detected for:', inputFile$hoboSampleID[i]))
-        next
-      }
-      
-      #Find post-slug baseline from the baseline conductivity
-      finBL <- NA
-      finBL <- min(which(condData[peakLoc:length(condData)] <= (condData[intBL]*(1 + pCond/100))), na.rm = T)+peakLoc
-      
-      if(condData[finBL] < (condData[intBL] * 0.75) | is.na(finBL) | length(finBL) < 1){
-        inputFile$slugQF[i] <- 3
-        warning(paste('Incomplete falling limb:', inputFile$hoboSampleID[i]))
-        next
-      }
-      
-      if(plot == T){
-        invisible(dev.new(noRStudioGD = TRUE))
-        plot((intBL-20):(finBL+20), condData[(intBL-20):(finBL+20)], xlab = "Measurement Number", ylab = "Specific Conductance")
-        title(main = stationLoggerData$hoboSampleID[i])
-        baseline <- lines((intBL-20):(finBL+20), rep(mean(condData[intBL:(intBL+5)]), times = (finBL-intBL+41)), col = 'blue', lwd = 2)
-        intStart <- abline(v = intBL, col = "green", lwd = 2)
-        intEnd <- abline(v = finBL, col = "red", lwd = 2)
-      }
-      
-      condData <- condData[intBL:finBL]
-      
+      return(NULL)
     }
+    
+
+    # else{
+    #   
+    #   #Find slug peak, start with the max and look for 5 on either side that decrease
+    #   peakLoc <- min(which(condData == max(condData, na.rm = T)))
+    #   testedPeaks <- peakLoc
+    #   dataSeq <- seq(along = condData)
+    #   
+    #   for(j in dataSeq){
+    #     peakLocStart <- ifelse((peakLoc-pkRange)<1,1,(peakLoc-pkRange))
+    #     peakLocEnd <- ifelse((peakLoc+pkRange)>length(condData),length(condData),(peakLoc+pkRange))
+    #     
+    #     peakRiseA <- condData[peakLocStart:(peakLoc-1)]
+    #     peakRiseB <- condData[(peakLocStart+1):(peakLoc)]
+    #     peakFallA <- condData[(peakLoc+1):peakLocEnd]
+    #     peakFallB <- condData[peakLoc:(peakLocEnd-1)]
+    #     
+    #     riseTest <- sum(peakRiseB-peakRiseA > 0) >= (pkNum/pkRange)
+    #     fallTest <- sum(peakFallB-peakFallA > 0) >= (pkNum/pkRange)
+    #     
+    #     if(riseTest & fallTest){
+    #       break
+    #     }else{
+    #       peakLoc <- min(which(condData == max(condData[!(dataSeq %in% testedPeaks)], na.rm = T)), na.rm = T)
+    #       testedPeaks[length(testedPeaks) +1] <- peakLoc
+    #     }
+    #     
+    #   }
+    #   
+    #   if(peakLoc == min(condData, na.rm = T)){
+    #     inputFile$slugQF[i] <- 1
+    #     warning(paste('No slug peak not detected for:', inputFile$hoboSampleID[i]))
+    #     next
+    #   }
+    #   
+    #   if(length(condData)<10){
+    #     inputFile$slugQF[i] <- 2
+    #     warning(paste('Conductivity dataset less than 10 records long for: ', inputFile$hoboSampleID[i]))
+    #     next
+    #   }
+    #   
+    #   #Find pre-slug baseline, work left from the peak
+    #   intBL <- NA
+    #   for(k in seq(from = peakLoc, to = 11)){
+    #     dataRange <- (k-10):k
+    #     
+    #     #Check that it has a flat slope and is a flat line
+    #     if(abs(lsfit(dataRange, condData[dataRange])[[1]][2]) < 0.1){
+    #       intBL <- (k-10)
+    #       break
+    #     }
+    #   }
+    #   
+    #   if(is.na(intBL) || condData[intBL] > (condData[peakLoc] - condDiff)){
+    #     inputFile$slugQF[i] <- 2
+    #     warning(paste('Defined rising limb not detected for:', inputFile$hoboSampleID[i]))
+    #     next
+    #   }
+    #   
+    #   #Find post-slug baseline from the baseline conductivity
+    #   finBL <- NA
+    #   finBL <- min(which(condData[peakLoc:length(condData)] <= (condData[intBL]*(1 + pCond/100))), na.rm = T)+peakLoc
+    #   
+    #   if(condData[finBL] < (condData[intBL] * 0.75) | is.na(finBL) | length(finBL) < 1){
+    #     inputFile$slugQF[i] <- 3
+    #     warning(paste('Incomplete falling limb:', inputFile$hoboSampleID[i]))
+    #     next
+    #   }
+    #   
+    #   if(plot == T){
+    #     invisible(dev.new(noRStudioGD = TRUE))
+    #     plot((intBL-20):(finBL+20), condData[(intBL-20):(finBL+20)], xlab = "Measurement Number", ylab = "Specific Conductance")
+    #     title(main = stationLoggerData$hoboSampleID[i])
+    #     baseline <- lines((intBL-20):(finBL+20), rep(mean(condData[intBL:(intBL+5)]), times = (finBL-intBL+41)), col = 'blue', lwd = 2)
+    #     intStart <- abline(v = intBL, col = "green", lwd = 2)
+    #     intEnd <- abline(v = finBL, col = "red", lwd = 2)
+    #   }
+    #   
+    #   condData <- condData[intBL:finBL]
+    #   
+    # }
     
     #Background correct the logger data
     condData <- condData - mean(condData[1:5])
@@ -242,8 +270,10 @@ def.calc.Q.slug <- function(
     #Convert from integration over measurement number to time
     areaResponse <- areaResponse*10 #Each measurement is 10 seconds apart
     
-    #Calculate discharge
-    inputFile$Q.slug[i] <- slugCond[i] / areaResponse
+    #Calculate discharge according to equation 4 of Sappa et al., Validation of 
+    #salt dilution method for discharge measurements in the upper valley of aniene river (central italy)
+    #inputFile$Q.slug[i] <- slugCond[i] * slugVol[i]/ areaResponse
+    inputFile$Q.slug[i] <- slugMass[i]*cgmg/(NaClmw/NaClCond*cgmg*1/cuSmS*areaResponse)
     
   }
   

@@ -20,7 +20,7 @@ sbdFormatted <- def.format.Q(dataDir = dataDirKMC, site = site)
 
 sbdDataPlusInjQ <- def.calc.Q.inj(inputFile = sbdFormatted)
 
-sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdDataPlusInjQ, dataDir = dataDirKMC, pick = T, site = site)
+sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdDataPlusInjQ, dataDir = dataDirKMC, site = site)
 sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdDataPlusInjQ, dataDir = dataDirKMC, plot = T, site = site)
 sbdDataPlusSlugQ <- def.calc.Q.slug(inputFile = sbdDataPlusInjQ, dataDir = dataDirKMC, site = site)
 

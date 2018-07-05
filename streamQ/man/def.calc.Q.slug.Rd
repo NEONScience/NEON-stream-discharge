@@ -5,8 +5,8 @@
 \title{Salt-based discharge calculations for a slug injection}
 \usage{
 def.calc.Q.slug(inputFile, slugMass = inputFile$slugTracerMass,
-  dataDir = paste0(getwd(), "/NEON_discharge-stream-saltbased.zip"),
-  pick = F, plot = F, site = "all")
+  slugVol = inputFile$carboyVolume, dataDir = paste0(getwd(),
+  "/NEON_discharge-stream-saltbased.zip"), site = "all")
 }
 \arguments{
 \item{inputFile}{Name of the data fram containing the information needed to calculate 
@@ -16,14 +16,9 @@ Otherwise, the names of the columns need to be input for the function to work.}
 
 \item{slugMass}{Mass of the tracer injectate [g]}
 
+\item{slugVol}{Volume of the tracer injectate [L]}
+
 \item{dataDir}{User identifies the directory that contains the zipped data}
-
-\item{pick}{Plots the conductivity timeseries are created allowing users to select the 
-integration range if set to TRUE, integrates over a range from the slugPourTime to the 
-time when the conductivity returns to baseline if set to FALSE [boolean]}
-
-\item{plot}{Plots the conductivity timeseries with the baseline and integration range 
-overlaid if set to TRUE, plots are not shown if set to FALSE [boolean]}
 
 \item{site}{User identifies the site(s), defaults to "all" [string]}
 }
