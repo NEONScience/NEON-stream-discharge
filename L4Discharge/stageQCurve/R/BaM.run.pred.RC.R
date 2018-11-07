@@ -55,7 +55,7 @@ BaM.run.pred.RC <- function(
   
   #Write out Hgrid.txt
   Hgrid <- seq(from = minH, to = maxH, length.out = 181)
-  Hgrid <- round(Hgrid, digits = 3)
+  #Hgrid <- round(Hgrid, digits = 3)
   write.table(Hgrid,paste0(DIRPATH,BAMWS,"data/Hgrid.txt"),row.names = F,col.names = F)
   
   #The prediction configurations should be good with the name and Nobs, change if needed

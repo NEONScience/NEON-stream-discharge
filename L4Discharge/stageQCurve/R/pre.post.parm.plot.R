@@ -9,8 +9,12 @@
 
 #' @importFrom graphics hist lines par
 #' @importFrom stats dnorm
-#' @importFrom grDevices dev.off
+#' @importFrom grDevices dev.off dev.copy2pdf
 
+#' @param DIRPATH An environment variable that contains the location of the files in 
+#' the Docker container [string]
+#' @param BAMWS An environment variable that contains the location of the BaM config 
+#' files in the Docker container [string] 
 #' @param numCtrls Number of hydraulic controls [integer]
 #' @param priorParams A dataframe containing the prior parameters [dataframe]
 #' @param Results_MCMC_Cooked A dataframe containing the posterior MCMC samples, 
@@ -29,12 +33,12 @@
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
 ##############################################################################################
-pre.post.parm.plot <- function(
-  numCtrls,
-  priorParams, 
-  Results_MCMC_Cooked,
-  NEONformat
-  ){
+pre.post.parm.plot <- function(DIRPATH = Sys.getenv("DIRPATH"),
+                               BAMWS = Sys.getenv("BAMWS"),
+                               numCtrls,
+                               priorParams,
+                               Results_MCMC_Cooked,
+                               NEONformat){
   
   if(NEONformat==FALSE){
     priorParams <- frmt.pre.parm.file(dataFrame=priorParams,numCtrls=numCtrls)
@@ -56,7 +60,7 @@ pre.post.parm.plot <- function(
     hist(kMCMC,breaks = 25,freq = FALSE, main = paste("k - Control", i), 
          xlab = "K", ylab = "Density", col = "red", 
          xlim = c(min(kStartRange,kMCMC),max(kEndRange,kMCMC)),
-         ylim = c(0,max(kDnorm,hist(kMCMC, plot = F)$density)))
+         ylim = c(0,max(kDnorm,hist(kMCMC, breaks = 25,plot = F)$density)))
     lines(kSeq, kDnorm, col = "blue", lw = 1)
     
     aMean <- as.numeric(priorParams$priorCoefficient[priorParams$controlNumber == i])
@@ -69,7 +73,7 @@ pre.post.parm.plot <- function(
     hist(aMCMC,breaks = 25,freq = FALSE, main = paste("a - Control", i), 
          xlab = "a", ylab = "Density", col = "red", 
          xlim = c(min(aStartRange,aMCMC),max(aEndRange,aMCMC)),
-         ylim = c(0,max(aDnorm,hist(aMCMC, plot = F)$density)))
+         ylim = c(0,max(aDnorm,hist(aMCMC, breaks = 25,plot = F)$density)))
     lines(aSeq, aDnorm, col = "blue", lw = 1)
     
     cMean <- as.numeric(priorParams$priorExponent[priorParams$controlNumber == i])
@@ -82,9 +86,9 @@ pre.post.parm.plot <- function(
     hist(cMCMC,breaks = 25,freq = FALSE, main = paste("c - Control", i), 
          xlab = "c", ylab = "Density", col = "red", 
          xlim = c(min(cStartRange,cMCMC),max(cEndRange,cMCMC)),
-         ylim = c(0,max(cDnorm,hist(cMCMC, plot = F)$density)))
+         ylim = c(0,max(cDnorm,hist(cMCMC, breaks = 25, plot = F)$density)))
     lines(cSeq, cDnorm, col = "blue", lw = 1)
   }
-  dev.print(pdf,'~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/priorAndPostParams.pdf')
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorAndPostParams.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
 }

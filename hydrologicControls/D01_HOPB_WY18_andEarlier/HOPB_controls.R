@@ -1,13 +1,13 @@
 
-library(neonUtilities)
-#For use with the API functionality
-dataDir <- "API"
-siteID <- "HOPB"
-
-streamMorphoDPID <- "DP4.00131.001"
-dataFromAPI <- zipsByProduct(streamMorphoDPID,site,package="expanded",check.size=FALSE)
-filepath <- "C:/Users/kcawley/Desktop/test/filesToStack00131/"
-stackByTable(filepath=filepath, folder = TRUE)
+# library(neonUtilities)
+# #For use with the API functionality
+# dataDir <- "API"
+# siteID <- "HOPB"
+# 
+# streamMorphoDPID <- "DP4.00131.001"
+# dataFromAPI <- zipsByProduct(streamMorphoDPID,site,package="expanded",check.size=FALSE)
+# filepath <- "C:/Users/kcawley/Desktop/test/filesToStack00131/"
+# stackByTable(filepath=filepath, folder = TRUE)
 
 #Use the new function here once we have the data in the new ECS zip packages
 
@@ -15,27 +15,12 @@ stackByTable(filepath=filepath, folder = TRUE)
 filepath <- "C:/Users/kcawley/Desktop/test/"
 surveyPtsDF <- read.table(paste0(filepath,"HOPB_surveyPts_20170921.csv"),sep = ",",stringsAsFactors = FALSE, header = TRUE)
 siteID <- "HOPB"
-#surveyDate
+surveyDate <- "2017-09-21T16:00"
 
 #Creates dataframe of all points associated with transect DSC1.  
 dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC")
 dischargePointsXS1<-dischargePointsXS1[order(dischargePointsXS1$N),]
 rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1)) 
-
-#Selects a NorthStart and EastStart coordinate of the point furtherest to the left of the left bank pin.  If no shots were taken left of the left bank pin the NorthStart and EastStart coordinate of the left bank pin is used.  If the left bank pin was not surveyed, the NorthStart and EastStart coordinates must be selected manually. 
-if(sum(grepl("PIN1|PIN$|PIN_LB|DSC_LB_PIN",dischargePointsXS1$name))>0){
-  dischargeXS1NorthStart<-dischargePointsXS1$N[grepl("PIN1|PIN$|PIN_LB|DSC_LB_PIN",dischargePointsXS1$name)]
-  dischargeXS1EastStart<-dischargePointsXS1$E[grepl("PIN1|PIN$|PIN_LB|DSC_LB_PIN",dischargePointsXS1$name)]
-  dischargeXS1NorthEastStartID<-dischargePointsXS1$name[grepl("PIN1|PIN$|PIN_LB|DSC_LB_PIN",dischargePointsXS1$name)]
-}else if(sum(grepl("LFW",dischargePointsXS1$name))>0){
-  dischargeXS1NorthStart<-dischargePointsXS1$N[grepl("LFW",dischargePointsXS1$name)]
-  dischargeXS1EastStart<-dischargePointsXS1$E[grepl("LFW",dischargePointsXS1$name)]
-  dischargeXS1NorthEastStartID<-dischargePointsXS1$name[grepl("LFW",dischargePointsXS1$name)]
-}else if(sum(grepl("LBF",dischargePointsXS1$name))>0){
-  dischargeXS1NorthStart<-dischargePointsXS1$N[grepl("LBF",dischargePointsXS1$name)]
-  dischargeXS1EastStart<-dischargePointsXS1$E[grepl("LBF",dischargePointsXS1$name)]
-  dischargeXS1NorthEastStartID<-dischargePointsXS1$name[grepl("LBF",dischargePointsXS1$name)]
-}else{print("There does not appear to be points associated with LFW, LBF, or the LB Pin.  Please manually select North and East start values.")}
 
 #To manually select NorthStart and EastStart coordinates
 dischargeXS1NorthStart<-dischargePointsXS1$N[1]
@@ -47,12 +32,6 @@ for(i in 1:(length(dischargePointsXS1$name))){
   dischargeXS1PointE<-dischargePointsXS1$E[i]
   dischargePointsXS1$DistanceRaw[i]<-sqrt(((dischargeXS1PointN-dischargeXS1NorthStart)^2)+((dischargeXS1PointE-dischargeXS1EastStart)^2))
 }
-
-#Set Reference Distance point.
-if(sum(grepl("PIN$|PIN_LB|PIN1",dischargePointsXS1$name))>0){
-  dischargeXS1ReferenceDistance<-dischargePointsXS1$DistanceRaw[grepl("PIN$|PIN_LB|PIN1",dischargePointsXS1$name)]
-  dischargeXS1ReferenceDistancePointID<-dischargePointsXS1$name[grepl("PIN$|PIN_LB|PIN1",dischargePointsXS1$name)]
-}else{print("There does not appear to be points associated with the LB or RB Pin.  Please manually select the Reference Distance value.")}
 
 #To manually select ReferenceDistance:
 dischargeXS1ReferenceDistance<-dischargePointsXS1$DistanceRaw[2]
@@ -74,7 +53,7 @@ staffGaugePoints<-staffGaugePoints[order(staffGaugePoints$N),]
 rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
-#Where does this come from?
+#Recorded in field data
 staffGaugeMeterMark<-0.265
 staffGaugeElevation <- staffGaugePoints$H[grepl("SP_.265M",staffGaugePoints$name)]  
 
@@ -99,9 +78,10 @@ numControls <- 3
 geo_controlInfo_in_names <- c("locationID","startDate","endDate","controlNumber","segmentNumber","controlActivationState")
 geo_controlInfo_in <- data.frame(matrix(nrow = numControls*numControls, ncol = length(geo_controlInfo_in_names)))
 names(geo_controlInfo_in) <- geo_controlInfo_in_names
+
 geo_controlInfo_in$locationID <- siteID
-geo_controlInfo_in$startDate <- "2017-09-21T16:00"
-geo_controlInfo_in$endDate <- "2017-09-21T16:00"
+geo_controlInfo_in$startDate <- surveyDate
+geo_controlInfo_in$endDate <- surveyDate
 geo_controlInfo_in$controlNumber <- rep(1:numControls,numControls)
 geo_controlInfo_in <- geo_controlInfo_in[order(geo_controlInfo_in$controlNumber),]
 geo_controlInfo_in$segmentNumber <- rep(1:numControls,numControls)
@@ -117,7 +97,7 @@ geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&ge
 #Is control #2 still active when control #3 is activated? 0 = No
 geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&geo_controlInfo_in$segmentNumber==3] <- 0
 
-#Second match with the picture to create entries for "geo_controlType_in" table
+#Second create entries for "geo_controlType_in" table for control parameters
 geo_controlType_in_names <- c("locationID",
                                "startDate",
                                "endDate",
@@ -145,8 +125,8 @@ geo_controlType_in <- data.frame(matrix(nrow = numControls, ncol = length(geo_co
 names(geo_controlType_in) <- geo_controlType_in_names
 
 geo_controlType_in$locationID <- siteID
-geo_controlType_in$startDate <- "2017-09-21T16:00"
-geo_controlType_in$endDate <- "2017-09-21T16:00"
+geo_controlType_in$startDate <- surveyDate
+geo_controlType_in$endDate <- surveyDate
 geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
@@ -175,21 +155,25 @@ wettedEdgePoints=subset(surveyPtsDF,surveyPtsDF$mapCode%in%c("LEW","REW"))
 wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
 rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints)) 
 invisible(dev.new(noRStudioGD = TRUE))
-plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)])
-points(dischargePointsXS1$E,dischargePointsXS1$N, col="blue")
+plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
+     main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
+legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
+points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
 ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
-#ans = 
+#ans = 981, 932
 Sys.sleep(1)
 invisible(dev.off())
-#Plot subsetted wetted edges
-wettedEdgePoints <- wettedEdgePoints[min(ans):max(ans),]
+#Plot subsetted wetted edges by manually entering ans values for tracking
+wettedEdgePoints <- wettedEdgePoints[932:981,]
 invisible(dev.new(noRStudioGD = TRUE))
-plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)])
-points(dischargePointsXS1$E,dischargePointsXS1$N, col="blue")
+plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
+     main=paste(siteID,"\nSelect two points above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
+legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
+points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
 csOne <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-#csOne = 
+#csOne = 22,23
 csTwo <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-#csTwo = 
+#csTwo = 14,15
 Sys.sleep(1)
 invisible(dev.off())
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
@@ -224,8 +208,8 @@ geo_priorParameters_in$priorActivationStage[3] <- (dischargePointsXS1$gaugeHeigh
 geo_priorParameters_in$priorActivationStageUnc[3] <- 0.01
 
 geo_priorParameters_in$locationID <- siteID
-geo_priorParameters_in$startDate <- "2017-09-21T16:00"
-geo_priorParameters_in$endDate <- "2017-09-21T16:00"
+geo_priorParameters_in$startDate <- surveyDate
+geo_priorParameters_in$endDate <- surveyDate
 
 #Loop through to calculate exponent and coefficients
 for(i in 1:numControls){
@@ -264,6 +248,7 @@ for(i in 1:numControls){
 }
 
 #Plot controls to double check
+invisible(dev.new(noRStudioGD = TRUE))
 plot(dischargePointsXS1$DistanceAdj,dischargePointsXS1$gaugeHeight,main=paste(siteID,"Discharge XS1: Distance vs. Gauge Height"),xlab="Distance (m)",ylab="Gauge Height (m)")
 text(dischargePointsXS1$DistanceAdj,dischargePointsXS1$gaugeHeight,labels=dischargePointsXS1$name,pos=4)
 lines(lines(dischargePointsXS1$DistanceAdj,dischargePointsXS1$gaugeHeight,lty=3))
@@ -305,7 +290,7 @@ for(i in 1:numControls){
   polygon(x,y, col = adjustcolor(colorsForPlot[i],alpha.f = 0.5))
 }
 
-#Write out three tables for ingest
+#Write out three tables for ingest to GitHub and testing location both
 geo_controlInfo_in_output <- c("locationID",
                                "startDate",
                                "endDate",
@@ -315,6 +300,11 @@ geo_controlInfo_in_output <- c("locationID",
 geo_controlInfo_in <- geo_controlInfo_in[,names(geo_controlInfo_in)%in%geo_controlInfo_in_output]
 write.csv(geo_controlInfo_in,
           "geo_controlInfo_in.csv",
+          quote = TRUE,
+          row.names = FALSE,
+          fileEncoding = "UTF-8")
+write.csv(geo_controlInfo_in,
+          "H:/controlTesting/geo_controlInfo_in.csv",
           quote = TRUE,
           row.names = FALSE,
           fileEncoding = "UTF-8")
@@ -346,6 +336,11 @@ write.csv(geo_controlType_in,
           quote = TRUE,
           row.names = FALSE,
           fileEncoding = "UTF-8")
+write.csv(geo_controlType_in,
+          "H:/controlTesting/geo_controlType_in.csv",
+          quote = TRUE,
+          row.names = FALSE,
+          fileEncoding = "UTF-8")
 
 geo_priorParameters_in_output <- c("locationID",
                                    "startDate",
@@ -360,6 +355,11 @@ geo_priorParameters_in_output <- c("locationID",
 geo_priorParameters_in <- geo_priorParameters_in[,names(geo_priorParameters_in)%in%geo_priorParameters_in_output]
 write.csv(geo_priorParameters_in,
           "geo_priorParameters_in.csv",
+          quote = TRUE,
+          row.names = FALSE,
+          fileEncoding = "UTF-8")
+write.csv(geo_priorParameters_in,
+          "H:/controlTesting/geo_priorParameters_in.csv",
           quote = TRUE,
           row.names = FALSE,
           fileEncoding = "UTF-8")

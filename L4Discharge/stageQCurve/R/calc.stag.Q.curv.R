@@ -131,9 +131,18 @@ calc.stag.Q.curv <- function(
   
   
   #Get stage and discharge data from the OS system
-  stackByTable(dpID = "DP1.20048.001",paste0(downloadedDataPath,"NEON_discharge-stream.zip"))
-  dischargeData  <- read.csv(paste(downloadedDataPath,"NEON_discharge-stream","stackedFiles","dsc_individualFieldData.csv", sep = "/"))
-  stageData <- read.csv(paste(downloadedDataPath,"NEON_discharge-stream","stackedFiles","dsc_fieldData.csv", sep = "/"))
+  if(file.exists(paste0(downloadedDataPath,"NEON_discharge-stream.zip"))){
+    stackByTable(dpID = "DP1.20048.001",paste0(downloadedDataPath,"NEON_discharge-stream.zip"))
+    dischargeData  <- read.csv(paste(downloadedDataPath,"NEON_discharge-stream","stackedFiles","dsc_individualFieldData.csv", sep = "/"))
+    stageData <- read.csv(paste(downloadedDataPath,"NEON_discharge-stream","stackedFiles","dsc_fieldData.csv", sep = "/"))
+  }else{
+    #Download the data for the site from the API
+    streamMorphoDPID <- "DP1.20048.001"
+    dataFromAPI <- zipsByProduct(streamMorphoDPID,site,package="expanded",check.size=FALSE,savepath = downloadedDataPath)
+    stackByTable(filepath=paste0(downloadedDataPath,"/filesToStack20048"), folder = TRUE)
+    dischargeData  <- read.csv(paste(downloadedDataPath,"filesToStack20048","stackedFiles","dsc_individualFieldData.csv", sep = "/"))
+    stageData <- read.csv(paste(downloadedDataPath,"filesToStack20048","stackedFiles","dsc_fieldData.csv", sep = "/"))
+  }
   
   #Filter stage and discharge data to just include the site of interest
   dischargeData <- dischargeData[dischargeData$siteID == site,]
@@ -284,12 +293,22 @@ calc.stag.Q.curv <- function(
       #Get the previous rating curve from the OS system
       oneYearAgo <- searchIntervalStartDate-secondsInYear
       lastWaterYear <- def.calc.WY.strt.end.date(oneYearAgo)
-      stackByTable(dpID = "DP4.00133.001",paste0(downloadedDataPath,"NEON_discharge-stream-rating-curve.zip"))
-      prevRatingCurve  <- try(read.csv(paste(downloadedDataPath,
-                                             "NEON_discharge-stream-rating-curve",
-                                             "stackedFiles",
-                                             "sdrc_stageDischargeCurveInfo.csv", 
-                                             sep = "/")))
+      if(file.exists(paste0(downloadedDataPath,"NEON_discharge-stream-rating-curve.zip"))){
+        stackByTable(dpID = "DP4.00133.001",paste0(downloadedDataPath,"NEON_discharge-stream-rating-curve.zip"))
+        prevRatingCurve  <- try(read.csv(paste(downloadedDataPath,
+                                               "NEON_discharge-stream-rating-curve",
+                                               "stackedFiles",
+                                               "sdrc_stageDischargeCurveInfo.csv", 
+                                               sep = "/")))
+      }else{
+        #Otherwise pull from the API
+        #Download the data for the site from the API
+        ratingCurveDPID <- "DP4.00133.001"
+        dataFromAPI <- zipsByProduct(ratingCurveDPID,site,package="expanded",check.size=FALSE,savepath = downloadedDataPath)
+        stackByTable(filepath=paste0(downloadedDataPath,"/filesToStack00133"), folder = TRUE)
+        prevRatingCurve <- read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","sdrc_stageDischargeCurveInfo.csv", sep = "/"))
+      }
+      
       prevRatingCurve <- prevRatingCurve[prevRatingCurve$siteID == site,]
       if(length(prevRatingCurve)<1){
         print("Zero (0) previous rating curve records retrieved, using only recent data")
@@ -337,11 +356,30 @@ calc.stag.Q.curv <- function(
         stop(failureMessage)
       }
       
-      prevGaugeData  <- try(read.csv(paste(downloadedDataPath,
-                                           "NEON_discharge-stream-rating-curve",
-                                           "stackedFiles",
-                                           "sdrc_gaugeDischargeMeas.csv", 
-                                           sep = "/")))
+      if(file.exists(paste(downloadedDataPath,
+                           "NEON_discharge-stream-rating-curve",
+                           "stackedFiles",
+                           "sdrc_gaugeDischargeMeas.csv", 
+                           sep = "/"))){
+        prevGaugeData  <- try(read.csv(paste(downloadedDataPath,
+                                             "NEON_discharge-stream-rating-curve",
+                                             "stackedFiles",
+                                             "sdrc_gaugeDischargeMeas.csv", 
+                                             sep = "/")))
+      }else if(file.exists(paste(downloadedDataPath,
+                     "filesToStack00133",
+                     "stackedFiles",
+                     "sdrc_gaugeDischargeMeas.csv", 
+                     sep = "/"))){
+        prevGaugeData  <- try(read.csv(paste(downloadedDataPath,
+                                             "filesToStack00133",
+                                             "stackedFiles",
+                                             "sdrc_gaugeDischargeMeas.csv", 
+                                             sep = "/")))
+      }else{
+        stop("Previous gaugings could not be found")
+      }
+      
       #Make sure you're using only the data for the current site
       prevGaugeData <- prevGaugeData[prevGaugeData$siteID == site,]
       

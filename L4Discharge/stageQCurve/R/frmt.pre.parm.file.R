@@ -1,10 +1,10 @@
 ##############################################################################################
-#' @title Format MCMC cooked results File
+#' @title Format prior paramaters file
 
 #' @author 
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
 
-#' @description This function takes a dataframe and .
+#' @description This function takes a dataframe and formats it for the NEON format.
 
 #' @param dataFrame A dataframe containing data to be formatted [dataframe]
 #' @param numCtrls Number of hydraulic controls [integer]
@@ -20,20 +20,15 @@
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
 ##############################################################################################
-frmt.pre.parm.file <- function(
-  dataFrame,
-  numCtrls
-  ){
+frmt.pre.parm.file <- function(dataFrame,numCtrls){
   
-  output_Names <- c(
-    'controlNumber',
-    'priorExponent',
-    'priorExponentUnc',
-    'priorCoefficient',
-    'priorCoefficientUnc',
-    'priorActivationStage',
-    'priorActivationStageUnc'
-  )
+  output_Names <- c('controlNumber',
+                    'priorExponent',
+                    'priorExponentUnc',
+                    'priorCoefficient',
+                    'priorCoefficientUnc',
+                    'priorActivationStage',
+                    'priorActivationStageUnc')
   
   outputDF <- data.frame(matrix(data=NA, ncol=length(output_Names), nrow=numCtrls))
   names(outputDF) <- output_Names

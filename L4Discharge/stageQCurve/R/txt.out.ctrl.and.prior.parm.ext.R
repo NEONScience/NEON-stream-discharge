@@ -39,19 +39,34 @@ txt.out.ctrl.and.prior.parm.ext <- function(
   ){
   
   #Get control data from geomorphology survey
-  stackByTable(dpID="DP4.00131.001",filepath=paste0(downloadedDataPath,"NEON_morphology-stream.zip"),package='expanded')
-  ctrlInfo  <- read.csv(paste(downloadedDataPath,"NEON_morphology-stream","stackedFiles","geo_controlInfo.csv", sep = "/"))
-  priorParams  <- read.csv(paste(downloadedDataPath,"NEON_morphology-stream","stackedFiles","geo_priorParameters.csv", sep = "/"))
+  if(file.exists(paste0(downloadedDataPath,"NEON_morphology-stream.zip"))){
+    stackByTable(dpID="DP4.00131.001",filepath=paste0(downloadedDataPath,"NEON_morphology-stream.zip"))
+    ctrlInfo  <- read.csv(paste(downloadedDataPath,"NEON_morphology-stream","stackedFiles","geo_controlInfo.csv", sep = "/"))
+    priorParams  <- read.csv(paste(downloadedDataPath,"NEON_morphology-stream","stackedFiles","geo_priorParameters.csv", sep = "/"))
+  }else{
+    availableFiles <- list.files(downloadedDataPath)
+    ctrlInfo  <- read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_controlInfo",availableFiles)], sep = "/"))
+    priorParams  <- read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_priorParameters",availableFiles)], sep = "/"))
+  }
+  
   
   #Subset for the site of interest
-  ctrlInfo <- ctrlInfo[ctrlInfo$siteID == site,]
-  priorParams <- priorParams[priorParams$siteID == site,]
+  if(length(ctrlInfo$siteID)>0){
+    ctrlInfo <- ctrlInfo[ctrlInfo$siteID == site,]
+    priorParams <- priorParams[priorParams$siteID == site,]
+  }else if(length(ctrlInfo$locationID)>0){
+    ctrlInfo <- ctrlInfo[ctrlInfo$locationID == site,]
+    priorParams <- priorParams[priorParams$locationID == site,]
+  }else{
+    stop("Valid location field could not be found.")
+  }
   
-  if(length(ctrlInfo)<1){
+  
+  if(nrow(ctrlInfo)<1){
     failureMessage <- "Zero (0) control activation records were retrieved"
     stop(failureMessage)
   }
-  if(length(priorParams)<1){
+  if(nrow(priorParams)<1){
     failureMessage <- "Zero (0) prior parameters records were retrieved"
     stop(failureMessage)
   }

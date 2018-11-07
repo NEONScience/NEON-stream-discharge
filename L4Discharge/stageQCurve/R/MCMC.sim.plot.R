@@ -9,8 +9,12 @@
 
 #' @importFrom graphics hist lines par
 #' @importFrom stats dnorm
-#' @importFrom grDevices dev.print pdf dev.off
+#' @importFrom grDevices dev.off dev.copy2pdf
 
+#' @param DIRPATH An environment variable that contains the location of the files in 
+#' the Docker container [string]
+#' @param BAMWS An environment variable that contains the location of the BaM config 
+#' files in the Docker container [string]
 #' @param numCtrls Number of hydraulic controls [integer]
 #' @param Results_MCMC_Cooked A dataframe containing the posterior MCMC samples, 
 #' AKA cooked spaghettis [dataframe]
@@ -29,6 +33,8 @@
 #     original creation
 ##############################################################################################
 MCMC.sim.plot <- function(
+  DIRPATH = Sys.getenv("DIRPATH"),
+  BAMWS = Sys.getenv("BAMWS"),
   numCtrls,
   Results_MCMC_Cooked,
   NEONformat
@@ -68,6 +74,6 @@ MCMC.sim.plot <- function(
          ylab = "C",
          ylim = c(min(cMCMC),max(cMCMC)))
   }
-  dev.print(pdf,'~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/MCMC_simulations.pdf')
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"MCMC_simulations.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
 }

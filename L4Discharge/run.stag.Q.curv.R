@@ -34,7 +34,7 @@
 #            BAMWS="BaM_beta/BaM_BaRatin/",
 #            STARTDATE = "2016-10-01",
 #            SITE = "HOPB")
-#
+# 
 # DIRPATH = Sys.getenv("DIRPATH")
 # BAMFOLD = Sys.getenv("BAMFOLD")
 # BAMFILE = Sys.getenv("BAMFILE")
@@ -45,9 +45,8 @@
 # #Need to run this periodically if you're running the code outside of the Docker container
 # #as NEON packages get updated
 # library(devtools)
-# install_github("NEONScience/NEON-utilities/neonDataStackR", force = TRUE, dependencies = TRUE)
+# install_github("NEONScience/NEON-utilities/neonUtilities", force = TRUE, dependencies = TRUE)
 # install_github("NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE, dependencies = TRUE)
-
 # #Load needed library for Docker testing prior to GitHub package release
 # setwd("/app/L4_discharge/")
 # devtools::install("stageQCurve")

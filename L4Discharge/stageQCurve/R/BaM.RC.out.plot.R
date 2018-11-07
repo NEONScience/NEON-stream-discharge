@@ -8,7 +8,7 @@
 #' outputs
 
 #' @importFrom graphics plot lines polygon points
-#' @importFrom grDevices dev.print pdf dev.off
+#' @importFrom grDevices dev.copy2pdf dev.off adjustcolor
 
 #' @param DIRPATH An environment variable that contains the location of the files in 
 #' the Docker container [string]
@@ -80,6 +80,32 @@ BaM.RC.out.plot <- function(
        xlab = "Stage (m)",
        ylab = "Discharge (cms)")
   
+  #Work from background to foreground
+  polygon(totalUForPlotting$Hgrid,totalUForPlotting$Q, col = "red", border = NA)
+  polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
+  polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = adjustcolor("lightpink",alpha.f = 0.7), border = NA)
+  
+  lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
+  lines(Hgrid,Qrc_Maxpost_spag$V1, col = "red", lwd = 2)
+  
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorAndPostRatingCurves_linearScale.pdf",sep = "/"), width = 16, height = 9)
+  dev.off()
+  
+  #Plot rating curve with gaugings
+  plot(Hgrid,
+       Qrc_Maxpost_spag$V1,
+       type = "l",
+       xlim = c(min(Hgrid),max(Hgrid)),
+       ylim = c(min(priorForPlotting$Q),max(priorForPlotting$Q)),
+       xlab = "Stage (m)",
+       ylab = "Discharge (cms)")
+  polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = "lightpink", border = NA)
+  lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
+  points(gaugings$H,gaugings$Q, pch = 19)
+  
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"ratingCurveWithGaugings_linearScale.pdf",sep = "/"), width = 16, height = 9)
+  dev.off()
+  
   #Plot log-scale
   test.par <- par(mfrow=c(1,1))
   par(mar=c(5.1,4.1,4.1,2.1))
@@ -96,12 +122,12 @@ BaM.RC.out.plot <- function(
   #Work from background to foreground
   polygon(totalUForPlotting$Hgrid,totalUForPlotting$Q, col = "red", border = NA)
   polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
-  polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = "lightpink", border = NA)
+  polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = adjustcolor("lightpink",alpha.f = 0.7), border = NA)
 
   lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "red", lwd = 2)
-
-  dev.print(pdf,'~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/priorAndPostRatingCurves.pdf')
+  
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorAndPostRatingCurves_logScale.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
   
   #Plot rating curve with gaugings
@@ -116,7 +142,7 @@ BaM.RC.out.plot <- function(
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
   points(gaugings$H,gaugings$Q, pch = 19)
   
-  dev.print(pdf,'~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/ratingCurveWithGaugings.pdf')
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"ratingCurveWithGaugings_logScale.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
   
   #Plot spaghettis
@@ -130,7 +156,7 @@ BaM.RC.out.plot <- function(
   for(i in 2:ncol(Qrc_TotalU_spag)){
     lines(Hgrid,Qrc_TotalU_spag[,i], col = "red")
   }
-  dev.print(pdf,'~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/spaghettisWithTotalU.pdf')
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"spaghettisWithTotalU.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
 
   plot(Hgrid,
@@ -142,7 +168,7 @@ BaM.RC.out.plot <- function(
   for(i in 2:ncol(Qrc_ParamU_spag)){
     lines(Hgrid,Qrc_ParamU_spag[,i], col = "lightpink")
   }
-  dev.print(pdf,'~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/spaghettisWithParamU.pdf')
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"spaghettisWithParamU.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
 
   plot(Hgrid,
@@ -154,7 +180,7 @@ BaM.RC.out.plot <- function(
   for(i in 2:ncol(Qrc_Prior_spag)){
     lines(Hgrid,Qrc_Prior_spag[,i], col = "royalblue1")
   }
-  dev.print(pdf,'~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/priorSpaghettis.pdf')
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorSpaghettis.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
   
 }

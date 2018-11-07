@@ -2,7 +2,7 @@
 % Please edit documentation in R/frmt.pre.parm.file.R
 \name{frmt.pre.parm.file}
 \alias{frmt.pre.parm.file}
-\title{Format MCMC cooked results File}
+\title{Format prior paramaters file}
 \usage{
 frmt.pre.parm.file(dataFrame, numCtrls)
 }
@@ -15,7 +15,7 @@ frmt.pre.parm.file(dataFrame, numCtrls)
 This function returns a dataframe formatted for integration into the transition object
 }
 \description{
-This function takes a dataframe and .
+This function takes a dataframe and formats it for the NEON format.
 }
 \references{
 License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007

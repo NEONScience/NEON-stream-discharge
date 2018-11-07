@@ -5,7 +5,8 @@
 \title{Writes out the Config_ControlMatrix and Config_Model text files for BaM}
 \usage{
 txt.out.ctrl.and.prior.parm.ext(site, searchIntervalStartDate,
-  searchIntervalEndDate, controlMatrixPath, priorParamsPath, downloadedDataPath)
+  searchIntervalEndDate, controlMatrixPath, priorParamsPath,
+  downloadedDataPath)
 }
 \arguments{
 \item{site}{4 letter SITE code [string]}
