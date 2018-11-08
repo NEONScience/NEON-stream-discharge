@@ -422,8 +422,8 @@ calc.stag.Q.curv <- function(
     gaugings$uH <- 0.00 #May include in the future
     gaugings$bH <- 0.00
     gaugings$bHindx <- 0.00
-    gaugings$Q <- gaugingsStageData$calcQ #Stream discharge values (lps), re-calculated
-    gaugings$uQ <- as.numeric(gaugingsStageData$calcQ) * 0.1
+    gaugings$Q <- gaugingsStageData$calcQ/1000 #Stream discharge values (lps), re-calculated
+    gaugings$uQ <- as.numeric(gaugings$Q) * 0.1
     gaugings$bQ <- 0.00
     gaugings$bQindx <- 0.00
     

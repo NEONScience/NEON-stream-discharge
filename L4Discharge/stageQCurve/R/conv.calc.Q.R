@@ -34,11 +34,11 @@ conv.calc.Q <- function(
   m3sTolps <- 1000 #Conversion factor for cubicMetersPerSecond to litersPerSecond
   
   #Convert all units to be the same: m, mps, and lps
-  changeStageIDs <- stageData$recorduid[stageData$streamStageUnits != 'm']
-  changeQIDs <- stageData$recorduid[stageData$totalDischargeUnits != 'lps']
-  changeVelocityIDs <- stageData$recorduid[stageData$averageVelocityUnits != 'm/s']
-  changeDepthIDs <- stageData$recorduid[stageData$waterDepthUnits != 'm']
-  changeTapeDistIDs <- stageData$recorduid[stageData$tapeDistanceUnits != 'm']
+  changeStageIDs <- stageData$recorduid[!stageData$streamStageUnits%in%c('m',"meter")]
+  changeQIDs <- stageData$recorduid[!stageData$totalDischargeUnits%in%c('lps',"litersPerSecond")]
+  changeVelocityIDs <- stageData$recorduid[!stageData$averageVelocityUnits%in%c('m/s',"meterPerSecond")]
+  changeDepthIDs <- stageData$recorduid[!stageData$waterDepthUnits%in%c('m',"meter")]
+  changeTapeDistIDs <- stageData$recorduid[!stageData$tapeDistanceUnits%in%c('m',"meter")]
   
   #Convert stage and discharge in the stageData table
   stageData$totalDischarge <- as.numeric(stageData$totalDischarge)

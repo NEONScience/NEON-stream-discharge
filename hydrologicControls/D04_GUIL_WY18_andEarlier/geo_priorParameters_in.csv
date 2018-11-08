@@ -1,0 +1,3 @@
+"locationID","startDate","endDate","controlNumber","priorExponent","priorExponentUnc","priorCoefficient","priorCoefficientUnc","priorActivationStage","priorActivationStageUnc"
+"GUIL","2017-08-25T00:00","2017-08-25T00:00",1,1.5,0.05,6.57698168771077,1.64688503956212,0.05,0.01
+"GUIL","2017-08-25T00:00","2017-08-25T00:00",2,1.67,0.05,12.4726553786739,0.968676334080316,0.97,0.01

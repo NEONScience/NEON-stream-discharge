@@ -96,7 +96,7 @@ BaM.RC.out.plot <- function(
        Qrc_Maxpost_spag$V1,
        type = "l",
        xlim = c(min(Hgrid),max(Hgrid)),
-       ylim = c(min(priorForPlotting$Q),max(priorForPlotting$Q)),
+       ylim = c(min(pramUForPlotting$Q,gaugings$H),max(pramUForPlotting$Q,gaugings$H)),
        xlab = "Stage (m)",
        ylab = "Discharge (cms)")
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = "lightpink", border = NA)
@@ -120,7 +120,9 @@ BaM.RC.out.plot <- function(
        ylab = "Discharge (cms)")
 
   #Work from background to foreground
-  polygon(totalUForPlotting$Hgrid,totalUForPlotting$Q, col = "red", border = NA)
+  totalUForPlotting$Qlog <- totalUForPlotting$Q
+  totalUForPlotting$Qlog[totalUForPlotting$Q<=0] <- 0.000001
+  polygon(totalUForPlotting$Hgrid,totalUForPlotting$Qlog, col = "red", border = NA)
   polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = adjustcolor("lightpink",alpha.f = 0.7), border = NA)
 
@@ -130,12 +132,13 @@ BaM.RC.out.plot <- function(
   dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorAndPostRatingCurves_logScale.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
   
-  #Plot rating curve with gaugings
+  #Plot rating curve with gaugings in log scale
   plot(Hgrid,
        Qrc_Maxpost_spag$V1,
        type = "l",
-       xlim = c(min(Hgrid),max(Hgrid)),
-       ylim = c(min(priorForPlotting$Q),max(priorForPlotting$Q)),
+       log = "xy",
+       xlim = c(0.008,max(Hgrid)),
+       ylim = c(0.0005,max(priorForPlotting$Q)),
        xlab = "Stage (m)",
        ylab = "Discharge (cms)")
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = "lightpink", border = NA)
