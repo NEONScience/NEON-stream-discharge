@@ -1,14 +1,14 @@
 
 #This script runs the bayesian model and plots results for QAQC prior to loading control data to PROD
 
-Sys.setenv(DIRPATH = "C:/Users/kcawley/Documents/GitHub/NEON-stream-discharge/hydrologicControls/D02_POSE_WY18_andEarlier/",
+Sys.setenv(DIRPATH = "C:/Users/kcawley/Documents/GitHub/NEON-stream-discharge/hydrologicControls/D11_PRIN_WY18_andEarlier/",
            BAMFOLD="BaM_beta/",
            BAMFILE="BaM_MiniDMSL.exe",#Windows version
            #BAMFILE="BaM_exe",#Linux version
            DATAWS="H:/controlTesting/",
            BAMWS="BaM_beta/BaM_BaRatin/",
            STARTDATE = "2016-10-01",
-           SITE = "POSE")
+           SITE = "PRIN")
 
 DIRPATH = Sys.getenv("DIRPATH")
 BAMFOLD = Sys.getenv("BAMFOLD")

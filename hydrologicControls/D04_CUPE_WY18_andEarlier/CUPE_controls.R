@@ -11,11 +11,11 @@
 
 #Use the new function here once we have the data in the new ECS zip packages
 
-#HOPB processing code
+#CUPE processing code
 filepath <- "C:/Users/kcawley/Desktop/test/"
-surveyPtsDF <- read.table(paste0(filepath,"POSE_surveyPts_20171108.csv"),sep = ",",stringsAsFactors = FALSE, header = TRUE)
-siteID <- "POSE"
-surveyDate <- "2017-11-08T00:00"
+surveyPtsDF <- read.table(paste0(filepath,"CUPE_surveyPts_20170810.csv"),sep = ",",stringsAsFactors = FALSE, header = TRUE)
+siteID <- "CUPE"
+surveyDate <- "2017-08-10T00:00"
 names(surveyPtsDF) <- c("name","latitude","longitude","northing","easting","elevation","mapCode","E","N","H")
 
 #Creates dataframe of all points associated with transect DSC1.  
@@ -28,8 +28,8 @@ plot(dischargePointsXS1$E,dischargePointsXS1$N,main=paste(siteID,"Discharge XS1:
 text(dischargePointsXS1$E,dischargePointsXS1$N,labels=dischargePointsXS1$name,pos=4)
 
 #To manually select NorthStart and EastStart coordinates
-dischargeXS1NorthStart<-dischargePointsXS1$N[37]
-dischargeXS1EastStart<-dischargePointsXS1$E[37]
+dischargeXS1NorthStart<-dischargePointsXS1$N[11]
+dischargeXS1EastStart<-dischargePointsXS1$E[11]
 
 #Assigns a raw Distance value to each point relative to the NorthStart and EastStart coordinates.
 for(i in 1:(length(dischargePointsXS1$name))){
@@ -59,6 +59,7 @@ rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
+#No staff gauge present
 staffGaugeMeterMark<-0.8
 staffGaugeElevation <- staffGaugePoints$H[grepl("STF",staffGaugePoints$name)]  
 

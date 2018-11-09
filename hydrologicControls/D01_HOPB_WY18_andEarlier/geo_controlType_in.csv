@@ -1,4 +1,0 @@
-"locationID","startDate","endDate","controlNumber","hydraulicControlType","rectangularWidth","rectangularWidthUnc","triangularAngle","triangularAngleUnc","parabolaWidth","parabolaWidthUnc","parabolaHeight","parabolaHeightUnc","orificeArea","orificeAreaUnc","channelSlope","channelSlopeUnc","manningCoefficient","manningCoefficientUnc","stricklerCoefficient","stricklerCoefficientUnc"
-"HOPB","2017-09-21T16:00","2017-09-21T16:00",1,"Rectangular Weir",2.13575653524812,0.05,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"HOPB","2017-09-21T16:00","2017-09-21T16:00",2,"Rectangular Weir",6.40060499801397,0.05,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
-"HOPB","2017-09-21T16:00","2017-09-21T16:00",3,"Rectangular Channel",10.6538988025302,0.05,NA,NA,NA,NA,NA,NA,NA,NA,0.0118514314268845,0.005,0.05,0.001,20,0.4

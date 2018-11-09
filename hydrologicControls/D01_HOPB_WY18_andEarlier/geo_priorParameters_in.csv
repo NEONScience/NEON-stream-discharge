@@ -1,4 +1,0 @@
-"locationID","startDate","endDate","controlNumber","priorExponent","priorExponentUnc","priorCoefficient","priorCoefficientUnc","priorActivationStage","priorActivationStageUnc"
-"HOPB","2017-09-21T16:00","2017-09-21T16:00",1,1.5,0.05,3.78408808112108,0.95041570356571,0.04,0.01
-"HOPB","2017-09-21T16:00","2017-09-21T16:00",2,1.5,0.05,11.3404560328946,2.83675258386662,0.23,0.01
-"HOPB","2017-09-21T16:00","2017-09-21T16:00",3,1.67,0.05,23.1965804142779,0.687478264653401,0.525,0.01

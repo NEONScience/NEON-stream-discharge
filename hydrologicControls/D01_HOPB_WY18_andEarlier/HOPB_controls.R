@@ -20,7 +20,11 @@ surveyDate <- "2017-09-21T16:00"
 #Creates dataframe of all points associated with transect DSC1.  
 dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC")
 dischargePointsXS1<-dischargePointsXS1[order(dischargePointsXS1$N),]
-rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1)) 
+rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1))
+
+#Plot the cross section to choose where to start
+plot(dischargePointsXS1$E,dischargePointsXS1$N,main=paste(siteID,"Discharge XS1: E vs. N"),xlab="Raw Easting",ylab="Raw Northing")
+text(dischargePointsXS1$E,dischargePointsXS1$N,labels=dischargePointsXS1$name,pos=4)
 
 #To manually select NorthStart and EastStart coordinates
 dischargeXS1NorthStart<-dischargePointsXS1$N[1]

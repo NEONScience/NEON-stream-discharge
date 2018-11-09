@@ -304,12 +304,17 @@ calc.stag.Q.curv <- function(
         #Otherwise pull from the API
         #Download the data for the site from the API
         ratingCurveDPID <- "DP4.00133.001"
-        dataFromAPI <- zipsByProduct(ratingCurveDPID,site,package="expanded",check.size=FALSE,savepath = downloadedDataPath)
-        stackByTable(filepath=paste0(downloadedDataPath,"/filesToStack00133"), folder = TRUE)
-        prevRatingCurve <- read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","sdrc_stageDischargeCurveInfo.csv", sep = "/"))
+        dataFromAPI <- try(zipsByProduct(ratingCurveDPID,site,package="expanded",check.size=FALSE,savepath = downloadedDataPath))
+        if(attr(dataFromAPI, "class") == "try-error"){
+          prevRatingCurve <- logical(0)
+        }else{
+          stackByTable(filepath=paste0(downloadedDataPath,"/filesToStack00133"), folder = TRUE)
+          prevRatingCurve <- read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","sdrc_stageDischargeCurveInfo.csv", sep = "/"))
+          prevRatingCurve <- prevRatingCurve[prevRatingCurve$siteID == site,]
+        }
+        
       }
       
-      prevRatingCurve <- prevRatingCurve[prevRatingCurve$siteID == site,]
       if(length(prevRatingCurve)<1){
         print("Zero (0) previous rating curve records retrieved, using only recent data")
         inclPrevData <- FALSE
