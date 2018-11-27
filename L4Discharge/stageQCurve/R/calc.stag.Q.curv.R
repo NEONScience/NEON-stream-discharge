@@ -305,7 +305,7 @@ calc.stag.Q.curv <- function(
         #Download the data for the site from the API
         ratingCurveDPID <- "DP4.00133.001"
         dataFromAPI <- try(zipsByProduct(ratingCurveDPID,site,package="expanded",check.size=FALSE,savepath = downloadedDataPath))
-        if(attr(dataFromAPI, "class") == "try-error"){
+        if(is.null(dataFromAPI)||attr(dataFromAPI, "class") == "try-error"){
           prevRatingCurve <- logical(0)
         }else{
           stackByTable(filepath=paste0(downloadedDataPath,"/filesToStack00133"), folder = TRUE)

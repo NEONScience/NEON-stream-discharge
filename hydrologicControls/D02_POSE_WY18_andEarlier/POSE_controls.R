@@ -13,7 +13,7 @@
 
 #HOPB processing code
 filepath <- "C:/Users/kcawley/Desktop/test/"
-surveyPtsDF <- read.table(paste0(filepath,"POSE_surveyPts_20171108.csv"),sep = ",",stringsAsFactors = FALSE, header = TRUE)
+surveyPtsDF <- read.table(paste0(filepath,"POSE_surveyPts_20180821.csv"),sep = ",",stringsAsFactors = FALSE, header = TRUE)
 siteID <- "POSE"
 surveyDate <- "2017-11-08T00:00"
 names(surveyPtsDF) <- c("name","latitude","longitude","northing","easting","elevation","mapCode","E","N","H")
