@@ -23,16 +23,16 @@ library(rgdal)
 library(plotly)
 
 #NEON Domain number (ex: D01).
-domainID<-'D01' 
+domainID<-'D12' 
 
 #Four-digit NEON site code (ex: HOPB).
-siteID <- 'HOPB'  
+siteID <- 'BLDE'  
 
 #The end date of the geomorphology survey (YYYYMMDD).  
-surveyDate<-'20170921' 
+surveyDate<-'20181026' 
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017). 
-surveyID <- "HOPB_2017"  
+surveyID <- "BLDE_2018"  
 
 #Queues a directory that contains file paths for each site per survey date.  
 siteDirectory<-read.csv('N:/Science/AQU/Geomorphology_Survey_Data/inputDirectory.csv',head=T,sep=",",stringsAsFactors = F) 
@@ -48,12 +48,12 @@ wdir<-paste('C:/Users/nharrison/Documents/GitHub/landWaterSoilIPT/streamMorpho/S
 #wdir<-paste('C:/Users/kcawley/Documents/GitHub/landWaterSoilIPT/streamMorpho/ScienceProcessingCode/R_Metrics',siteID,'Raw_Data',sep="/") 
 
 #Creates dataframe of all points associated with transect DSC1.  
-dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC")
+dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC1")
 dischargePointsXS1<-dischargePointsXS1[order(dischargePointsXS1$N),]
 rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1))
 
 #Sets plot1 settings.  
-xAxisTitle1<-list(title="Easting (m)",zeroline=FALSE, range=c(-5,15))
+xAxisTitle1<-list(title="Easting (m)",zeroline=FALSE)
 yAxisTitle1<-list(title="Northing  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
@@ -83,6 +83,17 @@ for(i in 1:(length(dischargePointsXS1$name))){
   dischargePointsXS1$DistanceAdj[i]<-dischargePointsXS1$DistanceRaw[i]+dischargeXS1HorizontalAdjust
 }
 
+#Plot the croos-section again to check reference values and ensure that the profile is being viewed from left to right bank.
+
+#Sets plot2 settings.  
+xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE)
+yAxisTitle2<-list(title="Elevation  (m)",zeroline=FALSE)
+font<-list(size=12,color='black')
+
+#Plot the cross section by easting and northing data.
+plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~H, name='Distance vs Elevation', type='scatter', mode='lines+markers', text=~name)%>%
+  layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
+
 #Calculates the bankfull width.
 DSCXS1Bankfull<-abs((dischargePointsXS1$DistanceAdj[grepl("RBF",dischargePointsXS1$name)])-(dischargePointsXS1$DistanceAdj[grepl("LBF",dischargePointsXS1$name)]))
 
@@ -93,8 +104,8 @@ rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
-staffGaugeMeterMark<-0.265
-staffGaugeElevation <- staffGaugePoints$H[grepl("SP_.265M",staffGaugePoints$name)]  
+staffGaugeMeterMark<-0.60
+staffGaugeElevation <- staffGaugePoints$H[grepl("SP_TEMP_0.60M",staffGaugePoints$name)]  
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
 dischargePointsXS1$gaugeHeight<-dischargePointsXS1$H - (staffGaugeElevation - staffGaugeMeterMark)
@@ -106,15 +117,15 @@ dischargePointsXS1$ID<-c(1:length(dischargePointsXS1$name))
 dischargePointsXS1 <- dischargePointsXS1[order(dischargePointsXS1$DistanceAdj),]
 #invisible(dev.new(noRStudioGD = TRUE))
 
-#Sets plot2 settings.  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-5,15))
-yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
+#Sets plot3 settings.  
+xAxisTitle3<-list(title="Distance (m)",zeroline=FALSE, range=c(-5,15))
+yAxisTitle3<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
-#Plot the cross section by distance and gauge height.  
+#Plot the cross section by distance and gauge height.  Note whether or not red line is below thalweg.  
 plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
   add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
-  layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
+  layout(title = siteID, xaxis=xAxisTitle3, yaxis=yAxisTitle3)
 
 #Calculates gaugeHeight at LB and RB bankfull:
 gaugeHeightLBF<-dischargePointsXS1$gaugeHeight[grepl("LBF",dischargePointsXS1$name)]
