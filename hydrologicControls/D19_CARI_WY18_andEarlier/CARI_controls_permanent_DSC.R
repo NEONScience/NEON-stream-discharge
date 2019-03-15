@@ -23,16 +23,16 @@ library(rgdal)
 library(plotly)
 
 #NEON Domain number (ex: D01).
-domainID<-'D16' 
+domainID<-'D19' 
 
 #Four-digit NEON site code (ex: HOPB).
-siteID <- 'MART'  
+siteID <- 'CARI'  
 
 #The end date of the geomorphology survey (YYYYMMDD).  
-surveyDate<-'20180829' 
+surveyDate<-'20170913' 
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017). 
-surveyID <- "MART_2018"  
+surveyID <- "CARI_2017"  
 
 #Queues a directory that contains file paths for each site per survey date.  
 siteDirectory<-read.csv('N:/Science/AQU/Geomorphology_Survey_Data/inputDirectory.csv',head=T,sep=",",stringsAsFactors = F) 
@@ -49,7 +49,7 @@ wdir<-paste('C:/Users/nharrison/Documents/GitHub/landWaterSoilIPT/streamMorpho/S
 
 #Creates dataframe of all points associated with transect DSC1.  
 dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC1")
-dischargePointsXS1<-dischargePointsXS1[order(dischargePointsXS1$n),]
+dischargePointsXS1<-dischargePointsXS1[order(-dischargePointsXS1$N),]
 rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1))
 
 #Sets plot1 settings.  
@@ -58,22 +58,22 @@ yAxisTitle1<-list(title="Northing  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
 #Plot the cross section by easting and northing data.
-plot_ly(data=dischargePointsXS1,x=~e, y=~n, name='Easting vs Northing', type='scatter', mode='markers', text=~name)%>%
+plot_ly(data=dischargePointsXS1,x=~E, y=~N, name='Easting vs Northing', type='scatter', mode='markers', text=~name)%>%
   layout(title = siteID, xaxis=xAxisTitle1, yaxis=yAxisTitle1)
 
 #Manually select NorthStart and EastStart coordinates
-dischargeXS1NorthStart<-dischargePointsXS1$n[1]
-dischargeXS1EastStart<-dischargePointsXS1$e[1]
+dischargeXS1NorthStart<-dischargePointsXS1$N[1]
+dischargeXS1EastStart<-dischargePointsXS1$E[1]
 
 #Assigns a raw Distance value to each point relative to the NorthStart and EastStart coordinates.
 for(i in 1:(length(dischargePointsXS1$name))){
-  dischargeXS1PointN<-dischargePointsXS1$n[i]
-  dischargeXS1PointE<-dischargePointsXS1$e[i]
+  dischargeXS1PointN<-dischargePointsXS1$N[i]
+  dischargeXS1PointE<-dischargePointsXS1$E[i]
   dischargePointsXS1$DistanceRaw[i]<-sqrt(((dischargeXS1PointN-dischargeXS1NorthStart)^2)+((dischargeXS1PointE-dischargeXS1EastStart)^2))
 }
 
 #To manually select ReferenceDistance:
-dischargeXS1ReferenceDistance<-dischargePointsXS1$DistanceRaw[1]
+dischargeXS1ReferenceDistance<-dischargePointsXS1$DistanceRaw[3]
 
 #Sets Horizontal adjustment value based on reference point coordinate.  
 dischargeXS1HorizontalAdjust<-0-dischargeXS1ReferenceDistance
@@ -90,22 +90,22 @@ xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE)
 yAxisTitle2<-list(title="Elevation  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
-#Plot the cross section.
-plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~h, name='Distance vs Elevation', type='scatter', mode='lines+markers', text=~name)%>%
+#Plot the cross section by easting and northing data.
+plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~H, name='Distance vs Elevation', type='scatter', mode='lines+markers', text=~name)%>%
   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
 
 #Calculates the bankfull width.
 DSCXS1Bankfull<-abs((dischargePointsXS1$DistanceAdj[grepl("RBF",dischargePointsXS1$name)])-(dischargePointsXS1$DistanceAdj[grepl("LBF",dischargePointsXS1$name)]))
 
 #Creates dataframe of staff gauge points.
-staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge")
+staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge_Transect_DSC1")
 staffGaugePoints<-staffGaugePoints[order(staffGaugePoints$N),]
 rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
-staffGaugeMeterMark<- NA
-staffGaugeElevation <- staffGaugePoints$H[grepl("STAFFGAUGE BASE",staffGaugePoints$name)]  
+staffGaugeMeterMark<-0.40
+staffGaugeElevation <- staffGaugePoints$H[grepl("SP_0.40M",staffGaugePoints$name)]  
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
 dischargePointsXS1$gaugeHeight<-dischargePointsXS1$H - (staffGaugeElevation - staffGaugeMeterMark)
@@ -118,7 +118,7 @@ dischargePointsXS1 <- dischargePointsXS1[order(dischargePointsXS1$DistanceAdj),]
 #invisible(dev.new(noRStudioGD = TRUE))
 
 #Sets plot3 settings.  
-xAxisTitle3<-list(title="Distance (m)",zeroline=FALSE) #Define range: , range=c(-5,15)
+xAxisTitle3<-list(title="Distance (m)",zeroline=FALSE) #Define range , range=c(-5,15)
 yAxisTitle3<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
@@ -145,7 +145,7 @@ if(exectpart){
   dischargeXS1THL<-min(dischargePointsXS1$H)
   
   #Calculates the elevation of the 0.00 meter mark of the staff gauge.  
-  staffGaugeZeroElevation<-(staffGaugePoints$H[staffGaugePoints$name=="STAFFGAUGE BASE"])-staffGaugeMeterMark
+  staffGaugeZeroElevation<-(staffGaugePoints$H[staffGaugePoints$name=="SP_0.40M"])-staffGaugeMeterMark
   
   #Calculates the difference between the staff gauge 0.00m mark elevation and the discharge thalweg elevation.   
   gaugeZeroQElevDiff<--as.numeric(dischargeXS1THL-staffGaugeZeroElevation)
@@ -161,10 +161,28 @@ if(exectpart){
   #Plots discharge XS1 transect point distances vs gaugeHeightOffset.  Red line should be at the thalweg.
   plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeightOffset, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
     add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
-    layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
+    layout(title = paste(siteID,":","Permanent DSC XS, Distance vs. Gauge Height"), xaxis=xAxisTitle3, yaxis=yAxisTitle3)
   
   
 }else{"There are no negative gauge height values in discharge XS1.  There is no need for correction."}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ##### Now create the actual controls to upload... #####
 
@@ -475,4 +493,3 @@ write.csv(geo_priorParameters_in,
           quote = TRUE,
           row.names = FALSE,
           fileEncoding = "UTF-8")
-

@@ -48,9 +48,9 @@ wdir<-paste('C:/Users/nharrison/Documents/GitHub/landWaterSoilIPT/streamMorpho/S
 #wdir<-paste('C:/Users/kcawley/Documents/GitHub/landWaterSoilIPT/streamMorpho/ScienceProcessingCode/R_Metrics',siteID,'Raw_Data',sep="/") 
 
 #Creates dataframe of all points associated with transect DSC1.  
-dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC1")
-dischargePointsXS1<-dischargePointsXS1[order(-dischargePointsXS1$N),]
-rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1))
+dischargePointsXS2<-subset(surveyPtsDF,mapCode=="Transect_DSC1")
+dischargePointsXS2<-dischargePointsXS2[order(-dischargePointsXS2$N),]
+rownames(dischargePointsXS2)<-seq(length=nrow(dischargePointsXS2))
 
 #Sets plot1 settings.  
 xAxisTitle1<-list(title="Easting (m)",zeroline=FALSE)
@@ -58,29 +58,29 @@ yAxisTitle1<-list(title="Northing  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
 #Plot the cross section by easting and northing data.
-plot_ly(data=dischargePointsXS1,x=~E, y=~N, name='Easting vs Northing', type='scatter', mode='markers', text=~name)%>%
+plot_ly(data=dischargePointsXS2,x=~E, y=~N, name='Easting vs Northing', type='scatter', mode='markers', text=~name)%>%
   layout(title = siteID, xaxis=xAxisTitle1, yaxis=yAxisTitle1)
 
 #Manually select NorthStart and EastStart coordinates
-dischargeXS1NorthStart<-dischargePointsXS1$N[1]
-dischargeXS1EastStart<-dischargePointsXS1$E[1]
+dischargeXS2NorthStart<-dischargePointsXS2$N[1]
+dischargeXS2EastStart<-dischargePointsXS2$E[1]
 
 #Assigns a raw Distance value to each point relative to the NorthStart and EastStart coordinates.
-for(i in 1:(length(dischargePointsXS1$name))){
-  dischargeXS1PointN<-dischargePointsXS1$N[i]
-  dischargeXS1PointE<-dischargePointsXS1$E[i]
-  dischargePointsXS1$DistanceRaw[i]<-sqrt(((dischargeXS1PointN-dischargeXS1NorthStart)^2)+((dischargeXS1PointE-dischargeXS1EastStart)^2))
+for(i in 1:(length(dischargePointsXS2$name))){
+  dischargeXS2PointN<-dischargePointsXS2$N[i]
+  dischargeXS2PointE<-dischargePointsXS2$E[i]
+  dischargePointsXS2$DistanceRaw[i]<-sqrt(((dischargeXS2PointN-dischargeXS2NorthStart)^2)+((dischargeXS2PointE-dischargeXS2EastStart)^2))
 }
 
 #To manually select ReferenceDistance:
-dischargeXS1ReferenceDistance<-dischargePointsXS1$DistanceRaw[3]
+dischargeXS2ReferenceDistance<-dischargePointsXS2$DistanceRaw[3]
 
 #Sets Horizontal adjustment value based on reference point coordinate.  
-dischargeXS1HorizontalAdjust<-0-dischargeXS1ReferenceDistance
+dischargeXS2HorizontalAdjust<-0-dischargeXS2ReferenceDistance
 
 #Transforms raw distance to adjusted distance based on reference distance point.
-for(i in 1:(length(dischargePointsXS1$name))){
-  dischargePointsXS1$DistanceAdj[i]<-dischargePointsXS1$DistanceRaw[i]+dischargeXS1HorizontalAdjust
+for(i in 1:(length(dischargePointsXS2$name))){
+  dischargePointsXS2$DistanceAdj[i]<-dischargePointsXS2$DistanceRaw[i]+dischargeXS2HorizontalAdjust
 }
 
 #Plot the cross-section again to check reference values and ensure that the profile is being viewed from left to right bank.
@@ -91,30 +91,30 @@ yAxisTitle2<-list(title="Elevation  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
 #Plot the cross section by easting and northing data.
-plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~H, name='Distance vs Elevation', type='scatter', mode='lines+markers', text=~name)%>%
+plot_ly(data=dischargePointsXS2,x=~DistanceAdj, y=~H, name='Distance vs Elevation', type='scatter', mode='lines+markers', text=~name)%>%
   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
 
 #Calculates the bankfull width.
-DSCXS1Bankfull<-abs((dischargePointsXS1$DistanceAdj[grepl("RBF",dischargePointsXS1$name)])-(dischargePointsXS1$DistanceAdj[grepl("LBF",dischargePointsXS1$name)]))
+DSCXS2Bankfull<-abs((dischargePointsXS2$DistanceAdj[grepl("RBF",dischargePointsXS2$name)])-(dischargePointsXS2$DistanceAdj[grepl("LBF",dischargePointsXS2$name)]))
 
 #Creates dataframe of staff gauge points.
-staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge")
+staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge_Transect_DSC2")
 staffGaugePoints<-staffGaugePoints[order(staffGaugePoints$N),]
 rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
-staffGaugeMeterMark<-NA
-staffGaugeElevation <- staffGaugePoints$H[grepl("SP_M",staffGaugePoints$name)]  
+staffGaugeMeterMark<-0.40
+staffGaugeElevation <- staffGaugePoints$H[grepl("SP_0.40M_2",staffGaugePoints$name)]  
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
-dischargePointsXS1$gaugeHeight<-dischargePointsXS1$H - (staffGaugeElevation - staffGaugeMeterMark)
-dischargePointsXS1$gaugeHeight<-round(dischargePointsXS1$gaugeHeight,digits=2)
+dischargePointsXS2$gaugeHeight<-dischargePointsXS2$H - (staffGaugeElevation - staffGaugeMeterMark)
+dischargePointsXS2$gaugeHeight<-round(dischargePointsXS2$gaugeHeight,digits=2)
 
 #Assigns a unique to each measurement for plot viewing purposes.  
-dischargePointsXS1$ID<-c(1:length(dischargePointsXS1$name))
+dischargePointsXS2$ID<-c(1:length(dischargePointsXS2$name))
 
-dischargePointsXS1 <- dischargePointsXS1[order(dischargePointsXS1$DistanceAdj),]
+dischargePointsXS2 <- dischargePointsXS2[order(dischargePointsXS2$DistanceAdj),]
 #invisible(dev.new(noRStudioGD = TRUE))
 
 #Sets plot3 settings.  
@@ -123,16 +123,16 @@ yAxisTitle3<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
 #Plot the cross section by distance and gauge height.  Note whether or not red line is below thalweg.  
-plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
+plot_ly(data=dischargePointsXS2,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
   add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
   layout(title = siteID, xaxis=xAxisTitle3, yaxis=yAxisTitle3)
 
 #Calculates gaugeHeight at LB and RB bankfull:
-gaugeHeightLBF<-dischargePointsXS1$gaugeHeight[grepl("LBF",dischargePointsXS1$name)]
-gaugeHeightRBF<-dischargePointsXS1$gaugeHeight[grepl("RBF",dischargePointsXS1$name)]
+gaugeHeightLBF<-dischargePointsXS2$gaugeHeight[grepl("LBF",dischargePointsXS2$name)]
+gaugeHeightRBF<-dischargePointsXS2$gaugeHeight[grepl("RBF",dischargePointsXS2$name)]
 
 #Asseses whether negative stage is present in the discharge cross-section 
-negativeStage<-any(dischargePointsXS1$gaugeHeight<0)
+negativeStage<-any(dischargePointsXS2$gaugeHeight<0)
 
 if(negativeStage==TRUE){
   exectpart<-TRUE
@@ -142,31 +142,31 @@ if(negativeStage==TRUE){
 if(exectpart){
   
   #Determines the lowest elevation of the discharge cross-section, assumed to be the thalweg. 
-  dischargeXS1THL<-min(dischargePointsXS1$H)
+  dischargeXS2THL<-min(dischargePointsXS2$H)
   
   #Calculates the elevation of the 0.00 meter mark of the staff gauge.  
-  staffGaugeZeroElevation<-(staffGaugePoints$H[staffGaugePoints$name=="SP_TEMP_0.60M"])-staffGaugeMeterMark
+  staffGaugeZeroElevation<-(staffGaugePoints$H[staffGaugePoints$name=="SP_0.40M_2"])-staffGaugeMeterMark
   
   #Calculates the difference between the staff gauge 0.00m mark elevation and the discharge thalweg elevation.   
-  gaugeZeroQElevDiff<--as.numeric(dischargeXS1THL-staffGaugeZeroElevation)
+  gaugeZeroQElevDiff<--as.numeric(dischargeXS2THL-staffGaugeZeroElevation)
   
   #Offsets the elevation of the gauge heights by this difference, rounds to two digits.  
-  dischargePointsXS1$gaugeOffsetElevation<-dischargePointsXS1$H + (gaugeZeroQElevDiff)
-  dischargePointsXS1$gaugeOffsetElevation<-round(dischargePointsXS1$gaugeOffsetElevation,digits=2)
+  dischargePointsXS2$gaugeOffsetElevation<-dischargePointsXS2$H + (gaugeZeroQElevDiff)
+  dischargePointsXS2$gaugeOffsetElevation<-round(dischargePointsXS2$gaugeOffsetElevation,digits=2)
   
   #Offsets the gauge heights by the offset elevation, rounds to two digits.  
-  dischargePointsXS1$gaugeHeightOffset<-dischargePointsXS1$gaugeOffsetElevation - (staffGaugeElevation - staffGaugeMeterMark)
-  dischargePointsXS1$gaugeHeightOffset<-round(dischargePointsXS1$gaugeHeightOffset,digits=2)
+  dischargePointsXS2$gaugeHeightOffset<-dischargePointsXS2$gaugeOffsetElevation - (staffGaugeElevation - staffGaugeMeterMark)
+  dischargePointsXS2$gaugeHeightOffset<-round(dischargePointsXS2$gaugeHeightOffset,digits=2)
   
   #Plots discharge XS1 transect point distances vs gaugeHeightOffset.  Red line should be at the thalweg.
-  plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeightOffset, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
+  plot_ly(data=dischargePointsXS2,x=~DistanceAdj, y=~gaugeHeightOffset, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
     add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
-    layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
+    layout(title = paste(siteID,":","Temporary DSC XS, Distance vs. Gauge Height"), xaxis=xAxisTitle3, yaxis=yAxisTitle3)
   
   
-}else{"There are no negative gauge height values in discharge XS1.  There is no need for correction."}
+}else{"There are no negative gauge height values in discharge XS2.  There is no need for correction."}
 
-##### Now create the actual controls to upload... #####
+#### Now create the actual controls to upload... #####
 
 #First, the addition or replacement when controls are activated table "geo_controlInfo_in"
 numControls <- 3
@@ -230,26 +230,26 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "18"]
-# geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC21"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "41"]
-# geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC29"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "18"]
+# geo_controlType_in$controlLeft[1] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$name == "DSC21"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "41"]
+# geo_controlType_in$controlRight[1] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$name == "DSC29"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 0.05 #Uncertainty associated with AIS survey
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "13"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "18"]
-# geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC8"]
-# geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC34"]
+geo_controlType_in$controlLeft[2] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "13"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "18"]
+# geo_controlType_in$controlLeft[2] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$name == "DSC8"]
+# geo_controlType_in$controlRight[2] <- dischargePointsXS2$DistanceAdj[dischargePointsXS2$name == "DSC34"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
 geo_controlType_in$rectangularWidthUnc[2] <- 0.05
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[3] <- (dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "1"]+dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "4"])/2
-geo_controlType_in$controlRight[3] <- (dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "41"]+dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "43"])/2
+geo_controlType_in$controlLeft[3] <- (dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "1"]+dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "4"])/2
+geo_controlType_in$controlRight[3] <- (dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "41"]+dischargePointsXS2$DistanceAdj[dischargePointsXS2$ID == "43"])/2
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
 geo_controlType_in$rectangularWidthUnc[3] <- 0.05
 
@@ -262,7 +262,7 @@ invisible(dev.new(noRStudioGD = TRUE))
 plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
      main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
 legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
-points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
+points(dischargePointsXS2$E,dischargePointsXS2$N, col="green")
 ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
 #ans = 981, 932
 Sys.sleep(1)
@@ -274,7 +274,7 @@ invisible(dev.new(noRStudioGD = TRUE))
 plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
      main=paste(siteID,"\nSelect two points above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
 legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
-points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
+points(dischargePointsXS2$E,dischargePointsXS2$N, col="green")
 csOne <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
 #csOne = 22,23
 csTwo <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
@@ -309,13 +309,13 @@ names(geo_priorParameters_in) <- c("locationID",
 
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$ID == "29"]
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS2$gaugeHeight[dischargePointsXS2$ID == "29"]
 geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$ID == "18"]
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS2$gaugeHeight[dischargePointsXS2$ID == "18"]
 geo_priorParameters_in$priorActivationStageUnc[2] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[3] <- (dischargePointsXS1$gaugeHeight[dischargePointsXS1$ID == "13"]+dischargePointsXS1$gaugeHeight[dischargePointsXS1$ID == "41"])/2
+geo_priorParameters_in$priorActivationStage[3] <- (dischargePointsXS2$gaugeHeight[dischargePointsXS2$ID == "13"]+dischargePointsXS2$gaugeHeight[dischargePointsXS2$ID == "41"])/2
 geo_priorParameters_in$priorActivationStageUnc[3] <- 0.01
 
 geo_priorParameters_in$locationID <- siteID
@@ -360,9 +360,9 @@ for(i in 1:numControls){
 
 #Plot controls to double check
 invisible(dev.new(noRStudioGD = TRUE))
-plot(dischargePointsXS1$DistanceAdj,dischargePointsXS1$gaugeHeight,main=paste(siteID,"Discharge XS1: Distance vs. Gauge Height"),xlab="Distance (m)",ylab="Gauge Height (m)")
-text(dischargePointsXS1$DistanceAdj,dischargePointsXS1$gaugeHeight,labels=dischargePointsXS1$name,pos=4)
-lines(lines(dischargePointsXS1$DistanceAdj,dischargePointsXS1$gaugeHeight,lty=3))
+plot(dischargePointsXS2$DistanceAdj,dischargePointsXS2$gaugeHeight,main=paste(siteID,"Discharge XS1: Distance vs. Gauge Height"),xlab="Distance (m)",ylab="Gauge Height (m)")
+text(dischargePointsXS2$DistanceAdj,dischargePointsXS2$gaugeHeight,labels=dischargePointsXS2$name,pos=4)
+lines(lines(dischargePointsXS2$DistanceAdj,dischargePointsXS2$gaugeHeight,lty=3))
 colorsForPlot <- c("blue","red","green","orange","purple")
 for(i in 1:numControls){
   x <- c(geo_controlType_in$controlLeft[geo_controlType_in$controlNumber==i],
@@ -373,14 +373,14 @@ for(i in 1:numControls){
   
   #Determine ymax
   if(i == numControls){
-    ymax <- max(dischargePointsXS1$gaugeHeight)
+    ymax <- max(dischargePointsXS2$gaugeHeight)
   }else if(any(geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==i&geo_controlInfo_in$segmentNumber>i]==0)){
     overtakingControlNumber <- min(geo_controlInfo_in$segmentNumber[geo_controlInfo_in$controlNumber==i&
                                                                       geo_controlInfo_in$segmentNumber>i&
                                                                       geo_controlInfo_in$controlActivationState==0])
     ymax <- geo_priorParameters_in$priorActivationStage[geo_priorParameters_in$controlNumber == overtakingControlNumber]
   }else{
-    ymax <- max(dischargePointsXS1$gaugeHeight)
+    ymax <- max(dischargePointsXS2$gaugeHeight)
   }
   
   #Determine ymin if control overtakes others
