@@ -47,9 +47,9 @@ surveyPtsDF <- as.data.frame(surveyPts)
 wdir<-paste('C:/Users/nharrison/Documents/GitHub/landWaterSoilIPT/streamMorpho/ScienceProcessingCode/R_Metrics',siteID,'Raw_Data',sep="/") 
 #wdir<-paste('C:/Users/kcawley/Documents/GitHub/landWaterSoilIPT/streamMorpho/ScienceProcessingCode/R_Metrics',siteID,'Raw_Data',sep="/") 
 
-#Creates dataframe of all points associated with transect DSC1.  
-dischargePointsXS2<-subset(surveyPtsDF,mapCode=="Transect_DSC1")
-dischargePointsXS2<-dischargePointsXS2[order(-dischargePointsXS2$N),]
+#Creates dataframe of all points associated with transect DSC2 (the temporary discharge transect).  
+dischargePointsXS2<-subset(surveyPtsDF,mapCode=="Transect_DSC2")
+dischargePointsXS2<-dischargePointsXS2[order(-dischargePointsXS2$E),]
 rownames(dischargePointsXS2)<-seq(length=nrow(dischargePointsXS2))
 
 #Sets plot1 settings.  
@@ -62,8 +62,8 @@ plot_ly(data=dischargePointsXS2,x=~E, y=~N, name='Easting vs Northing', type='sc
   layout(title = siteID, xaxis=xAxisTitle1, yaxis=yAxisTitle1)
 
 #Manually select NorthStart and EastStart coordinates
-dischargeXS2NorthStart<-dischargePointsXS2$N[1]
-dischargeXS2EastStart<-dischargePointsXS2$E[1]
+dischargeXS2NorthStart<-dischargePointsXS2$N[25]
+dischargeXS2EastStart<-dischargePointsXS2$E[25]
 
 #Assigns a raw Distance value to each point relative to the NorthStart and EastStart coordinates.
 for(i in 1:(length(dischargePointsXS2$name))){
@@ -73,7 +73,7 @@ for(i in 1:(length(dischargePointsXS2$name))){
 }
 
 #To manually select ReferenceDistance:
-dischargeXS2ReferenceDistance<-dischargePointsXS2$DistanceRaw[3]
+dischargeXS2ReferenceDistance<-dischargePointsXS2$DistanceRaw[25]
 
 #Sets Horizontal adjustment value based on reference point coordinate.  
 dischargeXS2HorizontalAdjust<-0-dischargeXS2ReferenceDistance

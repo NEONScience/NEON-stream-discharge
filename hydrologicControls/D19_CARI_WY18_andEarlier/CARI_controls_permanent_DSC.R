@@ -166,24 +166,6 @@ if(exectpart){
   
 }else{"There are no negative gauge height values in discharge XS1.  There is no need for correction."}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ##### Now create the actual controls to upload... #####
 
 #First, the addition or replacement when controls are activated table "geo_controlInfo_in"
