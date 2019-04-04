@@ -1,16 +1,28 @@
 
-# library(neonUtilities)
+#This reads in data using the API and pulls zip files from the ECS buckets
+library(devtools)
+#Make sure to use the "stream-morpho-ECS-bucket" brank until that is released with the master branch
+document("C:/Users/kcawley/Documents/GitHub/NEON-utilities/neonUtilities")
+install("C:/Users/kcawley/Documents/GitHub/NEON-utilities/neonUtilities")
+library(neonUtilities)
+library(xlsx)
 # #For use with the API functionality
 # dataDir <- "API"
 # siteID <- "HOPB"
 # 
-# streamMorphoDPID <- "DP4.00131.001"
-# dataFromAPI <- zipsByProduct(streamMorphoDPID,site,package="expanded",check.size=FALSE)
-# filepath <- "C:/Users/kcawley/Desktop/test/filesToStack00131/"
-# stackByTable(filepath=filepath, folder = TRUE)
+site <- "HOPB"
+domainID <- "D01"
+streamMorphoDPID <- "DP4.00131.001"
+filepath <- "C:/Users/kcawley/Desktop/test"
+dataFromAPI <- zipsByProduct(streamMorphoDPID,site,package="expanded",check.size=FALSE,savepath = filepath)
+stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
 
 #Use the new function here once we have the data in the new ECS zip packages
+URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
+zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=TRUE, unzip = TRUE)
 
+surveyPtsDF <- read.table(paste0(URIpath,"/ECS_zipFiles/NEON_D01_HOPB_GEOMORPH_20170921_L0_VC/HOPB_surveyPts_20170921.CSV"))
+surveyPtsDF <- readOGR(paste0(URIpath,"/ECS_zipFiles/NEON_D01_HOPB_GEOMORPH_20170921_L0_VC/"),"HOPB_surveyPts_20170921.CSV")
 #HOPB processing code
 # filepath <- "C:/Users/kcawley/Desktop/test/"
 # surveyPtsDF <- read.table(paste0(filepath,"HOPB_surveyPts_20170921.csv"),sep = ",",stringsAsFactors = FALSE, header = TRUE)
