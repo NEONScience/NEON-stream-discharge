@@ -23,16 +23,16 @@ library(rgdal)
 library(plotly)
 
 #NEON Domain number (ex: D01).
-domainID<-'D06' 
+domainID<-'D18' 
 
 #Four-digit NEON site code (ex: HOPB).
-siteID <- 'MCDI'  
+siteID <- 'OKSR'  
 
 #The end date of the geomorphology survey (YYYYMMDD).  
-surveyDate<-'20181128' 
+surveyDate<-'20180831' 
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017). 
-surveyID <- "MCDI_2018"  
+surveyID <- "OKSR_2018"  
 
 #Queues a directory that contains file paths for each site per survey date.  
 #siteDirectory<-read.csv('N:/Science/AQU/Geomorphology_Survey_Data/inputDirectory.csv',head=T,sep=",",stringsAsFactors = F) 
@@ -44,12 +44,13 @@ surveyID <- "MCDI_2018"
 # surveyPtsDF <- as.data.frame(surveyPts)
 
 #Reads in the 2018 AIS Repair Survey data.
-allData<-read.csv('N:/Special/AIS Survey Work/D06_MCDI/MCDI_AIS_Repair_Survey_20181128/Raw_Survey_Data/MCDI_AIS_Repair_Survey_Raw_Survey_Data_20181128_Controls.csv',head=T,sep=",",stringsAsFactors = F) 
+allData<-read.csv('N:/Special/AIS Survey Work/D18_OKSR/OKSR_20180831_AIS_Survey/Raw_Survey_Data/OKSR_20180831_AIS_Raw_Survey_Data_Controls.csv',head=T,sep=",",stringsAsFactors = F) 
 
 
 #Working directory where files will be output.  
 wdir<-paste('C:/Users/nharrison/Documents/GitHub/landWaterSoilIPT/streamMorpho/ScienceProcessingCode/R_Metrics',siteID,'Raw_Data',sep="/") 
 #wdir<-paste('C:/Users/kcawley/Documents/GitHub/landWaterSoilIPT/streamMorpho/ScienceProcessingCode/R_Metrics',siteID,'Raw_Data',sep="/") 
+
 
 #Creates dataframe of all points associated with transect DSC1.  
 dischargePointsXS1<-subset(allData,mapCode=="Transect_DSC")
@@ -66,8 +67,8 @@ plot_ly(data=dischargePointsXS1,x=~E, y=~N, name='Easting vs Northing', type='sc
   layout(title = siteID, xaxis=xAxisTitle1, yaxis=yAxisTitle1)
 
 #Manually select NorthStart and EastStart coordinates
-dischargeXS1NorthStart<-dischargePointsXS1$N[52]
-dischargeXS1EastStart<-dischargePointsXS1$E[52]
+dischargeXS1NorthStart<-dischargePointsXS1$N[1]
+dischargeXS1EastStart<-dischargePointsXS1$E[1]
 
 #Assigns a raw Distance value to each point relative to the NorthStart and EastStart coordinates.
 for(i in 1:(length(dischargePointsXS1$name))){
@@ -77,7 +78,7 @@ for(i in 1:(length(dischargePointsXS1$name))){
 }
 
 #To manually select ReferenceDistance:
-dischargeXS1ReferenceDistance<-dischargePointsXS1$DistanceRaw[41]
+dischargeXS1ReferenceDistance<-dischargePointsXS1$DistanceRaw[1]
 
 #Sets Horizontal adjustment value based on reference point coordinate.  
 dischargeXS1HorizontalAdjust<-0-dischargeXS1ReferenceDistance
@@ -109,7 +110,7 @@ rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
 staffGaugeMeterMark<-0.8
-staffGaugeElevation <- staffGaugePoints$H[grepl("SP_0.8",staffGaugePoints$name)]  
+staffGaugeElevation <- staffGaugePoints$H[grepl("SP_0.80M",staffGaugePoints$name)]  
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
 dischargePointsXS1$gaugeHeight<-dischargePointsXS1$H - (staffGaugeElevation - staffGaugeMeterMark)
@@ -149,7 +150,7 @@ if(exectpart){
   dischargeXS1THL<-min(dischargePointsXS1$H)
   
   #Calculates the elevation of the 0.00 meter mark of the staff gauge.  
-  staffGaugeZeroElevation<-(staffGaugePoints$H[staffGaugePoints$name=="SP_0.8"])-staffGaugeMeterMark
+  staffGaugeZeroElevation<-(staffGaugePoints$H[staffGaugePoints$name=="SP_0.80M"])-staffGaugeMeterMark
   
   #Calculates the difference between the staff gauge 0.00m mark elevation and the discharge thalweg elevation.   
   gaugeZeroQElevDiff<--as.numeric(dischargeXS1THL-staffGaugeZeroElevation)
