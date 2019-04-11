@@ -37,7 +37,7 @@ source("~/GitHub/NEON-AQU-data-quality/gaugeDischargePlotting/conv.calc.Q.R")
 
 #Enter the data product ID (NEON discharge measurement collection = 20048) and enter the site ID (i.e. POSE) from which you wish to plot stage/Q data.
 DPID <- "20048" #Look up the DP number at https://data.neonscience.org/data-product-catalog
-siteID <- "HOPB"
+siteID <- "MART"
 
 #Enter the working directory where stacked data is to be sent by the API. 
 setwd<-"C:/Users/nharrison/Documents/Discharge_Data"
@@ -134,7 +134,7 @@ plot_ly(data=wy19,x=~GaugeHeight, y=~`Discharge (lps)`, name=~waterYear, type='s
    layout(title = paste(siteID,":","Gauge Height (m) vs. Discharge (lps)"), xaxis=xAxis, yaxis=yAxis)
 
 #Calcs median discharge data for all years.
-median<-median(allStageQ$`Discharge (lps)`)
+median<-median(allStageQ$`Discharge (lps)`,na.rm=TRUE)
 
 wy16RatingIDs<-4
 wy16Rating<-allStageQ<-data.frame(matrix(nrow=length(dsc_fieldDataPlot$calcQ),ncol=7))
