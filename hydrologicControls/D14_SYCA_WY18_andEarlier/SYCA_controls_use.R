@@ -90,7 +90,7 @@ xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE)
 yAxisTitle2<-list(title="Elevation  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
-#Plot the cross section by easting and northing data.
+#Plots the cross section using adjusted distance and elevation data.    
 plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~H, name='Distance vs Elevation', type='scatter', mode='lines+markers', text=~name)%>%
   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
 
