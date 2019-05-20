@@ -5,7 +5,8 @@
 \title{Salt-based discharge calculations for a constant rate injection}
 \usage{
 def.calc.Q.inj(inputFile, injRate = inputFile$injRate,
-  injConc = inputFile$injConc, backgroundConc = inputFile$backgroundConc,
+  injConc = inputFile$injConc,
+  backgroundConc = inputFile$backgroundConc,
   plateauConc = inputFile$plateauConc)
 }
 \arguments{

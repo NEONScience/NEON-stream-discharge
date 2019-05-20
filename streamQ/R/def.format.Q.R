@@ -127,9 +127,10 @@ def.format.Q <- function(
   }
   
   #Merge the backgroundDataLogger and fieldDataSite tables
+  backgroundDataLogger$collectDate <- backgroundDataLogger$startDate
   loggerSiteData <- merge(backgroundDataLogger, 
                           fieldDataSite, 
-                          by = c('siteID', 'startDate'), 
+                          by = c('siteID', 'collectDate'), 
                           all = T)
   
   #Create input file for Q calculations
@@ -196,8 +197,8 @@ def.format.Q <- function(
     
     #Use last background startDate where slugPourTime is missing
     if(is.na(outputDF$slugPourTime[i])){
-      outputDF$slugPourTime[i] <- min(backgroundDataSalt$startDate[backgroundDataSalt$siteID == siteID &
-                                                                     backgroundDataSalt$startDate == startDate])
+      outputDF$slugPourTime[i] <- min(backgroundDataSalt$collectDate[backgroundDataSalt$siteID == siteID &
+                                                                     backgroundDataSalt$collectDate == startDate])
     }
     
     #Populate injectate concentration
@@ -205,7 +206,7 @@ def.format.Q <- function(
       externalLabDataSalt$saltSampleID == outputDF$injectateSampleID[i]]), silent = T)
     
     #Find plateau values to average
-    pValues <- c(t(plateauDataCond[plateauDataCond$startDate == startDate &
+    pValues <- c(t(plateauDataCond[plateauDataCond$collectDate == startDate &
                                      plateauDataCond$namedLocation == station,
                                    names(plateauDataCond) %in% plateauFields]))
     
@@ -216,14 +217,14 @@ def.format.Q <- function(
     try(outputDF$backgroundConc[i] <- 
         unique(externalLabDataSalt$finalConcentration[
             externalLabDataSalt$namedLocation == station &
-              externalLabDataSalt$startDate == startDate & 
+              externalLabDataSalt$collectDate == startDate & 
               grepl(paste0(".B",substr(station,nchar(station),nchar(station)),"."),
                     externalLabDataSalt$saltSampleID)]), silent = T)
     
     #Fill in plateau concentration data for constant rate injection
     pSaltConc <- externalLabDataSalt$finalConcentration[
       externalLabDataSalt$namedLocation == station &
-        externalLabDataSalt$startDate == startDate & 
+        externalLabDataSalt$collectDate == startDate & 
         grepl(repRegex, externalLabDataSalt$saltSampleID)]
     
     #Remove outliers TBD
