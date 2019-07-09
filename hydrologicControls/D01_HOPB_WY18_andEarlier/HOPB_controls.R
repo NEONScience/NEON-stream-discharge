@@ -22,10 +22,10 @@ surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D01_HOPB_GEOMORPH_20170921_L0_VE
                           stringsAsFactors = FALSE)
 
 #The end date of the geomorphology survey (YYYYMMDD)
-surveyDate<-'20170921' 
+surveyDate<-'20170921'
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
-surveyID <- "HOPB_2017" 
+surveyID <- "HOPB_2017"
 
 #Creates dataframe of all points associated with transect DSC1.  
 dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC")
@@ -56,16 +56,16 @@ for(i in 1:(length(dischargePointsXS1$name))){
 dischargeXS1ReferenceDistance <- dischargePointsXS1$DistanceRaw[dischargePointsXS1$name=="DSC_PIN"]
 
 #Sets Horizontal adjustment value based on reference point coordinate.  
-dischargeXS1HorizontalAdjust<-0-dischargeXS1ReferenceDistance
+dischargeXS1HorizontalAdjust <- 0-dischargeXS1ReferenceDistance
 
 #Transforms raw distance to adjusted distance based on reference distance point.
 for(i in 1:(length(dischargePointsXS1$name))){
   dischargePointsXS1$DistanceAdj[i]<-dischargePointsXS1$DistanceRaw[i]+dischargeXS1HorizontalAdjust
 }
 
-#Calculates the bankfull width
-DSCXS1Bankfull<-abs((dischargePointsXS1$DistanceAdj[grepl("RBF",dischargePointsXS1$name)])-
-                      (dischargePointsXS1$DistanceAdj[grepl("LBF",dischargePointsXS1$name)]))
+# #Calculates the bankfull width
+# DSCXS1Bankfull<-abs((dischargePointsXS1$DistanceAdj[grepl("RBF",dischargePointsXS1$name)])-
+#                       (dischargePointsXS1$DistanceAdj[grepl("LBF",dischargePointsXS1$name)]))
 
 #Creates dataframe of staff gauge points
 staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge")
@@ -74,7 +74,7 @@ rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
-staffGaugeMeterMark<-0.265
+staffGaugeMeterMark <- 0.265
 staffGaugeElevation <- staffGaugePoints$H[grepl("SP_.265M",staffGaugePoints$name)]  
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
@@ -270,7 +270,7 @@ names(geo_priorParameters_in) <- c("locationID",
 geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC22"]
 geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC10"]
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC15"]
 geo_priorParameters_in$priorActivationStageUnc[2] <- 0.01
 
 geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC6"]
