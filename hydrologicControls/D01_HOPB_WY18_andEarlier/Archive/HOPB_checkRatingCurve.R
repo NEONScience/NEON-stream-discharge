@@ -1,6 +1,5 @@
 
 #This script runs the bayesian model and plots results for QAQC prior to loading control data to PROD
-
 Sys.setenv(DIRPATH = "C:/Users/kcawley/Documents/GitHub/NEON-stream-discharge/hydrologicControls/D01_HOPB_WY18_andEarlier/",
            BAMFOLD="BaM_beta/",
            BAMFILE="BaM_MiniDMSL.exe",#Windows version
@@ -29,7 +28,7 @@ Sys.setenv(TZ='UTC')
 library(neonUtilities)
 library(stageQCurve)
 
-#This step will likely download data from the portal and you will see text in the r console and a pop-up of download progrssion
+#This step will likely download data from the portal and you will see text in the r console and a pop-up of download progression
 calc.stag.Q.curv()
 
 #Plot rating curve prior and posterior parameter distributions from MCMC outputs directly

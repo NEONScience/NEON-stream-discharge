@@ -2,8 +2,6 @@
 #This reads in data using the API and pulls zip files from the ECS buckets
 #load packages
 library(neonUtilities)
-# require(rgdal)
-# library(rgdal)
 library(plotly)
 
 siteID <- "HOPB"
@@ -196,17 +194,13 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-#geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "18"]
 geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC15"]
-#geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "41"]
 geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC34"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 0.05 #Uncertainty associated with AIS survey
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Weir"
-#geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "13"]
-#geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$ID == "18"]
 geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC7"]
 geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC15"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
@@ -230,7 +224,7 @@ plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdge
 legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
 points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
 ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
-#ans = 981, 932
+#ans = 925, 985
 Sys.sleep(1)
 invisible(dev.off())
 
@@ -273,7 +267,7 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC25"]
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC22"]
 geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
 
 geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC10"]
@@ -364,7 +358,7 @@ for(i in 1:numControls){
          ymax)
   polygon(x,y, col = adjustcolor(colorsForPlot[i],alpha.f = 0.5))
 }
-dev.copy2pdf(file = paste0(siteID,"_siteControls.pdf"), width = 16, height = 9)
+dev.copy2pdf(file = paste0(filepath,"/",siteID,"_siteControls.pdf"), width = 16, height = 9)
 
 #Write out three tables for ingest to GitHub and testing location both
 geo_controlInfo_in_output <- c("locationID",
@@ -375,12 +369,7 @@ geo_controlInfo_in_output <- c("locationID",
                                "controlActivationState")
 geo_controlInfo_in <- geo_controlInfo_in[,names(geo_controlInfo_in)%in%geo_controlInfo_in_output]
 write.csv(geo_controlInfo_in,
-          "geo_controlInfo_in.csv",
-          quote = TRUE,
-          row.names = FALSE,
-          fileEncoding = "UTF-8")
-write.csv(geo_controlInfo_in,
-          "H:/controlTesting/geo_controlInfo_in.csv",
+          paste0(filepath,"/geo_controlInfo_in.csv"),
           quote = TRUE,
           row.names = FALSE,
           fileEncoding = "UTF-8")
@@ -424,11 +413,6 @@ geo_priorParameters_in_output <- c("locationID",
                                    "priorActivationStage",
                                    "priorActivationStageUnc")
 geo_priorParameters_in <- geo_priorParameters_in[,names(geo_priorParameters_in)%in%geo_priorParameters_in_output]
-write.csv(geo_priorParameters_in,
-          paste0(filepath,"/geo_priorParameters_in.csv"),
-          quote = TRUE,
-          row.names = FALSE,
-          fileEncoding = "UTF-8")
 write.csv(geo_priorParameters_in,
           paste0(filepath,"/geo_priorParameters_in.csv"),
           quote = TRUE,
