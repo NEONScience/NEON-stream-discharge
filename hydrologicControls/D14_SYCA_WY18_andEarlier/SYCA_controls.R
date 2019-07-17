@@ -225,7 +225,7 @@ plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdge
 legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
 points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
 ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
-#ans = 173, 190
+#ans = 170, 195
 Sys.sleep(1)
 invisible(dev.off())
 
