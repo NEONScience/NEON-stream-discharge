@@ -16,7 +16,14 @@ neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/
 neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
 
 #Read in downloaded data
+#This survey has good left floodplain resolution but no water edge
 surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D12_BLDE_GEOMORPH_20181026_L0_VE/BLDE_surveyPts_20180814.CSV"),
+                          sep = ",",
+                          header = TRUE,
+                          stringsAsFactors = FALSE)
+
+#Getting water edge (for slope) from this survey
+surveyPtsDF2 <- read.table(paste0(URIpath,"/NEON_D12_BLDE_GEOMORPH_20181026_L0_VE/BLDE_surveyPts_20181026.CSV"),
                           sep = ",",
                           header = TRUE,
                           stringsAsFactors = FALSE)
@@ -29,6 +36,7 @@ surveyID <- "BLDE_2018"
 
 #Creates dataframe of all points associated with transect DSC1.
 names(surveyPtsDF) <- c("name","latitude","Longitude","northing","easting","elevation","mapCode","E","N","H")
+names(surveyPtsDF2) <- c("name","latitude","Longitude","northing","easting","elevation","mapCode","E","N","H")
 dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC1")
 dischargePointsXS1<-dischargePointsXS1[order(dischargePointsXS1$N),]
 rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1))
@@ -75,7 +83,7 @@ rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
-staffGaugeMeterMark<-0.60
+staffGaugeMeterMark<-0.80
 staffGaugeElevation <- staffGaugePoints$H 
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
@@ -195,15 +203,15 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LEW"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_REW"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LB_PIN"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RB_PIN"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 0.05 #Uncertainty associated with AIS survey
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LBF"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RBF"]
+geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LB_FLDPLN23"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RB_FLDPLN5"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
 geo_controlType_in$rectangularWidthUnc[2] <- 0.05
 
@@ -215,8 +223,9 @@ geo_controlType_in$rectangularWidthUnc[2] <- 0.05
 #geo_controlType_in$rectangularWidthUnc[3] <- 0.05
 
 #Slope calculations
+# Note this uses water edge from other survey
 colfunc <- colorRampPalette(c("cyan","deeppink"))
-wettedEdgePoints=subset(surveyPtsDF,surveyPtsDF$mapCode%in%c("LEW","REW"))
+wettedEdgePoints=subset(surveyPtsDF2,surveyPtsDF2$mapCode%in%c("LEW","REW"))
 wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
 rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints)) 
 invisible(dev.new(noRStudioGD = TRUE))
@@ -230,6 +239,7 @@ Sys.sleep(1)
 invisible(dev.off())
 
 #Plot subsetted wetted edges by manually entering ans values for tracking
+# Note this uses water edge from other survey
 #wettedEdgePoints <- wettedEdgePoints[150:300,]
 invisible(dev.new(noRStudioGD = TRUE))
 plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
@@ -237,9 +247,9 @@ plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdge
 legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
 points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
 csOne <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-#csOne = 212,198
+#csOne = 319,318
 csTwo <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-#csTwo = 226,218
+#csTwo = 337,334
 Sys.sleep(1)
 invisible(dev.off())
 
@@ -268,10 +278,10 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC10"]
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS14"]
 geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC16"]
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_LB_PIN"]
 geo_priorParameters_in$priorActivationStageUnc[2] <- 0.01
 
 #geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC16"]
