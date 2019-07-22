@@ -258,7 +258,7 @@ geo_controlType_in$channelSlopeUnc[2] <- 0.015
 geo_controlType_in$manningCoefficient[2] <- 0.05
 geo_controlType_in$manningCoefficientUnc[2] <- 0.001
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
-geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
+geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))

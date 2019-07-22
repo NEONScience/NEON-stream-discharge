@@ -219,16 +219,16 @@ colfunc <- colorRampPalette(c("cyan","deeppink"))
 wettedEdgePoints=subset(surveyPtsDF,surveyPtsDF$mapCode%in%c("LEW","REW"))
 wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
 rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints)) 
-# invisible(dev.new(noRStudioGD = TRUE))
-# plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
-#      main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
-# legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
-# points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
-# ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
-# Sys.sleep(1)
-# invisible(dev.off())
+invisible(dev.new(noRStudioGD = TRUE))
+plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
+     main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
+legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
+points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
+ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
+Sys.sleep(1)
+invisible(dev.off())
 
-ans=c(274,227)
+ans=c(346,176)
 
 #Plot subsetted wetted edges by manually entering ans values for tracking
 wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
@@ -238,14 +238,12 @@ wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
 # legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
 # points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
 # csOne <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-# #csOne = 277,260
 # csTwo <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-# #csTwo = 229,216
 # Sys.sleep(1)
 # invisible(dev.off())
 
-csOne=c(277,260)
-csTwo=c(229,216)
+csOne=c(64,67)
+csTwo=c(156,155)
 
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
@@ -256,7 +254,7 @@ geo_controlType_in$channelSlopeUnc[2] <- 0.015
 geo_controlType_in$manningCoefficient[2] <- 0.05
 geo_controlType_in$manningCoefficientUnc[2] <- 0.001
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
-geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
+geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))

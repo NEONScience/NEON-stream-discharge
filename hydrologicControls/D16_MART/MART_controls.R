@@ -218,7 +218,7 @@ geo_controlType_in$rectangularWidthUnc[2] <- 0.05
 colfunc <- colorRampPalette(c("cyan","deeppink"))
 wettedEdgePoints=subset(surveyPtsDF,surveyPtsDF$mapCode%in%c("LEW","REW"))
 wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
-# rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints)) 
+rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints))
 # invisible(dev.new(noRStudioGD = TRUE))
 # plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
 #      main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
@@ -228,10 +228,10 @@ wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
 # Sys.sleep(1)
 # invisible(dev.off())
 
-ans=c(77,136)
+ans=c(22,308)
 
 #Plot subsetted wetted edges by manually entering ans values for tracking
-wettedEdgePoints <- wettedEdgePoints[ans[1]:and[2],]
+wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
 # invisible(dev.new(noRStudioGD = TRUE))
 # plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
 #      main=paste(siteID,"\nSelect two points above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
@@ -242,8 +242,8 @@ wettedEdgePoints <- wettedEdgePoints[ans[1]:and[2],]
 # Sys.sleep(1)
 # invisible(dev.off())
 
-csOne=c(99,64)
-csTwo=c(129,108)
+csOne=c(32,42)
+csTwo=c(127,119)
 
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
@@ -254,7 +254,7 @@ geo_controlType_in$channelSlopeUnc[2] <- 0.015
 geo_controlType_in$manningCoefficient[2] <- 0.05
 geo_controlType_in$manningCoefficientUnc[2] <- 0.001
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
-geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
+geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))

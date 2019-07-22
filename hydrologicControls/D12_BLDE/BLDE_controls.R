@@ -242,8 +242,8 @@ wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
 # Sys.sleep(1)
 # invisible(dev.off())
 
-csOne=c(212,198)
-csTwo=c(226,218)
+csOne=c(5,2)
+csTwo=c(14,9)
 
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
@@ -254,7 +254,7 @@ geo_controlType_in$channelSlopeUnc[2] <- 0.015
 geo_controlType_in$manningCoefficient[2] <- 0.05
 geo_controlType_in$manningCoefficientUnc[2] <- 0.001
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
-geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
+geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))

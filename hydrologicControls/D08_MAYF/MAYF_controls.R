@@ -204,7 +204,7 @@ geo_controlType_in$controlRight[2] <- mean(c(dischargePointsXS1$DistanceAdj[disc
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
 geo_controlType_in$rectangularWidthUnc[2] <- 0.05
 
-#Entries for Control #2
+#Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LBF5"]
 geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_PIN"]
