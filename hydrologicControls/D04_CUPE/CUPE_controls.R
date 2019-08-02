@@ -97,36 +97,30 @@ plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance v
   add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
 
-#Asseses whether negative stage is present in the discharge cross-section 
-negativeStage<-any(dischargePointsXS1$gaugeHeight<0)
+#####################################################################################################################################################
+#Adjusts the cross section elevations so lowest point is equal to 0.00 meter mark of staff gauge
+#####################################################################################################################################################
+#Determines the lowest elevation of the discharge cross-section
+dischargeXSmin<-min(dischargePointsXS1$H)
 
-if(negativeStage==TRUE){
-  execpart<-TRUE
-}else{execpart<-FALSE}
+#Determines elevation of 0.00 meter mark of staff gage
+staffGaugeZero=staffGaugeElevation-staffGaugeMeterMark
 
-#This section will only run if there are negative values in the gauge height column.  
-if(execpart){
-  
-  #Determines the lowest elevation of the discharge cross-section, assumed to be the thalweg. 
-  dischargeXS1THL<-min(dischargePointsXS1$H)
-  
-  #Calculates the elevation of the 0.00 meter mark of the staff gauge.  
-  staffGaugeZeroElevation<-(staffGaugePoints$H[staffGaugePoints$name=="SP_0.55M"])-staffGaugeMeterMark
-  
-  #Calculates the difference between the staff gauge 0.00m mark elevation and the discharge thalweg elevation.   
-  gaugeZeroQElevDiff<-as.numeric(dischargeXS1THL-staffGaugeZeroElevation)
-  
-  #Offsets the gauge heights by the offset elevation, rounds to two digits.  
-  dischargePointsXS1$gaugeHeightOffset<-dischargePointsXS1$gaugeHeight - gaugeZeroQElevDiff
-  dischargePointsXS1$gaugeHeightOffset<-round(dischargePointsXS1$gaugeHeightOffset,digits=2)
-  
-  #Plots discharge XS1 transect point distances vs gaugeHeightOffset.  Red line should be at the thalweg.
-  plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeightOffset, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
-    add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
-    layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
-  
-  
-}else{"There are no negative gauge height values in discharge XS1.  There is no need for correction."}
+#Determines the offset between the lowest elevation and gauge height 
+ElevOff<-dischargeXSmin-staffGaugeZero
+
+#Adjusts the cross section elevations by the offset and rounds to 2 decimals
+dischargePointsXS1$gaugeHeight<-dischargePointsXS1$gaugeHeight - ElevOff
+dischargePointsXS1$gaugeHeight<-round(dischargePointsXS1$gaugeHeight,digits=2)
+
+#Replots the adjusted cross section  
+xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-5,15))
+yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
+font<-list(size=12,color='black')
+plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
+  add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
+  layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
+#####################################################################################################################################################
 
 ##### Now create the actual controls to upload... #####
 
@@ -155,32 +149,32 @@ geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&ge
 geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==3] <- 0
 
 #Is control #2 still active when control #3 is activated? 0 = No
-geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&geo_controlInfo_in$segmentNumber==3] <- 0
+geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&geo_controlInfo_in$segmentNumber==3] <- 1
 
 #Second, create entries for "geo_controlType_in" table for control parameters
 geo_controlType_in_names <- c("locationID",
-                               "startDate",
-                               "endDate",
-                               "controlNumber",
-                               "hydraulicControlType",
-                               "controlLeft",
-                               "controlRight",
-                               "rectangularWidth",
-                               "rectangularWidthUnc",
-                               "triangularAngle",
-                               "triangularAngleUnc",
-                               "parabolaWidth",
-                               "parabolaWidthUnc",
-                               "parabolaHeight",
-                               "parabolaHeightUnc",
-                               "orificeArea",
-                               "orificeAreaUnc",
-                               "channelSlope",
-                               "channelSlopeUnc",
-                               "manningCoefficient",
-                               "manningCoefficientUnc",
-                               "stricklerCoefficient",
-                               "stricklerCoefficientUnc")
+                              "startDate",
+                              "endDate",
+                              "controlNumber",
+                              "hydraulicControlType",
+                              "controlLeft",
+                              "controlRight",
+                              "rectangularWidth",
+                              "rectangularWidthUnc",
+                              "triangularAngle",
+                              "triangularAngleUnc",
+                              "parabolaWidth",
+                              "parabolaWidthUnc",
+                              "parabolaHeight",
+                              "parabolaHeightUnc",
+                              "orificeArea",
+                              "orificeAreaUnc",
+                              "channelSlope",
+                              "channelSlopeUnc",
+                              "manningCoefficient",
+                              "manningCoefficientUnc",
+                              "stricklerCoefficient",
+                              "stricklerCoefficientUnc")
 geo_controlType_in <- data.frame(matrix(nrow = numControls, ncol = length(geo_controlType_in_names)))
 names(geo_controlType_in) <- geo_controlType_in_names
 
@@ -191,24 +185,24 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC8"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC23"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC12"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC18"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
-geo_controlType_in$rectangularWidthUnc[1] <- 0.05 #Uncertainty associated with AIS survey
+geo_controlType_in$rectangularWidthUnc[1] <- 0.2 #Uncertainty associated with AIS survey
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LBF"]
+geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC9"]
 geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RBF"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
-geo_controlType_in$rectangularWidthUnc[2] <- 0.05
+geo_controlType_in$rectangularWidthUnc[2] <- 0.2
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LFW"]
-geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RFW"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC9"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
-geo_controlType_in$rectangularWidthUnc[3] <- 0.05
+geo_controlType_in$rectangularWidthUnc[3] <- 0.2
 
 #Slope calculations
 colfunc <- colorRampPalette(c("cyan","deeppink"))
@@ -266,13 +260,13 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_THL"]
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC13"]
 geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC8"]
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC11"]
 geo_priorParameters_in$priorActivationStageUnc[2] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC26"]
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC8"]
 geo_priorParameters_in$priorActivationStageUnc[3] <- 0.01
 
 geo_priorParameters_in$locationID <- siteID
