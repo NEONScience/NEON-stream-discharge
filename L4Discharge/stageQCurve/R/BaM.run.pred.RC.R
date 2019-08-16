@@ -1,3 +1,12 @@
+# ############## For Testing ###########################
+# DIRPATH = Sys.getenv("DIRPATH")
+# BAMFOLD = Sys.getenv("BAMFOLD")
+# BAMFILE = Sys.getenv("BAMFILE")
+# BAMWS = Sys.getenv("BAMWS")
+# minH
+# maxH
+# ######################################################
+
 ##############################################################################################
 #' @title Run predictions for rating curve
 
