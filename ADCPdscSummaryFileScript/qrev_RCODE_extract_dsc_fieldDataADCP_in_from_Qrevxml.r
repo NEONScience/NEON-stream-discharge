@@ -9,6 +9,12 @@
 #' open R session with local directory, and/or set your working directory as folder with .r script, and the associated Qrev.xml and .mmt files 
 #' source the R script
 #' OUTPUT will be a tab delimited .txt file ready to be ingested
+#' Have to Update the Versions
+
+# Record Version
+VX <- "A"
+# 28 samplingProtocol
+samplingProtocol <-  'NEON.DOC.001085'
 
 ###############Warning: this is provisional script, subject to revision, and not curremtly intended for public use.  Please do not disseminate.   
 
@@ -35,8 +41,59 @@ mmt_file_list <- working_dir_file_list[grep('(?i)\\.mmt', working_dir_file_list)
 mmt_xmlfile <- read_xml(mmt_file_list)
 rawDataFileName <- gsub("(?i)\\.mmt",".zip",mmt_file_list)
 
+
+# 3 stationID
+#Out of place because #1 rawDataFileName needs to pull the site_id
+site_id <- xml_find_all(mmt_xmlfile, xpath = '//Site_Information/Name') %>% 
+  as_list() %>% unlist()
+#4 letter code only
+site_id <- sub("^([[:alpha:]]*).*", "\\1", site_id)
+
 # 1 rawDataFileName
-rawDataFileName <- gsub("(?i)\\.mmt",".zip",mmt_file_list)
+  #' Ingest Workbook Designating the rawDataFileName = REGEX in ingest as follows
+  #'	[REQUIRE][MATCH_REGULAR_EXPRESSION('NEON_D[0-9]{2}_[A-Z]{4}_20[0-9]{2}(0[1-9]|1[012])(0[1-9]|1[0-9]|2[0-9]|3[01])_[RIVER|ADCP]_DISCHARGE_L0(_part[0-9])?_V[A-Z]\\.zip')] 
+  #'	NEON_DXX_SITE__YYYYMMDD_ADCP_DISCHARGE_L0_VX
+  #Domain number
+DXX <- if(site_id == "HOPB") { print("D01")
+} else if (site_id == "LEWI") { print("D02")
+} else if (site_id == "POSE") { print("D02")
+} else if (site_id == "FLNT") { print("D03")
+} else if (site_id == "CUPE") { print("D04")
+} else if (site_id == "GUIL") { print("D04")
+} else if (site_id == "KING") { print("D06")
+} else if (site_id == "MCDI") { print("D06")
+} else if (site_id == "LECO") { print("D07")
+} else if (site_id == "WALK") { print("D07")
+} else if (site_id == "BLWA") { print("D08")
+} else if (site_id == "MAYF") { print("D08")
+} else if (site_id == "ARIK") { print("D10")
+} else if (site_id == "BLUE") { print("D11")
+} else if (site_id == "PRIN") { print("D11")
+} else if (site_id == "BLDE") { print("D12")
+} else if (site_id == "COMO") { print("D13")
+} else if (site_id == "WLOU") { print("D13")
+} else if (site_id == "SYCA") { print("D14")
+} else if (site_id == "REDB") { print("D15")
+} else if (site_id == "MART") { print("D16")
+} else if (site_id == "MCRA") { print("D16")
+} else if (site_id == "TECR") { print("D17")
+} else if (site_id == "BIGC") { print("D17")
+} else if (site_id == "OKSR") { print("D18")
+} else if (site_id == "TOOK") { print("D18")
+} else if (site_id == "CARI") { print("D19")
+} 
+  # Site Name 
+SITE <- site_id
+  # Sampling Date 
+measDate <- xml_find_all(mmt_xmlfile, xpath = '//Measurement_Date')%>% 
+  as_list() %>% unlist() %>%
+  ifelse(is.null(.), NA, .)
+splitUp <- strsplit(measDate, "/")%>% unlist() 
+YYYYMMDD <- paste0(splitUp[3], splitUp[1],splitUp[2])
+  # Version of file: See above
+  #Whole rawDataFileName
+rawDataFileName <- paste0("NEON_", DXX, "_", SITE,"_", YYYYMMDD, "_ADCP_DISCHARGE_L0_V", VX)
+
 
 # 2 time_zone       
 # get time zone from .mmt file. If none is provided, use UTC
@@ -63,11 +120,6 @@ if(!time_zone%in%OlsonNames()){
 
 if(is.na(time_zone))   time_zone <- 'UTC'
 
-# 3 stationID
-site_id <- xml_find_all(mmt_xmlfile, xpath = '//Site_Information/Name') %>% 
-  as_list() %>% unlist()
-#4 letter code only
-site_id <- sub("^([[:alpha:]]*).*", "\\1", site_id)
 
 # 4 aCollectedBy 
 #Get field party from user entered info
@@ -85,6 +137,7 @@ aCollectedBy <- x[1]
 
 # 5 bCollectedBy
 bCollectedBy<-x[2]
+bCollectedBy <- gsub(" ", "", bCollectedBy)
 
 # 6 startDate 
 node_of_interest <- xml_find_all(mmt_xmlfile, xpath = '//Discharge_Summary/None')
@@ -123,6 +176,11 @@ water_temp <- xml_find_all(mmt_xmlfile, xpath = '//Water_Temperature') %>%
   as_list() %>% unlist() %>%
   ifelse(is.null(.), NA, .)
 
+# 9 Gauge Height
+#Get values
+gauge_height <- xml_find_all(mmt_xmlfile, xpath = '//Inside_Gage_Height') %>% 
+  as_list() %>% unlist() %>%
+  ifelse(is.null(.), NA, .)
 
 # 19 windSpeedPrior 
 wind_speed_text <- xml_find_all(mmt_xmlfile, xpath = '//Wind_Speed') %>% 
@@ -205,20 +263,6 @@ Parse_Qrev <- xmlParse(Qrev_fileURL)
 #site_id <- xml_find_all(Qrev_xmlfile, xpath = "//SiteInformation/SiteID")%>% 
  # as_list() %>% unlist() %>%
   #ifelse(is.null(.), NA, .)  
-
-# 9 Gauge Height
-#Get values
-Usercomments <- xml_find_all(Qrev_xmlfile, xpath = '//UserComment') %>% 
-  as_list() %>% unlist() %>%
-  ifelse(is.null(.), NA, .)  
-filesplit <- strsplit(Usercomments, "File: [0-9]{,2} [0-9]{2}/[0-9]{2}/20[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}: Gauge Height = ") 
-filesplit <- filesplit[[1]]
-filesplit <- filesplit[filesplit!=""]
-filesplit <- gsub("m.*$", "", filesplit)
-
-#take average of values
-fs <- as.numeric(filesplit)
-gauge_height <- mean(fs)
 
 # 11 totalDischarge
 #Path <Channel> <ChannelSummary> <Discharge> <Total     </Total>
