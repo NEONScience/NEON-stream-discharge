@@ -9,7 +9,7 @@
 #' open R session with local directory, and/or set your working directory as folder with .r script, and the associated Qrev.xml and .mmt files 
 #' source the R script
 #' OUTPUT will be a tab delimited .txt file ready to be ingested
-#' Have to Update the Versions
+#' Have to Update the Versions, directly below:
 
 # Record Version
 VX <- "A"
@@ -24,6 +24,7 @@ library(readr) #package used to export the created file
 library(tidyverse)
 library(xml2)
 options(stringsAsFactors = FALSE)
+
 # r packages and options Qrev.xml file
 library(XML) #Package for parsing the XML file into R
 library(methods) #base R package needed to be loaded to use the XML package
@@ -130,10 +131,7 @@ field_party <- xml_find_all(mmt_xmlfile, xpath = '//Party') %>%
 #Parse out field_party initials 
 x<-unlist(strsplit(field_party,","))
 aCollectedBy<-x[1]
-bCollectedBy<-x[2]
 
-               
-aCollectedBy <- x[1]
 
 # 5 bCollectedBy
 bCollectedBy<-x[2]
@@ -431,10 +429,11 @@ output_dir_name <- 'R_SCRIPT_OUTPUTQrev'
 # Create the new folder to house the export file
 if(!file.exists(output_dir_name)) dir.create(paste(getwd(),output_dir_name, sep = '/'))
 
+
 # Name the export file
-outputFileName <- outputDF$rawDataFileName %>% 
-  gsub("(?i).zip",".txt", .) %>% 
+outputFileName <- paste0(outputDF$rawDataFileName, ".txt")%>% 
   paste0(output_dir_name,'/', .)
+
 
 # Export the file
 write_delim(outputDF, outputFileName, delim = '\t', na = 'NA', quote_escape = "none")
