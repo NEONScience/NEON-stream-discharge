@@ -12,7 +12,7 @@
 #' Have to Update the Versions, directly below:
 
 # Record Version
-VX <- "A"
+VX <- "B"
 # 28 samplingProtocol
 samplingProtocol <-  'NEON.DOC.001085'
 
@@ -24,11 +24,10 @@ library(readr) #package used to export the created file
 library(tidyverse)
 library(xml2)
 options(stringsAsFactors = FALSE)
-
 # r packages and options Qrev.xml file
 library(XML) #Package for parsing the XML file into R
 library(methods) #base R package needed to be loaded to use the XML package
-options(stringsAsFactors = FALSE)
+
 
 ######## Get list of file names in the directory that this script is located in ######
 working_dir_file_list <- list.files()
@@ -40,7 +39,7 @@ require("xml2")
 # get list of .mmt files to parse
 mmt_file_list <- working_dir_file_list[grep('(?i)\\.mmt', working_dir_file_list)]
 mmt_xmlfile <- read_xml(mmt_file_list)
-rawDataFileName <- gsub("(?i)\\.mmt",".zip",mmt_file_list)
+
 
 
 # 3 stationID
@@ -56,37 +55,36 @@ site_id <- sub("^([[:alpha:]]*).*", "\\1", site_id)
   #'	NEON_DXX_SITE__YYYYMMDD_ADCP_DISCHARGE_L0_VX
   #Domain number
 DXX <- if(site_id == "HOPB") { print("D01")
-} else if (site_id == "LEWI") { print("D02")
-} else if (site_id == "POSE") { print("D02")
-} else if (site_id == "FLNT") { print("D03")
-} else if (site_id == "CUPE") { print("D04")
-} else if (site_id == "GUIL") { print("D04")
-} else if (site_id == "KING") { print("D06")
-} else if (site_id == "MCDI") { print("D06")
-} else if (site_id == "LECO") { print("D07")
-} else if (site_id == "WALK") { print("D07")
-} else if (site_id == "BLWA") { print("D08")
-} else if (site_id == "MAYF") { print("D08")
-} else if (site_id == "ARIK") { print("D10")
-} else if (site_id == "BLUE") { print("D11")
-} else if (site_id == "PRIN") { print("D11")
-} else if (site_id == "BLDE") { print("D12")
-} else if (site_id == "COMO") { print("D13")
-} else if (site_id == "WLOU") { print("D13")
-} else if (site_id == "SYCA") { print("D14")
-} else if (site_id == "REDB") { print("D15")
-} else if (site_id == "MART") { print("D16")
-} else if (site_id == "MCRA") { print("D16")
-} else if (site_id == "TECR") { print("D17")
-} else if (site_id == "BIGC") { print("D17")
-} else if (site_id == "OKSR") { print("D18")
-} else if (site_id == "TOOK") { print("D18")
-} else if (site_id == "CARI") { print("D19")
-} 
-  # Site Name 
-SITE <- site_id
-  # Sampling Date 
-measDate <- xml_find_all(mmt_xmlfile, xpath = '//Measurement_Date')%>% 
+  } else if (site_id == "LEWI") { print("D02")
+  } else if (site_id == "POSE") { print("D02")
+  } else if (site_id == "FLNT") { print("D03")
+  } else if (site_id == "CUPE") { print("D04")
+  } else if (site_id == "GUIL") { print("D04")
+  } else if (site_id == "KING") { print("D06")
+  } else if (site_id == "MCDI") { print("D06")
+  } else if (site_id == "LECO") { print("D07")
+  } else if (site_id == "WALK") { print("D07")
+  } else if (site_id == "BLWA") { print("D08")
+  } else if (site_id == "MAYF") { print("D08")
+  } else if (site_id == "TOMB") { print("D08")
+  } else if (site_id == "ARIK") { print("D10")
+  } else if (site_id == "BLUE") { print("D11")
+  } else if (site_id == "PRIN") { print("D11")
+  } else if (site_id == "BLDE") { print("D12")
+  } else if (site_id == "COMO") { print("D13")
+  } else if (site_id == "WLOU") { print("D13")
+  } else if (site_id == "SYCA") { print("D14")
+  } else if (site_id == "REDB") { print("D15")
+  } else if (site_id == "MART") { print("D16")
+  } else if (site_id == "MCRA") { print("D16")
+  } else if (site_id == "TECR") { print("D17")
+  } else if (site_id == "BIGC") { print("D17")
+  } else if (site_id == "OKSR") { print("D18")
+  } else if (site_id == "TOOK") { print("D18")
+  } else if (site_id == "CARI") { print("D19")
+  } 
+SITE <- site_id # Site Name 
+measDate <- xml_find_all(mmt_xmlfile, xpath = '//Measurement_Date')%>% # Sampling Date 
   as_list() %>% unlist() %>%
   ifelse(is.null(.), NA, .)
 splitUp <- strsplit(measDate, "/")%>% unlist() 
@@ -96,30 +94,30 @@ YYYYMMDD <- paste0(splitUp[3], splitUp[1],splitUp[2])
 rawDataFileName <- paste0("NEON_", DXX, "_", SITE,"_", YYYYMMDD, "_ADCP_DISCHARGE_L0_V", VX)
 
 
-# 2 time_zone       
+# 2 timeZone       
 # get time zone from .mmt file. If none is provided, use UTC
-time_zone <- NA
-time_zone <- xml_find_all(mmt_xmlfile, xpath = '//TimeZone') %>% 
+timeZone <- NA
+timeZone <- xml_find_all(mmt_xmlfile, xpath = '//TimeZone') %>% 
   as_list() %>% unlist() %>%
   ifelse(is.null(.), NA, .)
 # rename time zones
-if(!time_zone%in%OlsonNames()){
-  time_zone <- ifelse(
-    grepl('(?i)eastern', time_zone), 
-    'US/Eastern', time_zone)
-  time_zone <- ifelse(
-    grepl('(?i)central', time_zone), 
-    'US/Central', time_zone)
-  time_zone <- ifelse(
-    grepl('(?i)mountain', time_zone), 
-    'US/Mountain', time_zone)
-  time_zone <- ifelse(
-    grepl('(?i)pacific', time_zone), 
-    'US/Pacific', time_zone)
-  time_zone <- ifelse(grepl('(?i)universal', time_zone), 'UTC', time_zone)
+if(!timeZone%in%OlsonNames()){
+  timeZone <- ifelse(
+    grepl('(?i)eastern', timeZone), 
+    'US/Eastern', timeZone)
+  timeZone <- ifelse(
+    grepl('(?i)central', timeZone), 
+    'US/Central', timeZone)
+  timeZone <- ifelse(
+    grepl('(?i)mountain', timeZone), 
+    'US/Mountain', timeZone)
+  timeZone <- ifelse(
+    grepl('(?i)pacific', timeZone), 
+    'US/Pacific', timeZone)
+  timeZone <- ifelse(grepl('(?i)universal', timeZone), 'UTC', timeZone)
 }
 
-if(is.na(time_zone))   time_zone <- 'UTC'
+if(is.na(timeZone))   timeZone <- 'UTC'
 
 
 # 4 aCollectedBy 
@@ -156,16 +154,16 @@ df_transects_keepers <- df_transects %>% filter(UseInSummary == 1)
 # NOTE: we read and write in time zone embedded in .mmt file
 df_transects_keepers$StartTime_POSIXct <- as.POSIXct.numeric(
   as.numeric(df_transects_keepers$StartTime),
-  origin = as.POSIXct('1970-01-01', tz = time_zone),
-  tz = time_zone) %>%
+  origin = as.POSIXct('1970-01-01', tz = timeZone),
+  tz = timeZone) %>%
   format('%Y-%m-%dT%H:%M:%S')
 startDate <-  min(df_transects_keepers$StartTime_POSIXct)
 
 # 7 endDate 
 df_transects_keepers$EndTime_POSIXct <- as.POSIXct.numeric(
   as.numeric(df_transects_keepers$EndTime),
-  origin = as.POSIXct('1970-01-01', tz = time_zone),
-  tz = time_zone) %>%
+  origin = as.POSIXct('1970-01-01', tz = timeZone),
+  tz = timeZone) %>%
   format('%Y-%m-%dT%H:%M:%S')
 endDate <-max(df_transects_keepers$EndTime_POSIXct)
 
@@ -381,15 +379,11 @@ if(MBT == "Loop") {
 streamStageUnits <-  'm'
 
 
-# 28 samplingProtocol
-samplingProtocol <-  'NEON.DOC.001085'
-
-
 ####################### fill in the output data Frame ########################
 
 outputDF <- data.frame(
   rawDataFileName = rawDataFileName,
-  time_zone = time_zone,
+  timeZone = timeZone,
   stationID = site_id,
   aCollectedBy = aCollectedBy,
   bCollectedBy = bCollectedBy,
