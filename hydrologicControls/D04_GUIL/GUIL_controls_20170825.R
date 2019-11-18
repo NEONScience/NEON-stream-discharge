@@ -7,7 +7,7 @@ library(plotly)
 siteID <- "GUIL"
 domainID <- "D04"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D04_GUIL"
+filepath <- "N:/Science/AQU/Controls/D04_GUIL__20170825"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
