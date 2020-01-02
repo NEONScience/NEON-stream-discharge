@@ -13,8 +13,6 @@ URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 # WLOU survey points were not in API.  Pulled these from the N:/ drive
 # N:\Science\AQU\Geomorphology_Survey_Data\D13\WLOU\WLOU_20180822\Processed_Survey_Data\outputsR
 
-
-
 #Read in downloaded data
 surveyPtsDF <- read.table(paste0(filepath,"/D13WLOU_geomorph_processedSurveyPts_20180822.CSV"),
                           sep = ",",
@@ -23,6 +21,9 @@ surveyPtsDF <- read.table(paste0(filepath,"/D13WLOU_geomorph_processedSurveyPts_
 
 #The end date of the geomorphology survey (YYYYMMDD)
 surveyDate<-'20180822'
+
+#The date when this survey applies to the gauging record
+surveyActiveDate <- "2012-01-01" #1/1/2012 is used for the first survey for a site out of convenience
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
 surveyID <- "WLOU_2018"
@@ -131,8 +132,8 @@ geo_controlInfo_in <- data.frame(matrix(nrow = numControls*numControls, ncol = l
 names(geo_controlInfo_in) <- geo_controlInfo_in_names
 
 geo_controlInfo_in$locationID <- siteID
-geo_controlInfo_in$startDate <- surveyDate
-geo_controlInfo_in$endDate <- surveyDate
+geo_controlInfo_in$startDate <- surveyActiveDate
+geo_controlInfo_in$endDate <- surveyActiveDate
 geo_controlInfo_in$controlNumber <- rep(1:numControls,numControls)
 geo_controlInfo_in <- geo_controlInfo_in[order(geo_controlInfo_in$controlNumber),]
 geo_controlInfo_in$segmentNumber <- rep(1:numControls,numControls)
@@ -179,8 +180,8 @@ geo_controlType_in <- data.frame(matrix(nrow = numControls, ncol = length(geo_co
 names(geo_controlType_in) <- geo_controlType_in_names
 
 geo_controlType_in$locationID <- siteID
-geo_controlType_in$startDate <- surveyDate
-geo_controlType_in$endDate <- surveyDate
+geo_controlType_in$startDate <- surveyActiveDate
+geo_controlType_in$endDate <- surveyActiveDate
 geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
@@ -277,8 +278,8 @@ geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight
 geo_priorParameters_in$priorActivationStageUnc[3] <- 0.01
 
 geo_priorParameters_in$locationID <- siteID
-geo_priorParameters_in$startDate <- surveyDate
-geo_priorParameters_in$endDate <- surveyDate
+geo_priorParameters_in$startDate <- surveyActiveDate
+geo_priorParameters_in$endDate <- surveyActiveDate
 
 #Loop through to calculate exponent and coefficients
 for(i in 1:numControls){
