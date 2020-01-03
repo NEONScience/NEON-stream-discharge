@@ -4,10 +4,10 @@
 library(neonUtilities)
 library(plotly)
 
-siteID <- "PRIN"
+siteID <- "BLUE"
 domainID <- "D11"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D11_PRIN"
+filepath <- "N:/Science/AQU/Controls/D11_BLUE_20190918"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
@@ -16,20 +16,20 @@ URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 # neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
 
 #Read in downloaded data
-surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D11_PRIN_GEOMORPH_20170929_L0_VE/PRIN_surveyPts_20170929.CSV"),
+surveyPtsDF <- read.table(paste0(URIpath,"/D11_BLUE_surveyPts_20190918.CSV"),
                           sep = ",",
                           header = TRUE,
                           stringsAsFactors = FALSE)
 
 #The end date of the geomorphology survey (YYYYMMDD)
-surveyDate<-'20170929' 
+surveyDate<-'20190918' 
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
-surveyID <- "PRIN_2017" 
+surveyID <- "BLUE_2019" 
 
 #Creates dataframe of all points associated with transect DSC1.
 names(surveyPtsDF) <- c("name","latitude","Longitude","northing","easting","elevation","mapCode","E","N","H")
-dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC1")
+dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC_OLD")
 dischargePointsXS1<-dischargePointsXS1[order(dischargePointsXS1$N),]
 rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1))
 
@@ -43,8 +43,8 @@ plot_ly(data=dischargePointsXS1,x=~E, y=~N, name='Easting vs Northing', type='sc
   layout(title = siteID, xaxis=xAxisTitle1, yaxis=yAxisTitle1)
 
 #Manually select NorthStart and EastStart coordinates
-dischargeXS1NorthStart<-dischargePointsXS1$N[dischargePointsXS1$name=="DSC_PIN2"]
-dischargeXS1EastStart<-dischargePointsXS1$E[dischargePointsXS1$name=="DSC_PIN2"]
+dischargeXS1NorthStart<-dischargePointsXS1$N[dischargePointsXS1$name=="OLD_DSC_XS"]
+dischargeXS1EastStart<-dischargePointsXS1$E[dischargePointsXS1$name=="OLD_DSC_XS"]
 
 #Assigns a raw Distance value to each point relative to the NorthStart and EastStart coordinates.
 for(i in 1:(length(dischargePointsXS1$name))){
@@ -54,7 +54,7 @@ for(i in 1:(length(dischargePointsXS1$name))){
 }
 
 #To manually select ReferenceDistance:
-dischargeXS1ReferenceDistance <- dischargePointsXS1$DistanceRaw[dischargePointsXS1$name=="DSC_PIN2"]
+dischargeXS1ReferenceDistance <- dischargePointsXS1$DistanceRaw[dischargePointsXS1$name=="OLD_DSC_XS"]
 
 #Sets Horizontal adjustment value based on reference point coordinate.  
 dischargeXS1HorizontalAdjust<-0-dischargeXS1ReferenceDistance
@@ -75,7 +75,7 @@ rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
-staffGaugeMeterMark<-0.10
+staffGaugeMeterMark<-1.3
 staffGaugeElevation <- staffGaugePoints$H 
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
@@ -88,7 +88,7 @@ dischargePointsXS1$ID<-c(1:length(dischargePointsXS1$name))
 dischargePointsXS1 <- dischargePointsXS1[order(dischargePointsXS1$DistanceAdj),]
 
 #Sets plot2 settings.  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-5,15))
+xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(0,50))
 yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
@@ -114,7 +114,7 @@ dischargePointsXS1$gaugeHeight<-dischargePointsXS1$gaugeHeight - ElevOff
 dischargePointsXS1$gaugeHeight<-round(dischargePointsXS1$gaugeHeight,digits=2)
 
 #Replots the adjusted cross section  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-5,15))
+xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(0,50))
 yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
@@ -153,28 +153,28 @@ geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&ge
 
 #Second, create entries for "geo_controlType_in" table for control parameters
 geo_controlType_in_names <- c("locationID",
-                              "startDate",
-                              "endDate",
-                              "controlNumber",
-                              "hydraulicControlType",
-                              "controlLeft",
-                              "controlRight",
-                              "rectangularWidth",
-                              "rectangularWidthUnc",
-                              "triangularAngle",
-                              "triangularAngleUnc",
-                              "parabolaWidth",
-                              "parabolaWidthUnc",
-                              "parabolaHeight",
-                              "parabolaHeightUnc",
-                              "orificeArea",
-                              "orificeAreaUnc",
-                              "channelSlope",
-                              "channelSlopeUnc",
-                              "manningCoefficient",
-                              "manningCoefficientUnc",
-                              "stricklerCoefficient",
-                              "stricklerCoefficientUnc")
+                               "startDate",
+                               "endDate",
+                               "controlNumber",
+                               "hydraulicControlType",
+                               "controlLeft",
+                               "controlRight",
+                               "rectangularWidth",
+                               "rectangularWidthUnc",
+                               "triangularAngle",
+                               "triangularAngleUnc",
+                               "parabolaWidth",
+                               "parabolaWidthUnc",
+                               "parabolaHeight",
+                               "parabolaHeightUnc",
+                               "orificeArea",
+                               "orificeAreaUnc",
+                               "channelSlope",
+                               "channelSlopeUnc",
+                               "manningCoefficient",
+                               "manningCoefficientUnc",
+                               "stricklerCoefficient",
+                               "stricklerCoefficientUnc")
 geo_controlType_in <- data.frame(matrix(nrow = numControls, ncol = length(geo_controlType_in_names)))
 names(geo_controlType_in) <- geo_controlType_in_names
 
@@ -185,22 +185,22 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC4"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC9"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OLD_DSC_XS2"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OLD_DSC_XS12"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 0.2 #Uncertainty associated with AIS survey
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LBF10"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC14"]
+geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OLD_DSC_LBF"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OLD_DSC_XS14"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
 geo_controlType_in$rectangularWidthUnc[2] <- 0.2
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC14"]
-geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC32"]
+geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OLD_DSC_XS14"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OLD_DSC_RBF"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
 geo_controlType_in$rectangularWidthUnc[3] <- 0.2
 
@@ -208,7 +208,7 @@ geo_controlType_in$rectangularWidthUnc[3] <- 0.2
 colfunc <- colorRampPalette(c("cyan","deeppink"))
 wettedEdgePoints=subset(surveyPtsDF,surveyPtsDF$mapCode%in%c("LEW","REW"))
 wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
-rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints)) 
+rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints))
 # invisible(dev.new(noRStudioGD = TRUE))
 # plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
 #      main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
@@ -218,7 +218,7 @@ rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints))
 # Sys.sleep(1)
 # invisible(dev.off())
 
-ans=c(364,145)
+ans=c(75,157)
 
 #Plot subsetted wetted edges by manually entering ans values for tracking
 wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
@@ -232,8 +232,8 @@ wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
 # Sys.sleep(1)
 # invisible(dev.off())
 
-csOne=c(6,5)
-csTwo=c(212,215)
+csOne=c(15,28)
+csTwo=c(66,75)
 
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
@@ -267,14 +267,14 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC5"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "OLD_DSC_XS3"]
+geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LEW162"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.01
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "OLD_DSC_XS13"]
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1
 
-geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC22"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.01
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "OLD_DSC_XS19"]
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1
 
 geo_priorParameters_in$locationID <- siteID
 geo_priorParameters_in$startDate <- surveyDate

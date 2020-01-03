@@ -7,25 +7,25 @@ library(plotly)
 siteID <- "CUPE"
 domainID <- "D04"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D04_CUPE_20180315"
+filepath <- "N:/Science/AQU/Controls/D04_CUPE_20170810"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
-# dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
-# neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
-# neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
+dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
+neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
+neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
 
 #Read in downloaded data
-surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D04_CUPE_GEOMORPH_20180315_L0_VE/CUPE_surveyPts_20180315.csv"),
+surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D04_CUPE_GEOMORPH_20170810_L0_VE/CUPE_surveyPts_20170810.csv"),
                           sep = ",",
                           header = TRUE,
                           stringsAsFactors = FALSE)
 
 #The end date of the geomorphology survey (YYYYMMDD)
-surveyDate<-'20180315' 
+surveyDate<-'20170810' 
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
-surveyID <- "CUPE_2018"
+surveyID <- "CUPE_2017"
 
 #Creates dataframe of all points associated with transect DSC1
 names(surveyPtsDF) <- c("name","latitude","Longitude","northing","easting","elevation","mapCode","E","N","H")

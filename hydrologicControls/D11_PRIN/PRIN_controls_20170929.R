@@ -4,10 +4,10 @@
 library(neonUtilities)
 library(plotly)
 
-siteID <- "REDB"
-domainID <- "D15"
+siteID <- "PRIN"
+domainID <- "D11"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D15_REDB"
+filepath <- "N:/Science/AQU/Controls/D11_PRIN_20170929"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
@@ -16,16 +16,16 @@ URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 # neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
 
 #Read in downloaded data
-surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D15_REDB_GEOMORPH_20171110_L0_VE/REDB_surveyPts_20171110.CSV"),
+surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D11_PRIN_GEOMORPH_20170929_L0_VE/PRIN_surveyPts_20170929.CSV"),
                           sep = ",",
                           header = TRUE,
                           stringsAsFactors = FALSE)
 
 #The end date of the geomorphology survey (YYYYMMDD)
-surveyDate<-'20171110' 
+surveyDate<-'20170929' 
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
-surveyID <- "REDB_2017" 
+surveyID <- "PRIN_2017" 
 
 #Creates dataframe of all points associated with transect DSC1.
 names(surveyPtsDF) <- c("name","latitude","Longitude","northing","easting","elevation","mapCode","E","N","H")
@@ -43,8 +43,8 @@ plot_ly(data=dischargePointsXS1,x=~E, y=~N, name='Easting vs Northing', type='sc
   layout(title = siteID, xaxis=xAxisTitle1, yaxis=yAxisTitle1)
 
 #Manually select NorthStart and EastStart coordinates
-dischargeXS1NorthStart<-dischargePointsXS1$N[dischargePointsXS1$name=="LFW11"]
-dischargeXS1EastStart<-dischargePointsXS1$E[dischargePointsXS1$name=="LFW11"]
+dischargeXS1NorthStart<-dischargePointsXS1$N[dischargePointsXS1$name=="DSC_PIN2"]
+dischargeXS1EastStart<-dischargePointsXS1$E[dischargePointsXS1$name=="DSC_PIN2"]
 
 #Assigns a raw Distance value to each point relative to the NorthStart and EastStart coordinates.
 for(i in 1:(length(dischargePointsXS1$name))){
@@ -54,7 +54,7 @@ for(i in 1:(length(dischargePointsXS1$name))){
 }
 
 #To manually select ReferenceDistance:
-dischargeXS1ReferenceDistance <- dischargePointsXS1$DistanceRaw[dischargePointsXS1$name=="DSC_PIN_LB"]
+dischargeXS1ReferenceDistance <- dischargePointsXS1$DistanceRaw[dischargePointsXS1$name=="DSC_PIN2"]
 
 #Sets Horizontal adjustment value based on reference point coordinate.  
 dischargeXS1HorizontalAdjust<-0-dischargeXS1ReferenceDistance
@@ -75,7 +75,7 @@ rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:
 #Recorded in field data
-staffGaugeMeterMark<-2.00
+staffGaugeMeterMark<-0.10
 staffGaugeElevation <- staffGaugePoints$H 
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
@@ -185,22 +185,22 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC10"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC14"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC4"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC9"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 0.2 #Uncertainty associated with AIS survey
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LBF11"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "RBF11"]
+geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LBF10"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC14"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
 geo_controlType_in$rectangularWidthUnc[2] <- 0.2
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "RBF11"]
-geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC25"]
+geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC14"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC32"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
 geo_controlType_in$rectangularWidthUnc[3] <- 0.2
 
@@ -218,7 +218,7 @@ rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints))
 # Sys.sleep(1)
 # invisible(dev.off())
 
-ans=c(173,190)
+ans=c(364,145)
 
 #Plot subsetted wetted edges by manually entering ans values for tracking
 wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
@@ -232,8 +232,8 @@ wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
 # Sys.sleep(1)
 # invisible(dev.off())
 
-csOne=c(5,3)
-csTwo=c(16,14)
+csOne=c(6,5)
+csTwo=c(212,215)
 
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
@@ -267,13 +267,13 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC12"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC5"]
+geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC14"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LEW162"]
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.01
 
-geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_PIN_RB"]
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC22"]
 geo_priorParameters_in$priorActivationStageUnc[3] <- 0.01
 
 geo_priorParameters_in$locationID <- siteID
