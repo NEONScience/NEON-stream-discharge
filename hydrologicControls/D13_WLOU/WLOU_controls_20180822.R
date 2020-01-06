@@ -10,13 +10,13 @@ streamMorphoDPID <- "DP4.00131.001"
 filepath <- "N:/Science/AQU/Controls/D13_WLOU_20180822"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
-# WLOU survey points were not in API.  Pulled these from the N:/ drive
-# N:\Science\AQU\Geomorphology_Survey_Data\D13\WLOU\WLOU_20180822\Processed_Survey_Data\outputsR
-
-
+# #Download data from API and store somewhere
+# dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
+# neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
+# neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
 
 #Read in downloaded data
-surveyPtsDF <- read.table(paste0(filepath,"/D13WLOU_geomorph_processedSurveyPts_20180822.CSV"),
+surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D13_WLOU_GEOMORPH_20180822_L0_VE/D13_WLOU_surveyPts_20180822.CSV"),
                           sep = ",",
                           header = TRUE,
                           stringsAsFactors = FALSE)
@@ -191,21 +191,21 @@ geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
 geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS10"]
 geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS15"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
-geo_controlType_in$rectangularWidthUnc[1] <- 0.05 #Uncertainty associated with AIS survey
+geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LFW"]
 geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RFW"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
-geo_controlType_in$rectangularWidthUnc[2] <- 0.05
+geo_controlType_in$rectangularWidthUnc[2] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS"]
 geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LFW"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
-geo_controlType_in$rectangularWidthUnc[3] <- 0.05
+geo_controlType_in$rectangularWidthUnc[3] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Slope calculations
 colfunc <- colorRampPalette(c("cyan","deeppink"))
@@ -241,18 +241,18 @@ csTwo=c(75,73)
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
 geo_controlType_in$channelSlope[2] <- rise/run
-geo_controlType_in$channelSlopeUnc[2] <- 0.015
+geo_controlType_in$channelSlopeUnc[2] <- 0.05  #Default slope uncertainty is equal to slope
 geo_controlType_in$channelSlope[3] <- rise/run
-geo_controlType_in$channelSlopeUnc[3] <- 0.015
+geo_controlType_in$channelSlopeUnc[3] <- 0.05 # Default slope uncertainty is equal to slope
 
 #chosen to represent stream conditions with higher roughness above bankfull
-geo_controlType_in$manningCoefficient[2] <- 0.05
-geo_controlType_in$manningCoefficientUnc[2] <- 0.025
+geo_controlType_in$manningCoefficient[2] <- 0.05 # Cobble stream with some pools 
+geo_controlType_in$manningCoefficientUnc[2] <- 0.025 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
 geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
-geo_controlType_in$manningCoefficient[3] <- 0.1
-geo_controlType_in$manningCoefficientUnc[3] <- 0.05
+geo_controlType_in$manningCoefficient[3] <- 0.1 # Trees and some brush 
+geo_controlType_in$manningCoefficientUnc[3] <- 0.05 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
 geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
 
@@ -271,13 +271,13 @@ names(geo_priorParameters_in) <- c("locationID",
 
 #Manually enter activation stages for controls
 geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS11"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.05
+geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS13"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.05
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS3"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.05
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
 geo_priorParameters_in$startDate <- surveyActiveDate
