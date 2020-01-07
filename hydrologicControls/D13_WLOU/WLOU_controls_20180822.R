@@ -1,3 +1,27 @@
+######################################################################################################################## 
+#' @title Stage-Discharge Rating Curve Controls Script - D13 - WLOU
+
+#' @author Bobby Hensley \email{hensley@battelleecology.org} \cr 
+#' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Nick Harrison \email{nharrison@battelleecology.org} \cr
+
+#' @description This script generates the controls, uncertainties, and priors associated with the creation of a stage-
+#' discharge rating curve for West St. Louis Creek for water years 2012-2018.
+
+#' @return This script produces three .csv files:
+#' 'geo_controlInfo_in' contains information on the number of controls and their activations
+#' 'geo_controlType_in' Defines the control type and reports parameters and uncertainties for each control
+#' 'geo_priorParameters_in' reports the priors calculated in this script
+
+#' @references 
+#' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
+
+# changelog and author contributions / copyrights
+#   Kaelin Cawley and Nick Harrison (2019)
+#     Generic script created
+#   Bobby Hensley (1/7/2020)
+#     Modified for WLOU 2018 survey
+######################################################################################################################## 
 
 #This reads in data using the API and pulls zip files from the ECS buckets
 #load packages
@@ -101,7 +125,7 @@ plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance v
   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
 
 #####################################################################################################################################################
-#Adjusts the cross section elevations so lowest point is equal to 0.00 meter mark of staff gauge
+#Adjusts cross section elevations if necessary so lowest point is equal to 0.00m mark of staff gauge (prevents negative activation stage)
 #####################################################################################################################################################
 #Determines the lowest elevation of the discharge cross-section
 dischargeXSmin<-min(dischargePointsXS1$H)
