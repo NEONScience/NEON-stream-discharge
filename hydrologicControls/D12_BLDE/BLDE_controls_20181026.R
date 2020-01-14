@@ -1,3 +1,27 @@
+######################################################################################################################## 
+#' @title Stage-Discharge Rating Curve Controls Script - D12 - BLDE
+
+#' @author Bobby Hensley \email{hensley@battelleecology.org} \cr 
+#' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Nick Harrison \email{nharrison@battelleecology.org} \cr
+
+#' @description This script generates the controls, uncertainties, and priors associated with the creation of a stage-
+#' discharge rating curve for Black Tail Deer Creek for water years 2012-2018.
+
+#' @return This script produces three .csv files:
+#' 'geo_controlInfo_in' contains information on the number of controls and their activations
+#' 'geo_controlType_in' Defines the control type and reports parameters and uncertainties for each control
+#' 'geo_priorParameters_in' reports the priors calculated in this script
+
+#' @references 
+#' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
+
+# changelog and author contributions / copyrights
+#   Kaelin Cawley and Nick Harrison (2019)
+#     Generic script created
+#   Bobby Hensley (1/13/2020)
+#     Modified for BLDE 2018 survey
+######################################################################################################################## 
 
 #This reads in data using the API and pulls zip files from the ECS buckets
 #load packages
@@ -24,8 +48,11 @@ surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D12_BLDE_GEOMORPH_20181026_L0_VE
 #The end date of the geomorphology survey (YYYYMMDD)
 surveyDate<-'20181026' 
 
+#The date when this survey applies to the gauging record
+surveyActiveDate <- "2012-01-01" #1/1/2012 is used for the first survey for a site out of convenience
+
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
-surveyID <- "BLDE_2018" 
+surveyID <- "BLDE_2018"
 
 #Creates dataframe of all points associated with transect DSC1.
 names(surveyPtsDF) <- c("name","latitude","Longitude","northing","easting","elevation","mapCode","E","N","H")
@@ -185,24 +212,24 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS16"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS23"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS12"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS25"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
-geo_controlType_in$rectangularWidthUnc[1] <- 0.2 #Uncertainty associated with AIS survey
+geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS11"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS29"]
+geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LBF"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RBF"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
-geo_controlType_in$rectangularWidthUnc[2] <- 0.2
+geo_controlType_in$rectangularWidthUnc[2] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LBF"]
-geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS11"]
+geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LFW"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LBF"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
-geo_controlType_in$rectangularWidthUnc[3] <- 0.2
+geo_controlType_in$rectangularWidthUnc[3] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Slope calculations
 colfunc <- colorRampPalette(c("cyan","deeppink"))
@@ -238,18 +265,18 @@ csTwo=c(14,9)
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
 geo_controlType_in$channelSlope[2] <- rise/run
-geo_controlType_in$channelSlopeUnc[2] <- 0.015
+geo_controlType_in$channelSlopeUnc[2] <- 0.05  #Default slope uncertainty is equal to slope
 geo_controlType_in$channelSlope[3] <- rise/run
-geo_controlType_in$channelSlopeUnc[3] <- 0.015
+geo_controlType_in$channelSlopeUnc[3] <- 0.05 # Default slope uncertainty is equal to slope
 
 #chosen to represent stream conditions with higher roughness above bankfull
-geo_controlType_in$manningCoefficient[2] <- 0.05
-geo_controlType_in$manningCoefficientUnc[2] <- 0.01
+geo_controlType_in$manningCoefficient[2] <- 0.05 # Cobble stream with some pools 
+geo_controlType_in$manningCoefficientUnc[2] <- 0.025 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
 geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
-geo_controlType_in$manningCoefficient[3] <- 0.05
-geo_controlType_in$manningCoefficientUnc[3] <- 0.01
+geo_controlType_in$manningCoefficient[3] <- 0.1 # Trees and some brush 
+geo_controlType_in$manningCoefficientUnc[3] <- 0.05 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
 geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
 
@@ -268,17 +295,17 @@ names(geo_priorParameters_in) <- c("locationID",
 
 #Manually enter activation stages for controls
 geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS17"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.01
+geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS14"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.01
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS25"]
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
-geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS5"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.01
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_LB_PIN"]
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
-geo_priorParameters_in$startDate <- surveyDate
-geo_priorParameters_in$endDate <- surveyDate
+geo_priorParameters_in$startDate <- surveyActiveDate
+geo_priorParameters_in$endDate <- surveyActiveDate
 
 #Loop through to calculate exponent and coefficients
 for(i in 1:numControls){
