@@ -268,8 +268,8 @@ rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
 geo_controlType_in$channelSlope[2] <- rise/run
 geo_controlType_in$channelSlopeUnc[2] <- 0.009  #Default slope uncertainty is equal to slope
-# geo_controlType_in$channelSlope[3] <- rise/run
-# geo_controlType_in$channelSlopeUnc[3] <- 0.009 # Default slope uncertainty is equal to slope
+geo_controlType_in$channelSlope[3] <- rise/run
+geo_controlType_in$channelSlopeUnc[3] <- 0.009 # Default slope uncertainty is equal to slope
 
 #chosen to represent stream conditions with higher roughness above bankfull
 geo_controlType_in$manningCoefficient[2] <- 0.05 # Cobble stream with some pools 
