@@ -21,6 +21,8 @@
 #     Generic script created
 #   Bobby Hensley (1/14/2020)
 #     Modified for CARI 2017 survey
+#   Bobby Hensley (6/10/2020)
+#     Third control added
 ######################################################################################################################## 
 
 #This reads in data using the API and pulls zip files from the ECS buckets
@@ -31,7 +33,7 @@ library(plotly)
 siteID <- "CARI"
 domainID <- "D19"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D19_CARI_20171003_DSC2"
+filepath <- "N:/Science/AQU/Controls/D19_CARI_20171003_DSC1"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
