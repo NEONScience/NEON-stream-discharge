@@ -31,7 +31,7 @@ library(plotly)
 siteID <- "BLWA"
 domainID <- "D08"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D08_BLWA_20180127"
+filepath <- "N:/Science/AQU/Controls/D08_BLWA_20200127"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from CERT using restR
@@ -147,7 +147,7 @@ plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance v
 ##### Now create the actual controls to upload... #####
 
 #First, the addition or replacement when controls are activated table "geo_controlInfo_in"
-numControls <- 4
+numControls <- 3
 geo_controlInfo_in_names <- c("locationID","startDate","endDate","controlNumber","segmentNumber","controlActivationState")
 geo_controlInfo_in <- data.frame(matrix(nrow = numControls*numControls, ncol = length(geo_controlInfo_in_names)))
 names(geo_controlInfo_in) <- geo_controlInfo_in_names
@@ -170,17 +170,9 @@ geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&ge
 #Is control #1 still active when control #3 is activated? 0 = No
 geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==3] <- 0
 
-#Is control #1 still active when control #4 is activated? 0 = No
-geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==4] <- 0
-
 #Is control #2 still active when control #3 is activated? 0 = No
 geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&geo_controlInfo_in$segmentNumber==3] <- 1
 
-#Is control #2 still active when control #4 is activated? 0 = No
-geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&geo_controlInfo_in$segmentNumber==4] <- 1
-
-#Is control #3 still active when control #4 is activated? 0 = No
-geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==3&geo_controlInfo_in$segmentNumber==4] <- 1
 
 #Second, create entries for "geo_controlType_in" table for control parameters
 geo_controlType_in_names <- c("locationID",
@@ -219,28 +211,21 @@ geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
 geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LWEIR"]
 geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "RWEIR"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
-geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
+geo_controlType_in$rectangularWidthUnc[1] <- 50 #Higher than normal because used ADCP data
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LEW"]
 geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "REW"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
-geo_controlType_in$rectangularWidthUnc[2] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
+geo_controlType_in$rectangularWidthUnc[2] <- 50 #Higher than normal because used ADCP data
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "REW"]
-geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSX_XS2"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "RFPLN_1"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
-geo_controlType_in$rectangularWidthUnc[3] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
-
-#Entries for Control #4
-geo_controlType_in$hydraulicControlType[4] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[4] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LFPLN_11"]
-geo_controlType_in$controlRight[4] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LEW"]
-geo_controlType_in$rectangularWidth[4] <- geo_controlType_in$controlRight[4]-geo_controlType_in$controlLeft[4]
-geo_controlType_in$rectangularWidthUnc[4] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
+geo_controlType_in$rectangularWidthUnc[3] <- 10 #Higher than normal because used ADCP data
 
 #Slope calculations
 waterEdge<-surveyPtsDF[(surveyPtsDF$name=="US_REW_1"|surveyPtsDF$name=="US_REW_2"),]
@@ -252,8 +237,6 @@ geo_controlType_in$channelSlope[2] <- rise/run
 geo_controlType_in$channelSlopeUnc[2] <- 0.001
 geo_controlType_in$channelSlope[3] <- rise/run
 geo_controlType_in$channelSlopeUnc[3] <- 0.001
-geo_controlType_in$channelSlope[4] <- rise/run
-geo_controlType_in$channelSlopeUnc[4] <- 0.001
 
 #chosen to represent stream conditions with higher roughness above bankfull
 geo_controlType_in$manningCoefficient[2] <- 0.05
@@ -266,10 +249,6 @@ geo_controlType_in$manningCoefficientUnc[3] <- 0.05
 geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
 geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
 
-geo_controlType_in$manningCoefficient[4] <- 0.1
-geo_controlType_in$manningCoefficientUnc[4] <- 0.05
-geo_controlType_in$stricklerCoefficient[4] <- 1/geo_controlType_in$manningCoefficient[4]
-geo_controlType_in$stricklerCoefficientUnc[4] <- geo_controlType_in$stricklerCoefficient[4]*(geo_controlType_in$manningCoefficientUnc[4]/geo_controlType_in$manningCoefficient[4])
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))
@@ -286,16 +265,14 @@ names(geo_priorParameters_in) <- c("locationID",
 
 #Manually enter activation stages for controls
 geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LWEIR"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[1] <- 1 
 
 geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LCHANNEL"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[2] <- 2 
 
 geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSX_XS7"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[3] <- 2 
 
-geo_priorParameters_in$priorActivationStage[4] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LFPLN_3"]
-geo_priorParameters_in$priorActivationStageUnc[4] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
 geo_priorParameters_in$startDate <- surveyActiveDate
