@@ -34,27 +34,33 @@ streamMorphoDPID <- "DP4.00131.001"
 filepath <- "N:/Science/AQU/Controls/D06_KING_20190729"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
-# #Download data from API and store somewhere
-# dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
-# neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
-# neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
-
-#Read in downloaded data
-surveyPtsDF <- read.table(paste0(URIpath,"/KING_AIS_Repair_Survey_Raw_Survey_Data_20190729.csv"),
+# #Download data from CERT using restR
+L0pull_site <- restR::get.os.l0.by.namedLocation(
+  pullType = "startDate",
+  stack = "cert",
+  tab = 'DP0.00131.001:geo_AISsiteSurveyResultsFile_in',
+  minDate = '2010-01-01',
+  maxDate = '2019-09-01',
+  namedLocationName = 'KING')
+download.file(L0pull_site$rawDataFilePath,L0pull_site$rawDataFileName,mode="wb")
+unzip(paste0("~/",L0pull_site$rawDataFileName),exdir="~")
+surveyPtsDF <- read.table("~/D06_KING_surveyPts_20190729.csv",
                           sep = ",",
-                          header = TRUE,
-                          stringsAsFactors = FALSE)
+                          header = T,
+                          stringsAsFactors = F,
+                          encoding = "UTF-8")
+
 
 #The end date of the geomorphology survey (YYYYMMDD)
 surveyDate<-'20190729' 
 
 #The date when this survey applies to the gauging record
-surveyActiveDate <- "2019-06-28"
+surveyActiveDate <- "2019-07-1"
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
 surveyID <- "KING_2019" 
 
-#Creates dataframe of all points associated with transect DSC1
+#Creates dataframe of all points associated with transect DSC
 dischargePointsXS1<-subset(surveyPtsDF,mapCode=="Transect_DSC")
 dischargePointsXS1<-dischargePointsXS1[order(dischargePointsXS1$N),]
 rownames(dischargePointsXS1)<-seq(length=nrow(dischargePointsXS1))

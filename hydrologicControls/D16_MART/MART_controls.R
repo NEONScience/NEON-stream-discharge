@@ -1,3 +1,27 @@
+######################################################################################################################## 
+#' @title Stage-Discharge Rating Curve Controls Script - D16 - MART
+
+#' @author Bobby Hensley \email{hensley@battelleecology.org} \cr 
+#' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Nick Harrison \email{nharrison@battelleecology.org} \cr
+
+#' @description This script generates the controls, uncertainties, and priors associated with the creation of a stage-
+#' discharge rating curve for Martha Creek for water years 2012-2019.
+
+#' @return This script produces three .csv files:
+#' 'geo_controlInfo_in' contains information on the number of controls and their activations
+#' 'geo_controlType_in' Defines the control type and reports parameters and uncertainties for each control
+#' 'geo_priorParameters_in' reports the priors calculated in this script
+
+#' @references 
+#' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
+
+# changelog and author contributions / copyrights
+#   Kaelin Cawley and Nick Harrison (2019)
+#     Generic script created
+#   Bobby Hensley (1/14/2020)
+#     Modified for MART 2018 survey
+######################################################################################################################## 
 
 #This reads in data using the API and pulls zip files from the ECS buckets
 #load packages
@@ -7,7 +31,7 @@ library(plotly)
 siteID <- "MART"
 domainID <- "D16"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D16_MART"
+filepath <- "N:/Science/AQU/Controls/D16_MART_20180829"
 URIpath <- paste(filepath,"filesToStack20048","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
@@ -23,6 +47,9 @@ surveyPtsDF <- read.table(paste0(URIpath,"/D16_MART_surveyPts_20180829.CSV"),
 
 #The end date of the geomorphology survey (YYYYMMDD)
 surveyDate<-'20180829' 
+
+#The date when this survey applies to the gauging record
+surveyActiveDate <- "2012-01-01" #1/1/2012 is used for the first survey for a site out of convenience
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
 surveyID <- "MART_2018"  
@@ -69,13 +96,13 @@ for(i in 1:(length(dischargePointsXS1$name))){
 #                     (dischargePointsXS1$DistanceAdj[grepl("LBF",dischargePointsXS1$name)]))
 
 #Creates dataframe of staff gauge points
-staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge")
+staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge_Base")
 staffGaugePoints<-staffGaugePoints[order(staffGaugePoints$N),]
 rownames(staffGaugePoints)<-seq(length=nrow(staffGaugePoints))
 
 #Set meter mark where the staff gauge was shot in and the name of the staff gauge point:   ##################################################################### Not in Survey Data ####################################################################
 #Recorded in field data
-staffGaugeMeterMark<-0.85
+staffGaugeMeterMark<-0.0
 staffGaugeElevation <- staffGaugePoints$H 
 
 #Converts discharge XS1 transect point elevations to gauge height (rounded to 2 digits).
@@ -131,8 +158,8 @@ geo_controlInfo_in <- data.frame(matrix(nrow = numControls*numControls, ncol = l
 names(geo_controlInfo_in) <- geo_controlInfo_in_names
 
 geo_controlInfo_in$locationID <- siteID
-geo_controlInfo_in$startDate <- surveyDate
-geo_controlInfo_in$endDate <- surveyDate
+geo_controlInfo_in$startDate <- surveyActiveDate
+geo_controlInfo_in$endDate <- surveyActiveDate
 geo_controlInfo_in$controlNumber <- rep(1:numControls,numControls)
 geo_controlInfo_in <- geo_controlInfo_in[order(geo_controlInfo_in$controlNumber),]
 geo_controlInfo_in$segmentNumber <- rep(1:numControls,numControls)
@@ -179,30 +206,30 @@ geo_controlType_in <- data.frame(matrix(nrow = numControls, ncol = length(geo_co
 names(geo_controlType_in) <- geo_controlType_in_names
 
 geo_controlType_in$locationID <- siteID
-geo_controlType_in$startDate <- surveyDate
-geo_controlType_in$endDate <- surveyDate
+geo_controlType_in$startDate <- surveyActiveDate
+geo_controlType_in$endDate <- surveyActiveDate
 geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC7"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC11"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LEW"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_REW"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
-geo_controlType_in$rectangularWidthUnc[1] <- 0.2 #Uncertainty associated with AIS survey
+geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LBF7"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC16"]
+geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LFW"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC18"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
-geo_controlType_in$rectangularWidthUnc[2] <- 0.2
+geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC16"]
-geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "RBF6"]
+geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC18"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_PIN_RB"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
-geo_controlType_in$rectangularWidthUnc[3] <- 0.2
+geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Slope calculations
 colfunc <- colorRampPalette(c("cyan","deeppink"))
@@ -238,18 +265,18 @@ csTwo=c(78,77)
 rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
 run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
 geo_controlType_in$channelSlope[2] <- rise/run
-geo_controlType_in$channelSlopeUnc[2] <- 0.015
+geo_controlType_in$channelSlopeUnc[2] <- 0.014  #Default slope uncertainty is equal to slope
 geo_controlType_in$channelSlope[3] <- rise/run
-geo_controlType_in$channelSlopeUnc[3] <- 0.015
+geo_controlType_in$channelSlopeUnc[3] <- 0.014  #Default slope uncertainty is equal to slope
 
 #chosen to represent stream conditions with higher roughness above bankfull
-geo_controlType_in$manningCoefficient[2] <- 0.05
-geo_controlType_in$manningCoefficientUnc[2] <- 0.01
+geo_controlType_in$manningCoefficient[2] <- 0.05 # Cobble stream with some pools 
+geo_controlType_in$manningCoefficientUnc[2] <- 0.025 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
 geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
-geo_controlType_in$manningCoefficient[3] <- 0.05
-geo_controlType_in$manningCoefficientUnc[3] <- 0.01
+geo_controlType_in$manningCoefficient[3] <- 0.075 # Boulders and some brush 
+geo_controlType_in$manningCoefficientUnc[3] <- 0.0375 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
 geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
 
@@ -267,18 +294,18 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC8"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_THL"]
+geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC13"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_REW"]
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
-geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC20"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC19"]
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
-geo_priorParameters_in$startDate <- surveyDate
-geo_priorParameters_in$endDate <- surveyDate
+geo_priorParameters_in$startDate <- surveyActiveDate
+geo_priorParameters_in$endDate <- surveyActiveDate
 
 #Loop through to calculate exponent and coefficients
 for(i in 1:numControls){
