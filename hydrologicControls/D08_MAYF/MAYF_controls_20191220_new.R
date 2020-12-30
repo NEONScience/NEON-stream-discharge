@@ -237,42 +237,11 @@ geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo
 geo_controlType_in$rectangularWidthUnc[3] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Slope calculations
-colfunc <- colorRampPalette(c("cyan","deeppink"))
-wettedEdgePoints=subset(surveyPtsDF,surveyPtsDF$mapCode%in%c("Slope"))
-wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
-rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints))
-# invisible(dev.new(noRStudioGD = TRUE))
-# plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
-#      main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
-# legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
-# points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
-# ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
-# Sys.sleep(1)
-# invisible(dev.off())
-
-ans=c(1,20)
-
-#Plot subsetted wetted edges by manually entering ans values for tracking
-wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
-# invisible(dev.new(noRStudioGD = TRUE))
-# plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
-#      main=paste(siteID,"\nSelect two points above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
-# legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
-# points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
-# csOne <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-# csTwo <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-# Sys.sleep(1)
-# invisible(dev.off())
-
-csOne=c(5,14)
-csTwo=c(19,12)
-
-rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
-run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
-geo_controlType_in$channelSlope[2] <- rise/run
-geo_controlType_in$channelSlopeUnc[2] <- rise/run  #Default slope uncertainty is equal to slope
-geo_controlType_in$channelSlope[3] <- rise/run
-geo_controlType_in$channelSlopeUnc[3] <- rise/run  #Default slope uncertainty is equal to slope
+#Used slope for entire reach rather than wetted edge near cross section
+geo_controlType_in$channelSlope[2] <- 0.003
+geo_controlType_in$channelSlopeUnc[2] <- 0.002 #Default slope uncertainty is equal to slope
+geo_controlType_in$channelSlope[3] <- 0.003
+geo_controlType_in$channelSlopeUnc[3] <- 0.002  #Default slope uncertainty is equal to slope
 
 #chosen to represent stream conditions with higher roughness above bankfull
 geo_controlType_in$manningCoefficient[2] <- 0.05 # Cobble stream with some pools 
@@ -280,8 +249,8 @@ geo_controlType_in$manningCoefficientUnc[2] <- 0.025 # Default Mannings uncertai
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
 geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
-geo_controlType_in$manningCoefficient[3] <- 0.1 # Trees and some brush 
-geo_controlType_in$manningCoefficientUnc[3] <- 0.05 # Default Mannings uncertainty equal 50%
+geo_controlType_in$manningCoefficient[3] <- 0.2 # Trees and some brush 
+geo_controlType_in$manningCoefficientUnc[3] <- 0.1 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
 geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
 

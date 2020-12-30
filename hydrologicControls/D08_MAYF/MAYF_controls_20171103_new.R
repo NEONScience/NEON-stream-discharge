@@ -124,30 +124,30 @@ plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance v
   add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
 
-#####################################################################################################################################################
-#Adjusts the cross section elevations so lowest point is equal to 0.00 meter mark of staff gauge
-#####################################################################################################################################################
-#Determines the lowest elevation of the discharge cross-section
-dischargeXSmin<-min(dischargePointsXS1$H)
-
-#Determines elevation of 0.00 meter mark of staff gage
-staffGaugeZero=staffGaugeElevation-staffGaugeMeterMark
-
-#Determines the offset between the lowest elevation and gauge height 
-ElevOff<-dischargeXSmin-staffGaugeZero
-
-#Adjusts the cross section elevations by the offset and rounds to 2 decimals
-dischargePointsXS1$gaugeHeight<-dischargePointsXS1$gaugeHeight - ElevOff
-dischargePointsXS1$gaugeHeight<-round(dischargePointsXS1$gaugeHeight,digits=2)
-
-#Replots the adjusted cross section  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-1,8))
-yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
-font<-list(size=12,color='black')
-plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
-  add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
-  layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
-#####################################################################################################################################################
+# #####################################################################################################################################################
+# #Adjusts the cross section elevations so lowest point is equal to 0.00 meter mark of staff gauge
+# #####################################################################################################################################################
+# #Determines the lowest elevation of the discharge cross-section
+# dischargeXSmin<-min(dischargePointsXS1$H)
+# 
+# #Determines elevation of 0.00 meter mark of staff gage
+# staffGaugeZero=staffGaugeElevation-staffGaugeMeterMark
+# 
+# #Determines the offset between the lowest elevation and gauge height 
+# ElevOff<-dischargeXSmin-staffGaugeZero
+# 
+# #Adjusts the cross section elevations by the offset and rounds to 2 decimals
+# dischargePointsXS1$gaugeHeight<-dischargePointsXS1$gaugeHeight - ElevOff
+# dischargePointsXS1$gaugeHeight<-round(dischargePointsXS1$gaugeHeight,digits=2)
+# 
+# #Replots the adjusted cross section  
+# xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-1,8))
+# yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
+# font<-list(size=12,color='black')
+# plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
+#   add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
+#   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
+# #####################################################################################################################################################
 
 ##### Now create the actual controls to upload... #####
 
@@ -232,42 +232,11 @@ geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo
 geo_controlType_in$rectangularWidthUnc[3] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Slope calculations
-colfunc <- colorRampPalette(c("cyan","deeppink"))
-wettedEdgePoints=subset(surveyPtsDF,surveyPtsDF$mapCode%in%c("LEW","REW"))
-wettedEdgePoints<-wettedEdgePoints[order(wettedEdgePoints$N),]
-rownames(wettedEdgePoints)<-seq(length=nrow(wettedEdgePoints))
-# invisible(dev.new(noRStudioGD = TRUE))
-# plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
-#      main=paste(siteID,"\nSelect a point above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
-# legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
-# points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
-# ans <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.25)
-# Sys.sleep(1)
-# invisible(dev.off())
-
-ans=c(390,445)
-
-#Plot subsetted wetted edges by manually entering ans values for tracking
-wettedEdgePoints <- wettedEdgePoints[ans[1]:ans[2],]
-# invisible(dev.new(noRStudioGD = TRUE))
-# plot(wettedEdgePoints$E,wettedEdgePoints$N,pch=19, col=colfunc(length(wettedEdgePoints$H))[order(wettedEdgePoints$H)],
-#      main=paste(siteID,"\nSelect two points above and below the discharge cross-section"),xlab="Raw Easting",ylab="Raw Northing")
-# legend(min(wettedEdgePoints$E),max(wettedEdgePoints$N),legend=c("highest elevation","lowest elevation","discharge cross-section"),col = c("deeppink","cyan","green"),bty="n",pch = c(19,19,1))
-# points(dischargePointsXS1$E,dischargePointsXS1$N, col="green")
-# csOne <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-# csTwo <- identify(wettedEdgePoints$E,wettedEdgePoints$N, n = 2, pos = F, tolerance = 0.1)
-# Sys.sleep(1)
-# invisible(dev.off())
-
-csOne=c(4,5)
-csTwo=c(53,51)
-
-rise <- abs(mean(wettedEdgePoints$H[csOne])-mean(wettedEdgePoints$H[csTwo]))
-run <- sqrt((mean(wettedEdgePoints$E[csOne])-mean(wettedEdgePoints$E[csTwo]))**2+(mean(wettedEdgePoints$N[csOne])-mean(wettedEdgePoints$N[csTwo]))**2)
-geo_controlType_in$channelSlope[2] <- rise/run
-geo_controlType_in$channelSlopeUnc[2] <- rise/run  #Default slope uncertainty is equal to slope
-geo_controlType_in$channelSlope[3] <- rise/run
-geo_controlType_in$channelSlopeUnc[3] <- rise/run  #Default slope uncertainty is equal to slope
+#Used slope for entire reach rather than wetted edge near cross section
+geo_controlType_in$channelSlope[2] <- 0.003
+geo_controlType_in$channelSlopeUnc[2] <- 0.002 #Default slope uncertainty is equal to slope
+geo_controlType_in$channelSlope[3] <- 0.003
+geo_controlType_in$channelSlopeUnc[3] <- 0.002  #Default slope uncertainty is equal to slope
 
 #chosen to represent stream conditions with higher roughness above bankfull
 geo_controlType_in$manningCoefficient[2] <- 0.05 # Cobble stream with some pools 
@@ -275,8 +244,8 @@ geo_controlType_in$manningCoefficientUnc[2] <- 0.025 # Default Mannings uncertai
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
 geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
 
-geo_controlType_in$manningCoefficient[3] <- 0.1 # Trees and some brush 
-geo_controlType_in$manningCoefficientUnc[3] <- 0.05 # Default Mannings uncertainty equal 50%
+geo_controlType_in$manningCoefficient[3] <- 0.2 # Trees and some brush 
+geo_controlType_in$manningCoefficientUnc[3] <- 0.1 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
 geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
 
@@ -295,13 +264,13 @@ names(geo_priorParameters_in) <- c("locationID",
 
 #Manually enter activation stages for controls
 geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC8"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[1] <- 1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC4"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[2] <- 1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC24"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[3] <- 1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
 geo_priorParameters_in$startDate <- surveyActiveDate
