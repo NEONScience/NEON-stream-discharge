@@ -1,8 +1,9 @@
 ##############################################################################################
 #' @title Format Summary File
 
-#' @author 
+#' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function takes a dataframe and formats it for integration into a transition object.
 
@@ -20,15 +21,17 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-04-05)
+#     Code updates to match internal NEON rating curve development workflow
 ##############################################################################################
 frmt.post.parm.file <- function(
   dataFrame,
   metadata
   ){
-  
+
   numCtrls <- metadata$numCtrls
   numCurves <- metadata$numCurves
-  
+
   Smry_Names <- c(
     'domainID',
     'siteID',
@@ -36,8 +39,8 @@ frmt.post.parm.file <- function(
     'startDate',
     'endDate',
     'curveID',
-    'curveStartDate',
-    'curveEndDate',
+    # 'curveStartDate',
+    # 'curveEndDate',
     'controlNumber',
     'maxPostZeroFlowOffset',
     'maxPostExponent',
@@ -55,30 +58,32 @@ frmt.post.parm.file <- function(
   )
   Smry_outputDF <- data.frame(matrix(data=NA, ncol=length(Smry_Names), nrow=(numCtrls*numCurves)))
   names(Smry_outputDF) <- Smry_Names
-  
+
   Smry_outputDF$domainID <- metadata$domain
   Smry_outputDF$siteID <- metadata$site
   Smry_outputDF$namedLocation <- metadata$namedLocationName
-  Smry_outputDF$startDate <- metadata$startDate
-  Smry_outputDF$endDate <- metadata$endDate
+  #Smry_outputDF$startDate <- metadata$startDate
+  #Smry_outputDF$endDate <- metadata$endDate
   Smry_outputDF$controlNumber <- rep(1:numCtrls, numCurves)
-  
+
   MaxPostRow <- which(grepl("MaxPost",row.names(dataFrame)))
   StdevRow <- which(grepl("St.Dev.",row.names(dataFrame)))
   for(j in 1:numCurves){
     maxPostRowIdx <- MaxPostRow[j]
     StdevRowIdx <- StdevRow[j]
-    
+
     startIdx <- 1+(j-1)*numCtrls
     endIdx <- j*numCtrls
     Smry_outputDF$curveID[startIdx:endIdx] <- dataFrame$curveID[maxPostRowIdx]
-    Smry_outputDF$curveStartDate[startIdx:endIdx] <- format(dataFrame$curveStartDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
-    Smry_outputDF$curveEndDate[startIdx:endIdx] <- format(dataFrame$curveEndDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
+    Smry_outputDF$startDate[startIdx:endIdx] <- format(dataFrame$curveStartDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
+    Smry_outputDF$endDate[startIdx:endIdx] <- format(dataFrame$curveEndDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
+    #Smry_outputDF$curveStartDate[startIdx:endIdx] <- format(dataFrame$curveStartDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
+    #Smry_outputDF$curveEndDate[startIdx:endIdx] <- format(dataFrame$curveEndDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
     Smry_outputDF$maxPostGamma1[startIdx:endIdx] <- dataFrame$Y1_gamma1[maxPostRowIdx]
     Smry_outputDF$maxPostGamma2[startIdx:endIdx] <- dataFrame$Y1_gamma2[maxPostRowIdx]
     Smry_outputDF$stdDevGamma1[startIdx:endIdx] <- dataFrame$Y1_gamma1[StdevRowIdx]
     Smry_outputDF$stdDevGamma2[startIdx:endIdx] <- dataFrame$Y1_gamma2[StdevRowIdx]
-    
+
     for(i in 1:numCtrls){
       loopIdx <- i+(j-1)*numCtrls
       Smry_outputDF$maxPostZeroFlowOffset[loopIdx] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("b",Smry_outputDF$controlNumber[i]))]

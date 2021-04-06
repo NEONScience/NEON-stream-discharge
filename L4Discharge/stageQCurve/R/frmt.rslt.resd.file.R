@@ -1,8 +1,9 @@
 ##############################################################################################
 #' @title Format Residual File
 
-#' @author 
+#' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function takes a dataframe and .
 
@@ -20,12 +21,14 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-04-05)
+#     Code updates to match internal NEON rating curve development workflow
 ##############################################################################################
 frmt.rslt.resd.file <- function(
   dataFrame,
   metadata
   ){
-  
+
   residuals_Names <- c(
     'domainID',
     'siteID',
@@ -33,8 +36,8 @@ frmt.rslt.resd.file <- function(
     'startDate',
     'endDate',
     'curveID',
-    'curveStartDate',
-    'curveEndDate',
+    # 'curveStartDate',
+    # 'curveEndDate',
     'gaugeEventID',
     'X1observed',
     'X1true',
@@ -47,24 +50,26 @@ frmt.rslt.resd.file <- function(
   )
   residuals_outputDF <- data.frame(matrix(data=NA, ncol=length(residuals_Names), nrow=length(dataFrame$X1_obs)))
   names(residuals_outputDF) <- residuals_Names
-  
+
   residuals_outputDF$domainID <- metadata$domain
   residuals_outputDF$siteID <- metadata$site
   residuals_outputDF$namedLocation <- metadata$namedLocationName
-  residuals_outputDF$startDate <- metadata$startDate
-  residuals_outputDF$endDate <- metadata$endDate
+  #residuals_outputDF$startDate <- metadata$startDate
+  #residuals_outputDF$endDate <- metadata$endDate
+  residuals_outputDF$startDate <- format(dataFrame$curveStartDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
+  residuals_outputDF$endDate <- format(dataFrame$curveEndDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
   residuals_outputDF$curveID <- dataFrame$curveID
-  residuals_outputDF$curveStartDate <- format(dataFrame$curveStartDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
-  residuals_outputDF$curveEndDate <- format(dataFrame$curveEndDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
+  #residuals_outputDF$curveStartDate <- format(dataFrame$curveStartDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
+  #residuals_outputDF$curveEndDate <- format(dataFrame$curveEndDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
   residuals_outputDF$gaugeEventID <- dataFrame$eventID
   residuals_outputDF$X1observed <- dataFrame$X1_obs
   residuals_outputDF$X1true <- dataFrame$X1_true
-  residuals_outputDF$Y1observed <- dataFrame$Y1_obs
-  residuals_outputDF$Y1unbiased <- dataFrame$Y1_unbiased
-  residuals_outputDF$Y1simulated <- dataFrame$Y1_sim
-  residuals_outputDF$Y1residual <- dataFrame$Y1_res
-  residuals_outputDF$Y1stdresidual <- dataFrame$Y1_stdres
+  residuals_outputDF$Y1observed <- dataFrame$Y1_obs*1000#convert CMS output from BaM to LPS for publication
+  residuals_outputDF$Y1unbiased <- dataFrame$Y1_unbiased*1000#convert CMS output from BaM to LPS for publication
+  residuals_outputDF$Y1simulated <- dataFrame$Y1_sim*1000#convert CMS output from BaM to LPS for publication
+  residuals_outputDF$Y1residual <- dataFrame$Y1_res*1000#convert CMS output from BaM to LPS for publication
+  residuals_outputDF$Y1stdresidual <- dataFrame$Y1_stdres*1000#convert CMS output from BaM to LPS for publication
   #residuals_outputDF$dataQF
-  
+
   return(residuals_outputDF)
 }

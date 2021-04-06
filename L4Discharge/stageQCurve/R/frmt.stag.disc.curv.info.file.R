@@ -1,8 +1,9 @@
 ##############################################################################################
 #' @title Format Curve Info File
 
-#' @author 
+#' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function takes a dataframe and .
 
@@ -20,12 +21,14 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-04-05)
+#     Code updates to match internal NEON rating curve development workflow
 ##############################################################################################
 frmt.stag.disc.curv.info.file <- function(
   dataFrame,
   metadata
   ){
-  
+
   curveInfo_Names <- c(
     'domainID',
     'siteID',
@@ -34,8 +37,9 @@ frmt.stag.disc.curv.info.file <- function(
     'endDate',
     'allEventID',
     'curveID',
-    'curveStartDate',
-    'curveEndDate',
+    'curveSegmentID',
+    # 'curveStartDate',
+    # 'curveEndDate',
     'waterYear',
     'minQ',
     'maxQ',
@@ -43,24 +47,27 @@ frmt.stag.disc.curv.info.file <- function(
     'maxStage',
     'dataQF'
   )
-  outputDF <- data.frame(matrix(data=NA, ncol=length(curveInfo_Names), nrow=metadata$numCurves))
+  outputDF <- data.frame(matrix(data=NA, ncol=length(curveInfo_Names), nrow=nrow(dataFrame)))
   names(outputDF) <- curveInfo_Names
-  
+
   outputDF$domainID <- metadata$domain
   outputDF$siteID <- metadata$site
   outputDF$namedLocation <- metadata$namedLocationName
-  outputDF$startDate <- metadata$startDate
-  outputDF$endDate <- metadata$endDate
+  #outputDF$startDate <- metadata$startDate
+  #outputDF$endDate <- metadata$endDate
+  outputDF$startDate <- format(dataFrame$curveStartDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
+  outputDF$endDate <- format(dataFrame$curveEndDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
   outputDF$allEventID <- dataFrame$allEventID
   outputDF$curveID <- dataFrame$curveID
-  outputDF$curveStartDate <- format(dataFrame$curveStartDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
-  outputDF$curveEndDate <- format(dataFrame$curveEndDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
+  outputDF$curveSegmentID <- dataFrame$curveSegmentID
+  #outputDF$curveStartDate <- format(dataFrame$curveStartDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
+  #outputDF$curveEndDate <- format(dataFrame$curveEndDate, format = "%Y-%m-%dT%H:%M:%S.000Z")
   outputDF$waterYear <- metadata$waterYear
-  outputDF$minQ <- dataFrame$minQ
-  outputDF$maxQ <- dataFrame$maxQ
+  outputDF$minQ <- dataFrame$minQ*1000#convert CMS output from BaM to LPS for publication
+  outputDF$maxQ <- dataFrame$maxQ*1000#convert CMS output from BaM to LPS for publication
   outputDF$minStage <- dataFrame$minStage
   outputDF$maxStage <- dataFrame$maxStage
   #outputDF$dataQF
-  
+
   return(outputDF)
 }
