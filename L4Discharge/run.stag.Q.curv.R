@@ -1,11 +1,11 @@
 ##############################################################################################
 #' @title Stage-Discharge Rating Curve Docker Script
 
-#' @author 
+#' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
 #' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
-#' @description This script uses the BaM executable to calculate the parameters that define 
+#' @description This script uses the BaM executable to calculate the parameters that define
 #' the stage-discharge relationship for a site and water year using NEON data.
 
 #' @details FILL IN LATER
@@ -23,10 +23,10 @@
 ##############################################################################################
 
 ## -- TO RUN THE CODE OUTSIDE OF A DOCKER CONTAINER, UNCOMMENT AND RUN LINES __ - __ -- ##
-#The paths can get pretty long (>260 characters), which can cause trouble with the data stacker in windows. Choose wisely.
+# The paths can get pretty long (>260 characters), which can cause trouble with the data stacker in windows. Choose wisely.
 
-#User inputs for site and date
-#If you enter a startDate that is not YYYY-10-01, the script will determine the water year (10-01 - 09-30) that started immediately before the date entered here and use it as the startDate
+# User inputs for site and date
+# If you enter a startDate that is not YYYY-10-01, the script will determine the water year (10-01 - 09-30) that started immediately before the date entered here and use it as the startDate
 
 # Set global environment variables (see stageQCurve package readme for a description of each variable)
 Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/L4Discharge/",
@@ -35,9 +35,9 @@ Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/
            #BAMFILE="BaM_exe",#Linux version
            DATAWS="C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/L4Discharge/data/",
            BAMWS="BaM_beta/BaM_BaRatin/",
-           STARTDATE = "2018-10-01",
+           STARTDATE = "2016-10-01",
            SITE = "COMO")
-# Cal global environment variables into local environment
+# Call global environment variables into local environment
 DIRPATH = Sys.getenv("DIRPATH")
 BAMFOLD = Sys.getenv("BAMFOLD")
 BAMFILE = Sys.getenv("BAMFILE")
@@ -46,24 +46,23 @@ BAMWS = Sys.getenv("BAMWS")
 startDate = Sys.getenv("STARTDATE")
 site = Sys.getenv("SITE")
 
-#Need to run this periodically if you're running the code outside of the Docker container
-#as NEON packages get updated
+# Need to run this periodically if you're running the code outside of the Docker container as NEON packages get updated
 library(devtools)
 install_github("NEONScience/NEON-utilities/neonUtilities", force = TRUE, dependencies = TRUE)
 install_github("NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE, dependencies = TRUE)
-#Load needed library for Docker testing prior to GitHub package release
+# Load needed library for Docker testing prior to GitHub package release
 setwd("/app/L4_discharge/")
 devtools::install("stageQCurve")
 library(stageQCurve)
 
-#Environment options and configurations
+# Environment options and configurations
 options(stringsAsFactors = F)
 Sys.setenv(TZ='UTC')
 library(neonUtilities)
 library(stageQCurve)
 
 #Run main function to create a rating curve
-#The inputs are set as environment variables rather than R variables to allow for running the Docker container 
+#The inputs are set as environment variables rather than R variables to allow for running the Docker container
 #for diffrent sites and dates without rebuilding it
 calc.stag.Q.curv()
 
