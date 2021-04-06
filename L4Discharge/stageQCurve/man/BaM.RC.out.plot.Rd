@@ -11,20 +11,20 @@ BaM.RC.out.plot(
 )
 }
 \arguments{
-\item{DIRPATH}{An environment variable that contains the location of the files in 
+\item{DIRPATH}{An environment variable that contains the location of the files in
 the Docker container [string]}
 
-\item{BAMWS}{An environment variable that contains the location of the BaM config 
+\item{BAMWS}{An environment variable that contains the location of the BaM config
 files in the Docker container [string]}
 
-\item{Hgrid}{A numeric array of the stage values overwhich the rating curve was evaluated 
+\item{Hgrid}{A numeric array of the stage values overwhich the rating curve was evaluated
 and will be plotted [numeric]}
 }
 \value{
 This function writes out configurations and runs BaM in prediction mode
 }
 \description{
-This function plots and saves figures from the BaM rating curve prediction 
+This function plots and saves figures from the BaM rating curve prediction
 outputs
 }
 \references{

@@ -9,22 +9,25 @@ BaM.run.pred.RC(
   BAMFOLD = Sys.getenv("BAMFOLD"),
   BAMFILE = Sys.getenv("BAMFILE"),
   BAMWS = Sys.getenv("BAMWS"),
+  gaugingsData,
   minH,
   maxH
 )
 }
 \arguments{
-\item{DIRPATH}{An environment variable that contains the location of the files in 
+\item{DIRPATH}{An environment variable that contains the location of the files in
 the Docker container [string]}
 
-\item{BAMFOLD}{An environment variable that contains the folder name of the BaM exe in 
+\item{BAMFOLD}{An environment variable that contains the folder name of the BaM exe in
 the Docker container [string]}
 
-\item{BAMFILE}{An environment variable that contains the name of the BaM exe in 
+\item{BAMFILE}{An environment variable that contains the name of the BaM exe in
 the Docker container [string]}
 
-\item{BAMWS}{An environment variable that contains the location of the BaM config 
+\item{BAMWS}{An environment variable that contains the location of the BaM config
 files in the Docker container [string]}
+
+\item{gaugingsData}{Data frame containing gaugings [dataframe]}
 
 \item{minH}{Minimum stage value to evaluate rating curve over [numeric]}
 
@@ -34,7 +37,7 @@ files in the Docker container [string]}
 This function writes out configurations and runs BaM in prediction mode
 }
 \description{
-This function writes out configuration files and runs BaM in prediction 
+This function writes out configuration files and runs BaM in prediction
 mode for ratings curves
 }
 \references{

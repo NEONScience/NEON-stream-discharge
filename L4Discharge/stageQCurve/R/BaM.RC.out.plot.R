@@ -27,6 +27,8 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-04-06)
+#     code updates to no plot the prior rating curve due to impossible spaghettis
 ##############################################################################################
 BaM.RC.out.plot <- function(
   DIRPATH = Sys.getenv("DIRPATH"),
@@ -35,8 +37,8 @@ BaM.RC.out.plot <- function(
   ){
 
   #Read in output data of the rating curve MCMC predictions
-  Qrc_Prior_spag <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Prior.spag"), header = F)
-  Qrc_Prior_env <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Prior.env"), header = T)
+  # Qrc_Prior_spag <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Prior.spag"), header = F)
+  # Qrc_Prior_env <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Prior.env"), header = T)
 
   Qrc_Maxpost_spag <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Maxpost.spag"), header = F)
 
@@ -174,16 +176,16 @@ BaM.RC.out.plot <- function(
   dev.copy2pdf(file = paste(DIRPATH,BAMWS,"spaghettisWithParamU.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
 
-  plot(Hgrid,
-       Qrc_Prior_spag[,1],
-       type = "l",
-       col = "royalblue1",
-       ylim = c(min(Qrc_Prior_spag),max(Qrc_Prior_spag)),
-       ylab = "Spaghettis with parametric uncertainty")
-  for(i in 2:ncol(Qrc_Prior_spag)){
-    lines(Hgrid,Qrc_Prior_spag[,i], col = "royalblue1")
-  }
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorSpaghettis.pdf",sep = "/"), width = 16, height = 9)
-  dev.off()
+  # plot(Hgrid,
+  #      Qrc_Prior_spag[,1],
+  #      type = "l",
+  #      col = "royalblue1",
+  #      ylim = c(min(Qrc_Prior_spag),max(Qrc_Prior_spag)),
+  #      ylab = "Spaghettis with parametric uncertainty")
+  # for(i in 2:ncol(Qrc_Prior_spag)){
+  #   lines(Hgrid,Qrc_Prior_spag[,i], col = "royalblue1")
+  # }
+  # dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorSpaghettis.pdf",sep = "/"), width = 16, height = 9)
+  # dev.off()
 
 }
