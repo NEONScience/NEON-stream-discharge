@@ -37,6 +37,7 @@ Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/
            BAMWS="BaM_beta/BaM_BaRatin/",
            STARTDATE = "2016-10-01",
            SITE = "COMO")
+
 # Call global environment variables into local environment
 DIRPATH = Sys.getenv("DIRPATH")
 BAMFOLD = Sys.getenv("BAMFOLD")
@@ -48,12 +49,12 @@ site = Sys.getenv("SITE")
 
 # Need to run this periodically if you're running the code outside of the Docker container as NEON packages get updated
 library(devtools)
-install_github("NEONScience/NEON-utilities/neonUtilities", force = TRUE, dependencies = TRUE)
-install_github("NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE, dependencies = TRUE)
+# install_github("NEONScience/NEON-utilities/neonUtilities", force = TRUE, dependencies = TRUE)
+# install_github("NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE, dependencies = TRUE)
 # Load needed library for Docker testing prior to GitHub package release
-setwd("/app/L4_discharge/")
-devtools::install("stageQCurve")
-library(stageQCurve)
+# setwd("/app/L4_discharge/")
+# devtools::install("stageQCurve")
+# library(stageQCurve)
 
 # Environment options and configurations
 options(stringsAsFactors = F)
@@ -61,47 +62,62 @@ Sys.setenv(TZ='UTC')
 library(neonUtilities)
 library(stageQCurve)
 
-#Run main function to create a rating curve
-#The inputs are set as environment variables rather than R variables to allow for running the Docker container
-#for diffrent sites and dates without rebuilding it
-calc.stag.Q.curv()
+# Run main function to create a rating curve
+# The inputs are set as environment variables rather than R variables to allow for running the Docker container for diffrent sites and dates without rebuilding it
+# To run the function, a user must have data downloaded from the expanded download package of the Stage-discharge rating curves (DP4.00133.001) data product. Data must be saved in the DATAWS file path
+stageQCurve::calc.stag.Q.curv()
 
-#Plot rating curve prior and posterior parameter distributions
-#From MCMC outputs directly
-numCtrls <- nrow(read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Config_ControlMatrix.txt"))
-priorParams <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Config_Model.txt")
-Results_MCMC_Cooked <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Results_MCMC_Cooked.txt",header = T)
-pre.post.parm.plot(numCtrls,priorParams,Results_MCMC_Cooked,NEONformat=F)
-MCMC.sim.plot(numCtrls,Results_MCMC_Cooked,NEONformat=F)
+# Plot rating curve prior and posterior parameter distributions
+# 3 options for accessing data to plot
 
-#From downloaded NEON data
-#TBD: pre.post.parm.plot(numCtrls,priorParams,Results_MCMC_Cooked,NEONformat=T)
+# Option 1: From calc.stag.Q.curv outputs directly
+numCtrls <- nrow(read.table(paste0(DIRPATH,BAMWS,"Config_ControlMatrix.txt")))
+priorParams <- read.table(paste0(DIRPATH,BAMWS,"Config_Model.txt"),header = F)
+Results_MCMC_Cooked <- read.table(paste0(DIRPATH,BAMWS,"Results_MCMC_Cooked.txt"),header = T)
 
-#From NEON transition download
-posteriorParameter <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/data/L1_Results_sdrc_posteriorParameters_pub.txt", header = T)
-resultsResiduals <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/data/L1_Results_sdrc_resultsResiduals_pub.txt", header = T)
-stageDischargeCurveInfo <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/data/L1_Results_sdrc_stageDischargeCurveInfo_pub.txt", header = T)
-sampledParameters <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/data/L1_Results_sdrc_sampledParameters_pub.txt", header = T)
-txt.out.spag.data(spagDataIn=sampledParameters, spagOutPath=paste0(DIRPATH, BAMWS, "Results_MCMC_Cooked.txt"))
+# Option 2: From downloaded NEON data
+# TBD
 
-numCtrls <- 3
-Results_MCMC_Cooked <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Results_MCMC_Cooked.txt",header = T)
-priorParams <- read.table("~/GitHub/NEON-stream-discharge/L4Discharge/BaM_beta/BaM_BaRatin/Config_Model.txt",header = F)
+# # Option 3: From NEON OS transition system download -- FOR NEON INTERNAL USE ONLY
+# posteriorParameter <- read.table(paste0(DATAWS,"L1_Results_sdrc_posteriorParameters_pub.txt", header = T))
+# resultsResiduals <- read.table(paste0(DATAWS,"L1_Results_sdrc_resultsResiduals_pub.txt", header = T))
+# sampledParameters <- read.table(paste0(DATAWS,"L1_Results_sdrc_sampledParameters_pub.txt", header = T))
+# stageQCurve::txt.out.spag.data(spagDataIn=sampledParameters, spagOutPath=paste0(DIRPATH, BAMWS, "Results_MCMC_Cooked.txt"))
+# numCtrls <- nrow(posteriorParameter)
+# priorParams <- read.table(paste0(DIRPATH,BAMWS,"Config_Model.txt"),header = F)
+# Results_MCMC_Cooked <- read.table(paste0(DIRPATH,BAMWS,"Results_MCMC_Cooked.txt"),header = T)
 
-pre.post.parm.plot(numCtrls,priorParams,Results_MCMC_Cooked,NEONformat=F)
-MCMC.sim.plot(numCtrls,Results_MCMC_Cooked,NEONformat=F)
+# Run the functions to plot rating curve prior and posterior parameter distributions
+stageQCurve::pre.post.parm.plot(numCtrls=numCtrls,
+                                priorParams=priorParams,
+                                Results_MCMC_Cooked=Results_MCMC_Cooked,
+                                NEONformat=F)
+stageQCurve::MCMC.sim.plot(numCtrls=numCtrls,
+                           Results_MCMC_Cooked=Results_MCMC_Cooked,
+                           NEONformat=F)
 
-minH <- stageDischargeCurveInfo$minStage - abs(stageDischargeCurveInfo$minStage)
-maxH <- stageDischargeCurveInfo$maxStage + stageDischargeCurveInfo$maxStage*0.3
+# Run the BaM rating curve prediction model and plot the posterior rating curve
+# 3 options for accessing data to plot
 
-minH <- 0
-maxH <- 0.6
+# Option 1: From calc.stag.Q.curv outputs directly
+stageDischargeCurveInfo <- read.csv(paste0(DIRPATH,BAMWS,"stageDischargeCurveInfo.csv"),header = T)
+gaugeDischargeMeas <- read.csv(paste0(DIRPATH,BAMWS,"gaugeDischargeMeas.csv"),header = T)
+
+# Option 2: From downloaded NEON data
+# TBD
+
+# # Option 3: From NEON OS transition system download -- FOR NEON INTERNAL USE ONLY
+# stageDischargeCurveInfo <- read.table(paste0(DATAWS,"L1_Results_sdrc_stageDischargeCurveInfo_pub.txt", header = T))
+# gaugeDischargeMeas <- read.table(paste0(DATAWS,"L1_Results_sdrc_gaugeDischargeMeas_pub.txt", header = T))
 
 #Run BaM in prediction mode to get the information for the rating curve
-#Hgrid <- BaM.run.pred.RC(minH = -0.05,maxH = 0.4)
-Hgrid <- BaM.run.pred.RC(minH = minH,maxH = maxH)
+# minH <- 0
+# maxH <- 0.6
+minH <- stageDischargeCurveInfo$minStage - abs(stageDischargeCurveInfo$minStage)
+maxH <- stageDischargeCurveInfo$maxStage + stageDischargeCurveInfo$maxStage*0.3
+Hgrid <- stageQCurve::BaM.run.pred.RC(gaugingsData = gaugeDischargeMeas,
+                                      minH = minH,
+                                      maxH = maxH)
 
 #Plot and save figures of BaM rating curve prediction run
-BaM.RC.out.plot(Hgrid=Hgrid)
-
-#Plot rating curve with gaugings data from NEON dowload
+stageQCurve::BaM.RC.out.plot(Hgrid=Hgrid)

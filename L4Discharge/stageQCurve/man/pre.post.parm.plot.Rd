@@ -4,9 +4,14 @@
 \alias{pre.post.parm.plot}
 \title{Plot prior and posterior parameter distributions}
 \usage{
-pre.post.parm.plot(DIRPATH = Sys.getenv("DIRPATH"),
-  BAMWS = Sys.getenv("BAMWS"), numCtrls, priorParams,
-  Results_MCMC_Cooked, NEONformat)
+pre.post.parm.plot(
+  DIRPATH = Sys.getenv("DIRPATH"),
+  BAMWS = Sys.getenv("BAMWS"),
+  numCtrls,
+  priorParams,
+  Results_MCMC_Cooked,
+  NEONformat
+)
 }
 \arguments{
 \item{DIRPATH}{An environment variable that contains the location of the files in 

@@ -4,8 +4,13 @@
 \alias{MCMC.sim.plot}
 \title{Plot prior and posterior parameter distributions}
 \usage{
-MCMC.sim.plot(DIRPATH = Sys.getenv("DIRPATH"),
-  BAMWS = Sys.getenv("BAMWS"), numCtrls, Results_MCMC_Cooked, NEONformat)
+MCMC.sim.plot(
+  DIRPATH = Sys.getenv("DIRPATH"),
+  BAMWS = Sys.getenv("BAMWS"),
+  numCtrls,
+  Results_MCMC_Cooked,
+  NEONformat
+)
 }
 \arguments{
 \item{DIRPATH}{An environment variable that contains the location of the files in 

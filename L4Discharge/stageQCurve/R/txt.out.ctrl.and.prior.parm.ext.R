@@ -11,7 +11,7 @@
 #' @import neonUtilities
 
 #' @param site 4 letter SITE code [string]
-#' @param searchIntervalStartDate End date of the discharge cross section survey [POSIXct]
+#' @param controlSurveyDate End date of the discharge cross section survey [POSIXct]
 #' @param controlMatrixPath File path to write out controlMatrix file [string]
 #' @param priorParamsPath File path to write out Model file [string]
 #' @param downloadedDataPath File path where downloaded .zip files can be found [string]
@@ -130,19 +130,19 @@ txt.out.ctrl.and.prior.parm.ext <- function(
     Config_Model[offset+6] <- priorParams$priorActivationStage[priorParams$controlNumber == j]
     Config_Model[offset+7] <- "'Gaussian'"
     Config_Model[offset+8] <- paste(priorParams$priorActivationStage[priorParams$controlNumber == j],
-                                    priorParams$priorActivationStageUnc[priorParams$controlNumber == j],
+                                    as.character(priorParams$priorActivationStageUnc[priorParams$controlNumber == j]),
                                     sep = ",")
     Config_Model[offset+9] <- paste0('"a', j, '"')
     Config_Model[offset+10] <- priorParams$priorCoefficient[priorParams$controlNumber == j]
     Config_Model[offset+11] <- "'Gaussian'"
     Config_Model[offset+12] <- paste(priorParams$priorCoefficient[priorParams$controlNumber == j],
-                                     priorParams$priorCoefficientUnc[priorParams$controlNumber == j],
+                                     as.character(priorParams$priorCoefficientUnc[priorParams$controlNumber == j]),
                                      sep = ",")
     Config_Model[offset+13] <- paste0('"c', j, '"')
     Config_Model[offset+14] <- priorParams$priorExponent[priorParams$controlNumber == j]
     Config_Model[offset+15] <- "'Gaussian'"
     Config_Model[offset+16] <- paste(priorParams$priorExponent[priorParams$controlNumber == j],
-                                     priorParams$priorExponentUnc[priorParams$controlNumber == j],
+                                     as.character(priorParams$priorExponentUnc[priorParams$controlNumber == j]),
                                      sep = ",")
   }
   write.table(Config_Model, priorParamsPath, row.names = F, col.names = F, quote = F)

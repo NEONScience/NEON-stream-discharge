@@ -1,20 +1,20 @@
 ##############################################################################################
 #' @title Plot rating curve outputs
 
-#' @author 
+#' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
 
-#' @description This function plots and saves figures from the BaM rating curve prediction 
+#' @description This function plots and saves figures from the BaM rating curve prediction
 #' outputs
 
 #' @importFrom graphics plot lines polygon points
 #' @importFrom grDevices dev.copy2pdf dev.off adjustcolor
 
-#' @param DIRPATH An environment variable that contains the location of the files in 
+#' @param DIRPATH An environment variable that contains the location of the files in
 #' the Docker container [string]
-#' @param BAMWS An environment variable that contains the location of the BaM config 
+#' @param BAMWS An environment variable that contains the location of the BaM config
 #' files in the Docker container [string]
-#' @param Hgrid A numeric array of the stage values overwhich the rating curve was evaluated 
+#' @param Hgrid A numeric array of the stage values overwhich the rating curve was evaluated
 #' and will be plotted [numeric]
 
 #' @return This function writes out configurations and runs BaM in prediction mode
@@ -33,7 +33,7 @@ BaM.RC.out.plot <- function(
   BAMWS = Sys.getenv("BAMWS"),
   Hgrid
   ){
-  
+
   #Read in output data of the rating curve MCMC predictions
   Qrc_Prior_spag <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Prior.spag"), header = F)
   Qrc_Prior_env <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Prior.env"), header = T)
@@ -45,7 +45,7 @@ BaM.RC.out.plot <- function(
 
   Qrc_TotalU_spag <- read.table(paste0(DIRPATH, BAMWS, "Qrc_TotalU.spag"), header = F)
   Qrc_TotalU_env <- read.table(paste0(DIRPATH, BAMWS, "Qrc_TotalU.env"), header = T)
-  
+
   gaugings <- read.table(paste0(DIRPATH, BAMWS, "data/Gaugings.txt"), header = T)
   gaugings$Q <- as.numeric(gaugings$Q) #Convert to cms from lps
   gaugings$uQ <- as.numeric(gaugings$uQ) #Convert to cms from lps
@@ -63,11 +63,11 @@ BaM.RC.out.plot <- function(
   names(totalUBottom) <- c("Hgrid","Q")
   totalUForPlotting <- rbind(totalUTop,totalUBottom[dim(totalUBottom)[1]:1,])
 
-  priorTop <- cbind.data.frame(Hgrid, Qrc_Prior_env$Q_q2.5)
-  priorBottom <- cbind.data.frame(Hgrid, Qrc_Prior_env$Q_q97.5)
-  names(priorTop) <- c("Hgrid","Q")
-  names(priorBottom) <- c("Hgrid","Q")
-  priorForPlotting <- rbind(priorTop,priorBottom[dim(priorBottom)[1]:1,])
+  # priorTop <- cbind.data.frame(Hgrid, Qrc_Prior_env$Q_q2.5)
+  # priorBottom <- cbind.data.frame(Hgrid, Qrc_Prior_env$Q_q97.5)
+  # names(priorTop) <- c("Hgrid","Q")
+  # names(priorBottom) <- c("Hgrid","Q")
+  # priorForPlotting <- rbind(priorTop,priorBottom[dim(priorBottom)[1]:1,])
 
   #Set back to default plotting margins
   test.par <- par(mfrow=c(1,1))
@@ -76,21 +76,21 @@ BaM.RC.out.plot <- function(
        Qrc_Maxpost_spag$V1,
        type = "l",
        xlim = c(min(Hgrid),max(Hgrid)),
-       ylim = c(min(priorForPlotting$Q),max(priorForPlotting$Q)),
+       ylim = c(min(totalUForPlotting$Q),max(totalUForPlotting$Q)),
        xlab = "Stage (m)",
        ylab = "Discharge (cms)")
-  
+
   #Work from background to foreground
   polygon(totalUForPlotting$Hgrid,totalUForPlotting$Q, col = "red", border = NA)
-  polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
+  # polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = adjustcolor("lightpink",alpha.f = 0.7), border = NA)
-  
-  lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
-  lines(Hgrid,Qrc_Maxpost_spag$V1, col = "red", lwd = 2)
-  
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorAndPostRatingCurves_linearScale.pdf",sep = "/"), width = 16, height = 9)
+
+  # lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
+  lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
+
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"postRatingCurveWUnc_linearScale.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
-  
+
   #Plot rating curve with gaugings
   plot(Hgrid,
        Qrc_Maxpost_spag$V1,
@@ -102,10 +102,10 @@ BaM.RC.out.plot <- function(
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = "lightpink", border = NA)
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
   points(gaugings$H,gaugings$Q, pch = 19)
-  
+
   dev.copy2pdf(file = paste(DIRPATH,BAMWS,"ratingCurveWithGaugings_linearScale.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
-  
+
   #Plot log-scale
   test.par <- par(mfrow=c(1,1))
   par(mar=c(5.1,4.1,4.1,2.1))
@@ -115,7 +115,7 @@ BaM.RC.out.plot <- function(
        type = "l",
        log = "xy",
        xlim = c(0.008,max(Hgrid)),
-       ylim = c(0.0005,max(priorForPlotting$Q)),
+       ylim = c(0.0005,max(totalUForPlotting$Q)),
        xlab = "Stage (m)",
        ylab = "Discharge (cms)")
 
@@ -123,31 +123,31 @@ BaM.RC.out.plot <- function(
   totalUForPlotting$Qlog <- totalUForPlotting$Q
   totalUForPlotting$Qlog[totalUForPlotting$Q<=0] <- 0.000001
   polygon(totalUForPlotting$Hgrid,totalUForPlotting$Qlog, col = "red", border = NA)
-  polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
+  # polygon(priorForPlotting$Hgrid, priorForPlotting$Q, col = "royalblue1", border = NA)
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = adjustcolor("lightpink",alpha.f = 0.7), border = NA)
 
-  lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
-  lines(Hgrid,Qrc_Maxpost_spag$V1, col = "red", lwd = 2)
-  
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorAndPostRatingCurves_logScale.pdf",sep = "/"), width = 16, height = 9)
+  # lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
+  lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
+
+  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"postRatingCurveWUnc_logScale.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
-  
+
   #Plot rating curve with gaugings in log scale
   plot(Hgrid,
        Qrc_Maxpost_spag$V1,
        type = "l",
        log = "xy",
        xlim = c(0.008,max(Hgrid)),
-       ylim = c(0.0005,max(priorForPlotting$Q)),
+       ylim = c(0.0005,max(pramUForPlotting$Q)),
        xlab = "Stage (m)",
        ylab = "Discharge (cms)")
   polygon(pramUForPlotting$Hgrid,pramUForPlotting$Q, col = "lightpink", border = NA)
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
   points(gaugings$H,gaugings$Q, pch = 19)
-  
+
   dev.copy2pdf(file = paste(DIRPATH,BAMWS,"ratingCurveWithGaugings_logScale.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
-  
+
   #Plot spaghettis
   #Total Uncertainty quite large
   plot(Hgrid,
@@ -185,5 +185,5 @@ BaM.RC.out.plot <- function(
   }
   dev.copy2pdf(file = paste(DIRPATH,BAMWS,"priorSpaghettis.pdf",sep = "/"), width = 16, height = 9)
   dev.off()
-  
+
 }

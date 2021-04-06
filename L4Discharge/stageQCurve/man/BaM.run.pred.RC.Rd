@@ -4,9 +4,14 @@
 \alias{BaM.run.pred.RC}
 \title{Run predictions for rating curve}
 \usage{
-BaM.run.pred.RC(DIRPATH = Sys.getenv("DIRPATH"),
-  BAMFOLD = Sys.getenv("BAMFOLD"), BAMFILE = Sys.getenv("BAMFILE"),
-  BAMWS = Sys.getenv("BAMWS"), minH, maxH)
+BaM.run.pred.RC(
+  DIRPATH = Sys.getenv("DIRPATH"),
+  BAMFOLD = Sys.getenv("BAMFOLD"),
+  BAMFILE = Sys.getenv("BAMFILE"),
+  BAMWS = Sys.getenv("BAMWS"),
+  minH,
+  maxH
+)
 }
 \arguments{
 \item{DIRPATH}{An environment variable that contains the location of the files in 

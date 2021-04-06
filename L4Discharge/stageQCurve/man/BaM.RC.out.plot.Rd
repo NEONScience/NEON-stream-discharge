@@ -4,8 +4,11 @@
 \alias{BaM.RC.out.plot}
 \title{Plot rating curve outputs}
 \usage{
-BaM.RC.out.plot(DIRPATH = Sys.getenv("DIRPATH"),
-  BAMWS = Sys.getenv("BAMWS"), Hgrid)
+BaM.RC.out.plot(
+  DIRPATH = Sys.getenv("DIRPATH"),
+  BAMWS = Sys.getenv("BAMWS"),
+  Hgrid
+)
 }
 \arguments{
 \item{DIRPATH}{An environment variable that contains the location of the files in 

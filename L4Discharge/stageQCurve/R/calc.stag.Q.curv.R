@@ -155,7 +155,6 @@ calc.stag.Q.curv <- function(
 
   # Run the BaM executable and generate all the tables needed for the stage-discharge rating curves data product
   for(i in 1:numCurves){
-    i=1
     curveIDString <- curveIDSegment[i]
 
     # Write configuration files for parameters
@@ -165,11 +164,11 @@ calc.stag.Q.curv <- function(
 
     # Write out configuration files for controls
     controlSurveyDate <- format(as.POSIXct(curveIdentification$controlSurveyEndDateTime[curveIdentification$curveID==curveIDString]),"%Y-%m-%d")
-    numCtrls <- try(txt.out.ctrl.and.prior.parm.ext(site = site,
-                                                    controlSurveyDate = controlSurveyDate,
-                                                    controlMatrixPath = controlMatrixPath,
-                                                    priorParamsPath = priorParamsPath,
-                                                    downloadedDataPath = downloadedDataPath),silent = T)
+    numCtrls <- try(stageQCurve::txt.out.ctrl.and.prior.parm.ext(site = site,
+                                                                 controlSurveyDate = controlSurveyDate,
+                                                                 controlMatrixPath = controlMatrixPath,
+                                                                 priorParamsPath = priorParamsPath,
+                                                                 downloadedDataPath = downloadedDataPath),silent = T)
     if(!is.null(attr(numCtrls, "class")) && attr(numCtrls, "class") == "try-error"){
       failureMessage <- "Prior parameters or control matrix error; check inputs"
       stop(failureMessage)
@@ -177,6 +176,9 @@ calc.stag.Q.curv <- function(
 
     # Work only with the gauge and discharge records within this rating segment
     dischargeDataForCurve <- dischargeData[dischargeData$curveID%in%curveIDString,]
+    dischargeDataForCurve$streamStage <- dischargeDataForCurve$gaugeHeight
+    dischargeDataForCurve$calcQ <- dischargeDataForCurve$streamDischarge
+    dischargeDataForCurve$eventID <- dischargeDataForCurve$gaugeEventID
 
     # Set the curve start and end date and get list of all gauge event IDs
     curveStartDate <- curveIdentification$curveStartDate[curveIdentification$curveID==curveIDString][1]

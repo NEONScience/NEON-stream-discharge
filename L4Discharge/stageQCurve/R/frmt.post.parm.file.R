@@ -22,7 +22,7 @@
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
 #   Zachary L. Nickerson (2021-04-05)
-#     Code updates to match internal NEON rating curve development workflow
+#     Code updates to match NEON rating curve development workflow
 ##############################################################################################
 frmt.post.parm.file <- function(
   dataFrame,
