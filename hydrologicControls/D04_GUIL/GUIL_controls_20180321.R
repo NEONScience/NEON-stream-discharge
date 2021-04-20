@@ -21,12 +21,15 @@
 #     Generic script created
 #   Bobby Hensley (8/27/2020)
 #     Modified for GUIL 2018 survey
+#   Bobby Hensley (3/15/2021)
+#     Reviewed before RC generation
 ######################################################################################################################## 
 
 #This reads in data using the API and pulls zip files from the ECS buckets
 #load packages
 library(neonUtilities)
 library(plotly)
+library(restR)
 
 siteID <- "GUIL"
 domainID <- "D04"
@@ -44,7 +47,7 @@ L0pull_site <- restR::get.os.l0.by.namedLocation(
   namedLocationName = 'GUIL')
 download.file(L0pull_site$rawDataFilePath,L0pull_site$rawDataFileName,mode="wb")
 unzip(paste0("~/",L0pull_site$rawDataFileName),exdir="~")
-surveyPtsDF <- read.table("~/NEON_D04_GUIL_GEOMORPH_20180129_L0_VE/GUIL_surveyPts_20180321.csv",
+surveyPtsDF <- read.table("~/D04_GUIL_surveyPts_20180321.csv",
                           sep = ",",
                           header = T,
                           stringsAsFactors = F,
@@ -300,13 +303,13 @@ names(geo_priorParameters_in) <- c("locationID",
 
 #Manually enter activation stages for controls
 geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "N_DSC12"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[1] <- 0.2 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "N_DSC17"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.2 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "REW_DSC_N"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.2 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
 geo_priorParameters_in$startDate <- surveyActiveDate

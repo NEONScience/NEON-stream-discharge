@@ -21,6 +21,8 @@
 #     Generic script created
 #   Bobby Hensley (8/28/2020)
 #     Modified for GUIL 2020 survey
+#   Bobby Hensley (3/15/2021)
+#     Reviewed before RC generation
 ######################################################################################################################## 
 
 #This reads in data using the API and pulls zip files from the ECS buckets
@@ -44,7 +46,7 @@ L0pull_site <- restR::get.os.l0.by.namedLocation(
   namedLocationName = 'GUIL')
 download.file(L0pull_site$rawDataFilePath,L0pull_site$rawDataFileName,mode="wb")
 unzip(paste0("~/",L0pull_site$rawDataFileName),exdir="~")
-surveyPtsDF <- read.table("~/D04_GUIL_AIS_surveyPts_20200312.csv",
+surveyPtsDF <- read.table("~/D04_GUIL_surveyPts_20200312.csv",
                           sep = ",",
                           header = T,
                           stringsAsFactors = F,
