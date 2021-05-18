@@ -101,6 +101,10 @@ for(i in 1:(length(dischargePointsXS1$name))){
 #DSCXS1Bankfull<-abs((dischargePointsXS1$DistanceAdj[grepl("RBF",dischargePointsXS1$name)])-
 #                     (dischargePointsXS1$DistanceAdj[grepl("LBF",dischargePointsXS1$name)]))
 
+#Adds floodplain point
+floodPlain<-data.frame(name=c("OUT_DSC_FLD"),E=c(0.0),N=c(0.0),H=c(995.2),mapCode=c("Transect_DSC"),DistanceRaw=c(-15),DistanceAdj=c(-15))
+dischargePointsXS1<-rbind(dischargePointsXS1,floodPlain)
+
 #Creates dataframe of staff gauge points
 staffGaugePoints=subset(surveyPtsDF,surveyPtsDF$mapCode=="Gauge")
 staffGaugePoints<-staffGaugePoints[order(staffGaugePoints$N),]
@@ -147,7 +151,7 @@ dischargePointsXS1$gaugeHeight<-dischargePointsXS1$gaugeHeight - ElevOff
 dischargePointsXS1$gaugeHeight<-round(dischargePointsXS1$gaugeHeight,digits=2)
 
 #Replots the adjusted cross section  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(0,25))
+xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-11,24))
 yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
@@ -158,7 +162,7 @@ plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance v
 ##### Now create the actual controls to upload... #####
 
 #First, the addition or replacement when controls are activated table "geo_controlInfo_in"
-numControls <- 2
+numControls <- 3
 geo_controlInfo_in_names <- c("locationID","startDate","endDate","controlNumber","segmentNumber","controlActivationState")
 geo_controlInfo_in <- data.frame(matrix(nrow = numControls*numControls, ncol = length(geo_controlInfo_in_names)))
 names(geo_controlInfo_in) <- geo_controlInfo_in_names
@@ -178,30 +182,36 @@ geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber>geo_c
 #Is control #1 still active when control #2 is activated? 1 = Yes
 geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==2] <- 0
 
+#Is control #1 still active when control #3 is activated? 0 = No
+geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==3] <- 0
+
+#Is control #2 still active when control #3 is activated? 0 = No
+geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&geo_controlInfo_in$segmentNumber==3] <- 1
+
 #Second, create entries for "geo_controlType_in" table for control parameters
 geo_controlType_in_names <- c("locationID",
-                               "startDate",
-                               "endDate",
-                               "controlNumber",
-                               "hydraulicControlType",
-                               "controlLeft",
-                               "controlRight",
-                               "rectangularWidth",
-                               "rectangularWidthUnc",
-                               "triangularAngle",
-                               "triangularAngleUnc",
-                               "parabolaWidth",
-                               "parabolaWidthUnc",
-                               "parabolaHeight",
-                               "parabolaHeightUnc",
-                               "orificeArea",
-                               "orificeAreaUnc",
-                               "channelSlope",
-                               "channelSlopeUnc",
-                               "manningCoefficient",
-                               "manningCoefficientUnc",
-                               "stricklerCoefficient",
-                               "stricklerCoefficientUnc")
+                              "startDate",
+                              "endDate",
+                              "controlNumber",
+                              "hydraulicControlType",
+                              "controlLeft",
+                              "controlRight",
+                              "rectangularWidth",
+                              "rectangularWidthUnc",
+                              "triangularAngle",
+                              "triangularAngleUnc",
+                              "parabolaWidth",
+                              "parabolaWidthUnc",
+                              "parabolaHeight",
+                              "parabolaHeightUnc",
+                              "orificeArea",
+                              "orificeAreaUnc",
+                              "channelSlope",
+                              "channelSlopeUnc",
+                              "manningCoefficient",
+                              "manningCoefficientUnc",
+                              "stricklerCoefficient",
+                              "stricklerCoefficientUnc")
 geo_controlType_in <- data.frame(matrix(nrow = numControls, ncol = length(geo_controlType_in_names)))
 names(geo_controlType_in) <- geo_controlType_in_names
 
@@ -224,15 +234,29 @@ geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePo
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
 geo_controlType_in$rectangularWidthUnc[2] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
+#Entries for Control #3
+geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
+geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OUT_DSC_FLD"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "OUT_DSC_LBF"]
+geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
+geo_controlType_in$rectangularWidthUnc[3] <- 5.0 #Extra uncertainty because not included in survey
+
 #No wetted edge shots in survey for slope calculation
 geo_controlType_in$channelSlope[2] <- 0.01
 geo_controlType_in$channelSlopeUnc[2] <- 0.01  #Default slope uncertainty is equal to slope
+geo_controlType_in$channelSlope[3] <- 0.01
+geo_controlType_in$channelSlopeUnc[3] <- 0.01  #Default slope uncertainty is equal to slope
 
 #chosen to represent stream conditions with higher roughness above bankfull
 geo_controlType_in$manningCoefficient[2] <- 0.05 # Cobble stream bed 
 geo_controlType_in$manningCoefficientUnc[2] <- 0.025 # Default Mannings uncertainty equal 50%
 geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
 geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
+
+geo_controlType_in$manningCoefficient[3] <- 0.1 # Willows and other brush 
+geo_controlType_in$manningCoefficientUnc[3] <- 0.05 # Default Mannings uncertainty equal 50%
+geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
+geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))
@@ -253,6 +277,9 @@ geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty 
 
 geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "OUT_DSC_25"]
 geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "OUT_DSC_RBF"]
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
 geo_priorParameters_in$startDate <- surveyActiveDate
