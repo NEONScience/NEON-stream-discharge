@@ -28,24 +28,23 @@
 # User inputs for site and date
 # If you enter a startDate that is not YYYY-10-01, the script will determine the water year (10-01 - 09-30) that started immediately before the date entered here and use it as the startDate
 
-# Set global environment variables (see stageQCurve package readme for a description of each variable)
-Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/L4Discharge/",
-           BAMFOLD="BaM_beta/",
-           BAMFILE="BaM_MiniDMSL.exe",#Windows version
-           #BAMFILE="BaM_exe",#Linux version
-           DATAWS="C:/Users/nickerson/Documents/stageQCurve_data/",
-           BAMWS="BaM_beta/BaM_BaRatin/",
-           STARTDATE = "2018-10-01",
-           SITE = "WLOU")
-
-# Call global environment variables into local environment
-DIRPATH = Sys.getenv("DIRPATH")
-BAMFOLD = Sys.getenv("BAMFOLD")
-BAMFILE = Sys.getenv("BAMFILE")
-DATAWS = Sys.getenv("DATAWS")
-BAMWS = Sys.getenv("BAMWS")
-startDate = Sys.getenv("STARTDATE")
-site = Sys.getenv("SITE")
+# # Set global environment variables (see stageQCurve package readme for a description of each variable)
+# Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/L4Discharge/",
+#            BAMFOLD="BaM_beta/",
+#            BAMFILE="BaM_MiniDMSL.exe",#Windows version
+#            #BAMFILE="BaM_exe",#Linux version
+#            DATAWS="C:/Users/nickerson/Documents/stageQCurve_data/",
+#            BAMWS="BaM_beta/BaM_BaRatin/",
+#            STARTDATE = "2018-10-01",
+#            SITE = "COMO")
+# # Call global environment variables into local environment
+# DIRPATH = Sys.getenv("DIRPATH")
+# BAMFOLD = Sys.getenv("BAMFOLD")
+# BAMFILE = Sys.getenv("BAMFILE")
+# DATAWS = Sys.getenv("DATAWS")
+# BAMWS = Sys.getenv("BAMWS")
+# startDate = Sys.getenv("STARTDATE")
+# site = Sys.getenv("SITE")
 
 # # Need to run this periodically if you're running the code outside of the Docker container as NEON packages get updated
 # library(devtools)
@@ -107,7 +106,11 @@ for (i in 1:numCurves) {
   # The inputs are set as environment variables rather than R variables to allow for running the Docker container for diffrent sites and dates without rebuilding it
   # To run the function, a user must have data downloaded from the expanded download package of the Stage-discharge rating curves (DP4.00133.001) data product. Data must be saved in the DATAWS file path
   stageQCurve::calc.stag.Q.curv(curveID=curveID)
-  
+
+  if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))) {
+    file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))
+  }
+
   ### --- PLOT RATING CURVE PRIOR AND POSTERIOR PARAMETER DISTRIBUTIONS --- ###
   
   # From calc.stag.Q.curv outputs directly
@@ -130,7 +133,8 @@ for (i in 1:numCurves) {
                                   priorParams=priorParams,
                                   Results_MCMC_Cooked=Results_MCMC_Cooked,
                                   NEONformat=F)
-  stageQCurve::MCMC.sim.plot(numCtrls=numCtrls,
+  stageQCurve::MCMC.sim.plot(curveID=curveID,
+                             numCtrls=numCtrls,
                              Results_MCMC_Cooked=Results_MCMC_Cooked,
                              NEONformat=F)
   
@@ -154,7 +158,8 @@ for (i in 1:numCurves) {
                                         maxH = maxH)
   
   #Plot and save figures of BaM rating curve prediction run
-  stageQCurve::BaM.RC.out.plot(Hgrid=Hgrid)
+  stageQCurve::BaM.RC.out.plot(curveID=curveID,
+                               Hgrid=Hgrid)
   
   if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Hgrid.txt"))) {
     file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Hgrid.txt"))
@@ -162,5 +167,4 @@ for (i in 1:numCurves) {
   if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))) {
     file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))
   }
-  
 }

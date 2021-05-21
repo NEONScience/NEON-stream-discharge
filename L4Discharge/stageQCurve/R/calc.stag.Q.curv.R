@@ -40,16 +40,14 @@
 #   Zachary L. Nickerson (2021-04-05)
 #     Major updates to overall workflow to match internal NEON rating curve development workflow
 ##############################################################################################
-calc.stag.Q.curv <- function(
-  DIRPATH = Sys.getenv("DIRPATH"),
-  BAMFOLD = Sys.getenv("BAMFOLD"),
-  BAMFILE = Sys.getenv("BAMFILE"),
-  DATAWS = Sys.getenv("DATAWS"),
-  BAMWS = Sys.getenv("BAMWS"),
-  startDate = Sys.getenv("STARTDATE"),
-  site = Sys.getenv("SITE")
-  curveID
-){
+calc.stag.Q.curv <- function(DIRPATH = Sys.getenv("DIRPATH"),
+                             BAMFOLD = Sys.getenv("BAMFOLD"),
+                             BAMFILE = Sys.getenv("BAMFILE"),
+                             DATAWS = Sys.getenv("DATAWS"),
+                             BAMWS = Sys.getenv("BAMWS"),
+                             startDate = Sys.getenv("STARTDATE"),
+                             site = Sys.getenv("SITE"),
+                             curveID){
 
   # User inputs for site and date
   # If you enter a searchIntervalStartDate that is not YYYY-10-01, the script will determine the water year (10-01 - 09-30) that started immediately before the date entered here and use it as the startDate
@@ -276,14 +274,14 @@ calc.stag.Q.curv <- function(
   Results_MCMC_Cooked_in$parameterNumber <- row.names(Results_MCMC_Cooked_in)
 
   #Fill in record in
-  curveData$allEventID[i] <- allEventID
-  curveData$curveID[i] <- curveIDString
-  curveData$minQ[i] <- min(as.numeric(gaugings$Q))
-  curveData$maxQ[i] <- max(as.numeric(gaugings$Q))
-  curveData$minStage[i] <- min(as.numeric(gaugings$H))
-  curveData$maxStage[i] <- max(as.numeric(gaugings$H))
-  curveData$curveStartDate[i] <- format(curveStartDate, format = osDateFormat)
-  curveData$curveEndDate[i] <- format(curveEndDate, format = osDateFormat)
+  curveData$allEventID <- allEventID
+  curveData$curveID <- curveIDString
+  curveData$minQ <- min(as.numeric(gaugings$Q))
+  curveData$maxQ <- max(as.numeric(gaugings$Q))
+  curveData$minStage <- min(as.numeric(gaugings$H))
+  curveData$maxStage <- max(as.numeric(gaugings$H))
+  curveData$curveStartDate <- format(curveStartDate, format = osDateFormat)
+  curveData$curveEndDate <- format(curveEndDate, format = osDateFormat)
 
   # if(exists("Results_MCMC_Cooked") && exists("Results_Residuals") && exists("Results_Summary")){
   #   Results_MCMC_Cooked <- rbind(Results_MCMC_Cooked, Results_MCMC_Cooked_in)
@@ -302,8 +300,8 @@ calc.stag.Q.curv <- function(
   #Get a list of ratings that are segmented
   segmentedRatingCurves <- unique(curveIdentification$curveID[!is.na(curveIdentification$curveSegmentID)])
   if (length(segmentedRatingCurves)>=1) {
-    for (i in 1:length(segmentedRatingCurves)) {
-      curveIDSegment <- segmentedRatingCurves[i]
+    for (s in 1:length(segmentedRatingCurves)) {
+      curveIDSegment <- segmentedRatingCurves[s]
       #Add a duplicated row of data to the L4 curveData table and add segment IDs to the L4 curveData table
       curveDataSegmentRow <- curveData[curveData$curveID==curveIDSegment,]
       curveData$curveSegmentID[curveData$curveID==curveIDSegment] <- curveIdentification$curveSegmentID[curveIdentification$curveID==curveIDSegment&curveIdentification$curveEndDate==curveData$curveEndDate[curveData$curveID==curveIDSegment]]
