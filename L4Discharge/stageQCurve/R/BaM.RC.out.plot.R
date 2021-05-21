@@ -14,6 +14,7 @@
 #' the Docker container [string]
 #' @param BAMWS An environment variable that contains the location of the BaM config
 #' files in the Docker container [string]
+#' @param curveID Unique identifier of active stage-discharge rating curve [string]
 #' @param Hgrid A numeric array of the stage values overwhich the rating curve was evaluated
 #' and will be plotted [numeric]
 
@@ -30,11 +31,10 @@
 #   Zachary L. Nickerson (2021-04-06)
 #     code updates to no plot the prior rating curve due to impossible spaghettis
 ##############################################################################################
-BaM.RC.out.plot <- function(
-  DIRPATH = Sys.getenv("DIRPATH"),
-  BAMWS = Sys.getenv("BAMWS"),
-  Hgrid
-  ){
+BaM.RC.out.plot <- function(DIRPATH = Sys.getenv("DIRPATH"),
+                            BAMWS = Sys.getenv("BAMWS"),
+                            curveID,
+                            Hgrid){
 
   #Read in output data of the rating curve MCMC predictions
   # Qrc_Prior_spag <- read.table(paste0(DIRPATH, BAMWS, "Qrc_Prior.spag"), header = F)
@@ -49,8 +49,8 @@ BaM.RC.out.plot <- function(
   Qrc_TotalU_env <- read.table(paste0(DIRPATH, BAMWS, "Qrc_TotalU.env"), header = T)
 
   gaugings <- read.table(paste0(DIRPATH, BAMWS, "data/Gaugings.txt"), header = T)
-  gaugings$Q <- as.numeric(gaugings$Q) #Convert to cms from lps
-  gaugings$uQ <- as.numeric(gaugings$uQ) #Convert to cms from lps
+  gaugings$Q <- as.numeric(gaugings$Q)/1000 #Convert to cms from lps
+  gaugings$uQ <- as.numeric(gaugings$uQ)/1000 #Convert to cms from lps
 
   #Plot rating curve
   pramUForPlottingTop <- cbind.data.frame(Hgrid,Qrc_ParamU_env$Q_q2.5)
@@ -90,7 +90,7 @@ BaM.RC.out.plot <- function(
   # lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
 
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"postRatingCurveWUnc_linearScale.pdf",sep = "/"), width = 16, height = 9)
+  dev.copy2pdf(file = paste0(DIRPATH,BAMWS,"postRatingCurveWUnc_linearScale_",curveID,".pdf"), width = 16, height = 9)
   dev.off()
 
   #Plot rating curve with gaugings
@@ -105,7 +105,7 @@ BaM.RC.out.plot <- function(
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
   points(gaugings$H,gaugings$Q, pch = 19)
 
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"ratingCurveWithGaugings_linearScale.pdf",sep = "/"), width = 16, height = 9)
+  dev.copy2pdf(file = paste0(DIRPATH,BAMWS,"ratingCurveWithGaugings_linearScale_",curveID,".pdf"), width = 16, height = 9)
   dev.off()
 
   #Plot log-scale
@@ -131,7 +131,7 @@ BaM.RC.out.plot <- function(
   # lines(Hgrid,Qrc_Prior_env$Q_Median, col = "blue", lwd = 2)
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
 
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"postRatingCurveWUnc_logScale.pdf",sep = "/"), width = 16, height = 9)
+  dev.copy2pdf(file = paste0(DIRPATH,BAMWS,"postRatingCurveWUnc_logScale_",curveID,".pdf"), width = 16, height = 9)
   dev.off()
 
   #Plot rating curve with gaugings in log scale
@@ -147,7 +147,7 @@ BaM.RC.out.plot <- function(
   lines(Hgrid,Qrc_Maxpost_spag$V1, col = "black", lwd = 2)
   points(gaugings$H,gaugings$Q, pch = 19)
 
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"ratingCurveWithGaugings_logScale.pdf",sep = "/"), width = 16, height = 9)
+  dev.copy2pdf(file = paste0(DIRPATH,BAMWS,"ratingCurveWithGaugings_logScale_",curveID,".pdf"), width = 16, height = 9)
   dev.off()
 
   #Plot spaghettis
@@ -161,7 +161,7 @@ BaM.RC.out.plot <- function(
   for(i in 2:ncol(Qrc_TotalU_spag)){
     lines(Hgrid,Qrc_TotalU_spag[,i], col = "red")
   }
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"spaghettisWithTotalU.pdf",sep = "/"), width = 16, height = 9)
+  dev.copy2pdf(file = paste0(DIRPATH,BAMWS,"spaghettisWithTotalU_",curveID,".pdf"), width = 16, height = 9)
   dev.off()
 
   plot(Hgrid,
@@ -173,7 +173,7 @@ BaM.RC.out.plot <- function(
   for(i in 2:ncol(Qrc_ParamU_spag)){
     lines(Hgrid,Qrc_ParamU_spag[,i], col = "lightpink")
   }
-  dev.copy2pdf(file = paste(DIRPATH,BAMWS,"spaghettisWithParamU.pdf",sep = "/"), width = 16, height = 9)
+  dev.copy2pdf(file = paste0(DIRPATH,BAMWS,"spaghettisWithParamU_",curveID,".pdf"), width = 16, height = 9)
   dev.off()
 
   # plot(Hgrid,

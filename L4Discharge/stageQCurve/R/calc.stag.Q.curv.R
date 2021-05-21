@@ -24,6 +24,7 @@
 #' run command [string]
 #' @param site A four letter site code for a NEON site, entered as env variable in
 #' run command [string]
+#' @param curveID Unique identifier of active stage-discharge rating curve [string]
 #'
 #' @return This function results in text files being written to a directory that contain
 #' the posterior parameters and residuals for a stage-discharge rating curve.
@@ -47,6 +48,7 @@ calc.stag.Q.curv <- function(
   BAMWS = Sys.getenv("BAMWS"),
   startDate = Sys.getenv("STARTDATE"),
   site = Sys.getenv("SITE")
+  curveID
 ){
 
   # User inputs for site and date
@@ -150,11 +152,8 @@ calc.stag.Q.curv <- function(
   }
 
   # Remove any curve IDs that shouldn't be included in this site or water year
-  dischargeData <- dischargeData[grepl(paste(site,format(waterYearDate$endDate,"%Y"),sep = "."),dischargeData$curveID),]
-  curveIdentification <- curveIdentification[grepl(paste(site,format(waterYearDate$endDate,"%Y"),sep = "."),curveIdentification$curveID),]
-  curveIdentification <- curveIdentification[order(curveIdentification$curveID),]
-  curveIDSegment <- unique(curveIdentification$curveID)[order(unique(curveIdentification$curveID))]
-  numCurves <- length(curveIDSegment)
+  dischargeData <- dischargeData[dischargeData$curveID==curveID,]
+  curveIdentification <- curveIdentification[curveIdentification$curveID==curveID,]
 
   curveData_Names <- c(
     'allEventID',
@@ -167,148 +166,137 @@ calc.stag.Q.curv <- function(
     'minStage',
     'maxStage'
   )
-  curveData <- data.frame(matrix(data=NA, ncol=length(curveData_Names), nrow=numCurves))
+  curveData <- data.frame(matrix(data=NA, ncol=length(curveData_Names), nrow=1))
   names(curveData) <- curveData_Names
 
   # Run the BaM executable and generate all the tables needed for the stage-discharge rating curves data product
-  for(i in 1:numCurves){
-    i=1
-    curveIDString <- curveIDSegment[i]
+  curveIDString <- curveID
 
-    # Write configuration files for parameters
-    stageQCurve::txt.out.run.opts(runType = "param", RunOptionsPath = paste0(DIRPATH, BAMWS, RunOptionsName))
-    controlMatrixPath <- paste0(DIRPATH, BAMWS, ControlMatrixName)
-    priorParamsPath <- paste0(DIRPATH, BAMWS, ModelName)
+  # Write configuration files for parameters
+  stageQCurve::txt.out.run.opts(runType = "param", RunOptionsPath = paste0(DIRPATH, BAMWS, RunOptionsName))
+  controlMatrixPath <- paste0(DIRPATH, BAMWS, ControlMatrixName)
+  priorParamsPath <- paste0(DIRPATH, BAMWS, ModelName)
 
-    # Write out configuration files for controls
-    controlSurveyDate <- format(as.POSIXct(curveIdentification$controlSurveyEndDateTime[curveIdentification$curveID==curveIDString]),"%Y-%m-%d")
-    numCtrls <- try(stageQCurve::txt.out.ctrl.and.prior.parm.ext(site = site,
-                                                                 controlSurveyDate = controlSurveyDate,
-                                                                 controlMatrixPath = controlMatrixPath,
-                                                                 priorParamsPath = priorParamsPath,
-                                                                 downloadedDataPath = downloadedDataPath),silent = T)
-    if(!is.null(attr(numCtrls, "class")) && attr(numCtrls, "class") == "try-error"){
-      failureMessage <- "Prior parameters or control matrix error; check inputs"
-      stop(failureMessage)
-    }
-
-    # Work only with the gauge and discharge records within this rating segment
-    dischargeDataForCurve <- dischargeData[dischargeData$curveID%in%curveIDString,]
-    dischargeDataForCurve$streamStage <- dischargeDataForCurve$gaugeHeight
-    dischargeDataForCurve$calcQ <- dischargeDataForCurve$streamDischarge
-    dischargeDataForCurve$eventID <- dischargeDataForCurve$gaugeEventID
-
-    # Set the curve start and end date and get list of all gauge event IDs
-    curveStartDate <- curveIdentification$curveStartDate[curveIdentification$curveID==curveIDString][1]
-    curveEndDate <- curveIdentification$curveEndDate[curveIdentification$curveID==curveIDString][1]
-    allEventID <- paste(dischargeDataForCurve$gaugeEventID, collapse = "|")
-
-    # Write out the formatted data file to data folder for BaM
-    gagNam <- c('H','uH','bH','bHindx','Q','uQ','bQ','bQindx')
-    gaugings <- data.frame(matrix(data=NA, ncol=length(gagNam), nrow=length(dischargeDataForCurve$startDate)))
-    names(gaugings) <- gagNam
-
-    # Zeroes below assume no uncertainty, may want to change that
-    gaugings$H <- dischargeDataForCurve$gaugeHeight #Stream stage values (m)
-    gaugings$uH <- 0.00 #May include in the future
-    gaugings$bH <- 0.00
-    gaugings$bHindx <- 0.00
-    # Stream discharge values (lps), re-calculated divided by 1000 to convert to m^3/s for BaM executable
-    gaugings$Q <- as.numeric(dischargeDataForCurve$streamDischarge)/1000
-    # 10% uncertainty (half-length of 95 % confiddence interval), divided by 1.96 to get to one std dev
-    gaugings$uQ <- gaugings$Q * 0.1 / 1.96
-    gaugings$bQ <- 0.00
-    gaugings$bQindx <- 0.00
-
-    # Write out gaugings to input to BaM executable
-    write.table(gaugings,
-                paste0(DIRPATH, BAMFOLD, dataPath),
-                sep = "\t",
-                row.names = F,
-                quote = F)
-
-    # Write configuration and data files to the BaM folder for the water year
-    Config_Data <- readLines(paste0(DIRPATH, BAMWS, DataName))
-    Config_Data[3] <- gsub("[0-9]{1,6}",nrow(gaugings),Config_Data[3]) #Replace the existing value with the current value
-    writeLines(Config_Data, paste0(DIRPATH, BAMWS, DataName)) #Specifies the calibration data
-
-    # R doesn't like the trailing slash
-    BaM_path <- paste0(DIRPATH,gsub("/$","",BAMFOLD))
-    if(!file.exists(BaM_path)){
-      failureMessage <- "Path to BaM executable not found"
-      stop(failureMessage)
-    }
-    #Run the exe
-    setwd(BaM_path)
-    system2(BAMFILE)
-
-    #Check for the output files
-    if(!file.exists(paste0(DIRPATH, BAMWS, cookedResultsName))){
-      failureMessage <- "Cooked Results file was not created by BaM"
-      stop(failureMessage)
-    }
-    if(!file.exists(paste0(DIRPATH, BAMWS, SummaryResultsName))){
-      failureMessage <- "Results Summary file was not created by BaM"
-      stop(failureMessage)
-    }
-    if(!file.exists(paste0(DIRPATH, BAMWS, ResidualResultsName))){
-      failureMessage <- "Results Residuals file was not created by BaM"
-      stop(failureMessage)
-    }
-
-    #Read in and Format the output data of the MCMC Results using the gaugings
-    Results_MCMC_Cooked_in <- read.table(paste0(DIRPATH, BAMWS, cookedResultsName), header = T)
-    Results_Residuals_in <- read.table(paste0(DIRPATH, BAMWS, ResidualResultsName), header = T)
-    Results_Residuals_in$eventID <- dischargeDataForCurve$eventID
-    Results_Summary_in <- read.table(paste0(DIRPATH, BAMWS, SummaryResultsName), header = T)
-
-    #Assign curveIDs
-    Results_MCMC_Cooked_in$curveID <- curveIDString
-    Results_Residuals_in$curveID <- curveIDString
-    Results_Summary_in$curveID <- curveIDString
-
-    #Add curve start and end dates
-    Results_MCMC_Cooked_in$curveStartDate <- curveStartDate
-    Results_Residuals_in$curveStartDate <- curveStartDate
-    Results_Summary_in$curveStartDate <- curveStartDate
-    Results_MCMC_Cooked_in$curveEndDate <- curveEndDate
-    Results_Residuals_in$curveEndDate <- curveEndDate
-    Results_Summary_in$curveEndDate <- curveEndDate
-
-    #Add spaghetti number
-    Results_MCMC_Cooked_in$parameterNumber <- row.names(Results_MCMC_Cooked_in)
-
-    #Fill in record in
-    curveData$allEventID[i] <- allEventID
-    curveData$curveID[i] <- curveIDString
-    curveData$minQ[i] <- min(as.numeric(gaugings$Q))
-    curveData$maxQ[i] <- max(as.numeric(gaugings$Q))
-    curveData$minStage[i] <- min(as.numeric(gaugings$H))
-    curveData$maxStage[i] <- max(as.numeric(gaugings$H))
-    curveData$curveStartDate[i] <- format(curveStartDate, format = osDateFormat)
-    curveData$curveEndDate[i] <- format(curveEndDate, format = osDateFormat)
-
-    if(exists("Results_MCMC_Cooked") && exists("Results_Residuals") && exists("Results_Summary")){
-      Results_MCMC_Cooked <- rbind(Results_MCMC_Cooked, Results_MCMC_Cooked_in)
-      Results_Residuals <- rbind(Results_Residuals, Results_Residuals_in)
-      Results_Summary <- rbind(Results_Summary, Results_Summary_in)
-      rm("Results_MCMC_Cooked_in")
-      rm("Results_Residuals_in")
-      rm("Results_Summary_in")
-    }else{
-      Results_MCMC_Cooked <- Results_MCMC_Cooked_in
-      Results_Residuals <- Results_Residuals_in
-      Results_Summary <- Results_Summary_in
-    }
-
-    # Combine stage data frames to writing to L4 table. This will ensure any stage records used in >1 curve segment will have a unique record per curve
-    if (i == 1) {
-      dischargeDataForL4 <- dischargeDataForCurve
-    }
-    if (i > 1) {
-      dischargeDataForL4 <- rbind(dischargeDataForL4,dischargeDataForCurve)
-    }
+  # Write out configuration files for controls
+  controlSurveyDate <- format(as.POSIXct(curveIdentification$controlSurveyEndDateTime[curveIdentification$curveID==curveIDString]),"%Y-%m-%d")
+  numCtrls <- try(stageQCurve::txt.out.ctrl.and.prior.parm.ext(site = site,
+                                                               controlSurveyDate = controlSurveyDate,
+                                                               controlMatrixPath = controlMatrixPath,
+                                                               priorParamsPath = priorParamsPath,
+                                                               downloadedDataPath = downloadedDataPath),silent = T)
+  if(!is.null(attr(numCtrls, "class")) && attr(numCtrls, "class") == "try-error"){
+    failureMessage <- "Prior parameters or control matrix error; check inputs"
+    stop(failureMessage)
   }
+
+  # Work only with the gauge and discharge records within this rating segment
+  dischargeDataForCurve <- dischargeData[dischargeData$curveID%in%curveIDString,]
+  dischargeDataForCurve$streamStage <- dischargeDataForCurve$gaugeHeight
+  dischargeDataForCurve$calcQ <- dischargeDataForCurve$streamDischarge
+  dischargeDataForCurve$eventID <- dischargeDataForCurve$gaugeEventID
+
+  # Set the curve start and end date and get list of all gauge event IDs
+  curveStartDate <- curveIdentification$curveStartDate[curveIdentification$curveID==curveIDString][1]
+  curveEndDate <- curveIdentification$curveEndDate[curveIdentification$curveID==curveIDString][1]
+  allEventID <- paste(dischargeDataForCurve$gaugeEventID, collapse = "|")
+
+  # Write out the formatted data file to data folder for BaM
+  gagNam <- c('H','uH','bH','bHindx','Q','uQ','bQ','bQindx')
+  gaugings <- data.frame(matrix(data=NA, ncol=length(gagNam), nrow=length(dischargeDataForCurve$startDate)))
+  names(gaugings) <- gagNam
+
+  # Zeroes below assume no uncertainty, may want to change that
+  gaugings$H <- dischargeDataForCurve$gaugeHeight #Stream stage values (m)
+  gaugings$uH <- 0.00 #May include in the future
+  gaugings$bH <- 0.00
+  gaugings$bHindx <- 0.00
+  # Stream discharge values (lps), re-calculated divided by 1000 to convert to m^3/s for BaM executable
+  gaugings$Q <- as.numeric(dischargeDataForCurve$streamDischarge)/1000
+  # 10% uncertainty (half-length of 95 % confiddence interval), divided by 1.96 to get to one std dev
+  gaugings$uQ <- gaugings$Q * 0.1 / 1.96
+  gaugings$bQ <- 0.00
+  gaugings$bQindx <- 0.00
+
+  # Write out gaugings to input to BaM executable
+  write.table(gaugings,
+              paste0(DIRPATH, BAMFOLD, dataPath),
+              sep = "\t",
+              row.names = F,
+              quote = F)
+
+  # Write configuration and data files to the BaM folder for the water year
+  Config_Data <- readLines(paste0(DIRPATH, BAMWS, DataName))
+  Config_Data[3] <- gsub("[0-9]{1,6}",nrow(gaugings),Config_Data[3]) #Replace the existing value with the current value
+  writeLines(Config_Data, paste0(DIRPATH, BAMWS, DataName)) #Specifies the calibration data
+
+  # R doesn't like the trailing slash
+  BaM_path <- paste0(DIRPATH,gsub("/$","",BAMFOLD))
+  if(!file.exists(BaM_path)){
+    failureMessage <- "Path to BaM executable not found"
+    stop(failureMessage)
+  }
+  #Run the exe
+  setwd(BaM_path)
+  system2(BAMFILE)
+
+  #Check for the output files
+  if(!file.exists(paste0(DIRPATH, BAMWS, cookedResultsName))){
+    failureMessage <- "Cooked Results file was not created by BaM"
+    stop(failureMessage)
+  }
+  if(!file.exists(paste0(DIRPATH, BAMWS, SummaryResultsName))){
+    failureMessage <- "Results Summary file was not created by BaM"
+    stop(failureMessage)
+  }
+  if(!file.exists(paste0(DIRPATH, BAMWS, ResidualResultsName))){
+    failureMessage <- "Results Residuals file was not created by BaM"
+    stop(failureMessage)
+  }
+
+  #Read in and Format the output data of the MCMC Results using the gaugings
+  Results_MCMC_Cooked_in <- read.table(paste0(DIRPATH, BAMWS, cookedResultsName), header = T)
+  Results_Residuals_in <- read.table(paste0(DIRPATH, BAMWS, ResidualResultsName), header = T)
+  Results_Residuals_in$eventID <- dischargeDataForCurve$eventID
+  Results_Summary_in <- read.table(paste0(DIRPATH, BAMWS, SummaryResultsName), header = T)
+
+  #Assign curveIDs
+  Results_MCMC_Cooked_in$curveID <- curveIDString
+  Results_Residuals_in$curveID <- curveIDString
+  Results_Summary_in$curveID <- curveIDString
+
+  #Add curve start and end dates
+  Results_MCMC_Cooked_in$curveStartDate <- curveStartDate
+  Results_Residuals_in$curveStartDate <- curveStartDate
+  Results_Summary_in$curveStartDate <- curveStartDate
+  Results_MCMC_Cooked_in$curveEndDate <- curveEndDate
+  Results_Residuals_in$curveEndDate <- curveEndDate
+  Results_Summary_in$curveEndDate <- curveEndDate
+
+  #Add spaghetti number
+  Results_MCMC_Cooked_in$parameterNumber <- row.names(Results_MCMC_Cooked_in)
+
+  #Fill in record in
+  curveData$allEventID[i] <- allEventID
+  curveData$curveID[i] <- curveIDString
+  curveData$minQ[i] <- min(as.numeric(gaugings$Q))
+  curveData$maxQ[i] <- max(as.numeric(gaugings$Q))
+  curveData$minStage[i] <- min(as.numeric(gaugings$H))
+  curveData$maxStage[i] <- max(as.numeric(gaugings$H))
+  curveData$curveStartDate[i] <- format(curveStartDate, format = osDateFormat)
+  curveData$curveEndDate[i] <- format(curveEndDate, format = osDateFormat)
+
+  # if(exists("Results_MCMC_Cooked") && exists("Results_Residuals") && exists("Results_Summary")){
+  #   Results_MCMC_Cooked <- rbind(Results_MCMC_Cooked, Results_MCMC_Cooked_in)
+  #   Results_Residuals <- rbind(Results_Residuals, Results_Residuals_in)
+  #   Results_Summary <- rbind(Results_Summary, Results_Summary_in)
+  #   rm("Results_MCMC_Cooked_in")
+  #   rm("Results_Residuals_in")
+  #   rm("Results_Summary_in")
+  # }else{
+    Results_MCMC_Cooked <- Results_MCMC_Cooked_in
+    Results_Residuals <- Results_Residuals_in
+    Results_Summary <- Results_Summary_in
+  # }
 
   #If any ratings have segments, add a record to curveData and change date ranges in remaining L4 tables
   #Get a list of ratings that are segmented
@@ -336,7 +324,8 @@ calc.stag.Q.curv <- function(
   #Create the transition metadata list
   domain <- unique(curveIdentification$domainID)
   namedLocationName <- site
-  numCurves <- numCurves
+  # numCurves <- numCurves
+  numCurves <- 1
   startDateFormatted <- format(min(dischargeData$startDate), format=osDateFormat)
   endDateFormatted <- format(max(dischargeData$startDate), format=osDateFormat)
   searchIntervalEndStartFormatted <- format(searchIntervalStartDate, format=osDateFormat)
@@ -372,34 +361,34 @@ calc.stag.Q.curv <- function(
   #Format results for transition object to fit into NEON tables
   #Doesn't need curve specific information, just start and end dates that match the water year
   print("Formatting gaugeDischargeMeas")
-  gaugeDischargeMeas_outputDF <- stageQCurve::frmt.gaug.disc.mea.file(dataFrame = dischargeDataForL4,
+  gaugeDischargeMeas_outputDF <- stageQCurve::frmt.gaug.disc.mea.file(dataFrame = dischargeDataForCurve,
                                                                          metadata = tran.metadata,
                                                                          curveIDData = curveIdentification)
-  write.csv(gaugeDischargeMeas_outputDF,paste0(DIRPATH,BAMWS,"gaugeDischargeMeas.csv"),row.names = FALSE)
+  write.csv(gaugeDischargeMeas_outputDF,paste0(DIRPATH,BAMWS,"gaugeDischargeMeas_",curveID,".csv"),row.names = FALSE)
 
   #Format results for transition object
   print("Formatting posteriorParameters")
   posteriorParameters_outputDF <- stageQCurve::frmt.post.parm.file(dataFrame = Results_Summary,
                                                       metadata = tran.metadata)
-  write.csv(posteriorParameters_outputDF,paste0(DIRPATH,BAMWS,"posteriorParameters.csv"),row.names = FALSE)
+  write.csv(posteriorParameters_outputDF,paste0(DIRPATH,BAMWS,"posteriorParameters_",curveID,".csv"),row.names = FALSE)
 
   #Format results for transition object
   print("Formatting stageDischargeCurveInfo")
   stageDischargeCurveInfo_outputDF <- stageQCurve::frmt.stag.disc.curv.info.file(dataFrame = curveData,
                                                                     metadata = tran.metadata)
-  write.csv(stageDischargeCurveInfo_outputDF,paste0(DIRPATH,BAMWS,"stageDischargeCurveInfo.csv"),row.names = FALSE)
+  write.csv(stageDischargeCurveInfo_outputDF,paste0(DIRPATH,BAMWS,"stageDischargeCurveInfo_",curveID,".csv"),row.names = FALSE)
 
   #Format results for transition object
   print("Formatting sampledParameters")
   sampledParameters_outputDF <- stageQCurve::frmt.samp.parm.file(dataFrame = Results_MCMC_Cooked,
                                                     metadata = tran.metadata)
-  write.csv(sampledParameters_outputDF,paste0(DIRPATH,BAMWS,"sampledParameters.csv"),row.names = FALSE)
+  write.csv(sampledParameters_outputDF,paste0(DIRPATH,BAMWS,"sampledParameters_",curveID,".csv"),row.names = FALSE)
 
   #Format results for transition object
   print("Formatting resultsResiduals")
   resultsResiduals_outputDF <- stageQCurve::frmt.rslt.resd.file(dataFrame = Results_Residuals,
                                                    metadata = tran.metadata)
-  write.csv(resultsResiduals_outputDF,paste0(DIRPATH,BAMWS,"resultsResiduals.csv"),row.names = FALSE)
+  write.csv(resultsResiduals_outputDF,paste0(DIRPATH,BAMWS,"resultsResiduals_",curveID,".csv"),row.names = FALSE)
 
 }
 
