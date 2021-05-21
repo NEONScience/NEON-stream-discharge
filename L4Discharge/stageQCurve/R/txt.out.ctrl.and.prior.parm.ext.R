@@ -40,72 +40,46 @@ txt.out.ctrl.and.prior.parm.ext <- function(
   ){
 
   # Get control data from geomorphology survey
-  if(file.exists(paste0(downloadedDataPath,"NEON_discharge-rating-curves"))){
-    # neonUtilities::stackByTable(dpID="DP4.00133.001",filepath=paste0(downloadedDataPath,"NEON_discharge-rating-curves.zip"))
-    curveIdentification <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_curveIdentification.csv", sep = "/")),silent = T)
-    ctrlInfo  <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_controlInfo.csv", sep = "/")),silent = T)
-    priorParams  <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_priorParameters.csv", sep = "/")),silent = T)
+  # Data should have already been downloaded and stacked in stageQCurve::calc.stag.Q.curv()
+
+  # If data has been downloaded using neonUtilities::zipsByProduct() and saved to DATAWS
+  if(file.exists(paste0(downloadedDataPath,"filesToStack00133"))){
+    ctrlInfo <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","geo_controlInfo.csv", sep = "/")),silent = T)
+    priorParams <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","geo_priorParameters.csv", sep = "/")),silent = T)
   }else{
-    availableFiles <- list.files(downloadedDataPath)
-    curveIdentification  <- try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_curveIdentification",availableFiles)], sep = "/")),silent = T)
-    ctrlInfo  <- try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_controlInfo",availableFiles)], sep = "/")),silent = T)
-    priorParams  <- try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_priorParameters",availableFiles)], sep = "/")),silent = T)
+    # If data has been directly downloaded from the NEON data portal and saved to DATAWS
+    if(file.exists(paste0(downloadedDataPath,"NEON_discharge-rating-curves"))){
+      ctrlInfo  <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_controlInfo.csv", sep = "/")),silent = T)
+      priorParams <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_priorParameters.csv", sep = "/")),silent = T)
+    }else{
+      # If the individual files are available in DATAWS
+      availableFiles <- list.files(downloadedDataPath)
+      ctrlInfo  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_controlInfo",availableFiles)], sep = "/")),silent = T))
+      priorParams  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_priorParameters",availableFiles)], sep = "/")),silent = T))
+    }
   }
+
   # Error handling if no control data can be found
-  if(attr(curveIdentification, "class") == "try-error"){
-    failureMessage <- "Curve identification data could not be retrieved"
-    stop(failureMessage)
-  }
   if(attr(ctrlInfo, "class") == "try-error"){
-    failureMessage <- "Control activation data could not be retrieved"
+    failureMessage <- paste0("Control activation data could not be retrieved. Ensure the required input data are stored in ",downloadedDataPath)
     stop(failureMessage)
   }
   if(attr(priorParams, "class") == "try-error"){
-    failureMessage <- "Prior parameters could not be retrieved"
+    failureMessage <- paste0("Prior parameters could not be retrieved. Ensure the required input data are stored in ",downloadedDataPath)
     stop(failureMessage)
   }
 
   #Subset for the site of interest
-  if(length(ctrlInfo$siteID)>0){
-    curveIdentification <- curveIdentification[curveIdentification$siteID == site,]
-    ctrlInfo <- ctrlInfo[ctrlInfo$siteID == site,]
-    priorParams <- priorParams[priorParams$siteID == site,]
-  }else{
-    if(length(ctrlInfo$namedLocation)>0){
-      curveIdentification <- curveIdentification[curveIdentification$namedLocation == site,]
-      ctrlInfo <- ctrlInfo[ctrlInfo$namedLocation == site,]
-      priorParams <- priorParams[priorParams$namedLocation == site,]
-    }else{
-      failureMessage <- "Valid location field could not be found in the controls data tables"
-      stop(failureMessage)
-    }
-  }
-
-  # Error handling if zero records remain
-  if(nrow(curveIdentification)<1){
-    failureMessage <- "Zero (0) curve identification records were retrieved"
-    stop(failureMessage)
-  }
-  if(nrow(ctrlInfo)<1){
-    failureMessage <- "Zero (0) control activation records were retrieved"
-    stop(failureMessage)
-  }
-  if(nrow(priorParams)<1){
-    failureMessage <- "Zero (0) prior parameters records were retrieved"
-    stop(failureMessage)
-  }
-
-  #Use this control and prior parameters data
-  ctrlInfo <- ctrlInfo[as.POSIXct(ctrlInfo$endDate) == controlSurveyDate,]
-  priorParams <- priorParams[as.POSIXct(priorParams$endDate) == controlSurveyDate,]
+  ctrlInfo <- ctrlInfo[ctrlInfo$siteID == site&as.POSIXct(ctrlInfo$endDate) == controlSurveyDate,]
+  priorParams <- priorParams[priorParams$siteID == site&as.POSIXct(priorParams$endDate) == controlSurveyDate,]
 
   # Error handling if zero records remain
   if(nrow(ctrlInfo)<1){
-    failureMessage <- "Zero (0) control activation records were retrieved"
+    failureMessage <- paste0("Zero (0) control activation records were retrieved for the ",site," ",controlSurveyDate," survey.")
     stop(failureMessage)
   }
   if(nrow(priorParams)<1){
-    failureMessage <- "Zero (0) prior parameters records were retrieved"
+    failureMessage <- paste0("Zero (0) prior parameters records were retrieved for the ",site," ",controlSurveyDate," survey.")
     stop(failureMessage)
   }
 

@@ -113,28 +113,45 @@ calc.stag.Q.curv <- function(
   searchIntervalEndDate <- waterYearDate$endDate+secondsInDay #Add one day
 
   #Get stage and discharge data from the OS system
-  if(file.exists(paste0(downloadedDataPath,"NEON_discharge-rating-curves"))){
-    # neonUtilities::stackByTable(dpID = "DP4.00133.001",paste0(downloadedDataPath,"NEON_discharge-rating-curves.zip"))
-    dischargeData  <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","sdrc_gaugeDischargeMeas.csv", sep = "/")),silent = T)
-    curveIdentification <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_curveIdentification.csv", sep = "/")),silent = T)
+  # If data has been downloaded using neonUtilities::zipsByProduct() and saved to DATAWS
+  if(file.exists(paste0(downloadedDataPath,"filesToStack00133"))){
+    # Stack the tables if they have not been already
+    if (!file.exists(paste0(downloadedDataPath,"filesToStack00133/stackedFiles"))) {
+      neonUtilities::stackByTable(paste0(downloadedDataPath,"filesToStack00133"))
+    }
+    dischargeData  <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","sdrc_gaugeDischargeMeas.csv", sep = "/")),silent = T)
+    curveIdentification <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","geo_curveIdentification.csv", sep = "/")),silent = T)
   }else{
-    availableFiles <- list.files(downloadedDataPath)
-    dischargeData  <- try(read.csv(paste(downloadedDataPath,availableFiles[grepl("sdrc_gaugeDischargeMeas",availableFiles)], sep = "/")),silent = T)
-    curveIdentification  <- try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_curveIdentification",availableFiles)], sep = "/")),silent = T)
+    # If data has been directly downloaded from the NEON data portal and saved to DATAWS
+    if(file.exists(paste0(downloadedDataPath,"NEON_discharge-rating-curves.zip"))|
+       file.exists(paste0(downloadedDataPath,"NEON_discharge-rating-curves"))){
+      # Stack the tables if they have not been already
+      if(file.exists(paste0(downloadedDataPath,"NEON_discharge-rating-curves.zip"))){
+        neonUtilities::stackByTable(paste0(downloadedDataPath,"NEON_discharge-rating-curves.zip"))
+      }
+      dischargeData  <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","sdrc_gaugeDischargeMeas.csv", sep = "/")),silent = T)
+      curveIdentification <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_curveIdentification.csv", sep = "/")),silent = T)
+    }else{
+      # If the individual files are available in DATAWS
+      availableFiles <- list.files(downloadedDataPath)
+      dischargeData  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl("sdrc_gaugeDischargeMeas",availableFiles)], sep = "/")),silent = T))
+      curveIdentification  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_curveIdentification",availableFiles)], sep = "/")),silent = T))
+    }
   }
 
   # Error handling if no discharge or curve identification data can be found
   if(attr(curveIdentification, "class") == "try-error"){
-    failureMessage <- "Data could not be retrieved from geo/bat_curveIdentification_pub"
+    failureMessage <- paste0("Data could not be retrieved from geo/bat_curveIdentification_pub. Ensure the required input data are stored in ",downloadedDataPath)
     stop(failureMessage)
   }
   if(attr(dischargeData, "class") == "try-error"){
-    failureMessage <- "Data could not be retrieved from sdrc_gaugeDischargeMeas_pub"
+    failureMessage <- paste0("Data could not be retrieved from sdrc_gaugeDischargeMeas. Ensure the required input data are stored in ",downloadedDataPath)
     stop(failureMessage)
   }
 
   # Remove any curve IDs that shouldn't be included in this site or water year
-  curveIdentification <- curveIdentification[grepl(format(waterYearDate$endDate,"%Y"),curveIdentification$curveID)&curveIdentification$siteID==site,]
+  dischargeData <- dischargeData[grepl(paste(site,format(waterYearDate$endDate,"%Y"),sep = "."),dischargeData$curveID),]
+  curveIdentification <- curveIdentification[grepl(paste(site,format(waterYearDate$endDate,"%Y"),sep = "."),curveIdentification$curveID),]
   curveIdentification <- curveIdentification[order(curveIdentification$curveID),]
   curveIDSegment <- unique(curveIdentification$curveID)[order(unique(curveIdentification$curveID))]
   numCurves <- length(curveIDSegment)
@@ -155,6 +172,7 @@ calc.stag.Q.curv <- function(
 
   # Run the BaM executable and generate all the tables needed for the stage-discharge rating curves data product
   for(i in 1:numCurves){
+    i=1
     curveIDString <- curveIDSegment[i]
 
     # Write configuration files for parameters
