@@ -3,7 +3,6 @@
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
-#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function takes a dataframe and .
 
@@ -21,8 +20,6 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
-#   Zachary L. Nickerson (2021-04-05)
-#     Code updates to match NEON rating curve development workflow
 ##############################################################################################
 frmt.rslt.resd.file <- function(
   dataFrame,

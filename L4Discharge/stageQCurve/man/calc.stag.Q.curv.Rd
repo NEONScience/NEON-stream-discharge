@@ -11,7 +11,8 @@ calc.stag.Q.curv(
   DATAWS = Sys.getenv("DATAWS"),
   BAMWS = Sys.getenv("BAMWS"),
   startDate = Sys.getenv("STARTDATE"),
-  site = Sys.getenv("SITE")
+  site = Sys.getenv("SITE"),
+  curveID
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ run command [string]}
 
 \item{site}{A four letter site code for a NEON site, entered as env variable in
 run command [string]}
+
+\item{curveID}{Unique identifier of active stage-discharge rating curve [string]}
 }
 \value{
 This function results in text files being written to a directory that contain

@@ -13,7 +13,7 @@ def.calc.WY.strt.end.date(searchIntervalStartDate)
 List of start and end dates of the water year for the input searchIntervalStartDate
 }
 \description{
-This function returns the start and end dates of the water year for the 
+This function returns the start and end dates of the water year for the
 input searchIntervalStartDate
 }
 \references{

@@ -3,7 +3,6 @@
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
-#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function takes a dataframe and .
 
@@ -22,8 +21,8 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
-#   Zachary L. Nickerson (2021-04-05)
-#     Code updates to match NEON rating curve development workflow
+#   Zachary L. Nickerson (2021-04-27)
+#     update to which field in the input data frame references re-calculated discharge
 ##############################################################################################
 frmt.gaug.disc.mea.file <- function(
   dataFrame,
@@ -62,19 +61,24 @@ frmt.gaug.disc.mea.file <- function(
   outputDF$gaugeHeight <- dataFrame$streamStage
   outputDF$gaugeHeightUnc <- 0
   outputDF$gaugeHeightOffset <- dataFrame$gaugeHeightOffset
-  outputDF$streamDischarge <- dataFrame$calcQ
-  outputDF$streamDischargeUnc <- dataFrame$calcQ * 0.1
+  outputDF$streamDischarge <- dataFrame$finalDischarge
+  outputDF$streamDischargeUnc <- dataFrame$finalDischarge * 0.1
   outputDF$gaugeEventID <- dataFrame$eventID
   outputDF$includedInRatingCurve <- "true"
-  outputDF$recalculatedL1QF <- dataFrame$recalculatedL1QF
+  #outputDF$recalculatedL1QF <- dataFrame$recalculatedL1QF
   outputDF$L1DataQF <- dataFrame$L1DataQF
   outputDF$dataQF <- dataFrame$dataQF
 
-  for (i in 1:nrow(outputDF)) {
-    for (j in 1:nrow(curveIDData)) {
-      if (outputDF$curveID[i]==curveIDData$curveID[j]) {
-        outputDF$startDate[i] <- min(curveIDData$curveStartDate[curveIDData$curveID==curveIDData$curveID[j]])
-        outputDF$endDate[i] <- max(curveIDData$curveEndDate[curveIDData$curveID==curveIDData$curveID[j]])
+  if (metadata$site=="TOOK") {
+    outputDF$startDate <- metadata$curveStartDate
+    outputDF$endDate <- metadata$curveEndDate
+  }else{
+    for (i in 1:nrow(outputDF)) {
+      for (j in 1:nrow(curveIDData)) {
+        if (outputDF$curveID[i]==curveIDData$curveID[j]) {
+          outputDF$startDate[i] <- min(curveIDData$curveStartDate[curveIDData$curveID==curveIDData$curveID[j]])
+          outputDF$endDate[i] <- max(curveIDData$curveEndDate[curveIDData$curveID==curveIDData$curveID[j]])
+        }
       }
     }
   }

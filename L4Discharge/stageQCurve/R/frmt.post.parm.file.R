@@ -3,7 +3,6 @@
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
-#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function takes a dataframe and formats it for integration into a transition object.
 
@@ -21,8 +20,6 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
-#   Zachary L. Nickerson (2021-04-05)
-#     Code updates to match NEON rating curve development workflow
 ##############################################################################################
 frmt.post.parm.file <- function(
   dataFrame,
@@ -31,6 +28,7 @@ frmt.post.parm.file <- function(
 
   numCtrls <- metadata$numCtrls
   numCurves <- metadata$numCurves
+  curveIDs <- unique(dataFrame$curveID[order(dataFrame$curveID)])
 
   Smry_Names <- c(
     'domainID',
@@ -56,44 +54,42 @@ frmt.post.parm.file <- function(
     'stdDevGamma2',
     'dataQF'
   )
-  Smry_outputDF <- data.frame(matrix(data=NA, ncol=length(Smry_Names), nrow=(numCtrls*numCurves)))
+  Smry_outputDF <- data.frame(matrix(data=NA, ncol=length(Smry_Names), nrow=sum(numCtrls)))
   names(Smry_outputDF) <- Smry_Names
 
   Smry_outputDF$domainID <- metadata$domain
   Smry_outputDF$siteID <- metadata$site
   Smry_outputDF$namedLocation <- metadata$namedLocationName
-  #Smry_outputDF$startDate <- metadata$startDate
-  #Smry_outputDF$endDate <- metadata$endDate
-  Smry_outputDF$controlNumber <- rep(1:numCtrls, numCurves)
 
-  MaxPostRow <- which(grepl("MaxPost",row.names(dataFrame)))
-  StdevRow <- which(grepl("St.Dev.",row.names(dataFrame)))
-  for(j in 1:numCurves){
-    maxPostRowIdx <- MaxPostRow[j]
-    StdevRowIdx <- StdevRow[j]
+  for (i in 1:numCurves) {
+    if (i==1) {
+      startIdx <- i
+      endIdx <- numCtrls[i]
+    }else{
+      startIdx <- min(which(is.na(Smry_outputDF$curveID)))
+      endIdx <- (startIdx-1)+numCtrls[i]
+    }
 
-    startIdx <- 1+(j-1)*numCtrls
-    endIdx <- j*numCtrls
-    Smry_outputDF$curveID[startIdx:endIdx] <- dataFrame$curveID[maxPostRowIdx]
-    Smry_outputDF$startDate[startIdx:endIdx] <- format(dataFrame$curveStartDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
-    Smry_outputDF$endDate[startIdx:endIdx] <- format(dataFrame$curveEndDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
-    #Smry_outputDF$curveStartDate[startIdx:endIdx] <- format(dataFrame$curveStartDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
-    #Smry_outputDF$curveEndDate[startIdx:endIdx] <- format(dataFrame$curveEndDate[maxPostRowIdx], format = "%Y-%m-%dT%H:%M:%S.000Z")
+    maxPostRowIdx <- which(grepl("MaxPost",row.names(dataFrame))&dataFrame$curveID==curveIDs[i])
+    stdDevRowIdx <- which(grepl("St.Dev.",row.names(dataFrame))&dataFrame$curveID==curveIDs[i])
+
+    Smry_outputDF$controlNumber[startIdx:endIdx] <- 1:numCtrls[i]
+    Smry_outputDF$curveID[startIdx:endIdx] <- curveIDs[i]
+    Smry_outputDF$startDate[startIdx:endIdx] <- format(unique(dataFrame$curveStartDate[dataFrame$curveID==curveIDs[i]]), format = "%Y-%m-%dT%H:%M:%S.000Z")
+    Smry_outputDF$endDate[startIdx:endIdx] <- format(unique(dataFrame$curveEndDate[dataFrame$curveID==curveIDs[i]]), format = "%Y-%m-%dT%H:%M:%S.000Z")
     Smry_outputDF$maxPostGamma1[startIdx:endIdx] <- dataFrame$Y1_gamma1[maxPostRowIdx]
     Smry_outputDF$maxPostGamma2[startIdx:endIdx] <- dataFrame$Y1_gamma2[maxPostRowIdx]
-    Smry_outputDF$stdDevGamma1[startIdx:endIdx] <- dataFrame$Y1_gamma1[StdevRowIdx]
-    Smry_outputDF$stdDevGamma2[startIdx:endIdx] <- dataFrame$Y1_gamma2[StdevRowIdx]
-
-    for(i in 1:numCtrls){
-      loopIdx <- i+(j-1)*numCtrls
-      Smry_outputDF$maxPostZeroFlowOffset[loopIdx] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("b",Smry_outputDF$controlNumber[i]))]
-      Smry_outputDF$maxPostExponent[loopIdx] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("c",Smry_outputDF$controlNumber[i]))]
-      Smry_outputDF$maxPostCoefficient[loopIdx] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("a",Smry_outputDF$controlNumber[i]))]
-      Smry_outputDF$maxPostActivationStage[loopIdx] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("k",Smry_outputDF$controlNumber[i]))]
-      Smry_outputDF$stdDevZeroFlowOffset[loopIdx] <- dataFrame[StdevRowIdx, which(names(dataFrame) == paste0("b",Smry_outputDF$controlNumber[i]))]
-      Smry_outputDF$stdDevExponent[loopIdx] <- dataFrame[StdevRowIdx, which(names(dataFrame) == paste0("c",Smry_outputDF$controlNumber[i]))]
-      Smry_outputDF$stdDevCoefficient[loopIdx] <- dataFrame[StdevRowIdx, which(names(dataFrame) == paste0("a",Smry_outputDF$controlNumber[i]))]
-      Smry_outputDF$stdDevActivationStage[loopIdx] <- dataFrame[StdevRowIdx, which(names(dataFrame) == paste0("k",Smry_outputDF$controlNumber[i]))]
+    Smry_outputDF$stdDevGamma1[startIdx:endIdx] <- dataFrame$Y1_gamma1[stdDevRowIdx]
+    Smry_outputDF$stdDevGamma2[startIdx:endIdx] <- dataFrame$Y1_gamma2[stdDevRowIdx]
+    for(k in startIdx:endIdx){
+      Smry_outputDF$maxPostZeroFlowOffset[k] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("b",Smry_outputDF$controlNumber[k]))]
+      Smry_outputDF$maxPostExponent[k] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("c",Smry_outputDF$controlNumber[k]))]
+      Smry_outputDF$maxPostCoefficient[k] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("a",Smry_outputDF$controlNumber[k]))]
+      Smry_outputDF$maxPostActivationStage[k] <- dataFrame[maxPostRowIdx, which(names(dataFrame) == paste0("k",Smry_outputDF$controlNumber[k]))]
+      Smry_outputDF$stdDevZeroFlowOffset[k] <- dataFrame[stdDevRowIdx, which(names(dataFrame) == paste0("b",Smry_outputDF$controlNumber[k]))]
+      Smry_outputDF$stdDevExponent[k] <- dataFrame[stdDevRowIdx, which(names(dataFrame) == paste0("c",Smry_outputDF$controlNumber[k]))]
+      Smry_outputDF$stdDevCoefficient[k] <- dataFrame[stdDevRowIdx, which(names(dataFrame) == paste0("a",Smry_outputDF$controlNumber[k]))]
+      Smry_outputDF$stdDevActivationStage[k] <- dataFrame[stdDevRowIdx, which(names(dataFrame) == paste0("k",Smry_outputDF$controlNumber[k]))]
     }
   }
   return(Smry_outputDF)
