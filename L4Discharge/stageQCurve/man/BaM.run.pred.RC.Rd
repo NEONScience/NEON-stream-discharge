@@ -45,4 +45,5 @@ License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 }
 \author{
 Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 }

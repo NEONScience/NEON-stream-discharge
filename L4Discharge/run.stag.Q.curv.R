@@ -8,7 +8,14 @@
 #' @description This script uses the BaM executable to calculate the parameters that define
 #' the stage-discharge relationship for a site and water year using NEON data.
 
-#' @details FILL IN LATER
+#' @details This script is run by the Docker container to generate a stage-discharge rating
+#' curve based on site and water-year inputs. The function produces multiple .CSV and .PDF
+#' files saved to the filepath identified as the global variables DIRPATH + BAMWS. The .CSV
+#' files that are saved contain output data from the BaM executable that contain information
+#' on the modelled stage-discharge rating curve. The .CSV files that are save are formatted 
+#' identically to the data tables available for download from the NEON Data Portal 
+#' DP4.00133.001. The .PDF files that are saved are visuals of model parameter comparisons 
+#' and the posterior stage-discharge rating curve.
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -20,6 +27,9 @@
 #     original creation
 #   Zachary L. Nickerson (2021-03-17)
 #     code updates to fit updated workflow for generating stage-discharge rating curves
+#   Zachary L. Nickerson (2021-05-24)
+#     more updates to fit updated workflow, and updates from moving internal functions to
+#     external package
 ##############################################################################################
 
 ## -- TO RUN THE CODE OUTSIDE OF A DOCKER CONTAINER, UNCOMMENT AND RUN LINES __ - __ -- ##

@@ -1,10 +1,10 @@
 ##############################################################################################
-#' @title Plot prior and posterior parameter distributions
+#' @title Plot Marcov Chain Monte Carlo Simulations
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
 
-#' @description This function plot prior and posterior parameters from BaM outputs or
+#' @description This function plots MCMC simulations from BaM outputs or
 #' NEON data downloads
 
 #' @importFrom graphics hist lines par
@@ -22,7 +22,7 @@
 #' @param NEONformat An indicator of the format of the priorParams and Results_MCMC_Cooked
 #' dataframes, for NEON downloads = TRUE, for data firectly form a BaM run = FALSE [boolean]
 
-#' @return This function read in and writes out a modified version of the RunOptions for BaM
+#' @return This function writes out .PDF files visualizing MCMC simulations
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -32,6 +32,8 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-05-24)
+#     include the curveID in each filename to be saved out
 ##############################################################################################
 MCMC.sim.plot <- function(DIRPATH = Sys.getenv("DIRPATH"),
                           BAMWS = Sys.getenv("BAMWS"),

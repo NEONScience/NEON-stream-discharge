@@ -39,6 +39,9 @@
 #     original creation
 #   Zachary L. Nickerson (2021-04-05)
 #     Major updates to overall workflow to match internal NEON rating curve development workflow
+#   Zachary L. Nickerson (2021-05-24)
+#     more updates to fit updated workflow, and updates from moving internal functions to
+#     external package
 ##############################################################################################
 calc.stag.Q.curv <- function(DIRPATH = Sys.getenv("DIRPATH"),
                              BAMFOLD = Sys.getenv("BAMFOLD"),

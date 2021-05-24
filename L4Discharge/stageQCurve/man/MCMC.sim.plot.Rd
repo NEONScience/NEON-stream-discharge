@@ -2,7 +2,7 @@
 % Please edit documentation in R/MCMC.sim.plot.R
 \name{MCMC.sim.plot}
 \alias{MCMC.sim.plot}
-\title{Plot prior and posterior parameter distributions}
+\title{Plot Marcov Chain Monte Carlo Simulations}
 \usage{
 MCMC.sim.plot(
   DIRPATH = Sys.getenv("DIRPATH"),
@@ -31,10 +31,10 @@ AKA cooked spaghettis [dataframe]}
 dataframes, for NEON downloads = TRUE, for data firectly form a BaM run = FALSE [boolean]}
 }
 \value{
-This function read in and writes out a modified version of the RunOptions for BaM
+This function writes out .PDF files visualizing MCMC simulations
 }
 \description{
-This function plot prior and posterior parameters from BaM outputs or
+This function plots MCMC simulations from BaM outputs or
 NEON data downloads
 }
 \references{

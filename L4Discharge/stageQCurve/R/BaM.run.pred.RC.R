@@ -3,6 +3,7 @@
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function writes out configuration files and runs BaM in prediction
 #' mode for ratings curves
@@ -29,6 +30,8 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-05-24)
+#     update to only write out gauging data if it was not already created in the main workflow
 ##############################################################################################
 BaM.run.pred.RC <- function(
   DIRPATH = Sys.getenv("DIRPATH"),

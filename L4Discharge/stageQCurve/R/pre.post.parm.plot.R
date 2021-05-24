@@ -23,7 +23,7 @@
 #' @param NEONformat An indicator of the format of the priorParams and Results_MCMC_Cooked
 #' dataframes, for NEON downloads = TRUE, for data firectly form a BaM run = FALSE [boolean]
 
-#' @return This function read in and writes out a modified version of the RunOptions for BaM
+#' @return This function writes out .PDF files visualizing prior and posterior parameters
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -33,6 +33,8 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-05-24)
+#     include the curveID in each filename to be saved out
 ##############################################################################################
 pre.post.parm.plot <- function(DIRPATH = Sys.getenv("DIRPATH"),
                                BAMWS = Sys.getenv("BAMWS"),

@@ -3,6 +3,7 @@
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function returns the start and end dates of the water year for the
 #' input searchIntervalStartDate
@@ -21,6 +22,8 @@
 #     original creation
 #   Kaelin M. Cawley (2020-08-05)
 #     updated to work with airflow when running each December
+#   Zachary L. Nickerson (2021-05-24)
+#     updates when removing this function from internal package to external package
 ##############################################################################################
 def.calc.WY.strt.end.date <- function(searchIntervalStartDate){
   Oct <- "10"

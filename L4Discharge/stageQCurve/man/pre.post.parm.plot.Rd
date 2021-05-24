@@ -34,7 +34,7 @@ AKA cooked spaghettis [dataframe]}
 dataframes, for NEON downloads = TRUE, for data firectly form a BaM run = FALSE [boolean]}
 }
 \value{
-This function read in and writes out a modified version of the RunOptions for BaM
+This function writes out .PDF files visualizing prior and posterior parameters
 }
 \description{
 This function plot prior and posterior parameters from BaM outputs or

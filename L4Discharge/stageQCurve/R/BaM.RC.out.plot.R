@@ -3,6 +3,7 @@
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function plots and saves figures from the BaM rating curve prediction
 #' outputs
@@ -18,7 +19,8 @@
 #' @param Hgrid A numeric array of the stage values overwhich the rating curve was evaluated
 #' and will be plotted [numeric]
 
-#' @return This function writes out configurations and runs BaM in prediction mode
+#' @return This function writes out .PDF files visualizing different formats of the predicted
+#' raing curve
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -29,7 +31,9 @@
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
 #   Zachary L. Nickerson (2021-04-06)
-#     code updates to no plot the prior rating curve due to impossible spaghettis
+#     code updates to not plot the prior rating curve due to impossible spaghettis
+#   Zachary L. Nickerson (2021-05-24)
+#     include the curveID in each filename to be saved out
 ##############################################################################################
 BaM.RC.out.plot <- function(DIRPATH = Sys.getenv("DIRPATH"),
                             BAMWS = Sys.getenv("BAMWS"),

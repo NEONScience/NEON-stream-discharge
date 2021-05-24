@@ -24,7 +24,8 @@ files in the Docker container [string]}
 and will be plotted [numeric]}
 }
 \value{
-This function writes out configurations and runs BaM in prediction mode
+This function writes out .PDF files visualizing different formats of the predicted
+raing curve
 }
 \description{
 This function plots and saves figures from the BaM rating curve prediction
@@ -35,4 +36,5 @@ License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 }
 \author{
 Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 }

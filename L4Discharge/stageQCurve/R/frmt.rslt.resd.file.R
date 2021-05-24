@@ -3,6 +3,7 @@
 
 #' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description This function takes a dataframe and .
 
@@ -10,7 +11,8 @@
 #' @param metadata A list containing the transition metadata that includes: domain,site,
 #' startDateFormatted,endDateFormatted,namedLocationName,numCtrls,numCurves,waterYear [list]
 
-#' @return This function returns a dataframe formatted for integration into the transition object
+#' @return This function returns a dataframe formatted identical to the similar publication
+#' table in the Stage-discharge rating curve (DP4.00133.001) data product.
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -20,6 +22,8 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Zachary L. Nickerson (2021-04-27)
+#     update to which field in the input data frame references re-calculated discharge
 ##############################################################################################
 frmt.rslt.resd.file <- function(
   dataFrame,

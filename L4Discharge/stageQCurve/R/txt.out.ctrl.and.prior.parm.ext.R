@@ -29,7 +29,7 @@
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
 #   Zachary L. Nickerson (2021-04-05)
-#     Updated data queries and subsetting with current data structure
+#     updated data queries and subsetting with current data structure
 ##############################################################################################
 txt.out.ctrl.and.prior.parm.ext <- function(
   site,
