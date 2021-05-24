@@ -2,31 +2,39 @@
 % Please edit documentation in R/MCMC.sim.plot.R
 \name{MCMC.sim.plot}
 \alias{MCMC.sim.plot}
-\title{Plot prior and posterior parameter distributions}
+\title{Plot Marcov Chain Monte Carlo Simulations}
 \usage{
-MCMC.sim.plot(DIRPATH = Sys.getenv("DIRPATH"),
-  BAMWS = Sys.getenv("BAMWS"), numCtrls, Results_MCMC_Cooked, NEONformat)
+MCMC.sim.plot(
+  DIRPATH = Sys.getenv("DIRPATH"),
+  BAMWS = Sys.getenv("BAMWS"),
+  curveID,
+  numCtrls,
+  Results_MCMC_Cooked,
+  NEONformat = F
+)
 }
 \arguments{
-\item{DIRPATH}{An environment variable that contains the location of the files in 
+\item{DIRPATH}{An environment variable that contains the location of the files in
 the Docker container [string]}
 
-\item{BAMWS}{An environment variable that contains the location of the BaM config 
+\item{BAMWS}{An environment variable that contains the location of the BaM config
 files in the Docker container [string]}
+
+\item{curveID}{Unique identifier of active stage-discharge rating curve [string]}
 
 \item{numCtrls}{Number of hydraulic controls [integer]}
 
-\item{Results_MCMC_Cooked}{A dataframe containing the posterior MCMC samples, 
+\item{Results_MCMC_Cooked}{A dataframe containing the posterior MCMC samples,
 AKA cooked spaghettis [dataframe]}
 
-\item{NEONformat}{An indicator of the format of the priorParams and Results_MCMC_Cooked 
+\item{NEONformat}{An indicator of the format of the priorParams and Results_MCMC_Cooked
 dataframes, for NEON downloads = TRUE, for data firectly form a BaM run = FALSE [boolean]}
 }
 \value{
-This function read in and writes out a modified version of the RunOptions for BaM
+This function writes out .PDF files visualizing MCMC simulations
 }
 \description{
-This function plot prior and posterior parameters from BaM outputs or 
+This function plots MCMC simulations from BaM outputs or
 NEON data downloads
 }
 \references{

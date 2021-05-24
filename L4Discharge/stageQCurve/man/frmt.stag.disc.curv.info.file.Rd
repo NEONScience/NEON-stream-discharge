@@ -13,7 +13,8 @@ frmt.stag.disc.curv.info.file(dataFrame, metadata)
 startDateFormatted,endDateFormatted,namedLocationName,numCtrls,numCurves,waterYear [list]}
 }
 \value{
-This function returns a dataframe formatted for integration into the transition object
+This function returns a dataframe formatted identical to the similar publication
+table in the Stage-discharge rating curve (DP4.00133.001) data product.
 }
 \description{
 This function takes a dataframe and .
@@ -23,4 +24,5 @@ License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 }
 \author{
 Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 }
