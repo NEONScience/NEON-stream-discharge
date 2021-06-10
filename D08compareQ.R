@@ -34,33 +34,28 @@ list2env(neonData,.GlobalEnv)
 neonData<-dsc_fieldDataADCP
 
 #' Merges USGS and NEON data using timestamps
-neonData$meanVelocity=neonData$totalDischarge/neonData$riverWidthMean/neonData$riverDepthMean
-fit<-lm(meanVelocity~totalDischarge, data=neonData)
-summary(fit)
-cf<-round(coef(fit),digits=6)
-plot_ly(data=neonData, x=~totalDischarge,y=~meanVelocity,name="observations",type="scatter",mode="markers",marker=list(color="green",size=20),line=list(width=0))%>%
-  add_lines(data=mergedData, x=~totalDischarge,y=fitted(fit),name="linear model",line=list(color="black",width=2),marker=list(color="black",size=1))%>%
-  layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "NEON Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "meanVelocity (m/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
-usgsData$velocity<-cf[2]*usgsData$dischargeCMS+cf[1]
-usgsData$travelTime=70000/usgsData$velocity # Estimates travel time from USGS to NEON station
-usgsData$offsetDate=usgsData$dateTime+usgsData$travelTime # Adjusts time offset between stations
-neonData$startDate<-lubridate::round_date(neonData$startDate,unit="15 minute")
-usgsData$offsetDate<-lubridate::round_date(usgsData$offsetDate,unit="15 minute")
+neonData$startDate<-lubridate::round_date(neonData$startDate,unit="60 minute") 
 mergedData<-merge(neonData,usgsData,by.x="startDate",by.y="dateTime",all.x=T,all.y=F)
 
 #' Fits linear regression
 fit<-lm(totalDischarge~dischargeCMS, data=mergedData)
 summary(fit)
 
+#' Calculates residuals
+mergedData$residuals=mergedData$totalDischarge-mergedData$dischargeCMS
+
 #' Generates Plots
 plot_ly(data=usgsData, x=~dateTime,y=~dischargeCMS,name="USGS",type="scatter",mode="lines",line=list(color="black",width=1))%>%
-  add_trace(data=usgsData, x=~offsetDate,y=~dischargeCMS,name="USGSoffset",type="scatter",mode="lines",line=list(color="red",width=1))%>%
   add_trace(data=neonData, x=~startDate,y=~totalDischarge,name="NEON",type="scatter",mode="markers",marker=list(color="blue",size=20),line=list(width=0))%>%
   layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "Date",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
 
 plot_ly(data=mergedData, x=~dischargeCMS,y=~totalDischarge,name="observations",type="scatter",mode="markers",marker=list(color="blue",size=20),line=list(width=0))%>%
   #add_lines(data=mergedData, x=~dischargeCMS,y=fitted(fit),name="linear model",line=list(color="black",width=2),marker=list(color="black",size=1))%>%
   layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "USGS Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "NEON Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+
+plot_ly(data=mergedData, x=~residuals,type="histogram", marker=list(color="blue"))%>%
+  layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "residual Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "Observations",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+
 ########################################################################################################
 
 
@@ -92,11 +87,19 @@ mergedData<-merge(neonData,usgsData,by.x="startDate",by.y="dateTime",all.x=T,all
 fit<-lm(totalDischarge~dischargeCMS, data=mergedData)
 summary(fit)
 
+#' Calculates residuals
+mergedData$residuals=mergedData$totalDischarge-mergedData$dischargeCMS
+
 #' Generates Plots
 plot_ly(data=usgsData, x=~dateTime,y=~dischargeCMS,name="USGS",type="scatter",mode="lines",line=list(color="black",width=1))%>%
   add_trace(data=neonData, x=~collectDate,y=~totalDischarge,name="NEON",type="scatter",mode="markers",marker=list(color="red",size=20),line=list(width=0))%>%
   layout(title ="D08.TOMB.DP01.20048",titlefont=list(size=30), xaxis = list(title = "Date",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+
 plot_ly(data=mergedData, x=~dischargeCMS,y=~totalDischarge,name="observations",type="scatter",mode="markers",marker=list(color="red",size=20),line=list(width=0))%>%
   add_lines(data=mergedData, x=~dischargeCMS,y=fitted(fit),name="linear model",line=list(color="black",width=2),marker=list(color="black",size=1))%>%
   layout(title ="D08.TOMB.DP01.20048",titlefont=list(size=30), xaxis = list(title = "USGS Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "NEON Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+
+plot_ly(data=mergedData, x=~residuals, marker=list(color="red"))%>%
+  layout(title ="D08.TOMB.DP01.20048",titlefont=list(size=30), xaxis = list(title = "residual Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "Observations",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+
 ########################################################################################################
