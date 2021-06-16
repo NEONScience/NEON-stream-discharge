@@ -50,11 +50,35 @@ plot_ly(data=usgsData, x=~dateTime,y=~dischargeCMS,name="USGS",type="scatter",mo
   layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "Date",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
 
 plot_ly(data=mergedData, x=~dischargeCMS,y=~totalDischarge,name="observations",type="scatter",mode="markers",marker=list(color="blue",size=20),line=list(width=0))%>%
-  #add_lines(data=mergedData, x=~dischargeCMS,y=fitted(fit),name="linear model",line=list(color="black",width=2),marker=list(color="black",size=1))%>%
+  add_lines(data=mergedData, x=~dischargeCMS,y=fitted(fit),name="linear model",line=list(color="black",width=2),marker=list(color="black",size=1))%>%
   layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "USGS Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "NEON Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
 
 plot_ly(data=mergedData, x=~residuals,type="histogram", marker=list(color="blue"))%>%
   layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "residual Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "Observations",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+
+#' Creates a shift in the USGS data using the estimated travel time
+# ttModelData<-na.omit(mergedData[,c("totalDischarge","riverWidthMean","riverDepthMean")])
+# ttModelData$meanVelocity<-ttModelData$totalDischarge/ttModelData$riverWidthMean/ttModelData$riverDepthMean #' mean velocity in m/s
+# ttRegression<-nls(meanVelocity~a*totalDischarge^b, data=ttModelData,start=list(a=0.5,b=0.1))
+# summary(ttRegression)
+# modelCoef<-coef(ttRegression)
+# plot_ly(data=ttModelData, x=~totalDischarge,y=~meanVelocity,name="observations",type="scatter",mode="markers",marker=list(color="blue",size=20),line=list(width=0))%>%
+#   add_lines(data=ttModelData, x=~totalDischarge,y=fitted(ttRegression),name="linear model",line=list(color="black",width=2),marker=list(color="black",size=1))%>%
+#   layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "u (m/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+# usgsData$velocity<-modelCoef[1]*usgsData$dischargeCMS^modelCoef[2]
+# distance = 70000  #' distance from USGS gage to NEON site in meters
+# usgsData$travelTime<-distance/usgsData$velocity
+# usgsData$shiftedTime<-usgsData$dateTime+usgsData$travelTime
+# usgsData$shiftedTime<-lubridate::round_date(usgsData$shiftedTime,unit="15 minute")
+# 
+# plot_ly(data=usgsData, x=~dateTime,y=~dischargeCMS,name="rawUSGS",type="scatter",mode="lines",line=list(color="black",width=1))%>%
+#   add_trace(data=usgsData, x=~shiftedTime,y=~dischargeCMS,name="shiftedUSGS",type="scatter",mode="lines",line=list(color="red",width=1))%>%
+#   add_trace(data=neonData, x=~startDate,y=~totalDischarge,name="NEON",type="scatter",mode="markers",marker=list(color="blue",size=20),line=list(width=0))%>%
+#   layout(title ="D08.BLWA.DP01.20048",titlefont=list(size=30), xaxis = list(title = "Date",titlefont=list(size=30),tickfont=list(size=30)),yaxis = list (title = "Q (m3/s)",titlefont=list(size=30),tickfont=list(size=30)),margin=list(l=50, r=50, t=100, b=100, pad=4))
+# 
+# shiftedData<-merge(neonData,usgsData,by.x="startDate",by.y="shiftedTime",all.x=T,all.y=F)
+# fit<-lm(totalDischarge~dischargeCMS, data=shiftedData)
+# summary(fit)
 
 ########################################################################################################
 
