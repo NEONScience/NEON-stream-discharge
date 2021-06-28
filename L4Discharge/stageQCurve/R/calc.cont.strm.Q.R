@@ -281,7 +281,7 @@ calc.cont.strm.Q <- function(DIRPATH = Sys.getenv("DIRPATH"),
       # Get spaghettis for the full date range to cut down on calls to the database
       spagDataForBaM <- spagData[spagData$curveID==currCurveID,]
       spagOutPath <- paste0(DIRPATH, BAMWS, cookedMCMCName)
-      stageQInternal::txt.out.spag.data(spagDataIn = spagData,spagOutPath = spagOutPath)
+      stageQCurve::txt.out.spag.data(spagDataIn = spagData,spagOutPath = spagOutPath)
 
       
       
