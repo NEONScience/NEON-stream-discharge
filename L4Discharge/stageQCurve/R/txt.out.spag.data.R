@@ -68,7 +68,7 @@ txt.out.spag.data <- function(spagDataIn, spagOutPath){
     }
   }
   #Format data
-  outputDF <- apply(outputDF,c(1,2),txt.fmt.MCMC.cooked)
+  outputDF <- apply(outputDF,c(1,2),stageQCurve::txt.fmt.MCMC.cooked)
   #Format names
   colnames(outputDF) <- format(colnames(outputDF), trim = F, width = 15)
   write.table(outputDF, spagOutPath, row.names = F, quote = F, sep = "") #Specifies the types of runs to perform
