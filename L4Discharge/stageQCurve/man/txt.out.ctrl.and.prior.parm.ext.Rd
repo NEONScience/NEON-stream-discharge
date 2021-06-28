@@ -4,16 +4,18 @@
 \alias{txt.out.ctrl.and.prior.parm.ext}
 \title{Writes out the Config_ControlMatrix and Config_Model text files for BaM}
 \usage{
-txt.out.ctrl.and.prior.parm.ext(site, searchIntervalStartDate,
-  searchIntervalEndDate, controlMatrixPath, priorParamsPath,
-  downloadedDataPath)
+txt.out.ctrl.and.prior.parm.ext(
+  site,
+  controlSurveyDate,
+  controlMatrixPath,
+  priorParamsPath,
+  downloadedDataPath
+)
 }
 \arguments{
 \item{site}{4 letter SITE code [string]}
 
-\item{searchIntervalStartDate}{Start date for search interval [POSIXct]}
-
-\item{searchIntervalEndDate}{Start date for search interval [POSIXct]}
+\item{controlSurveyDate}{End date of the discharge cross section survey [POSIXct]}
 
 \item{controlMatrixPath}{File path to write out controlMatrix file [string]}
 
@@ -22,8 +24,8 @@ txt.out.ctrl.and.prior.parm.ext(site, searchIntervalStartDate,
 \item{downloadedDataPath}{File path where downloaded .zip files can be found [string]}
 }
 \value{
-This function read in and writes out a modified version of the RunOptions text 
-file for BaM and returns the number of controls and inputResultUuids for the control 
+This function read in and writes out a modified version of the RunOptions text
+file for BaM and returns the number of controls and inputResultUuids for the control
 matrix and prior parameters tables
 }
 \description{
@@ -34,4 +36,5 @@ License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 }
 \author{
 Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 }

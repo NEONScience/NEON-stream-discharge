@@ -21,6 +21,8 @@
 #     Generic script created
 #   Bobby Hensley (8/27/2020)
 #     Modified for GUIL 2017 survey
+#   Bobby Hensley (3/15/2021)
+#     Reviewed before RC generation
 ######################################################################################################################## 
 
 #This reads in data using the API and pulls zip files from the ECS buckets
@@ -35,9 +37,9 @@ filepath <- "N:/Science/AQU/Controls/D04_GUIL_20170825"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
-dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
-neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
-neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
+# dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
+# neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
+# neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
 
 #Read in downloaded data
 surveyPtsDF <- read.table(paste0(URIpath,"/NEON_D04_GUIL_GEOMORPH_20170825_L0_VE/GUIL_surveyPts_20170825.csv"),

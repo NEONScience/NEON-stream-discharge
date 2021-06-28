@@ -4,24 +4,31 @@
 \alias{BaM.RC.out.plot}
 \title{Plot rating curve outputs}
 \usage{
-BaM.RC.out.plot(DIRPATH = Sys.getenv("DIRPATH"),
-  BAMWS = Sys.getenv("BAMWS"), Hgrid)
+BaM.RC.out.plot(
+  DIRPATH = Sys.getenv("DIRPATH"),
+  BAMWS = Sys.getenv("BAMWS"),
+  curveID,
+  Hgrid
+)
 }
 \arguments{
-\item{DIRPATH}{An environment variable that contains the location of the files in 
+\item{DIRPATH}{An environment variable that contains the location of the files in
 the Docker container [string]}
 
-\item{BAMWS}{An environment variable that contains the location of the BaM config 
+\item{BAMWS}{An environment variable that contains the location of the BaM config
 files in the Docker container [string]}
 
-\item{Hgrid}{A numeric array of the stage values overwhich the rating curve was evaluated 
+\item{curveID}{Unique identifier of active stage-discharge rating curve [string]}
+
+\item{Hgrid}{A numeric array of the stage values overwhich the rating curve was evaluated
 and will be plotted [numeric]}
 }
 \value{
-This function writes out configurations and runs BaM in prediction mode
+This function writes out .PDF files visualizing different formats of the predicted
+raing curve
 }
 \description{
-This function plots and saves figures from the BaM rating curve prediction 
+This function plots and saves figures from the BaM rating curve prediction
 outputs
 }
 \references{
@@ -29,4 +36,5 @@ License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 }
 \author{
 Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 }

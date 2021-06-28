@@ -1,10 +1,11 @@
 ##############################################################################################
 #' @title Find water year start and end date for an input date
 
-#' @author 
+#' @author
 #' Kaelin M. Cawley \email{kcawley@battelleecology.org} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
-#' @description This function returns the start and end dates of the water year for the 
+#' @description This function returns the start and end dates of the water year for the
 #' input searchIntervalStartDate
 
 #' @param searchIntervalStartDate A date in POSIXct format [POSIXct]
@@ -19,6 +20,10 @@
 # changelog and author contributions / copyrights
 #   Kaelin M. Cawley (2017-12-07)
 #     original creation
+#   Kaelin M. Cawley (2020-08-05)
+#     updated to work with airflow when running each December
+#   Zachary L. Nickerson (2021-05-24)
+#     updates when removing this function from internal package to external package
 ##############################################################################################
 def.calc.WY.strt.end.date <- function(searchIntervalStartDate){
   Oct <- "10"
@@ -26,8 +31,9 @@ def.calc.WY.strt.end.date <- function(searchIntervalStartDate){
   first <- "01"
   thirtieth <- "30"
   startYear <- substr(searchIntervalStartDate, 1, 4)
-  diffOctFirst <- difftime(searchIntervalStartDate, 
-                           as.POSIXct(paste(startYear, Oct, first, sep = "-"), tz = "UTC"), 
+
+  diffOctFirst <- difftime(searchIntervalStartDate,
+                           as.POSIXct(paste(startYear, Oct, first, sep = "-"), tz = "UTC"),
                            units = "days")
   if(diffOctFirst > 0){
     octWY <- as.POSIXct(paste(startYear, Oct, first, sep = "-"), tz = "UTC")
@@ -36,7 +42,7 @@ def.calc.WY.strt.end.date <- function(searchIntervalStartDate){
   }else{
     octWY <- searchIntervalStartDate
   }
-  
+
   octWY <- as.numeric(substr(octWY, 1, 4))
   startDate <- as.POSIXct(paste(octWY, Oct, first, sep = "-"), tz = "UTC")
   endDate <- as.POSIXct(paste((octWY+1), Sept, thirtieth, sep = "-"), tz = "UTC")

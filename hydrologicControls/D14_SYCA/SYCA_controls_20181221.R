@@ -19,7 +19,7 @@
 # changelog and author contributions / copyrights
 #   Kaelin Cawley and Nick Harrison (2019)
 #     Generic script created
-#   Bobby Hensley (1/14/2020)
+#   Bobby Hensley (5/18/2020)
 #     Modified for SYCA 2018 survey
 ######################################################################################################################## 
 

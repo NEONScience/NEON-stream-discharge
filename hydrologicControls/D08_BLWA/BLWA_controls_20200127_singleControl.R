@@ -150,7 +150,7 @@ plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance v
 ##### Now create the actual controls to upload... #####
 
 #First, the addition or replacement when controls are activated table "geo_controlInfo_in"
-numControls <- 2
+numControls <- 1
 geo_controlInfo_in_names <- c("locationID","startDate","endDate","controlNumber","segmentNumber","controlActivationState")
 geo_controlInfo_in <- data.frame(matrix(nrow = numControls*numControls, ncol = length(geo_controlInfo_in_names)))
 names(geo_controlInfo_in) <- geo_controlInfo_in_names
@@ -168,7 +168,7 @@ geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber>geo_c
 
 #Setting control activation states that are user defined.
 #Is control #1 still active when control #2 is activated? 1 = Yes
-geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==2] <- 0
+#geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==2] <- 0
 
 #Second, create entries for "geo_controlType_in" table for control parameters
 geo_controlType_in_names <- c("locationID",
@@ -203,18 +203,12 @@ geo_controlType_in$endDate <- surveyActiveDate
 geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
-geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
+geo_controlType_in$hydraulicControlType[1] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LWEIR"]
 geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "RWEIR"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 150 #Higher than normal because used ADCP data
 
-#Entries for Control #2
-geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LEW"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "REW"]
-geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
-geo_controlType_in$rectangularWidthUnc[2] <- 150 #Higher than normal because used ADCP data
 
 #Slope calculations
 waterEdge<-surveyPtsDF[(surveyPtsDF$name=="US_REW_1"|surveyPtsDF$name=="US_REW_2"),]
@@ -222,14 +216,14 @@ waterEdge<-surveyPtsDF[(surveyPtsDF$name=="US_REW_1"|surveyPtsDF$name=="US_REW_2
 rise <- waterEdge[1,4]-waterEdge[2,4]
 run <- sqrt(((waterEdge[1,2]-waterEdge[2,2])^2)+((waterEdge[1,3]-waterEdge[2,3])^2))
 
-geo_controlType_in$channelSlope[2] <- rise/run
-geo_controlType_in$channelSlopeUnc[2] <- 0.001
+geo_controlType_in$channelSlope[1] <- rise/run
+geo_controlType_in$channelSlopeUnc[1] <- 0.001
 
 #chosen to represent stream conditions with higher roughness above bankfull
-geo_controlType_in$manningCoefficient[2] <- 0.05
-geo_controlType_in$manningCoefficientUnc[2] <- 0.025
-geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
-geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
+geo_controlType_in$manningCoefficient[1] <- 0.05
+geo_controlType_in$manningCoefficientUnc[1] <- 0.025
+geo_controlType_in$stricklerCoefficient[1] <- 1/geo_controlType_in$manningCoefficient[1]
+geo_controlType_in$stricklerCoefficientUnc[1] <- geo_controlType_in$stricklerCoefficient[1]*(geo_controlType_in$manningCoefficientUnc[1]/geo_controlType_in$manningCoefficient[1])
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))
@@ -245,11 +239,8 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LWEIR"]
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LCHANNEL"]
 geo_priorParameters_in$priorActivationStageUnc[1] <- 5 
-
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LCHANNEL"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 5 
 
 
 geo_priorParameters_in$locationID <- siteID

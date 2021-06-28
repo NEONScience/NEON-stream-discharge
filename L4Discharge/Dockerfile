@@ -1,10 +1,13 @@
-# start with the r-base image tag 3.4.3 (latest as of 2/7/2018)
+# start with the r-base image tag 3.6.0
 # https://hub.docker.com/r/rocker/r-base/
-#Must be using the same or older version of R as used to make packrat snapshot
-FROM rocker/r-ver:3.4.3
+# Must be using the same or older version of R as used to make packrat snapshot
+FROM rocker/r-ver:3.6.0
 
-# maintainer handle
+# Maintainer handle
 MAINTAINER "Kaelin Cawley" kcawley@battelleecology.org
+
+# Authors
+LABEL authors="Kaelin Cawley kcawley@battelleecology.org, Zachary Nickerson nickerson@battelleecology.org"
 
 #OS side and R dependencies needed to run the R packages
 #Then clean up some of the installed files
@@ -43,9 +46,16 @@ WORKDIR $DIRPATH
 RUN chmod 0755 $BAMFOLD$BAMFILE && \
 	chmod 1777 $BAMWS
 
-#Installing R packages
-RUN R -e "install.packages(c('devtools'))"
-RUN R -e "devtools::install_github('NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve', force = TRUE, dependencies = TRUE)"
+#Install the R packages and give user access to BaM
+#Packrat Version: 0.5.0 (8/31/20)
+#XML Version: 3.99-0.5 (8/31/20)
+RUN R -e "install.packages(c('XML','BiocManager','packrat','data.table'),type='source'); BiocManager::install(c('rhdf5','Rhdf5lib'));packrat::restore()" &&\
+	rm -rf /tmp/* &&\
+	rm -rf /tmp/downloaded_packages/ /tmp/*.rds &&\ 
+	chmod 0755 $BAMFOLD$BAMFILE && \
+	chmod 1777 $BAMWS && \
+	chmod 1777 $DIRPATH && \
+	chmod 1777 $DIRPATH/packrat
 
 #Users can also consider using something like packrat to lock in the version of the packages that the container is using.
 #This will also speed up the build process to have static versions of the packages rather than installing each time
