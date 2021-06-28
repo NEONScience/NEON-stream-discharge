@@ -12,9 +12,9 @@
 #' curve based on site and water-year inputs. The function produces multiple .CSV and .PDF
 #' files saved to the filepath identified as the global variables DIRPATH + BAMWS. The .CSV
 #' files that are saved contain output data from the BaM executable that contain information
-#' on the modelled stage-discharge rating curve. The .CSV files that are save are formatted 
-#' identically to the data tables available for download from the NEON Data Portal 
-#' DP4.00133.001. The .PDF files that are saved are visuals of model parameter comparisons 
+#' on the modelled stage-discharge rating curve. The .CSV files that are save are formatted
+#' identically to the data tables available for download from the NEON Data Portal
+#' DP4.00133.001. The .PDF files that are saved are visuals of model parameter comparisons
 #' and the posterior stage-discharge rating curve.
 
 #' @references
@@ -47,7 +47,7 @@ Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/
            BAMWS="BaM_beta/BaM_BaRatin/",
            STARTDATE = "2018-10-01",
            ENDDATE = "2019-09-30",
-           DPID = "DP4.00133.001",
+           DPID = "DP4.00130.001",
            SITE = "COMO")
 # Call global environment variables into local environment
 DIRPATH = Sys.getenv("DIRPATH")
@@ -64,7 +64,7 @@ site = Sys.getenv("SITE")
 # library(devtools)
 # install_github("NEONScience/NEON-utilities/neonUtilities", force = TRUE, dependencies = TRUE)
 # install_github("NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE, dependencies = TRUE)
-# Load needed library for Docker testing prior to GitHub package release
+# # Load needed library for Docker testing prior to GitHub package release
 # setwd("/app/L4_discharge/")
 # devtools::install("stageQCurve")
 # library(stageQCurve)
@@ -109,7 +109,7 @@ if(DPID == l4DischargeDPID){
     failureMessage <- paste0("Data could not be retrieved from geo/bat_curveIdentification_pub. Ensure the required input data are stored in ",Sys.getenv("DATAWS"))
     stop(failureMessage)
   }
-  
+
   # Remove any curve IDs that shouldn't be included in this site or water year
   curveIdentification <- curveIdentification[grepl(paste(Sys.getenv("SITE"),format(as.POSIXct(Sys.getenv("STARTDATE"))+31536000,"%Y"),sep = "."),curveIdentification$curveID),]
   curveIdentification <- curveIdentification[order(curveIdentification$curveID),]
@@ -123,14 +123,14 @@ if(DPID == l4DischargeDPID){
     if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))) {
       file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))
     }
-  
+
     ### --- PLOT RATING CURVE PRIOR AND POSTERIOR PARAMETER DISTRIBUTIONS --- ###
-    
+
     # From calc.stag.Q.curv outputs directly
     numCtrls <- nrow(read.table(paste0(DIRPATH,BAMWS,"Config_ControlMatrix.txt")))
     priorParams <- read.table(paste0(DIRPATH,BAMWS,"Config_Model.txt"),header = F)
     Results_MCMC_Cooked <- read.table(paste0(DIRPATH,BAMWS,"Results_MCMC_Cooked.txt"),header = T)
-    
+
     # # From NEON OS transition system download -- FOR NEON INTERNAL USE ONLY
     # posteriorParameter <- read.table(paste0(DATAWS,"L1_Results_sdrc_posteriorParameters_pub.txt", header = T))
     # resultsResiduals <- read.table(paste0(DATAWS,"L1_Results_sdrc_resultsResiduals_pub.txt", header = T))
@@ -139,7 +139,7 @@ if(DPID == l4DischargeDPID){
     # numCtrls <- nrow(posteriorParameter)
     # priorParams <- read.table(paste0(DIRPATH,BAMWS,"Config_Model.txt"),header = F)
     # Results_MCMC_Cooked <- read.table(paste0(DIRPATH,BAMWS,"Results_MCMC_Cooked.txt"),header = T)
-    
+
     # Run the functions to plot rating curve prior and posterior parameter distributions
     stageQCurve::pre.post.parm.plot(curveID=curveID,
                                     numCtrls=numCtrls,
@@ -150,28 +150,28 @@ if(DPID == l4DischargeDPID){
                                numCtrls=numCtrls,
                                Results_MCMC_Cooked=Results_MCMC_Cooked,
                                NEONformat=F)
-    
+
     ### --- RUN THE BaM RATING CURVE PREDICTION MODEL AND PLOT THE POSTERIOR RATING CURVE --- ###
-    
+
     # From calc.stag.Q.curv outputs directly
     stageDischargeCurveInfo <- read.csv(paste0(DIRPATH,BAMWS,"stageDischargeCurveInfo_",curveID,".csv"),header = T)
     gaugeDischargeMeas <- read.csv(paste0(DIRPATH,BAMWS,"gaugeDischargeMeas_",curveID,".csv"),header = T)
-    
+
     # # From NEON OS transition system download -- FOR NEON INTERNAL USE ONLY
     # stageDischargeCurveInfo <- read.table(paste0(DATAWS,"L1_Results_sdrc_stageDischargeCurveInfo_pub.txt", header = T))
     # gaugeDischargeMeas <- read.table(paste0(DATAWS,"L1_Results_sdrc_gaugeDischargeMeas_pub.txt", header = T))
-    
+
     #Run BaM in prediction mode to get the information for the rating curve
     minH <- stageDischargeCurveInfo$minStage - abs(stageDischargeCurveInfo$minStage)
     maxH <- stageDischargeCurveInfo$maxStage + stageDischargeCurveInfo$maxStage*0.3
     Hgrid <- stageQCurve::BaM.run.pred.RC(gaugingsData = gaugeDischargeMeas,
                                           minH = minH,
                                           maxH = maxH)
-    
+
     #Plot and save figures of BaM rating curve prediction run
     stageQCurve::BaM.RC.out.plot(curveID=curveID,
                                  Hgrid=Hgrid)
-    
+
     if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Hgrid.txt"))) {
       file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Hgrid.txt"))
     }
@@ -181,7 +181,7 @@ if(DPID == l4DischargeDPID){
   }
 }else if(DPID == l4ContinuousDPID){
   ### --- RUN MAIN FUNCTION TO GENERATE CONTINUOUS TIMESERIES DATA --- ###
-  
+
 }else{
   failureMessage <- paste0("DPID something other than ", l4DischargeDPID, " or ", l4ContinuousDPID,", check inputs")
   stop(failureMessage)
