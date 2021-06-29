@@ -14,8 +14,8 @@
 #' files that are saved contain output data from the BaM executable that contain information
 #' on the modelled stage-discharge rating curve. The .CSV files that are save are formatted
 #' identically to the data tables available for download from the NEON Data Portal
-#' DP4.00133.001. The .PDF files that are saved are visuals of model parameter comparisons
-#' and the posterior stage-discharge rating curve.
+#' DP4.00133.001 or DP4.00130.001. When DPID = DP4.00133.001, the .PDF files that are saved 
+#' are visuals of model parameter comparisons and the posterior stage-discharge rating curve.
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -30,35 +30,36 @@
 #   Zachary L. Nickerson (2021-05-24)
 #     more updates to fit updated workflow, and updates from moving internal functions to
 #     external package
+#   Zachary L. Nickerson (2021-06-29)
+#     added functionality for running continuous discharge prediction description
 ##############################################################################################
 
 ## -- TO RUN THE CODE OUTSIDE OF A DOCKER CONTAINER, UNCOMMENT AND RUN LINES __ - __ -- ##
 # The paths can get pretty long (>260 characters), which can cause trouble with the data stacker in windows. Choose wisely.
 
 # User inputs for site and date
-# If you enter a startDate that is not YYYY-10-01, the script will determine the water year (10-01 - 09-30) that started immediately before the date entered here and use it as the startDate
+# For DPID = DP4.00133.001, if you enter a startDate that is not YYYY-10-01, the script will determine the water year (10-01 - 09-30) that started immediately before the date entered here and use it as the startDate
+# For DPID = DP4.00130.001, the function can only run a month of data through the BaM predictive model; therefore, whatever date you enter, it will model the entire month (e.g, enter 2018-01-17, the function will model all of 2018-01)
 
-# Set global environment variables (see stageQCurve package readme for a description of each variable)
-Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/L4Discharge/",
-           BAMFOLD="BaM_beta/",
-           BAMFILE="BaM_MiniDMSL.exe",#Windows version
-           #BAMFILE="BaM_exe",#Linux version
-           DATAWS="C:/Users/nickerson/Documents/stageQCurve_data/",
-           BAMWS="BaM_beta/BaM_BaRatin/",
-           STARTDATE = "2018-10-01",
-           ENDDATE = "2019-09-30",
-           DPID = "DP4.00130.001",
-           SITE = "COMO")
-# Call global environment variables into local environment
-DIRPATH = Sys.getenv("DIRPATH")
-BAMFOLD = Sys.getenv("BAMFOLD")
-BAMFILE = Sys.getenv("BAMFILE")
-DATAWS = Sys.getenv("DATAWS")
-BAMWS = Sys.getenv("BAMWS")
-startDate = Sys.getenv("STARTDATE")
-endDate = Sys.getenv("ENDDATE")
-DPID = Sys.getenv("DPID")
-site = Sys.getenv("SITE")
+# # Set global environment variables (see stageQCurve package readme for a description of each variable)
+# Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/L4Discharge/",
+#            BAMFOLD="BaM_beta/",
+#            BAMFILE="BaM_MiniDMSL.exe",#Windows version
+#            #BAMFILE="BaM_exe",#Linux version
+#            DATAWS="C:/Users/nickerson/Documents/stageQCurve_data/",
+#            BAMWS="BaM_beta/BaM_BaRatin/",
+#            STARTDATE = "2014-06-01",
+#            DPID = "DP4.00130.001",
+#            SITE = "WLOU")
+# # Call global environment variables into local environment
+# DIRPATH = Sys.getenv("DIRPATH")
+# BAMFOLD = Sys.getenv("BAMFOLD")
+# BAMFILE = Sys.getenv("BAMFILE")
+# DATAWS = Sys.getenv("DATAWS")
+# BAMWS = Sys.getenv("BAMWS")
+# startDate = Sys.getenv("STARTDATE")
+# DPID = Sys.getenv("DPID")
+# site = Sys.getenv("SITE")
 
 # # Need to run this periodically if you're running the code outside of the Docker container as NEON packages get updated
 # library(devtools)
@@ -181,7 +182,16 @@ if(DPID == l4DischargeDPID){
   }
 }else if(DPID == l4ContinuousDPID){
   ### --- RUN MAIN FUNCTION TO GENERATE CONTINUOUS TIMESERIES DATA --- ###
-
+  stageQCurve::calc.cont.strm.Q()
+  if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Ht_noisy.txt"))) {
+    file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Ht_noisy.txt"))
+  }
+  if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Ht.txt"))) {
+    file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Ht.txt"))
+  }
+  if (file.exists(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))) {
+    file.remove(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"data/Gaugings.txt"))
+  }
 }else{
   failureMessage <- paste0("DPID something other than ", l4DischargeDPID, " or ", l4ContinuousDPID,", check inputs")
   stop(failureMessage)
