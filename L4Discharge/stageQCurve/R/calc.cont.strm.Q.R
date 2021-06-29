@@ -351,7 +351,7 @@ calc.cont.strm.Q <- function(DIRPATH = Sys.getenv("DIRPATH"),
       #Need to loop through these to the whole list
       stage_noisy <- matrix(NA, ncol = numSpag, nrow = length(dataForBaM))
       for(j in 1:length(dataForBaM)){
-        stage_noisy[j,] <- rnorm(numSpag,mean = kMean[j],sd = kStd[j])
+        stage_noisy[j,] <- stats::rnorm(numSpag,mean = kMean[j],sd = kStd[j])
       }
       #Write out the "noisy" file
       write.table(stage_noisy,paste0(DIRPATH,BAMFOLD,stageSpaghettis), row.names = F, col.names = F)
