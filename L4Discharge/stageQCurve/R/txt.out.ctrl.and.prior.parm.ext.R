@@ -44,18 +44,18 @@ txt.out.ctrl.and.prior.parm.ext <- function(
 
   # If data has been downloaded using neonUtilities::zipsByProduct() and saved to DATAWS
   if(file.exists(paste0(downloadedDataPath,"filesToStack00133"))){
-    ctrlInfo <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","geo_controlInfo.csv", sep = "/")),silent = T)
-    priorParams <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles","geo_priorParameters.csv", sep = "/")),silent = T)
+    ctrlInfo <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles",paste0(mod,"_controlInfo.csv"), sep = "/")),silent = T)
+    priorParams <- try(read.csv(paste(downloadedDataPath,"filesToStack00133","stackedFiles",paste0(mod,"_priorParameters.csv"), sep = "/")),silent = T)
   }else{
     # If data has been directly downloaded from the NEON data portal and saved to DATAWS
     if(file.exists(paste0(downloadedDataPath,"NEON_discharge-rating-curves"))){
-      ctrlInfo  <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_controlInfo.csv", sep = "/")),silent = T)
-      priorParams <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles","geo_priorParameters.csv", sep = "/")),silent = T)
+      ctrlInfo  <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles",paste0(mod,"_controlInfo.csv"), sep = "/")),silent = T)
+      priorParams <- try(read.csv(paste(downloadedDataPath,"NEON_discharge-rating-curves","stackedFiles",paste0(mod,"_priorParameters.csv"), sep = "/")),silent = T)
     }else{
       # If the individual files are available in DATAWS
       availableFiles <- list.files(downloadedDataPath)
-      ctrlInfo  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_controlInfo",availableFiles)], sep = "/")),silent = T))
-      priorParams  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl("geo_priorParameters",availableFiles)], sep = "/")),silent = T))
+      ctrlInfo  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl(paste0(mod,"_controlInfo"),availableFiles)], sep = "/")),silent = T))
+      priorParams  <- suppressWarnings(try(read.csv(paste(downloadedDataPath,availableFiles[grepl(paste0(mod,"_priorParameters"),availableFiles)], sep = "/")),silent = T))
     }
   }
 

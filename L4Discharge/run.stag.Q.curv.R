@@ -50,7 +50,7 @@ Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/
            BAMWS="BaM_beta/BaM_BaRatin/",
            STARTDATE = "2018-11-01",
            DPID = "DP4.00133.001",
-           SITE = "WLOU")
+           SITE = "FLNT")
 # Call global environment variables into local environment
 DIRPATH = Sys.getenv("DIRPATH")
 BAMFOLD = Sys.getenv("BAMFOLD")
@@ -80,6 +80,12 @@ library(stageQCurve)
 l4DischargeDPID <- "DP4.00133.001"
 l4ContinuousDPID <- "DP4.00130.001"
 
+if (Sys.getenv("SITE")%in%c("BLWA","TOMB","FLNT","TOOK")) {
+  mod <- "bat"
+}else{
+  mod <- "geo"
+}
+
 if(DPID == l4DischargeDPID){
   ### --- RUN MAIN FUNCTION TO GENERATE A RATING CURVE --- ###
   # We will split rating curve segments before proceeding with the remaining script
@@ -89,7 +95,7 @@ if(DPID == l4DischargeDPID){
     if (!file.exists(paste0(Sys.getenv("DATAWS"),"filesToStack00133/stackedFiles"))) {
       neonUtilities::stackByTable(paste0(Sys.getenv("DATAWS"),"filesToStack00133"))
     }
-    curveIdentification <- try(read.csv(paste(Sys.getenv("DATAWS"),"filesToStack00133","stackedFiles","geo_curveIdentification.csv", sep = "/")),silent = T)
+    curveIdentification <- try(read.csv(paste(Sys.getenv("DATAWS"),"filesToStack00133","stackedFiles",paste0(mod,"_curveIdentification.csv"), sep = "/")),silent = T)
   }else{
     # If data has been directly downloaded from the NEON data portal and saved to DATAWS
     if(file.exists(paste0(Sys.getenv("DATAWS"),"NEON_discharge-rating-curves.zip"))|
@@ -98,11 +104,11 @@ if(DPID == l4DischargeDPID){
       if(file.exists(paste0(Sys.getenv("DATAWS"),"NEON_discharge-rating-curves.zip"))){
         neonUtilities::stackByTable(paste0(Sys.getenv("DATAWS"),"NEON_discharge-rating-curves.zip"))
       }
-      curveIdentification <- try(read.csv(paste(Sys.getenv("DATAWS"),"NEON_discharge-rating-curves","stackedFiles","geo_curveIdentification.csv", sep = "/")),silent = T)
+      curveIdentification <- try(read.csv(paste(Sys.getenv("DATAWS"),"NEON_discharge-rating-curves","stackedFiles",paste0(mod,"_curveIdentification.csv"), sep = "/")),silent = T)
     }else{
       # If the individual files are available in DATAWS
       availableFiles <- list.files(Sys.getenv("DATAWS"))
-      curveIdentification  <- suppressWarnings(try(read.csv(paste(Sys.getenv("DATAWS"),availableFiles[grepl("geo_curveIdentification",availableFiles)], sep = "/")),silent = T))
+      curveIdentification  <- suppressWarnings(try(read.csv(paste(Sys.getenv("DATAWS"),availableFiles[grepl(paste0(mod,"_curveIdentification"),availableFiles)], sep = "/")),silent = T))
     }
   }
   # Error handling if no discharge or curve identification data can be found
