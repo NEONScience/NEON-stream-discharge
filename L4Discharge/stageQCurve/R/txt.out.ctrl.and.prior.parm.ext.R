@@ -41,6 +41,11 @@ txt.out.ctrl.and.prior.parm.ext <- function(
 
   # Get control data from geomorphology survey
   # Data should have already been downloaded and stacked in stageQCurve::calc.stag.Q.curv()
+  if (Sys.getenv("SITE")%in%c("BLWA","TOMB","FLNT","TOOK")) {
+    mod <- "bat"
+  }else{
+    mod <- "geo"
+  }
 
   # If data has been downloaded using neonUtilities::zipsByProduct() and saved to DATAWS
   if(file.exists(paste0(downloadedDataPath,"filesToStack00133"))){

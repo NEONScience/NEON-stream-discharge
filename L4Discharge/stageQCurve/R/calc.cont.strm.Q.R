@@ -105,6 +105,11 @@ calc.cont.strm.Q <- function(DIRPATH = Sys.getenv("DIRPATH"),
   year <- format(searchIntervalStartDate,format="%Y")
   month <- format(searchIntervalStartDate,format="%m")
   downloadedDataPath <- DATAWS
+  if (Sys.getenv("SITE")%in%c("BLWA","TOMB","FLNT","TOOK")) {
+    mod <- "bat"
+  }else{
+    mod <- "geo"
+  }
 
   # Get continuous discharge data from the OS system
   # If data has been downloaded using neonUtilities::zipsByProduct() and saved to DATAWS
