@@ -50,7 +50,7 @@ Sys.setenv(DIRPATH = "C:/Users/nickerson/Documents/GitHub/NEON-stream-discharge/
            BAMWS="BaM_beta/BaM_BaRatin/",
            STARTDATE = "2018-11-01",
            DPID = "DP4.00133.001",
-           SITE = "FLNT")
+           SITE = "TOOK")
 # Call global environment variables into local environment
 DIRPATH = Sys.getenv("DIRPATH")
 BAMFOLD = Sys.getenv("BAMFOLD")
@@ -118,7 +118,16 @@ if(DPID == l4DischargeDPID){
   }
 
   # Remove any curve IDs that shouldn't be included in this site or water year
-  curveIdentification <- curveIdentification[grepl(paste(Sys.getenv("SITE"),format(as.POSIXct(Sys.getenv("STARTDATE"))+31536000,"%Y"),sep = "."),curveIdentification$curveID),]
+  if(Sys.getenv("SITE")=="TOOK"){
+    curveIdentification <- curveIdentification[grepl(paste0(paste("TKIN",format(as.POSIXct(Sys.getenv("STARTDATE"))+31536000,"%Y"),sep = "."),"|",paste("TKOT",format(as.POSIXct(Sys.getenv("STARTDATE"))+31536000,"%Y"),sep = ".")),curveIdentification$curveID),]
+  }else{
+    curveIdentification <- curveIdentification[grepl(paste(Sys.getenv("SITE"),format(as.POSIXct(Sys.getenv("STARTDATE"))+31536000,"%Y"),sep = "."),curveIdentification$curveID),]
+  }
+  # Error handling if there is no data
+  if(nrow(curveIdentification)<1){
+    failureMessage <- paste0("There are zero (0) rating curves available for ",Sys.getenv("SITE")," WY",format(as.POSIXct(Sys.getenv("STARTDATE"))+31536000,"%Y"))
+    stop(failureMessage)
+  }
   curveIdentification <- curveIdentification[order(curveIdentification$curveID),]
   curveIDSegment <- unique(curveIdentification$curveID)[order(unique(curveIdentification$curveID))]
   numCurves <- length(curveIDSegment)
@@ -134,9 +143,9 @@ if(DPID == l4DischargeDPID){
     ### --- PLOT RATING CURVE PRIOR AND POSTERIOR PARAMETER DISTRIBUTIONS --- ###
 
     # From calc.stag.Q.curv outputs directly
-    numCtrls <- nrow(read.table(paste0(DIRPATH,BAMWS,"Config_ControlMatrix.txt")))
-    priorParams <- read.table(paste0(DIRPATH,BAMWS,"Config_Model.txt"),header = F)
-    Results_MCMC_Cooked <- read.table(paste0(DIRPATH,BAMWS,"Results_MCMC_Cooked.txt"),header = T)
+    numCtrls <- nrow(read.table(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"Config_ControlMatrix.txt")))
+    priorParams <- read.table(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"Config_Model.txt"),header = F)
+    Results_MCMC_Cooked <- read.table(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"Results_MCMC_Cooked.txt"),header = T)
 
     # # From NEON OS transition system download -- FOR NEON INTERNAL USE ONLY
     # posteriorParameter <- read.table(paste0(DATAWS,"L1_Results_sdrc_posteriorParameters_pub.txt", header = T))
@@ -161,8 +170,8 @@ if(DPID == l4DischargeDPID){
     ### --- RUN THE BaM RATING CURVE PREDICTION MODEL AND PLOT THE POSTERIOR RATING CURVE --- ###
 
     # From calc.stag.Q.curv outputs directly
-    stageDischargeCurveInfo <- read.csv(paste0(DIRPATH,BAMWS,"stageDischargeCurveInfo_",curveID,".csv"),header = T)
-    gaugeDischargeMeas <- read.csv(paste0(DIRPATH,BAMWS,"gaugeDischargeMeas_",curveID,".csv"),header = T)
+    stageDischargeCurveInfo <- read.csv(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"stageDischargeCurveInfo_",curveID,".csv"),header = T)
+    gaugeDischargeMeas <- read.csv(paste0(Sys.getenv("DIRPATH"),Sys.getenv("BAMWS"),"gaugeDischargeMeas_",curveID,".csv"),header = T)
 
     # # From NEON OS transition system download -- FOR NEON INTERNAL USE ONLY
     # stageDischargeCurveInfo <- read.table(paste0(DATAWS,"L1_Results_sdrc_stageDischargeCurveInfo_pub.txt", header = T))
