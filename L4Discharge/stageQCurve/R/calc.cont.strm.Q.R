@@ -79,9 +79,9 @@ calc.cont.strm.Q <- function(DIRPATH = Sys.getenv("DIRPATH"),
   PredMasterName <- gsub(nameRegex,"",Config_BaM[11])
   ConfigPredictions <- readLines(paste0(DIRPATH,BAMWS,PredMasterName))[1:4]
   ConfigPredictions[1] <- gsub("[0-9] ","3 ",ConfigPredictions[1])
-  ConfigPredictions[2] <- gsub("'.*'","Config_Pred_Maxpost.txt",ConfigPredictions[2])
-  ConfigPredictions[3] <- gsub("'.*'","Config_Pred_hU.txt",ConfigPredictions[3])
-  ConfigPredictions[4] <- gsub("'.*'","Config_Pred_TotalU.txt",ConfigPredictions[4])
+  ConfigPredictions[2] <- gsub("'.*'","'Config_Pred_Maxpost.txt'",ConfigPredictions[2])
+  ConfigPredictions[3] <- gsub("'.*'","'Config_Pred_hU.txt'",ConfigPredictions[3])
+  ConfigPredictions[4] <- gsub("'.*'","'Config_Pred_TotalU.txt'",ConfigPredictions[4])
   writeLines(ConfigPredictions,paste0(DIRPATH,BAMWS,PredMasterName))
 
   # Parse BaM configuration files
