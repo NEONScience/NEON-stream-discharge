@@ -42,8 +42,6 @@ DP4.00130.001 <- neonUtilities::loadByProduct(
   enddate = searchIntervalEndDate
 )
 
-dsdf
-
 # Get rating curve data from the NEON API
 DP4.00133.001 <- neonUtilities::loadByProduct(
   dpID="DP4.00133.001",
@@ -91,7 +89,7 @@ sdrc_gaugePressureRelationship$newDate <- as.POSIXct(sdrc_gaugePressureRelations
 #changing var name guageHeight of guagePressureRelationship
 sdrc_gaugePressureRelationship$guage_Height <- sdrc_gaugePressureRelationship$gaugeHeight 
   sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship %>% 
-  select(guage_Height)
+  select(guage_Height, newDate)
 
 
 
