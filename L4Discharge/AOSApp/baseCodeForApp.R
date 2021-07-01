@@ -67,14 +67,17 @@ continuousDischarge_sum <- csd_continuousDischarge%>%
 continuousDischarge_sum <-  continuousDischarge_sum %>% 
   filter(horizontalPosition ==101)
 
+#setting date to type char
+csd_continuousDischarge$endDate <- as.character(csd_continuousDischarge$endDate)
+
 #joining gauge discharge vars to continuous
-continuousDischarge_sum <- full_join(continuousDischarge_sum, gauageDischargeMeas, by =c("endDate" = "date")) %>% 
+continuousDischarge_sum <- full_join(continuousDischarge_sum, gaugeDischargeMeas, by =c("endDate" = "date")) %>% 
   select(endDate, meanH, meanQ, meanHUnc, meanURemnUnc,meanLRemnUnc,
-         meanUParaUnc,meanLParaUnc,meanLHUnc,meanUHUnc)
+         meanUParaUnc,meanLParaUnc,meanLHUnc,meanUHUnc, guageHeight,streamDischarge)
 
 
 #ploting with uncertainty
-#reviewPlotly <- plot_ly(data=csd_continuousDischarge_sum)%>%
+#plot <- plot_ly(data=csd_continuousDischarge_sum)%>%
 
 
 
