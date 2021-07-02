@@ -1,11 +1,11 @@
-#instaling and loading dependencies
+#instaling and loading dependencies1
 
 # install.packages('shinythemes')
 # install.packages('ecocomDP')
 # install.packages('plotly')
 #install.packages('readr')
 # library(shiny)
-# library(neonUtilities)
+# 
 #  library(dplyr)
 # # library(devtools)
 # library(tidyverse)
@@ -15,7 +15,21 @@
 # library(shinyWidgets)
 # library(shinythemes)
 #-----------------------------------------------
- 
+
+library(dplyr)
+library(tidyverse)
+library(readr)
+library(plotly)
+library(neonUtilities)
+library(shinyWidgets)
+library(stageQCurve)
+library(lubridate, warn.conflicts = FALSE)
+options(stringsAsFactors = F)
+
+
+productList <- read.csv("aqu_dischargeDomainSiteList.csv")
+
+
 
   # user interface
   ui <- fluidPage(
@@ -33,22 +47,17 @@
                
         
           id = "form",
-          
-          # textInput(inputId = "domainId", "Domain ID", "DO1"),
+        
           selectInput(inputId ="domainId", "Domain ID",
                       
-                      c("D01", "D02", "D03", "D04","D05",
-                        "D06", "D07", "D08", "D09","D10",
-                        "D11", "D12", "D13", "D14","D15",
-                        "D16",  "D17", "D18", "D19","D20"
-                       )),
+                      choices =productList$Domain),
+                  
           selectInput("siteId", "Select Site ID", choices = NULL ),
 
           dateRangeInput("dateRange", "Date range:",
                          startview = "decade",
                          min    = "2013-01-01",
                          start = NULL, end = NULL, 
-                          #format = "yyyy-mm-dd", 
           ),
           #textOutput('startDate'),
     
@@ -64,92 +73,192 @@
       
       shiny::mainPanel(
         
-       plotlyOutput('plot')
+      plotlyOutput('plott')
       ) # end mainPanel
     )# end of sidebarLayout
     
   ) # end of ui and fluidPage
   
 
-  library(dplyr)
-  library(tidyverse)
-  library(readr)
-  library(plotly)
-  library(shinyWidgets)  
-  
-  #importing domain sites csv, map your own pc
-  productList <- read_csv("productList.csv")
 
   
   #server function
   server <- function(session, input, output) {
     
     observe({
-    if (is.null(input$domainId) || is.na(input$domainId)){
-      return()
-    } else {
-        x <- productList$siteid[productList$domainid == input$domainId]
+        x <- productList$Site.Code[productList$Domain == input$domainId]
         updateSelectInput(session,"siteId",choices = unique(x))
         
-    }
       })
-   
+    # 
     output$startDate <- renderText(
       paste(input$dateRange[1])
     )
-    
-    #PLting
+
     
     #downloading data package from Neon portal
-    package <- reactive({
-    NEON_TOKEN <- "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEubmVvbnNjaWVuY2Uub3JnL2FwaS92MC8iLCJzdWIiOiJkaXZpbmVhc2Vha3VAZ21haWwuY29tIiwic2NvcGUiOiJyYXRlOnB1YmxpYyIsImlzcyI6Imh0dHBzOi8vZGF0YS5uZW9uc2NpZW5jZS5vcmcvIiwiZXhwIjoxNzgyNzUzNTM0LCJpYXQiOjE2MjUwNzM1MzQsImVtYWlsIjoiZGl2aW5lYXNlYWt1QGdtYWlsLmNvbSJ9.9gJXs7Sf5lO_mQG0IbaD1rZwAUZ_SVQ-cIqvyDfqOLhX5XoZR4SFgy77rrw8BNhTHMYsca524z4xxDDHRgFAfg"
-    
-    # Get continuous discharge data from the NEON API
-    ctDischarge<- neonUtilities::loadByProduct(
-      dpID="DP4.00130.001",
-      token = Sys.getenv("NEON_TOKEN"),
-      package = "expanded",
-      check.size = F,
-      site = as.character(input$siteId),
-      startdate = as.character(input$dateRange[1]),
-      enddate = as.character(input$dateRange[2])
-     )
-    
-    # DP4.00130.001 <- neonUtilities::loadByProduct(
-    #   dpID="DP4.00130.001",
-    #   token = Sys.getenv("NEON_TOKEN"),
-    #   package = "expanded",
-    #   check.size = F,
-    #   site = "LEWI",
-    #   startdate = "2018-09- 20",
-    #   enddate = "2018-10 -19"
-    # )
-    
-  
-    
-    # Get Discharge rating curve data
-    stDischarge<- neonUtilities::loadByProduct(
-      dpID="DP4.00133.001",
-      token = Sys.getenv("NEON_TOKEN"),
-      package = "expanded",
-      check.size = F,
-      site = as.character(input$siteId),
-      startdate = as.character(input$dateRange[1]),
-      enddate = as.character(input$dateRange[2])
-    )
-    
-    })#end of reactive
-    
-    # Unpack all data frames into objects
-    list2env(ctDischarge, .GlobalEnv)
-    list2env(stDischarge, .GlobalEnv)
-    
-    
+    getPackage <- reactive({
    
+      #setting vars
+      site <- input$siteId
+      endDate <- format(input$dateRange[1])
+      startDate <- format(input$dateRange[2])
+      
+    # Get continuous discharge data from the NEON API
+      # Rating curve data queries need to span an entire water year to ensure we are getting all the appropriate data
+      searchIntervalStartDate <- as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = startDate)$startDate)
+      searchIntervalEndDate <- as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = endDate)$endDate)
+      
+      # Get continuous discharge data from the NEON API
+      DP4.00130.001<- neonUtilities::loadByProduct(
+        dpID="DP4.00130.001",
+        package = "expanded",
+        check.size = F,
+        site = site,
+        startdate = searchIntervalStartDate,
+        enddate = searchIntervalEndDate
+       )
+      
+      # Get rating curve data from the NEON API
+      DP4.00133.001 <- neonUtilities::loadByProduct(
+        dpID="DP4.00133.001",
+        token = Sys.getenv("NEON_PAT"),
+        package = "basic",
+        check.size = F,
+        site = site,
+        startdate = searchIntervalStartDate,
+        enddate = searchIntervalEndDate
+      )
+
+      
+      return(DP4.00130.001)
+      return(DP4.00133.001)
+    
+
+    }) ##### getPackage
     
     
+    #Data Wrangling
+    process_data <- reactive({
+     
+      # ## trigger GET DATA NEON API call
+      # data <- get_data()
+      
+      ## move to "Processing data..." AFTER get_data() completes
+      incProgress(amount = 0.5, message = "Processing data...")
+      
+      #extract date and site in gaugeDischargeMeas from DP4.00133.001
+      sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas%>%
+        separate(gaugeEventID,c("site","date"),5,remove = F)%>%
+        mutate(date=paste0(as.Date(date,format="%Y%m%d")," 20:00:00"))
+      
+      #extract continuous discharge data and gauge-pressure relationship data from DP4.00130.001
+      csd_continuousDischarge <- DP4.00130.001$csd_continuousDischarge
+      sdrc_gaugePressureRelationship <- DP4.00130.001$sdrc_gaugePressureRelationship
+      
+      # rounding endDate to the nearest 20 minute minute
+      csd_continuousDischarge$roundDate <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
+      sdrc_gaugePressureRelationship$newDate <- lubridate::round_date(sdrc_gaugePressureRelationship$endDate, "20 mins")
+      
+      #creating summary table for variables and  uncertainties to be included
+      continuousDischarge_sum <- csd_continuousDischarge%>%
+        group_by(roundDate)%>%
+        summarize(meanQ=mean(maxpostDischarge,na.rm = T),
+                  meanH=mean(equivalentStage,na.rm = T),
+                  meanHUnc=mean(stageUnc,na.rm = T),
+                  meanURemnUnc=mean(withRemnUncQUpper2Std,na.rm = T),
+                  meanLRemnUnc=mean(withRemnUncQLower2Std,na.rm = T),
+                  meanUParaUnc=mean(withParaUncQUpper2Std,na.rm = T),
+                  meanLParaUnc=mean(withParaUncQLower2Std,na.rm = T))%>%
+        mutate(meanLHUnc=meanH-meanHUnc,
+               meanUHUnc=meanH+meanHUnc)
+      
+      
+      
+      sdrc_gaugeDischargeMeas$date <- as.POSIXct(sdrc_gaugeDischargeMeas$date)
+      continuousDischarge_sum$roundDate <- as.POSIXct(continuousDischarge_sum$roundDate)
+      sdrc_gaugePressureRelationship$newDate <- as.POSIXct(sdrc_gaugePressureRelationship$newDate)
+      
+      #changing var name guageHeight of guagePressureRelationship
+      sdrc_gaugePressureRelationship$guage_Height <- sdrc_gaugePressureRelationship$gaugeHeight 
+      sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship %>% 
+        select(guage_Height, newDate)
+      
+      
+      #joining gauge discharge vars to continuous summary table
+      continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugeDischargeMeas, by = c("roundDate" = "date")) %>% 
+        select(roundDate, meanH, meanQ, meanHUnc, meanURemnUnc,meanLRemnUnc,
+               meanUParaUnc,meanLParaUnc,meanLHUnc,meanUHUnc, gaugeHeight,streamDischarge)
+      
+      #joining guagepressure to  continuoussummary table
+      continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugePressureRelationship, by =c("roundDate" = "newDate")) 
+     
+      return(continuousDischarge_sum)
+      
+    }) ##### process_data() END ###
     
-    
+
+
+    #plotting with uncertainty
+    output$plott <- plot_ly(data=continuousDischarge_sum)%>%
+      
+      # Q Uncertainty
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Q: Remn Unc Top",type='scatter',mode='line',line=list(color='red'),showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Q: Remn Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Q: Para Unc Top",type='scatter',mode='line',line=list(color='lightpink'),showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Q: Para Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group1')%>%
+      
+      # H Uncertainty
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="H: Unc Top",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=T,legendgroup='group2')%>%
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="H: Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group2')%>%
+      
+      # H and Q Series
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Q: Flow Series",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group3')%>%
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="H: Stage Series",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group4')%>%
+      
+      # Empirical H and Q
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Q: Measured", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group5')%>%
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~guage_Height,name='H: Measured (RC)',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+      add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~guage_Height,name='H: Measured Guage Pressure',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+      
+      
+      
+      
+      layout(title = paste0(site," -- Continuous Discharge Time Series"),
+             xaxis=list(tick=14,title="dateTime"),
+             yaxis=list(side='left',
+                        title='Discharge (lps)',
+                        showgrid=FALSE,
+                        zeroline=FALSE),
+             yaxis2=list(side='right',
+                         overlaying="y",
+                         title='Stage (m)',
+                         showgrid=FALSE,
+                         zeroline=FALSE),
+             #------
+             updatemenus=list(
+               list(
+                 type='buttons',
+                 buttons=list(
+                   list(label='linear',
+                        method='relayout',
+                        args=list(list(yaxis=list(type='linear')))),
+                   list(label='log',
+                        method='relayout',
+                        args=list(list(yaxis=list(type='log')))))))
+      )#end of layout
+    #create an html plot
+   # htmlwidgets::saveWidget(as_widget(plott),paste0(site,"_continuousQ_allWYs.html"))
+
+
+
+
+
+
+
+
+
+
     
   }#end of server
     
