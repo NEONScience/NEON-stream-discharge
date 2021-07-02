@@ -18,6 +18,8 @@ library(stageQCurve)
 library(tidyverse)
 library(neonUtilities)
 library(htmlwidgets)
+library(plotly)
+library(tidyverse)
 library(dplyr) 
 #install.Rtools(check = TRUE, check_r_update = TRUE, GUI = TRUE, ...)
 devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE)
@@ -103,7 +105,7 @@ continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugeDischarg
 continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugePressureRelationship, by =c("roundDate" = "newDate")) 
   
 #plotting with uncertainty
-plott <- plot_ly(data=csd_continuousDischarge_sum)%>%
+plott <- plot_ly(data=continuousDischarge_sum)%>%
   
   # Q Uncertainty
   add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Q: Remn Unc Top",type='scatter',mode='line',line=list(color='red'),showlegend=T,legendgroup='group1')%>%
@@ -112,7 +114,7 @@ plott <- plot_ly(data=csd_continuousDischarge_sum)%>%
   add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Q: Para Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group1')%>%
   
   # H Uncertainty
-  add_trace(x=~as.POSIXct(roundDater,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="H: Unc Top",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=T,legendgroup='group2')%>%
+  add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="H: Unc Top",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=T,legendgroup='group2')%>%
   add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="H: Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group2')%>%
   
   # H and Q Series
@@ -150,7 +152,7 @@ layout(title = paste0(site," -- Continuous Discharge Time Series"),
                   method='relayout',
                   args=list(list(yaxis=list(type='log')))))))
        )#end of layout
-
-#create an html ploo
+#plott
+#create an html plot
 htmlwidgets::saveWidget(as_widget(plott),paste0(site,"_continuousQ_allWYs.html"))
 
