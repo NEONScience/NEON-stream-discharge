@@ -11,7 +11,7 @@
 # changelog and author contributions / copyrights
 #   YOUR NAME (YYYY-MM-DD)
 #     original creation
-##############################################################################################
+######################################################################################
 
 # Load packages and set options
 library(stageQCurve)
@@ -152,7 +152,6 @@ layout(title = paste0(site," -- Continuous Discharge Time Series"),
                   method='relayout',
                   args=list(list(yaxis=list(type='log')))))))
        )#end of layout
-#plott
 #create an html plot
 htmlwidgets::saveWidget(as_widget(plott),paste0(site,"_continuousQ_allWYs.html"))
 
