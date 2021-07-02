@@ -57,7 +57,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
           dateRangeInput("dateRange", "Date range:",
                          startview = "decade",
                          min    = "2013-01-01",
-                         start = NULL, end = NULL, 
+                         start = "2019-01-01", end = "2019-12-01", 
           ),
           #textOutput('startDate'),
     
@@ -96,7 +96,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
     )
 
     
-    #downloading data package from Neon portal
+    #downloading data package from Neon portal storing in getPackage()
     getPackage <- reactive({
    
       #setting vars
@@ -115,14 +115,13 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
         package = "expanded",
         check.size = F,
         site = site,
-        startdate = searchIntervalStartDate,
-        enddate = searchIntervalEndDate
+        startdate  = startDate,
+        enddate = endDate
        )
       
       # Get rating curve data from the NEON API
       DP4.00133.001 <- neonUtilities::loadByProduct(
         dpID="DP4.00133.001",
-        token = Sys.getenv("NEON_PAT"),
         package = "basic",
         check.size = F,
         site = site,
@@ -130,17 +129,6 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
         enddate = searchIntervalEndDate
       )
 
-      
-      return(DP4.00130.001)
-      return(DP4.00133.001)
-    
-
-    }) ##### getPackage
-    
-    
-    #Data Wrangling
-    process_data <- reactive({
-     
       # ## trigger GET DATA NEON API call
       # data <- get_data()
       
@@ -192,15 +180,25 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
       
       #joining guagepressure to  continuoussummary table
       continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugePressureRelationship, by =c("roundDate" = "newDate")) 
-     
-      return(continuousDischarge_sum)
       
-    }) ##### process_data() END ###
+      return(continuousDischarge_sum)
+
+    }) ##### getPackage
+    
+    
+    
+     
+      
+   
+ 
     
 
 
     #plotting with uncertainty
-    output$plott <- plot_ly(data=continuousDischarge_sum)%>%
+    output$plott <- renderPlotly({
+      continuousDischarge_Sum <- getPackage()
+      
+       plot_ly(data=continuousDischarge_sum)%>%
       
       # Q Uncertainty
       add_trace(x=~as.POSIXct(roundDate,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Q: Remn Unc Top",type='scatter',mode='line',line=list(color='red'),showlegend=T,legendgroup='group1')%>%
@@ -252,6 +250,12 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
 
 
+      
+      
+      
+      
+    })
+     
 
 
 
