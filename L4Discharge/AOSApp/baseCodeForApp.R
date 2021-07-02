@@ -18,6 +18,8 @@ library(stageQCurve)
 library(tidyverse)
 library(neonUtilities)
 library(htmlwidgets)
+library(dplyr) 
+#install.Rtools(check = TRUE, check_r_update = TRUE, GUI = TRUE, ...)
 devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", force = TRUE)
 library(lubridate, warn.conflicts = FALSE)
 options(stringsAsFactors = F)
@@ -93,7 +95,7 @@ sdrc_gaugePressureRelationship$guage_Height <- sdrc_gaugePressureRelationship$ga
 
 
 #joining gauge discharge vars to continuous summary table
-continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugeDischargeMeas, by =c("roundDate" = "date")) %>% 
+continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugeDischargeMeas, by = c("roundDate" = "date")) %>% 
   select(roundDate, meanH, meanQ, meanHUnc, meanURemnUnc,meanLRemnUnc,
          meanUParaUnc,meanLParaUnc,meanLHUnc,meanUHUnc, gaugeHeight,streamDischarge)
 
@@ -125,7 +127,7 @@ plott <- plot_ly(data=csd_continuousDischarge_sum)%>%
 
 
 
-layout(title = paste0(unique(csd_continuousDischarge$siteID)," -- Continuos Discharge Time Series"),
+layout(title = paste0(site," -- Continuous Discharge Time Series"),
        xaxis=list(tick=14,title="dateTime"),
        yaxis=list(side='left',
                   title='Discharge (lps)',
@@ -146,5 +148,9 @@ layout(title = paste0(unique(csd_continuousDischarge$siteID)," -- Continuos Disc
                   args=list(list(yaxis=list(type='linear')))),
              list(label='log',
                   method='relayout',
-                  args=list(list(yaxis=list(type='log'))))))))
-plott
+                  args=list(list(yaxis=list(type='log')))))))
+       )#end of layout
+
+#create an html ploo
+htmlwidgets::saveWidget(as_widget(plott),paste0(site,"_continuousQ_allWYs.html"))
+
