@@ -13,6 +13,7 @@
 #     original creation
 ##############################################################################################
 
+# Source packages and set options
 library(dplyr)
 library(tidyverse)
 library(readr)
@@ -23,6 +24,7 @@ library(stageQCurve)
 library(lubridate, warn.conflicts = FALSE)
 options(stringsAsFactors = F)
 
+# Read in NEON site and domain list
 setwd("~/Github/NEON-stream-discharge-divine/L4Discharge/AOSApp")
 productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
@@ -54,12 +56,12 @@ server <- function(session, input, output) {
 
   getPackage <- shiny::eventReactive(input$submit,{
   
-    site <- "WALK"
-    startDate <- "2019-01-01"
-    endDate <- "2019-12-31"
-    # site <- input$siteId
-    # startDate <- format(input$dateRange[1])
-    # endDate <- format(input$dateRange[2])
+    # site <- "WALK"
+    # startDate <- "2019-01-01"
+    # endDate <- "2019-12-31"
+    site <- input$siteId
+    startDate <- format(input$dateRange[1])
+    endDate <- format(input$dateRange[2])
     # Rating curve data queries need to span an entire water year to ensure we are getting all the appropriate data
     searchIntervalStartDate <- as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = startDate)$startDate)
     searchIntervalEndDate <- as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = endDate)$endDate)
