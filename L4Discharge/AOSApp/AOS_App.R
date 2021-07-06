@@ -1,20 +1,17 @@
-#instaling and loading dependencies1
+##############################################################################################
+#' @title YOUR TITLE
 
-# install.packages('shinythemes')
-# install.packages('ecocomDP')
-# install.packages('plotly')
-#install.packages('readr')
-# library(shiny)
-# 
-#  library(dplyr)
-# # library(devtools)
-# library(tidyverse)
-# # library(ecocomDP)
-# library(readr)
-#  library(plotly)
-# library(shinyWidgets)
-# library(shinythemes)
-#-----------------------------------------------
+#' @author
+#' YOUR NAME \email{EMAIL@battelleecology.org} \cr
+
+#' @description BRIEF DESCRIPTION
+
+#' @return OUTPUT DESCRIPTION
+
+# changelog and author contributions / copyrights
+#   YOUR NAME (YYYY-MM-DD)
+#     original creation
+##############################################################################################
 
 library(dplyr)
 library(tidyverse)
