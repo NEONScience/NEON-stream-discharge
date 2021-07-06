@@ -56,12 +56,20 @@ server <- function(session, input, output) {
 
   getPackage <- shiny::eventReactive(input$submit,{
   
-    # site <- "WALK"
+    # Manually set input variables for local testing
+    # site <- "TOOK"
     # startDate <- "2019-01-01"
     # endDate <- "2019-12-31"
-    site <- input$siteId
+    
+    # Set variables for app running (special consideration for TOOK)
+    if (stringr::str_detect(input$siteId,"TOOK")) {
+      site <- "TOOK"
+    }else{
+      site <- input$siteId
+    }
     startDate <- format(input$dateRange[1])
     endDate <- format(input$dateRange[2])
+    
     # Rating curve data queries need to span an entire water year to ensure we are getting all the appropriate data
     searchIntervalStartDate <- as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = startDate)$startDate)
     searchIntervalEndDate <- as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = endDate)$endDate)
@@ -87,7 +95,17 @@ server <- function(session, input, output) {
     )
 
     # Format gauge-discharge measurement data
-    sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas%>%
+    sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
+    if (input$siteId=="TOOK_inlet") {
+      sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
+        dplyr::filter(stringr::str_detect(curveID,"TKIN"))
+    }else{
+      if(input$siteId=="TOOK_outlet"){
+        sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
+          dplyr::filter(stringr::str_detect(curveID,"TKOT"))
+      }
+    }
+    sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%  
       tidyr::separate(gaugeEventID,c("site","date"),5,remove = F)%>%
       dplyr::mutate(date=paste0(as.Date(date,format="%Y%m%d")," 20:00:00"))%>%
       dplyr::select(date,gaugeHeight,streamDischarge)
@@ -96,10 +114,28 @@ server <- function(session, input, output) {
     # Format continuous discharge data
     csd_continuousDischarge <- DP4.00130.001$csd_continuousDischarge
     csd_continuousDischarge$date <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
-
+    if (input$siteId=="TOOK_inlet") {
+      csd_continuousDischarge <- csd_continuousDischarge%>%
+        dplyr::filter(stringr::str_detect(curveID,"TKIN"))
+    }else{
+      if(input$siteId=="TOOK_outlet"){
+        csd_continuousDischarge <- csd_continuousDischarge%>%
+          dplyr::filter(stringr::str_detect(curveID,"TKOT"))
+      }
+    }
+    
     # Format gauge-pressure relationship data
     sdrc_gaugePressureRelationship <- DP4.00130.001$sdrc_gaugePressureRelationship
     if(!is.null(sdrc_gaugePressureRelationship)){
+      if (input$siteId=="TOOK_inlet") {
+        sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
+          dplyr::filter(stringr::str_detect(regressionID,"TKIN"))
+      }else{
+        if(input$siteId=="TOOK_outlet"){
+          sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
+            dplyr::filter(stringr::str_detect(regressionID,"TKOT"))
+        }
+      }
       sdrc_gaugePressureRelationship$date <- paste0(as.Date(sdrc_gaugePressureRelationship$gaugeCollectDate)," 20:00:00")
       sdrc_gaugePressureRelationship$date <- as.character(sdrc_gaugePressureRelationship$date)
       sdrc_gaugePressureRelationship$gauge_Height <- sdrc_gaugePressureRelationship$gaugeHeight
@@ -130,6 +166,10 @@ server <- function(session, input, output) {
     }else{
       continuousDischarge_sum$gauge_Height <- NA
     }
+    
+    # Subset the summary data frame to only those records in the selected date range
+    continuousDischarge_sum <- continuousDischarge_sum%>%
+      dplyr::filter(date>=startDate&date<=endDate)
 
     return(continuousDischarge_sum)
     
