@@ -57,8 +57,10 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
           dateRangeInput("dateRange", "Date range:",
                          startview = "decade",
                          min    = "2013-01-01",
-                         start = "2019-01-01", end = "2019-12-01", 
+                         start = "2018-10-01", end = "2019-09-30", 
           ),
+          
+      
           #textOutput('startDate'),
     
           actionButton(inputId="submit", "Submit", class = "btn-primary"),
@@ -97,7 +99,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
     
     #downloading data package from Neon portal storing in getPackage()
-    getPackage <- reactive({
+    getPackage <- eventReactive(input$submit, {
    
       #setting vars
       site <- input$siteId
@@ -115,8 +117,8 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
         package = "expanded",
         check.size = F,
         site = site,
-        startdate  = startDate,
-        enddate = endDate
+        startdate = format(as.POSIXct(startDate),"%Y-%m"),
+        enddate = format(as.POSIXct(startDate),"%Y-%m")
        )
       
       # Get rating curve data from the NEON API
@@ -125,6 +127,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
         package = "basic",
         check.size = F,
         site = site,
+        
         startdate = searchIntervalStartDate,
         enddate = searchIntervalEndDate
       )
@@ -133,7 +136,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
       # data <- get_data()
       
       ## move to "Processing data..." AFTER get_data() completes
-      incProgress(amount = 0.5, message = "Processing data...")
+     # incProgress(amount = 0.5, message = "Processing data...")
       
       #extract date and site in gaugeDischargeMeas from DP4.00133.001
       sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas%>%
@@ -196,7 +199,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
     #plotting with uncertainty
     output$plott <- renderPlotly({
-      continuousDischarge_Sum <- getPackage()
+      continuousDischarge_sum <- getPackage()
       
        plot_ly(data=continuousDischarge_sum)%>%
       
@@ -222,8 +225,8 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
       
       
       
-      layout(title = paste0(site," -- Continuous Discharge Time Series"),
-             xaxis=list(tick=14,title="dateTime"),
+      layout( #title = paste0(site," -- Continuous Discharge Time Series"),
+             xaxis=list(tick=14,title="Date Time", range=c(format(input$dateRange[1]),format(input$dateRange[2])) ), #setting limit for  continuous discharge on the x-axis
              yaxis=list(side='left',
                         title='Discharge (lps)',
                         showgrid=FALSE,
@@ -233,7 +236,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
                          title='Stage (m)',
                          showgrid=FALSE,
                          zeroline=FALSE),
-             #------
+             #-------------
              updatemenus=list(
                list(
                  type='buttons',
