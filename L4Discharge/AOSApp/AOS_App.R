@@ -210,8 +210,13 @@ server <- function(session, input, output) {
   #plotting with uncertainty
   #progess bar for plot
   output$plott <- renderPlotly({
+
     withProgress(message = 'Plotting..',detail = '', min = 0, max = 1 ,value = 0.4, {
-      
+      #updating progress bar
+      incProgress(amount = 1, message = "finishing plot..", detail = NULL,session = getDefaultReactiveDomain())
+
+      Sys.sleep(1.58)
+    }) #end of withProgress
       continuousDischarge_sum <- getPackage()
       
       plot_ly(data=continuousDischarge_sum)%>%
@@ -273,12 +278,6 @@ server <- function(session, input, output) {
                      method='relayout',
                      
                      args=list(list(yaxis=list(type='log',title='Q (lps) - log',titlefont=list(size=18)))))))))
-      
-      #updating progress bar
-      incProgress(amount = 1, message = "finishing plot..", detail = NULL,session = getDefaultReactiveDomain())
-      Sys.sleep(0.25)
-    })#end of withProgress
-    
   })
 }#end of server
 
