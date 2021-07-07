@@ -75,7 +75,10 @@ server <- function(session, input, output) {
     searchIntervalEndDate <- as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = endDate)$endDate)
     
     #progress bar for data downloads
-    withProgress(message = 'Downloading data packages..',detail = '', min = 0, max = 1 ,value = 0.1, {
+    withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
+      
+      incProgress(amount = 0.33, message = "Downloading DP4.00130.001", detail = NULL,session = getDefaultReactiveDomain())
+      Sys.sleep(0.25)
       
       # Get continuous discharge data from the NEON API
       DP4.00130.001 <- neonUtilities::loadByProduct(
@@ -87,7 +90,7 @@ server <- function(session, input, output) {
         enddate = format(as.POSIXct(endDate),"%Y-%m")
       )
       
-      incProgress(amount = 0.4, message = "Downloading continuous discharge..", detail = NULL,session = getDefaultReactiveDomain())
+      incProgress(amount = 0.33, message = "Downloading DP4.00133.001", detail = NULL,session = getDefaultReactiveDomain())
       Sys.sleep(0.25)
       
       # Get rating curve data from the NEON API
@@ -100,16 +103,10 @@ server <- function(session, input, output) {
         enddate = searchIntervalEndDate
       )
       
-      #updating progress bar
-      incProgress(amount = 1, message = "downloading rating curve...", detail = NULL,session = getDefaultReactiveDomain())
-      Sys.sleep(0.9)#wait
+      # Format gauge-discharge measurement data
       
-    })#end of withProgress
-    
-    # Format gauge-discharge measurement data
-    
-    #progress bar for data wrangling wait
-    withProgress(message = 'Procsesing data packages..',detail = '', min = 0, max = 1 ,value = 0.3, {
+      # #progress bar for data wrangling wait
+      # withProgress(message = 'Procsesing data packages..',detail = '', min = 0, max = 1 ,value = 0.3, {
       
       sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
       if (input$siteId=="TOOK_inlet") {
@@ -141,7 +138,7 @@ server <- function(session, input, output) {
       }
       
       #updating progress bar
-      incProgress(amount = 0.4, message = "Procsesing data packages.. ", detail = NULL, session = getDefaultReactiveDomain())
+      incProgress(amount = 0.33, message = "Processing data... ", detail = NULL, session = getDefaultReactiveDomain())
       Sys.sleep(0.25)
       
       # Format gauge-pressure relationship data
@@ -163,9 +160,9 @@ server <- function(session, input, output) {
           dplyr::select(gauge_Height, date)
       }
       
-      #updating progress bar
-      incProgress(amount = 0.8, message = "creating summary table...", detail = NULL,session = getDefaultReactiveDomain())
-      Sys.sleep(0.4)#wait
+      # #updating progress bar
+      # incProgress(amount = 0.8, message = "creating summary table...", detail = NULL,session = getDefaultReactiveDomain())
+      # Sys.sleep(0.4)#wait
       
       #creating summary table for variables and  uncertainties to be included
       continuousDischarge_sum <- csd_continuousDischarge%>%
@@ -197,9 +194,9 @@ server <- function(session, input, output) {
       
       return(continuousDischarge_sum)
       
-      #updating progress bar
-      incProgress(amount = 1, message = "", detail = NULL,session = getDefaultReactiveDomain())
-      Sys.sleep(1)#wait
+      # #updating progress bar
+      # incProgress(amount = 0.25, message = "Done!", detail = NULL,session = getDefaultReactiveDomain())
+      # Sys.sleep(1)#wait
       
     })#end of withProgress
     
@@ -210,74 +207,74 @@ server <- function(session, input, output) {
   #plotting with uncertainty
   #progess bar for plot
   output$plott <- renderPlotly({
-
-    withProgress(message = 'Plotting..',detail = '', min = 0, max = 1 ,value = 0.4, {
-      #updating progress bar
-      incProgress(amount = 1, message = "finishing plot..", detail = NULL,session = getDefaultReactiveDomain())
-
-      Sys.sleep(1.58)
-    }) #end of withProgress
-      continuousDischarge_sum <- getPackage()
+    
+    # withProgress(message = 'Plotting..',detail = '', min = 0, max = 1 ,value = 0.4, {
+    #   #updating progress bar
+    #   incProgress(amount = 1, message = "finishing plot..", detail = NULL,session = getDefaultReactiveDomain())
+    # 
+    #   Sys.sleep(1.58)
+    # }) #end of withProgress
+    continuousDischarge_sum <- getPackage()
+    
+    plot_ly(data=continuousDischarge_sum)%>%
       
-      plot_ly(data=continuousDischarge_sum)%>%
-        
-        # Q Uncertainty
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Q: Remn Unc Top",type='scatter',mode='line',line=list(color='red'),showlegend=T,legendgroup='group1')%>%
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Q: Remn Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Q: Para Unc Top",type='scatter',mode='line',line=list(color='lightpink'),showlegend=T,legendgroup='group1')%>%
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Q: Para Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group1')%>%
-        
-        # H Uncertainty
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="H: Unc Top",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=T,legendgroup='group2')%>%
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="H: Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group2')%>%
-        
-        # H and Q Series
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Q: Flow Series",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group3')%>%
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="H: Stage Series",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group4')%>%
-        
-        # Empirical H and Q
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Q: Measured", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group5')%>%
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='H: Measured (RC)',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
-        add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='H: Measured Guage Pressure',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
-        
-        layout(
-          xaxis=list(tick=14,
-                     automargin=T,
-                     title="Date",
-                     tickfont=list(size=16),
-                     titlefont=list(size=18),
-                     # range=c(startDate,endDate)),
-                     range=c(format(input$dateRange[1]),format(input$dateRange[2]))),
-          yaxis=list(side='left',
-                     automargin=T,
-                     title='Q (lps)',
-                     tickfont=list(size=16),
-                     titlefont=list(size=18),
-                     showgrid=FALSE,
-                     zeroline=FALSE),
-          yaxis2=list(side='right',
-                      overlaying="y",
-                      automargin=T,
-                      title="H (m)",
-                      tickfont=list(size=16),
-                      titlefont=list(size=18),
-                      showgrid=FALSE,
-                      zeroline=FALSE),
-          legend=list(orientation="h",
-                      x=0.5,y=1,
-                      xanchor="center",
-                      font=list(size=14)),
-          updatemenus=list(
-            list(
-              type='buttons',
-              buttons=list(
-                list(label='Scale Q - Linear',
-                     method='relayout',
-                     args=list(list(yaxis=list(type='linear',title='Q (lps)',titlefont=list(size=18))))),
-                list(label='Scale Q - Log',
-                     method='relayout',
-                     
-                     args=list(list(yaxis=list(type='log',title='Q (lps) - log',titlefont=list(size=18)))))))))
+      # Q Uncertainty
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Q: Remn Unc Top",type='scatter',mode='line',line=list(color='red'),showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Q: Remn Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Q: Para Unc Top",type='scatter',mode='line',line=list(color='lightpink'),showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Q: Para Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group1')%>%
+      
+      # H Uncertainty
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="H: Unc Top",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=T,legendgroup='group2')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="H: Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group2')%>%
+      
+      # H and Q Series
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Q: Flow Series",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group3')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="H: Stage Series",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group4')%>%
+      
+      # Empirical H and Q
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Q: Measured", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group5')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='H: Measured (RC)',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='H: Measured Guage Pressure',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+      
+      layout(
+        xaxis=list(tick=14,
+                   automargin=T,
+                   title="Date",
+                   tickfont=list(size=16),
+                   titlefont=list(size=18),
+                   # range=c(startDate,endDate)),
+                   range=c(format(input$dateRange[1]),format(input$dateRange[2]))),
+        yaxis=list(side='left',
+                   automargin=T,
+                   title='Q (lps)',
+                   tickfont=list(size=16),
+                   titlefont=list(size=18),
+                   showgrid=FALSE,
+                   zeroline=FALSE),
+        yaxis2=list(side='right',
+                    overlaying="y",
+                    automargin=T,
+                    title="H (m)",
+                    tickfont=list(size=16),
+                    titlefont=list(size=18),
+                    showgrid=FALSE,
+                    zeroline=FALSE),
+        legend=list(orientation="h",
+                    x=0.5,y=1,
+                    xanchor="center",
+                    font=list(size=14)),
+        updatemenus=list(
+          list(
+            type='buttons',
+            buttons=list(
+              list(label='Scale Q - Linear',
+                   method='relayout',
+                   args=list(list(yaxis=list(type='linear',title='Q (lps)',titlefont=list(size=18))))),
+              list(label='Scale Q - Log',
+                   method='relayout',
+                   
+                   args=list(list(yaxis=list(type='log',title='Q (lps) - log',titlefont=list(size=18)))))))))
   })
 }#end of server
 
