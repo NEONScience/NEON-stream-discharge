@@ -40,6 +40,34 @@ ui <- fluidPage(
                                        min="2016-01-01",
                                        start="2019-01-01",end="2019-01-31", 
                                        format="yyyy-mm-dd"),
+                        #Display sites meta data
+                       # htmlOutput()
+                              
+                       #tags$head(tags$table(border = 5,  )),
+                       tags$table( border=1, tags$thead(  align = "center", strong("Table Tittle"),
+                                    tags$tr(colspan = 6, width = 300,
+                                     tags$td(align = "center","Meta Data"),
+                                     tags$td(align = "center", "Value"),
+                                     ),
+                                    tags$tr(colspan = 6, width = 300,
+                                            tags$td(align = "center","upstreamWatershedAreaKM2"),
+                                            tags$td(align = "center", textOutput('tableupStream')),
+                                    ),
+                                    tags$tr(colspan = 6, width = 300,
+                                            tags$td(align = "left","reachSlopeM"),
+                                            tags$td(align = "center", textOutput('tableReach')),
+                                    ),
+                                    tags$tr(colspan = 6, width = 300,
+                                            tags$td(align = "Left","averageBankfullWidthM"),
+                                            tags$td(align = "center", textOutput('tableAverage')),
+                                    ),
+                                    tags$tr(colspan = 6, width = 300,
+                                            tags$td(align = "left","d50ParticleSizeMM"),
+                                            tags$td(align = "center", textOutput('tableD50')),
+                                    ),
+                                        )
+                                        ), 
+                        
                         actionButton(inputId="submit","Submit"),
                         shiny::br(),
                         shiny::p(),
@@ -52,8 +80,17 @@ ui <- fluidPage(
 #server function
 server <- function(session, input, output) {
   shiny::observe({x <- productList$Site.Code[productList$Domain == input$domainId]
-  updateSelectInput(session,"siteId",choices = unique(x))})
+  updateSelectInput(session,"siteId",choices = unique(x))
+  output$tableD50 <- renderText({paste("selected", input$siteId)})
   
+  })
+  
+
+ 
+  #output$table <- renderUI({
+   # output$table <- renderText({paste("You have selected", input$siteId)})
+  
+    
   getPackage <- shiny::eventReactive(input$submit,{
     
     # Manually set input variables for local testing
