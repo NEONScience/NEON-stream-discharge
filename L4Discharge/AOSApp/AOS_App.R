@@ -41,32 +41,7 @@ ui <- fluidPage(
                                        start="2019-01-01",end="2019-01-31", 
                                        format="yyyy-mm-dd"),
                         #Display sites meta data
-                       # htmlOutput()
-                              
-                       #tags$head(tags$table(border = 5,  )),
-                       tags$table( border=1, tags$thead(  align = "center", strong("Table Tittle"),
-                                    tags$tr(colspan = 6, width = 300,
-                                     tags$td(align = "center","Meta Data"),
-                                     tags$td(align = "center", "Value"),
-                                     ),
-                                    tags$tr(colspan = 6, width = 300,
-                                            tags$td(align = "center","upstreamWatershedAreaKM2"),
-                                            tags$td(align = "center", textOutput('tableupStream')),
-                                    ),
-                                    tags$tr(colspan = 6, width = 300,
-                                            tags$td(align = "left","reachSlopeM"),
-                                            tags$td(align = "center", textOutput('tableReach')),
-                                    ),
-                                    tags$tr(colspan = 6, width = 300,
-                                            tags$td(align = "Left","averageBankfullWidthM"),
-                                            tags$td(align = "center", textOutput('tableAverage')),
-                                    ),
-                                    tags$tr(colspan = 6, width = 300,
-                                            tags$td(align = "left","d50ParticleSizeMM"),
-                                            tags$td(align = "center", textOutput('tableD50')),
-                                    ),
-                                        )
-                                        ), 
+                       tableOutput("table"),
                         
                         actionButton(inputId="submit","Submit"),
                         shiny::br(),
@@ -81,8 +56,27 @@ ui <- fluidPage(
 server <- function(session, input, output) {
   shiny::observe({x <- productList$Site.Code[productList$Domain == input$domainId]
   updateSelectInput(session,"siteId",choices = unique(x))
-  output$tableD50 <- renderText({paste("selected", input$siteId)})
+  #Selecting metadat
+  meta1 <- productList$d50ParticleSizeMM[productList$site.code == input$siteId]
+ # metadatList <-productList %>% 
+ #    select(upstreamWatershedAreaKM2,	reachSlopeM,	averageBankfullWidthM,	d50ParticleSizeMM)
+  output$table <- renderTable( {
+    
+
+    print(meta1[0])
+    N_metrics <- matrix(c(27432, 1715997,333,11 ), ncol = 1)
+    colnames(N_metrics) <- c("values")
+    row.names(N_metrics) <- c ("upstreamWatershedAreaKM2",	"reachSlopeM",	"averageBankfullWidthM",	"d50ParticleSizeMM")
+    
+    N_metrics
+    
+    
+  }, rownames = TRUE)
   
+  
+  # d50 <- productList$d50ParticleSizeMM[input$siteId ==productList$site.code]
+  # output$tableD50 <- renderText({paste("selected",  input$d50 )})
+  # 
   })
   
 
