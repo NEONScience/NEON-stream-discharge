@@ -31,51 +31,58 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 # user interface
 ui <- fluidPage(
   shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
-  shiny::sidebarLayout(
-    shiny::sidebarPanel(id = "form",
-                        selectInput("domainId","Domain ID",productList$Domain),
-                        selectInput("siteId","Select Site ID",NULL),
-                        dateRangeInput("dateRange","Date range:",
-                                       startview="month",
-                                       min="2016-01-01",
-                                       start="2019-01-01",end="2019-01-31", 
-                                       format="yyyy-mm-dd"),
-                        #Display sites meta data as
-                       tableOutput("table"),
-                        
-                        actionButton(inputId="submit","Submit"),
-                        shiny::br(),
-                        shiny::p(),
-                        width = 3
-    ), #end of sidebarPanel
-    shiny::mainPanel(plotlyOutput("plott",height="900px")) # end mainPanel
-  )# end of sidebarLayout
+  fluidRow(
+    column(4, style = "background-color:#F8F8F8;", fluidRow(
+      selectInput("domainId","Domain ID",productList$Domain),
+      selectInput("siteId","Select Site ID",NULL),
+      dateRangeInput("dateRange","Date range:",
+                     startview="month",
+                     min="2016-01-01",
+                     start="2019-01-01",end="2019-01-31", 
+                     format="yyyy-mm-dd"),
+     
+      
+      actionButton(inputId="submit","Submit"),
+      shiny::br(),
+      shiny::p(),
+      width = 3
+    ),
+    fluidRow(
+             #Display sites meta data as
+             tableOutput("table"))
+    ),#end of first col
+  
+    
+    column(8,plotlyOutput("plott",height="900px"))
+                              
+                              
+  )#end of fluid row
+  
+  
 ) # end of ui and fluidPage
 
 #server function
 server <- function(session, input, output) {
   shiny::observe({x <- productList$Site.Code[productList$Domain == input$domainId]
   updateSelectInput(session,"siteId",choices = unique(x))
-  #Selecting metadata
-  
-  meta1 <- productList %>% filter(Site.Code == input$siteId) %>% select(upstreamWatershedAreaKM2)
-  meta2 <- productList %>% filter(Site.Code == input$siteId) %>% select(reachSlopeM)
-  meta3 <- productList %>% filter(Site.Code == input$siteId) %>% select(averageBankfullWidthM)
-  meta4 <- productList %>% filter(Site.Code == input$siteId) %>% select(d50ParticleSizeMM)
-  
-  output$table <- renderTable( {
-    print(meta1)
-    N_metrics <- matrix(c(meta1, meta2,meta3,meta4), ncol = 1)
-    colnames(N_metrics) <- c("values")
-    row.names(N_metrics) <- c ("upstreamWatershedAreaKM2",	"reachSlopeM",	"averageBankfullWidthM",	"d50ParticleSizeMM")
-    N_metrics
-    
-  }, rownames = TRUE)
   
   })
   
     
   getPackage <- shiny::eventReactive(input$submit,{
+    # metadata
+   metaD <-  productList%>%
+      filter(Site.Code == input$siteId)%>%
+      select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
+     #rename()
+      pivot_longer(c(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM),names_to = "MetaData", values_to = "Values")  
+      
+    output$table <- renderTable( {
+      metaD
+      
+    }, rownames = FALSE)
+    
+    
     
     # Manually set input variables for local testing
     # site <- "TOOK"
@@ -125,10 +132,6 @@ server <- function(session, input, output) {
       )
       
       # Format gauge-discharge measurement data
-      
-      # #progress bar for data wrangling wait
-      # withProgress(message = 'Procsesing data packages..',detail = '', min = 0, max = 1 ,value = 0.3, {
-      
       sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
       if (input$siteId=="TOOK_inlet") {
         sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
@@ -181,10 +184,6 @@ server <- function(session, input, output) {
           dplyr::select(gauge_Height, date)
       }
       
-      # #updating progress bar
-      # incProgress(amount = 0.8, message = "creating summary table...", detail = NULL,session = getDefaultReactiveDomain())
-      # Sys.sleep(0.4)#wait
-      
       #creating summary table for variables and  uncertainties to be included
       continuousDischarge_sum <- csd_continuousDischarge%>%
         dplyr::group_by(date)%>%
@@ -215,10 +214,6 @@ server <- function(session, input, output) {
       
       return(continuousDischarge_sum)
       
-      # #updating progress bar
-      # incProgress(amount = 0.25, message = "Done!", detail = NULL,session = getDefaultReactiveDomain())
-      # Sys.sleep(1)#wait
-      
     })#end of withProgress
     
   },ignoreInit = T)# End getPackage    
@@ -229,11 +224,6 @@ server <- function(session, input, output) {
   #progess bar for plot
   output$plott <- renderPlotly({
     
-    # withProgress(message = 'Plotting..',detail = '', min = 0, max = 1 ,value = 0.4, {
-    #   #updating progress bar
-    #   incProgress(amount = 1, message = "finishing plot..", detail = NULL,session = getDefaultReactiveDomain())
-    # 
-    #   Sys.sleep(1.58)
     # }) #end of withProgress
     continuousDischarge_sum <- getPackage()
     
