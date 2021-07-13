@@ -40,7 +40,7 @@ ui <- fluidPage(
                                        min="2016-01-01",
                                        start="2019-01-01",end="2019-01-31", 
                                        format="yyyy-mm-dd"),
-                        #Display sites meta data
+                        #Display sites meta data as
                        tableOutput("table"),
                         
                         actionButton(inputId="submit","Submit"),
@@ -56,33 +56,23 @@ ui <- fluidPage(
 server <- function(session, input, output) {
   shiny::observe({x <- productList$Site.Code[productList$Domain == input$domainId]
   updateSelectInput(session,"siteId",choices = unique(x))
-  #Selecting metadat
-  meta1 <- productList$d50ParticleSizeMM[productList$site.code == input$siteId]
- # metadatList <-productList %>% 
- #    select(upstreamWatershedAreaKM2,	reachSlopeM,	averageBankfullWidthM,	d50ParticleSizeMM)
+  #Selecting metadata
+  
+  meta1 <- productList %>% filter(Site.Code == input$siteId) %>% select(upstreamWatershedAreaKM2)
+  meta2 <- productList %>% filter(Site.Code == input$siteId) %>% select(reachSlopeM)
+  meta3 <- productList %>% filter(Site.Code == input$siteId) %>% select(averageBankfullWidthM)
+  meta4 <- productList %>% filter(Site.Code == input$siteId) %>% select(d50ParticleSizeMM)
+  
   output$table <- renderTable( {
-    
-
-    print(meta1[0])
-    N_metrics <- matrix(c(27432, 1715997,333,11 ), ncol = 1)
+    print(meta1)
+    N_metrics <- matrix(c(meta1, meta2,meta3,meta4), ncol = 1)
     colnames(N_metrics) <- c("values")
     row.names(N_metrics) <- c ("upstreamWatershedAreaKM2",	"reachSlopeM",	"averageBankfullWidthM",	"d50ParticleSizeMM")
-    
     N_metrics
-    
     
   }, rownames = TRUE)
   
-  
-  # d50 <- productList$d50ParticleSizeMM[input$siteId ==productList$site.code]
-  # output$tableD50 <- renderText({paste("selected",  input$d50 )})
-  # 
   })
-  
-
- 
-  #output$table <- renderUI({
-   # output$table <- renderText({paste("You have selected", input$siteId)})
   
     
   getPackage <- shiny::eventReactive(input$submit,{
