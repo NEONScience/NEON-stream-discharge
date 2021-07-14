@@ -31,33 +31,29 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 # user interface
 ui <- fluidPage(
   shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+  
   fluidRow(
-    column(3,  fluidRow(style = "background-color:#F8F8F8; height:300px; padding:15px",
-      selectInput("domainId","Domain ID",productList$Domain),
-      selectInput("siteId","Select Site ID",NULL),
-      dateRangeInput("dateRange","Date range:",
-                     startview="month",
-                     min="2016-01-01",
-                     start="2019-01-01",end="2019-01-31", 
-                     format="yyyy-mm-dd"),
-     
-      actionButton(inputId="submit","Submit")
+    column(3,  
+      fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous stage (meter) and discharge (liters per second) timeseries, uncertainties associated with continuous data, and discrete measured gauge height (meter) and discharge (liters per second)."),
+      fluidRow(style = "background-color:#F8F8F8; height:300px; padding:15px",
+        selectInput("domainId","Domain ID",productList$Domain),
+        selectInput("siteId","Select Site ID",NULL),
+        dateRangeInput("dateRange","Date range:",
+                       startview="month",
+                       min="2016-01-01",
+                       start="2019-01-01",end="2019-01-31", 
+                       format="yyyy-mm-dd"),
+        actionButton(inputId="submit","Submit")
     ),
-    
-    shiny::br(),
-    shiny::hr(),
-    fluidRow(
-             #Display sites meta data as
-             tableOutput("table"))
-    ),#end of first col
-  
-    
-    column(9,plotlyOutput("plott",height="900px"))
-                              
-                              
+      shiny::br(),
+      shiny::hr(),
+      fluidRow(
+        #Display sites meta data as
+        tableOutput("table"))
+      ),#end of first col
+    column(9,plotlyOutput("plott",height="900px")
+      )#end of second col
   )#end of fluid row
-  
-  
 ) # end of ui and fluidPage
 
 #server function
@@ -66,23 +62,20 @@ server <- function(session, input, output) {
   updateSelectInput(session,"siteId",choices = unique(x))
   
   })
-  
-    
+
   getPackage <- shiny::eventReactive(input$submit,{
+    
     # metadata
-   metaD <-  productList%>%
+    metaD <-  productList%>%
       filter(Site.Code == input$siteId)%>%
       select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
-    rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
+      rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
       pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),names_to = "MetaData", values_to = "Values")
-      
+    
     output$table <- renderTable( {
       metaD
-      
-    }, striped = TRUE, bordered = TRUE,  
-    hover = TRUE, rownames = FALSE)
-    
-    
+      }, striped = TRUE, bordered = TRUE,  
+      hover = TRUE, rownames = FALSE)
     
     # Manually set input variables for local testing
     # site <- "TOOK"
@@ -230,23 +223,23 @@ server <- function(session, input, output) {
     plot_ly(data=continuousDischarge_sum)%>%
       
       # Q Uncertainty
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Q: Remn Unc Top",type='scatter',mode='line',line=list(color='red'),showlegend=T,legendgroup='group1')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Q: Remn Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Q: Para Unc Top",type='scatter',mode='line',line=list(color='lightpink'),showlegend=T,legendgroup='group1')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Q: Para Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge Remnant\nUncertainty",type='scatter',mode='line',line=list(color='red'),showlegend=F,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge Remnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge Parametric\nUncertainty",type='scatter',mode='line',line=list(color='lightpink'),showlegend=F,legendgroup='group2')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge Parametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group2')%>%
       
       # H Uncertainty
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="H: Unc Top",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=T,legendgroup='group2')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="H: Unc Bottom",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group2')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=F,legendgroup='group3')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group3')%>%
       
       # H and Q Series
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Q: Flow Series",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group3')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="H: Stage Series",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group4')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group4')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group5')%>%
       
       # Empirical H and Q
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Q: Measured", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group5')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='H: Measured (RC)',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='H: Measured Guage Pressure',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=F,legendgroup='group7')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7')%>%
       
       layout(
         xaxis=list(tick=14,
@@ -258,7 +251,7 @@ server <- function(session, input, output) {
                    range=c(format(input$dateRange[1]),format(input$dateRange[2]))),
         yaxis=list(side='left',
                    automargin=T,
-                   title='Q (lps)',
+                   title='Discharge (liters per second)',
                    tickfont=list(size=16),
                    titlefont=list(size=18),
                    showgrid=FALSE,
@@ -266,7 +259,7 @@ server <- function(session, input, output) {
         yaxis2=list(side='right',
                     overlaying="y",
                     automargin=T,
-                    title="H (m)",
+                    title="Stage (meter)",
                     tickfont=list(size=16),
                     titlefont=list(size=18),
                     showgrid=FALSE,
@@ -279,13 +272,13 @@ server <- function(session, input, output) {
           list(
             type='buttons',
             buttons=list(
-              list(label='Scale Q - Linear',
+              list(label='Scale Discharge\n- Linear -',
                    method='relayout',
-                   args=list(list(yaxis=list(type='linear',title='Q (lps)',titlefont=list(size=18))))),
-              list(label='Scale Q - Log',
+                   args=list(list(yaxis=list(type='linear',title='Discharge (liters per second)',titlefont=list(size=18))))),
+              list(label='Scale Discharge\n- Log -',
                    method='relayout',
                    
-                   args=list(list(yaxis=list(type='log',title='Q (lps) - log',titlefont=list(size=18)))))))))
+                   args=list(list(yaxis=list(type='log',title='Discharge (liters per second) - log',titlefont=list(size=18)))))))))
   })
 }#end of server
 
