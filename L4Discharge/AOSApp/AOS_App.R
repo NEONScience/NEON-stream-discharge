@@ -32,7 +32,7 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 ui <- fluidPage(
   shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
   fluidRow(
-    column(4,  fluidRow(style = "background-color:#F8F8F8;",
+    column(3,  fluidRow(style = "background-color:#F8F8F8; height:300px; padding:15px",
       selectInput("domainId","Domain ID",productList$Domain),
       selectInput("siteId","Select Site ID",NULL),
       dateRangeInput("dateRange","Date range:",
@@ -41,10 +41,7 @@ ui <- fluidPage(
                      start="2019-01-01",end="2019-01-31", 
                      format="yyyy-mm-dd"),
      
-      
-      actionButton(inputId="submit","Submit"),
-      shiny::br(),
-      width = 3
+      actionButton(inputId="submit","Submit")
     ),
     
     shiny::br(),
@@ -55,7 +52,7 @@ ui <- fluidPage(
     ),#end of first col
   
     
-    column(8,plotlyOutput("plott",height="900px"))
+    column(9,plotlyOutput("plott",height="900px"))
                               
                               
   )#end of fluid row
