@@ -74,8 +74,8 @@ server <- function(session, input, output) {
    metaD <-  productList%>%
       filter(Site.Code == input$siteId)%>%
       select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
-     #rename()
-      pivot_longer(c(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM),names_to = "MetaData", values_to = "Values")  
+    rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
+      pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),names_to = "MetaData", values_to = "Values")
       
     output$table <- renderTable( {
       metaD
