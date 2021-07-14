@@ -29,13 +29,13 @@ options(stringsAsFactors = F)
 productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
 # user interface
-ui <- fluidPage(
+ui <- fluidPage(style = "padding:25px;",
   shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
   
   fluidRow(
     column(3,  
       fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous stage (meter) and discharge (liters per second) timeseries, uncertainties associated with continuous data, and discrete measured gauge height (meter) and discharge (liters per second)."),
-      fluidRow(style = "background-color:#F8F8F8; height:300px; padding:15px",
+      fluidRow(style = "background-color:#F8F8F8; height:300px;",
         selectInput("domainId","Domain ID",productList$Domain),
         selectInput("siteId","Select Site ID",NULL),
         dateRangeInput("dateRange","Date range:",
@@ -47,6 +47,14 @@ ui <- fluidPage(
     ),
       shiny::br(),
       shiny::hr(),
+    fluidRow(
+      textOutput("siteInfo" )
+      
+    ),
+    
+    
+    shiny::br(),
+    shiny::hr(),
       fluidRow(
         #Display sites meta data as
         tableOutput("table"))
@@ -72,11 +80,19 @@ server <- function(session, input, output) {
       rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
       pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),names_to = "MetaData", values_to = "Values")
     
+    siteDesc <- productList %>% 
+      filter(Site.Code == input$siteId)%>%
+      select(siteDescription) 
+      
+    
     output$table <- renderTable( {
       metaD
       }, striped = TRUE, bordered = TRUE,  
       hover = TRUE, rownames = FALSE)
     
+    #print(siteDesc)
+    output$siteInfo <- renderText( paste("Site ", input$siteId, "\n", siteDesc$siteDescription[1],sep=" "))
+    #input$siteId <- input$siteId paste( siteDesc$siteDescription[1])
     # Manually set input variables for local testing
     # site <- "TOOK"
     # startDate <- "2019-01-01"
