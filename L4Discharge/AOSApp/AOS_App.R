@@ -38,11 +38,13 @@ ui <- fluidPage(style = "padding:25px;",
       fluidRow(style = "background-color:#F8F8F8; height:300px;",
         selectInput("domainId","Domain ID",productList$Domain),
         selectInput("siteId","Select Site ID",NULL),
+        checkboxInput("qctrFlags", "View Quality Control Flags ", FALSE),
         dateRangeInput("dateRange","Date range:",
                        startview="month",
                        min="2016-01-01",
                        start="2019-01-01",end="2019-01-31", 
                        format="yyyy-mm-dd"),
+      
         actionButton(inputId="submit","Submit")
     ),
       shiny::br(),
