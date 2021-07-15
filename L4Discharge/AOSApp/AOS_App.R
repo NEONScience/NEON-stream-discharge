@@ -30,40 +30,41 @@ productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
 # user interface
 ui <- fluidPage(style = "padding:25px;",
-  shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
-  
-  fluidRow(
-    column(3,  
-      fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous stage (meter) and discharge (liters per second) timeseries, uncertainties associated with continuous data, and discrete measured gauge height (meter) and discharge (liters per second)."),
-      fluidRow(style = "background-color:#F8F8F8; height:300px;",
-        selectInput("domainId","Domain ID",productList$Domain),
-        selectInput("siteId","Select Site ID",NULL),
-        dateRangeInput("dateRange","Date range:",
-                       startview="month",
-                       min="2016-01-01",
-                       start="2019-01-01",end="2019-01-31", 
-                       format="yyyy-mm-dd"),
-      
-        actionButton(inputId="submit","Submit"),
-        checkboxInput("qctrFlags", "Include Quality Control Flags ", FALSE)
-    ),
-      shiny::br(),
-      shiny::hr(),
-    fluidRow(
-      textOutput("siteInfo" )
-      
-    ),
-    
-    
-    shiny::br(),
-    shiny::hr(),
-      fluidRow(
-        #Display sites meta data as
-        tableOutput("table"))
-      ),#end of first col
-    column(9,plotlyOutput("plott",height="900px")
-      )#end of second col
-  )#end of fluid row
+                shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+                
+                fluidRow(
+                  column(3,  
+                         fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous stage (meter) and discharge (liters per second) timeseries, uncertainties associated with continuous data, and discrete measured gauge height (meter) and discharge (liters per second)."),
+                         fluidRow(style = "background-color:#F8F8F8; height:300px;",
+                                  selectInput("domainId","Domain ID",productList$Domain),
+                                  selectInput("siteId","Select Site ID",NULL),
+                                  dateRangeInput("dateRange","Date range:",
+                                                 startview="month",
+                                                 min="2016-01-01",
+                                                 start="2019-01-01",end="2019-01-31", 
+                                                 format="yyyy-mm-dd"),
+                                  
+                                  actionButton(inputId="submit","Submit"),
+                                  checkboxInput("qctrFlag", "Include All Quality Control Flag ", FALSE),
+                                  checkboxInput("qctrFlagScRv", "Include All Science Review Quality Control Flag ", FALSE)
+                         ),
+                         shiny::br(),
+                         shiny::hr(),
+                         fluidRow(
+                           textOutput("siteInfo" )
+                           
+                         ),
+                         
+                         
+                         shiny::br(),
+                         shiny::hr(),
+                         fluidRow(
+                           #Display sites meta data as
+                           tableOutput("table"))
+                  ),#end of first col
+                  column(9,plotlyOutput("plott",height="900px")
+                  )#end of second col
+                )#end of fluid row
 ) # end of ui and fluidPage
 
 #server function
@@ -72,7 +73,7 @@ server <- function(session, input, output) {
   updateSelectInput(session,"siteId",choices = unique(x))
   
   })
-
+  
   getPackage <- shiny::eventReactive(input$submit,{
     
     # metadata
@@ -85,12 +86,12 @@ server <- function(session, input, output) {
     siteDesc <- productList %>% 
       filter(Site.Code == input$siteId)%>%
       select(siteDescription) 
-      
+    
     
     output$table <- renderTable( {
       metaD
-      }, striped = TRUE, bordered = TRUE,  
-      hover = TRUE, rownames = FALSE)
+    }, striped = TRUE, bordered = TRUE,  
+    hover = TRUE, rownames = FALSE)
     
     #print(siteDesc)
     output$siteInfo <- renderText( paste("Site ", input$siteId, "\n", siteDesc$siteDescription[1],sep=" "))
@@ -244,21 +245,10 @@ server <- function(session, input, output) {
   #plotting with uncertainty
   #progess bar for plot
   output$plott <- renderPlotly({
-    
-   
-    
-   # if(input$qctrlFlags == TRUE){
-      
-     
-      
-  #  }
-    
-    
   
     continuousDischarge_sum <- getPackage()
     
-    plot_ly(data=continuousDischarge_sum)%>%
-      
+  method <- (plot_ly(data=continuousDischarge_sum)%>%
       
       
       # Q Uncertainty
@@ -278,7 +268,7 @@ server <- function(session, input, output) {
       # Empirical H and Q
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=F,legendgroup='group7')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7') )%>%
       
       layout(
         xaxis=list(tick=14,
@@ -318,7 +308,20 @@ server <- function(session, input, output) {
                    method='relayout',
                    
                    args=list(list(yaxis=list(type='log',title='Discharge (liters per second) - log',titlefont=list(size=18)))))))))
-  })
+ 
+   if(input$qctrFlag == TRUE){
+     method <- method %>%
+     add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,name="Discharge QF",type='scatter',mode='line',fill = 'tozeroy',fillcolor = 'gray')
+       
+     if(input$qctrFlagScRv == TRUE){
+       method <- method %>% 
+         add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,name="Discharge QF Science Rvw",type='scatter',mode='line',fill = 'tozeroy',fillcolor = 'gray')
+       
+  }
+  else{NULL }
+  
+   })
+  
 }#end of server
 
 # Run the app ----
