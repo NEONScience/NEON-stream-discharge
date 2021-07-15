@@ -154,3 +154,4 @@ layout(title = paste0(site," -- Continuous Discharge Time Series"),
 #create an html plot
 htmlwidgets::saveWidget(as_widget(plott),paste0(site,"_continuousQ_allWYs.html"))
 
+plott
