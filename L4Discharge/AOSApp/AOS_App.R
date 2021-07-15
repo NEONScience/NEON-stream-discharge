@@ -38,14 +38,14 @@ ui <- fluidPage(style = "padding:25px;",
       fluidRow(style = "background-color:#F8F8F8; height:300px;",
         selectInput("domainId","Domain ID",productList$Domain),
         selectInput("siteId","Select Site ID",NULL),
-        checkboxInput("qctrFlags", "View Quality Control Flags ", FALSE),
         dateRangeInput("dateRange","Date range:",
                        startview="month",
                        min="2016-01-01",
                        start="2019-01-01",end="2019-01-31", 
                        format="yyyy-mm-dd"),
       
-        actionButton(inputId="submit","Submit")
+        actionButton(inputId="submit","Submit"),
+        checkboxInput("qctrFlags", "Include Quality Control Flags ", FALSE)
     ),
       shiny::br(),
       shiny::hr(),
@@ -95,10 +95,12 @@ server <- function(session, input, output) {
     #print(siteDesc)
     output$siteInfo <- renderText( paste("Site ", input$siteId, "\n", siteDesc$siteDescription[1],sep=" "))
     #input$siteId <- input$siteId paste( siteDesc$siteDescription[1])
+    
     # Manually set input variables for local testing
-    # site <- "TOOK"
-    # startDate <- "2019-01-01"
-    # endDate <- "2019-12-31"
+    input <- list()
+    input$siteId <- "CARI"
+    input$dateRange[[1]] <- "2019-01-01"
+    input$dateRange[[2]] <- "2019-12-31"
     
     # Set variables for app running (special consideration for TOOK)
     if (stringr::str_detect(input$siteId,"TOOK")) {
@@ -142,6 +144,10 @@ server <- function(session, input, output) {
         enddate = searchIntervalEndDate
       )
       
+      #updating progress bar
+      incProgress(amount = 0.33, message = "Processing data... ", detail = NULL, session = getDefaultReactiveDomain())
+      Sys.sleep(0.25)
+      
       # Format gauge-discharge measurement data
       sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
       if (input$siteId=="TOOK_inlet") {
@@ -172,10 +178,6 @@ server <- function(session, input, output) {
         }
       }
       
-      #updating progress bar
-      incProgress(amount = 0.33, message = "Processing data... ", detail = NULL, session = getDefaultReactiveDomain())
-      Sys.sleep(0.25)
-      
       # Format gauge-pressure relationship data
       sdrc_gaugePressureRelationship <- DP4.00130.001$sdrc_gaugePressureRelationship
       if(!is.null(sdrc_gaugePressureRelationship)){
@@ -204,10 +206,18 @@ server <- function(session, input, output) {
                          meanURemnUnc=mean(withRemnUncQUpper2Std,na.rm = T),
                          meanLRemnUnc=mean(withRemnUncQLower2Std,na.rm = T),
                          meanUParaUnc=mean(withParaUncQUpper2Std,na.rm = T),
-                         meanLParaUnc=mean(withParaUncQLower2Std,na.rm = T))%>%
+                         meanLParaUnc=mean(withParaUncQLower2Std,na.rm = T),
+                         dischargeFinalQF=sum(dischargeFinalQF,na.rm = T),
+                         dischargeFinalQFSciRvw=sum(dischargeFinalQFSciRvw,na.rm = T))%>%
         dplyr::mutate(meanLHUnc=meanH-meanHUnc,
                       meanUHUnc=meanH+meanHUnc)
       continuousDischarge_sum$date <- as.character(continuousDischarge_sum$date)
+      
+      # Mutate the QF fields for plotting
+      continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF==0] <- 0
+      continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF>0] <- max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
+      continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw==0] <- 0
+      continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw>0] <- max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
       
       #joining gauge discharge vars to continuous summary table
       continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugeDischargeMeas, by="date")
@@ -244,7 +254,7 @@ server <- function(session, input, output) {
   #  }
     
     
-    
+  
     continuousDischarge_sum <- getPackage()
     
     plot_ly(data=continuousDischarge_sum)%>%
