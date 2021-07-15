@@ -1,30 +1,30 @@
 Domain ,Site Code,Site Type,upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM,siteDescription
-D01,HOPB,stream,100,0.5,20,3.5,pretty cool site with stuff and things
-D02,LEWI,stream,75,0.4,15,3,not a cool site with not that much stuff and things
-D02,POSE,stream,50,0.3,10,2.5,pretty cool site with stuff and things
-D03,FLNT,river,25,0.3,5,2,not a cool site with not that much stuff and things
-D04,GUIL,stream,100,0.5,20,3.5,pretty cool site with stuff and things
-D04,CUPE,stream,75,0.4,15,3,not a cool site with not that much stuff and things
-D06,KING,stream,50,0.3,10,2.5,pretty cool site with stuff and things
-D06,MCDI,stream,25,0.3,5,2,not a cool site with not that much stuff and things
-D07,LECO,stream,100,0.5,20,3.5,pretty cool site with stuff and things
-D07,WALK,stream,75,0.4,15,3,not a cool site with not that much stuff and things
-D08,BLWA,river,50,0.3,10,2.5,pretty cool site with stuff and things
-D08,TOMB,river,25,0.3,5,2,not a cool site with not that much stuff and things
-D08,MAYF,stream,100,0.5,20,3.5,pretty cool site with stuff and things
-D10,ARIK,stream,75,0.4,15,3,not a cool site with not that much stuff and things
-D11,PRIN,stream,50,0.3,10,2.5,pretty cool site with stuff and things
-D11,BLUE,stream,25,0.3,5,2,not a cool site with not that much stuff and things
-D12,BLDE,stream,100,0.5,20,3.5,pretty cool site with stuff and things
-D13,COMO,stream,75,0.4,15,3,not a cool site with not that much stuff and things
-D13,WLOU,stream,50,0.3,10,2.5,pretty cool site with stuff and things
-D14,SYCA,stream,25,0.3,5,2,not a cool site with not that much stuff and things
-D15,REDB,stream,100,0.5,20,3.5,pretty cool site with stuff and things
-D16,MART,stream,75,0.4,15,3,not a cool site with not that much stuff and things
-D16,MCRA,stream,50,0.3,10,2.5,pretty cool site with stuff and things
-D17,TECR,stream,25,0.3,5,2,not a cool site with not that much stuff and things
-D17,BIGC,stream,100,0.5,20,3.5,pretty cool site with stuff and things
-D18,TOOK_inlet,lake,75,0.4,15,3,not a cool site with not that much stuff and things
-D18,TOOK_outlet,lake,50,0.3,10,2.5,pretty cool site with stuff and things
-D18,OKSR,stream,25,0.3,5,2,not a cool site with not that much stuff and things
-D19,CARI,stream,100,0.5,20,3.5,pretty cool site with stuff and things
+D01,HOPB,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
+D02,LEWI,stream,75,0.4,15,3,is not a cool site with not that much stuff and things
+D02,POSE,stream,50,0.3,10,2.5,is a pretty cool site with stuff and things
+D03,FLNT,river,25,0.3,5,2,is not a cool site with not that much stuff and things
+D04,GUIL,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
+D04,CUPE,stream,75,0.4,15,3,is not a cool site with not that much stuff and things
+D06,KING,stream,50,0.3,10,2.5,is a pretty cool site with stuff and things
+D06,MCDI,stream,25,0.3,5,2,is not a cool site with not that much stuff and things
+D07,LECO,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
+D07,WALK,stream,75,0.4,15,3,is not a cool site with not that much stuff and things
+D08,BLWA,river,50,0.3,10,2.5,is a pretty cool site with stuff and things
+D08,TOMB,river,25,0.3,5,2,is not a cool site with not that much stuff and things
+D08,MAYF,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
+D10,ARIK,stream,75,0.4,15,3,is not a cool site with not that much stuff and things
+D11,PRIN,stream,50,0.3,10,2.5,is a pretty cool site with stuff and things
+D11,BLUE,stream,25,0.3,5,2,is not a cool site with not that much stuff and things
+D12,BLDE,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
+D13,COMO,stream,75,0.4,15,3,is not a cool site with not that much stuff and things
+D13,WLOU,stream,50,0.3,10,2.5,is a pretty cool site with stuff and things
+D14,SYCA,stream,25,0.3,5,2,is not a cool site with not that much stuff and things
+D15,REDB,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
+D16,MART,stream,75,0.4,15,3,is not a cool site with not that much stuff and things
+D16,MCRA,stream,50,0.3,10,2.5,is a pretty cool site with stuff and things
+D17,TECR,stream,25,0.3,5,2,is not a cool site with not that much stuff and things
+D17,BIGC,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
+D18,TOOK_inlet,lake,75,0.4,15,3,is not a cool site with not that much stuff and things
+D18,TOOK_outlet,lake,50,0.3,10,2.5,is a pretty cool site with stuff and things
+D18,OKSR,stream,25,0.3,5,2,is not a cool site with not that much stuff and things
+D19,CARI,stream,100,0.5,20,3.5,is a pretty cool site with stuff and things
