@@ -235,10 +235,21 @@ server <- function(session, input, output) {
   #progess bar for plot
   output$plott <- renderPlotly({
     
-    # }) #end of withProgress
+   
+    
+   # if(input$qctrlFlags == TRUE){
+      
+     
+      
+  #  }
+    
+    
+    
     continuousDischarge_sum <- getPackage()
     
     plot_ly(data=continuousDischarge_sum)%>%
+      
+      
       
       # Q Uncertainty
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge Remnant\nUncertainty",type='scatter',mode='line',line=list(color='red'),showlegend=F,legendgroup='group1')%>%
