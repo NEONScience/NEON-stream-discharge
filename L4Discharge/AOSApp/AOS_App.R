@@ -245,85 +245,84 @@ server <- function(session, input, output) {
   #plotting with uncertainty
   #progess bar for plot
   output$plott <- renderPlotly({
-  
-    continuousDischarge_sum <- getPackage()
-    
-  method <- plot_ly(data=continuousDischarge_sum)%>%
-      
-      
-     
-      layout(
-        xaxis=list(tick=14,
-                   automargin=T,
-                   title="Date",
-                   tickfont=list(size=16),
-                   titlefont=list(size=18),
-                   # range=c(startDate,endDate)),
-                   range=c(format(input$dateRange[1]),format(input$dateRange[2]))),
-        yaxis=list(side='left',
-                   automargin=T,
-                   title='Discharge (liters per second)',
-                   tickfont=list(size=16),
-                   titlefont=list(size=18),
-                   showgrid=FALSE,
-                   zeroline=FALSE),
-        yaxis2=list(side='right',
-                    overlaying="y",
-                    automargin=T,
-                    title="Stage (meter)",
-                    tickfont=list(size=16),
-                    titlefont=list(size=18),
-                    showgrid=FALSE,
-                    zeroline=FALSE),
-        legend=list(orientation="h",
-                    x=0.5,y=1,
-                    xanchor="center",
-                    font=list(size=14)),
-        updatemenus=list(
-          list(
-            type='buttons',
-            buttons=list(
-              list(label='Scale Discharge\n- Linear -',
-                   method='relayout',
-                   args=list(list(yaxis=list(type='linear',title='Discharge (liters per second)',titlefont=list(size=18))))),
-              list(label='Scale Discharge\n- Log -',
-                   method='relayout',
-                   
-                   args=list(list(yaxis=list(type='log',title='Discharge (liters per second) - log',titlefont=list(size=18)))))))))
- 
-  
-  #Quality flags
-   if(input$qctrFlag == TRUE){
-     method <- method %>%
-     add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,name="Discharge QF",type='scatter',mode='line',fill = 'tozeroy',fillcolor = 'gray')
-   }
-       
-     if(input$qctrFlagScRv == TRUE){
-       method <- method %>% 
-         add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,name="Discharge QF Science Rvw",type='scatter',mode='line',fill = 'tozeroy',fillcolor = 'gray')
-       }
-  
-  #base case
-  # Q Uncertainty
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge Remnant\nUncertainty",type='scatter',mode='line',line=list(color='red'),showlegend=F,legendgroup='group1')%>%
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge Remnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge Parametric\nUncertainty",type='scatter',mode='line',line=list(color='lightpink'),showlegend=F,legendgroup='group2')%>%
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge Parametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group2')%>%
-
-  # H Uncertainty
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=F,legendgroup='group3')%>%
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group3')%>%
-
-  # H and Q Series
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group4')%>%
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group5')%>%
-
-  # Empirical H and Q
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=F,legendgroup='group7')%>%
-  add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7') %>%
-  
-   }) #error if ststement
+          
+            continuousDischarge_sum <- getPackage()
+            
+          method <- plot_ly(data=continuousDischarge_sum)%>%
+              
+             
+              layout(
+                xaxis=list(tick=14,
+                           automargin=T,
+                           title="Date",
+                           tickfont=list(size=16),
+                           titlefont=list(size=18),
+                           # range=c(startDate,endDate)),
+                           range=c(format(input$dateRange[1]),format(input$dateRange[2]))),
+                yaxis=list(side='left',
+                           automargin=T,
+                           title='Discharge (liters per second)',
+                           tickfont=list(size=16),
+                           titlefont=list(size=18),
+                           showgrid=FALSE,
+                           zeroline=FALSE),
+                yaxis2=list(side='right',
+                            overlaying="y",
+                            automargin=T,
+                            title="Stage (meter)",
+                            tickfont=list(size=16),
+                            titlefont=list(size=18),
+                            showgrid=FALSE,
+                            zeroline=FALSE),
+                legend=list(orientation="h",
+                            x=0.5,y=1,
+                            xanchor="center",
+                            font=list(size=14)),
+                updatemenus=list(
+                  list(
+                    type='buttons',
+                    buttons=list(
+                      list(label='Scale Discharge\n- Linear -',
+                           method='relayout',
+                           args=list(list(yaxis=list(type='linear',title='Discharge (liters per second)',titlefont=list(size=18))))),
+                      list(label='Scale Discharge\n- Log -',
+                           method='relayout',
+                           
+                           args=list(list(yaxis=list(type='log',title='Discharge (liters per second) - log',titlefont=list(size=18)))))))))
+         
+          
+          #Quality flags
+           if(input$qctrFlag == TRUE){
+             method <- method %>%
+             add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,name="Discharge QF",type='scatter',mode='line',fill = 'tozeroy',fillcolor = 'gray')
+          }
+               
+             if(input$qctrFlagScRv == TRUE){
+               method <- method %>% 
+                 add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,name="Discharge QF Science Rvw",type='scatter',mode='line',fill = 'tozeroy',fillcolor = 'gray')
+              }
+          method <- method %>% 
+          #base case
+          # Q Uncertainty
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge Remnant\nUncertainty",type='scatter',mode='line',line=list(color='red'),showlegend=F,legendgroup='group1')%>%
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge Remnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge Parametric\nUncertainty",type='scatter',mode='line',line=list(color='lightpink'),showlegend=F,legendgroup='group2')%>%
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge Parametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group2')%>%
+        
+          # H Uncertainty
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=F,legendgroup='group3')%>%
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group3')%>%
+        
+          # H and Q Series
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group4')%>%
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group5')%>%
+        
+          # Empirical H and Q
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=F,legendgroup='group7')%>%
+          add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge Height',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7') %>%
+          
+   }) #error if statement
   
 }#end of server
 
@@ -333,15 +332,3 @@ shiny::shinyApp(ui = ui, server = server)
 
 
 
-plot <- plot_ly("put basic plot layout here")
-# Only run this code if the final discharge QF checkbox is true
-# IF
-plot <- plot%>%
-  add_trace("Include code to add shaded area for discharge final QF")
-# Only run this code if the science review discharge QF checkbox is true
-# IF
-plot <- plot%>%
-  add_trace("Include code to add shaded area for science review discharge QF")
-# Run this code always - base plot
-plot <- plot%>%
-  add_trace("All the basic plot attributes")
