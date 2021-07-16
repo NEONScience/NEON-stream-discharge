@@ -35,7 +35,7 @@ ui <- fluidPage(style = "padding:25px;",
                 fluidRow(
                   column(3,  
                          fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous stage (meter) and discharge (liters per second) timeseries, uncertainties associated with continuous data, and discrete measured gauge height (meter) and discharge (liters per second)."),
-                         fluidRow(style = "background-color:#F8F8F8; height:300px;",
+                         fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
                                   selectInput("domainId","Domain ID",productList$Domain),
                                   selectInput("siteId","Select Site ID",NULL),
                                   dateRangeInput("dateRange","Date range:",
@@ -60,7 +60,7 @@ ui <- fluidPage(style = "padding:25px;",
                          shiny::hr(),
                          fluidRow(
                            #Display sites meta data as
-                           tableOutput("table"))
+                           tableOutput( "table"))
                   ),#end of first col
                   column(9,plotlyOutput("plott",height="900px")
                   )#end of second col
