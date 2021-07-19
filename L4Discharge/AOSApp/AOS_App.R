@@ -60,6 +60,7 @@ ui <- fluidPage(style = "padding:25px;",
                          shiny::hr(),
                          fluidRow(
                            #Display sites meta data as
+                           textOutput("tittle"),
                            tableOutput( "table"))
                   ),#end of first col
                   column(9,plotlyOutput("plott",height="900px")
@@ -87,6 +88,8 @@ server <- function(session, input, output) {
       filter(Site.Code == input$siteId)%>%
       select(siteDescription) 
     
+    #style = "align:center;"
+    output$tittle <- renderText("MetaData Table" )
     
     output$table <- renderTable( {
       metaD
