@@ -21,6 +21,7 @@ library(plotly)
 library(neonUtilities)
 library(shinyWidgets)
 library(stageQCurve)
+library('DT')
 library(lubridate, warn.conflicts = FALSE)
 options(stringsAsFactors = F)
 
@@ -29,7 +30,7 @@ options(stringsAsFactors = F)
 productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
 # user interface
-ui <- fluidPage(style = "padding:25px;",
+ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                 shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                 
                 fluidRow(
@@ -60,8 +61,11 @@ ui <- fluidPage(style = "padding:25px;",
                          shiny::hr(),
                          fluidRow(
                            #Display sites meta data as
-                           textOutput("tittle"),
-                           tableOutput( "table"))
+                           verbatimTextOutput("metaInfo"),
+                           textOutput("title"),
+                           DT::dataTableOutput("table")
+                           
+                         )
                   ),#end of first col
                   column(9,plotlyOutput("plott",height="900px")
                   )#end of second col
@@ -89,16 +93,20 @@ server <- function(session, input, output) {
       select(siteDescription) 
     
     #style = "align:center;"
-    output$tittle <- renderText("MetaData Table" )
+    output$title <- renderText("MetaData Table" )
     
-    output$table <- renderTable( {
-      metaD
-    }, striped = TRUE, bordered = TRUE,  
-    hover = TRUE, rownames = FALSE)
-    
+    output$table <- DT::renderDataTable( {
+      dat <- datatable(metaD,  options = list(dom = 't'))
+      return(dat)
+    },selection = 'single')
+    # , striped = TRUE, bordered = TRUE,  
+    # hover = TRUE, rownames = FALSE,
     #print(siteDesc)
     output$siteInfo <- renderText( paste("Site ", input$siteId, "\n", siteDesc$siteDescription[1],sep=" "))
   
+    
+    
+    
     # Manually set input variables for local testing
     # input <- list()
     # input$siteId <- "CARI"
@@ -241,6 +249,28 @@ server <- function(session, input, output) {
     })#end of withProgress
     
   },ignoreInit = T)# End getPackage    
+  
+  
+  output$metaInfo <- renderPrint({
+    req(length(input$table_cell_clicked)>0)
+    
+    "Message"
+   #  if(input$table_cell_clicked$value == "Upstream watershed area (km^2)")
+   # " Got It"
+   #  if(input$table_cell_clicked$value == "Reach slope (m)")
+   #    " Got It"
+   #  
+   #  if(input$table_cell_clicked$value == "Mean bankfull width (m)")
+   #    " Got It"
+   #  
+   #  if(input$table_cell_clicked$value == "D50 particle size (mm)")
+   #    " Got It"
+    
+    
+  })
+
+
+  
   
   
   
