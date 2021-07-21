@@ -67,13 +67,15 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                            
                          )
                   ),#end of first col
-                  column(9,plotlyOutput("plott",height="900px")
+                  column(9,
+                         withSpinner(plotlyOutput("plott",height="900px"), color = "#FFFF33")
                   )#end of second col
                 )#end of fluid row
 ) # end of ui and fluidPage
 
 #server function
 server <- function(session, input, output) {
+  
   shiny::observe({x <- productList$Site.Code[productList$Domain == input$domainId]
   updateSelectInput(session,"siteId",choices = unique(x))
   
@@ -276,7 +278,7 @@ server <- function(session, input, output) {
   
   #plotting with uncertainty
   #progess bar for plot
-  output$plott <- renderPlotly({
+  output$plott <-renderPlotly({
           
             continuousDischarge_sum <- getPackage()
             
