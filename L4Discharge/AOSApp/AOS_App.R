@@ -22,6 +22,7 @@ library(neonUtilities)
 library(shinyWidgets)
 library(stageQCurve)
 library('DT')
+library("shinycssloaders")
 library(lubridate, warn.conflicts = FALSE)
 options(stringsAsFactors = F)
 
@@ -60,8 +61,6 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                          shiny::br(),
                          shiny::hr(),
                          fluidRow(
-                           #Display sites meta data as
-                           verbatimTextOutput("metaInfo"),
                            textOutput("title"),
                            DT::dataTableOutput("table")
                            
@@ -82,7 +81,6 @@ server <- function(session, input, output) {
   })
   
   getPackage <- shiny::eventReactive(input$submit,{
-    
     # metadata
     metaD <-  productList%>%
       filter(Site.Code == input$siteId)%>%
@@ -253,35 +251,12 @@ server <- function(session, input, output) {
   },ignoreInit = T)# End getPackage    
   
   
-  output$metaInfo <- renderPrint({
-    req(length(input$table_cell_clicked)>0)
-    
-    "Message"
-   #  if(input$table_cell_clicked$value == "Upstream watershed area (km^2)")
-   # " Got It"
-   #  if(input$table_cell_clicked$value == "Reach slope (m)")
-   #    " Got It"
-   #  
-   #  if(input$table_cell_clicked$value == "Mean bankfull width (m)")
-   #    " Got It"
-   #  
-   #  if(input$table_cell_clicked$value == "D50 particle size (mm)")
-   #    " Got It"
-    
-    
-  })
-
-
-  
-  
-  
-  
   #plotting with uncertainty
   #progess bar for plot
   output$plott <-renderPlotly({
           
-            continuousDischarge_sum <- getPackage()
-            
+           continuousDischarge_sum <- getPackage()
+    
           method <- plot_ly(data=continuousDischarge_sum)%>%
               
              
@@ -292,7 +267,7 @@ server <- function(session, input, output) {
                            tickfont=list(size=16),
                            titlefont=list(size=18),
                            # range=c(startDate,endDate)),
-                           range=c(format(input$dateRange[1]),format(input$dateRange[2]))),
+                           range=c(format(isolate({input$dateRange[1]}) ),format(isolate({input$dateRange[2]}) ))),
                 yaxis=list(side='left',
                            automargin=T,
                            title='Discharge (liters per second)',
