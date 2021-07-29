@@ -41,7 +41,7 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                 shiny::titlePanel("NEON Continous discharge (DP4.00130.001)and Stage-discharge rating curves (DP4.00133.001)) data visualization application"),
                 fluidRow(
                   column(3,  
-                         fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", (DP4.00130.001)), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", (DP4.00133.001))," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
+                         fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                          fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
                                   selectInput("domainId","Domain ID",productList$Domain),
                                   selectInput("siteId","Select Site ID",NULL),
