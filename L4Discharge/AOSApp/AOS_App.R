@@ -27,22 +27,28 @@ library(lubridate, warn.conflicts = FALSE)
 options(stringsAsFactors = F)
 
 # Read in NEON site and domain list
-setwd("~/Github/NEON-stream-discharge-divine/L4Discharge/AOSApp")
+setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp")
 productList <- read.csv("aqu_dischargeDomainSiteList.csv")
+
+#https://data.neonscience.org/data-products/DP4.00133.001
+# 
+# URL for DP4.00130.001
+# https://data.neonscience.org/data-products/DP4.00130.001
+
 
 # user interface
 ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
-                shiny::titlePanel("NEON Continous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+                shiny::titlePanel("NEON Continous discharge (DP4.00130.001)and Stage-discharge rating curves (DP4.00133.001)) data visualization application"),
                 fluidRow(
                   column(3,  
-                         fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
+                         fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", (DP4.00130.001)), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", (DP4.00133.001))," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                          fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
                                   selectInput("domainId","Domain ID",productList$Domain),
                                   selectInput("siteId","Select Site ID",NULL),
                                   dateRangeInput("dateRange","Date range:",
                                                  startview="month",
-                                                 min="2016-01-01",
-                                                 start="2019-01-01",end="2019-01-31", 
+                                                 min="2016-00-01",
+                                                 start="2018-04-01",end="2018-11-01", 
                                                  format="yyyy-mm-dd"),
                                   
                                   actionButton(inputId="submit","Submit"),
@@ -51,7 +57,7 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                          ),
                          shiny::hr(),
                          fluidRow(
-                           textOutput("siteInfo" )
+                           uiOutput("siteInfo" )
                          ),
                          shiny::hr(),
                          fluidRow(
@@ -68,6 +74,7 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                   )#end of fluid row
   ) # end of ui and fluidPage
 
+
 #server function
 server <- function(session, input, output) {
   
@@ -82,9 +89,6 @@ server <- function(session, input, output) {
       select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
       rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
       pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),names_to = "MetaData", values_to = "Values")
-    siteDesc <- productList %>% 
-      filter(Site.Code == input$siteId)%>%
-      select(siteDescription) 
     # Enter header for metadata table
     output$title <- renderText("Metadata Table")
     # Create metadata table output
@@ -93,7 +97,14 @@ server <- function(session, input, output) {
       return(dat)
     },selection = 'single')
     # Create site description output
-    output$siteInfo <- renderText(paste("Site:", input$siteId, "-", siteDesc$siteDescription[1], sep=" "))
+    
+    href <- "https://www.neonscience.org/field-sites/"
+    url <- a("Click here", href= href)
+   # <a href="https://yourURL.com/code= [[Username|_4]]"
+    
+    output$siteInfo <- renderUI({
+      tagList("Site: ",input$siteId, url,"for site description",  sep="\n")
+    })
     
     # # Manually set input variables for local testing
     # input <- list()

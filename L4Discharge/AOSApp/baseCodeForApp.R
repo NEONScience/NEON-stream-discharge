@@ -100,7 +100,7 @@ continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugeDischarg
   select(roundDate, meanH, meanQ, meanHUnc, meanURemnUnc,meanLRemnUnc,
          meanUParaUnc,meanLParaUnc,meanLHUnc,meanUHUnc, gaugeHeight,streamDischarge)
 
-#joining guagepressure to  continuoussummary table
+#joining guagepressure to  continuous summary table
 continuousDischarge_sum <- full_join(continuousDischarge_sum, sdrc_gaugePressureRelationship, by =c("roundDate" = "newDate")) 
   
 #plotting with uncertainty
