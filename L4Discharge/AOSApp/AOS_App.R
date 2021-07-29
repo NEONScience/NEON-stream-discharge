@@ -30,11 +30,6 @@ options(stringsAsFactors = F)
 setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp")
 productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
-#https://data.neonscience.org/data-products/DP4.00133.001
-# 
-# URL for DP4.00130.001
-# https://data.neonscience.org/data-products/DP4.00130.001
-
 
 # user interface
 ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -88,6 +83,7 @@ server <- function(session, input, output) {
       filter(Site.Code == input$siteId)%>%
       select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
       rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
+      mutate_all(as.character)%>%
       pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),names_to = "MetaData", values_to = "Values")
     # Enter header for metadata table
     output$title <- renderText("Metadata Table")
@@ -98,12 +94,10 @@ server <- function(session, input, output) {
     },selection = 'single')
     # Create site description output
     
-    href <- "https://www.neonscience.org/field-sites/"
-    url <- a("Click here", href= href)
-   # <a href="https://yourURL.com/code= [[Username|_4]]"
-    
+    href <- paste0("https://www.neonscience.org/field-sites/",tolower(isolate(input$siteId)))
+    url <- a("Click here", href= href ,target="_blank", style="text-decoration: none; hover:{font-size:150%;}")
     output$siteInfo <- renderUI({
-      tagList("Site: ",input$siteId, url,"for site description",  sep="\n")
+      tagList("Site: ",input$siteId, url,"for site description",sep="\n")
     })
     
     # # Manually set input variables for local testing
