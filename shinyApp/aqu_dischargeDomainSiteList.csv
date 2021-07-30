@@ -1,4 +1,4 @@
-Domain ,Site.Code,Site.Type,upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM
+domain,siteID,siteType,upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM
 D01,HOPB,stream,12,0.03,8.1,68
 D02,LEWI,stream,12,0.01,5.27,< 2
 D02,POSE,stream,2,0.03,4.34,14
