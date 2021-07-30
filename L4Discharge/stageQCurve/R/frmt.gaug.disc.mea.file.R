@@ -63,8 +63,8 @@ frmt.gaug.disc.mea.file <- function(
   outputDF$gaugeHeight <- dataFrame$streamStage
   outputDF$gaugeHeightUnc <- 0
   outputDF$gaugeHeightOffset <- dataFrame$gaugeHeightOffset
-  outputDF$streamDischarge <- dataFrame$finalDischarge
-  outputDF$streamDischargeUnc <- dataFrame$finalDischarge * 0.1
+  outputDF$streamDischarge <- as.numeric(dataFrame$finalDischarge)
+  outputDF$streamDischargeUnc <- as.numeric(outputDF$streamDischarge) * 0.1
   outputDF$gaugeEventID <- dataFrame$eventID
   outputDF$includedInRatingCurve <- "true"
   #outputDF$recalculatedL1QF <- dataFrame$recalculatedL1QF
