@@ -14,22 +14,18 @@
 ##############################################################################################
 
 # Source packages and set options
-library(dplyr)
 library(tidyverse)
-library(readr)
 library(plotly)
 library(neonUtilities)
 library(shinyWidgets)
-library(stageQCurve)
 library(DT)
 library(shinycssloaders)
-library(lubridate, warn.conflicts = FALSE)
+library(lubridate)
 options(stringsAsFactors = F)
 
 # Read in NEON site and domain list
 # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp")
-productList <- read.csv("aqu_dischargeDomainSiteList.csv")
-
+productList <- readr::read_csv(url("https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/ZN_packageTesting/shinyApp/aqu_dischargeDomainSiteList.csv"))
 
 # user interface
 ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -38,7 +34,7 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                   column(3,  
                          fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                          fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
-                                  selectInput("domainId","Domain ID",productList$Domain),
+                                  selectInput("domainId","Domain ID",productList$domain),
                                   selectInput("siteId","Select Site ID",NULL),
                                   dateRangeInput("dateRange","Date range:",
                                                  startview="month",
@@ -73,14 +69,14 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
 #server function
 server <- function(session, input, output) {
   
-  shiny::observe({x <- productList$Site.Code[productList$Domain == input$domainId]
+  shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
   updateSelectInput(session,"siteId",choices = unique(x))
   })
   
   getPackage <- shiny::eventReactive(input$submit,{
     # Define site-specific metadata and site description for rendering
     metaD <-  productList%>%
-      filter(Site.Code == input$siteId)%>%
+      filter(siteID == input$siteId)%>%
       select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
       rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
       mutate_all(as.character)%>%
@@ -345,6 +341,11 @@ server <- function(session, input, output) {
     curveIDs <- continuousDischarge_list[[2]]
     
     # Get the data for plotting
+    utils::download.file(
+      "https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/ZN_packageTesting/shinyApp/rcPlottingData.rds",
+      "rcPlottingData.rds",
+      method = "curl"
+    )
     rcPlotData <- readRDS("rcPlottingData.rds")
     rcData <- rcPlotData$rcData%>%
       dplyr::filter(curveID%in%curveIDs)
