@@ -25,7 +25,7 @@ options(stringsAsFactors = F)
 
 # Read in NEON site and domain list
 # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp")
-productList <- readr::read_csv(url("https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/ZN_packageTesting/shinyApp/aqu_dischargeDomainSiteList.csv"))
+productList <- readr::read_csv(url("https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
 
 run.RC.cont.Q.app.plot.R <-function (){
 
@@ -344,7 +344,7 @@ server <- function(session, input, output) {
     
     # Get the data for plotting
     utils::download.file(
-      "https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/ZN_packageTesting/shinyApp/rcPlottingData.rds",
+      "https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds",
       "rcPlottingData.rds",
       method = "curl"
     )
