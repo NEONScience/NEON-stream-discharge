@@ -1,0 +1,9 @@
+* installing *source* package 'stageQPlot' ...
+** using staged installation
+** R
+** byte-compile and prepare package for lazy loading
+Error in library(tidyverse) : there is no package called 'tidyverse'
+Error: unable to load R code in package 'stageQPlot'
+Execution halted
+ERROR: lazy loading failed for package 'stageQPlot'
+* removing 'C:/Users/aseaku/Documents/GitHub/NEON-stream-discharge/shinyApp/neonStageQPlotApp/stageQPlot.Rcheck/stageQPlot'

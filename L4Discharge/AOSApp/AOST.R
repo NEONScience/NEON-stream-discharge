@@ -1,33 +1,20 @@
-##############################################################################################
-#' @title YOUR TITLE
-
-#' @author
-#' YOUR NAME \email{EMAIL@battelleecology.org} \cr
-
-#' @description BRIEF DESCRIPTION
-
-#' @return OUTPUT DESCRIPTION
-
-# changelog and author contributions / copyrights
-#   YOUR NAME (YYYY-MM-DD)
-#     original creation
-##############################################################################################
-
 # Source packages and set options
+library(dplyr)
 library(tidyverse)
+library(readr)
 library(plotly)
 library(neonUtilities)
 library(shinyWidgets)
+library(stageQCurve)
 library(DT)
 library(shinycssloaders)
-library(lubridate)
+library(lubridate, warn.conflicts = FALSE)
 options(stringsAsFactors = F)
 
 # Read in NEON site and domain list
-# setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp")
-productList <- readr::read_csv(url("https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/ZN_packageTesting/shinyApp/aqu_dischargeDomainSiteList.csv"))
+setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp")
+productList <- read.csv("aqu_dischargeDomainSiteList.csv")
 
-run.RC.cont.Q.app.plot.R <-function (){
 
 # user interface
 ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -36,7 +23,7 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                   column(3,  
                          fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                          fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
-                                  selectInput("domainId","Domain ID",productList$domain),
+                                  selectInput("domainId","Domain ID",productList$Domain),
                                   selectInput("siteId","Select Site ID",NULL),
                                   dateRangeInput("dateRange","Date range:",
                                                  startview="month",
@@ -62,23 +49,23 @@ ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
                          tabsetPanel(type = "tabs",
                                      tabPanel("Continuous Discharge",withSpinner(plotlyOutput("plot1",height="800px"), color = "#00ADD7"), style = "background-color:#F8F8F8;"),
                                      tabPanel("Rating Curve(s)",withSpinner(plotlyOutput("plot2",height="800px"), color = "#00ADD7"))
-                           )#end of tabsetPanel
-                    )#end of second col
-                  )#end of fluid row
-  ) # end of ui and fluidPage
+                         )#end of tabsetPanel
+                  )#end of second col
+                )#end of fluid row
+) # end of ui and fluidPage
 
 
 #server function
 server <- function(session, input, output) {
   
-  shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
+  shiny::observe({x <- productList$Site.Code[productList$Domain == input$domainId]
   updateSelectInput(session,"siteId",choices = unique(x))
   })
   
   getPackage <- shiny::eventReactive(input$submit,{
     # Define site-specific metadata and site description for rendering
     metaD <-  productList%>%
-      filter(siteID == input$siteId)%>%
+      filter(Site.Code == input$siteId)%>%
       select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
       rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,"Reach slope (m)" = reachSlopeM, "Mean bankfull width (m)"= averageBankfullWidthM, "D50 particle size (mm)"=d50ParticleSizeMM) %>% 
       mutate_all(as.character)%>%
@@ -103,7 +90,7 @@ server <- function(session, input, output) {
     # input$siteId <- "CARI"
     # input$dateRange[[1]] <- "2019-01-01"
     # input$dateRange[[2]] <- "2019-12-31"
-
+    
     # Set variables for app running (special consideration for TOOK)
     if (stringr::str_detect(input$siteId,"TOOK")) {
       site <- "TOOK"
@@ -320,15 +307,15 @@ server <- function(session, input, output) {
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='line',line=list(color='lightpink'),showlegend=F,legendgroup='group2')%>%
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group2')%>%
-    
+      
       # H Uncertainty
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=F,legendgroup='group3')%>%
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group3')%>%
-    
+      
       # H and Q Series
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group4')%>%
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group5')%>%
-    
+      
       # Empirical H and Q
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="purple",size=8,line = list(color = "black",width = 1)),showlegend=F,legendgroup='group7')%>%
@@ -343,17 +330,12 @@ server <- function(session, input, output) {
     curveIDs <- continuousDischarge_list[[2]]
     
     # Get the data for plotting
-    utils::download.file(
-      "https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/ZN_packageTesting/shinyApp/rcPlottingData.rds",
-      "rcPlottingData.rds",
-      method = "curl"
-    )
     rcPlotData <- readRDS("rcPlottingData.rds")
     rcData <- rcPlotData$rcData%>%
       dplyr::filter(curveID%in%curveIDs)
     rcGaugings <- rcPlotData$rcGaugings%>%
       dplyr::filter(curveID%in%curveIDs)
-
+    
     # Build plot layout
     rcPlot <- plotly::plot_ly(data=rcData)%>%
       layout(
@@ -415,15 +397,7 @@ server <- function(session, input, output) {
     }
     
     rcPlot
-
+    
   })# End plot2
-
+  
 }#end of server
-
-# Run the app ----
-shiny::shinyApp(ui = ui, server = server)
-
-}
-
-
-
