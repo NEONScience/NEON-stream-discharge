@@ -1,5 +1,5 @@
 ##############################################################################################
-#' @title NEON Continuous discharge DP4.00130.001and Stage-discharge rating curves DP4.00133.001 data visualization application
+#' @title NEON Continous discharge DP4.00130.001and Stage-discharge rating curves DP4.00133.001 data visualization application
 
 #' @author
 #' Divine Aseaku \email{divineaseaku@gmail.com} \cr
@@ -15,11 +15,6 @@
 #'@import shinycssloaders
 #'@import lubridate
 #'@import stageQCurve
-#'@import tidyr
-#'@import stringr
-#'@import dyplyr
-#'@import readr
-
 
 #'@return This function launches a shiny app to interactively plot published NEON data
 
@@ -37,10 +32,6 @@ require(DT)
 require(shinycssloaders)
 require(lubridate)
 require(stageQCurve)
-require(dplyr)
-require(readr)
-require(tidyr)
-require(stringr)
 options(stringsAsFactors = F)
 
 
@@ -55,7 +46,7 @@ productList <- readr::read_csv(url("https://raw.githubusercontent.com/divineasea
 
 # user interface
 ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
-                shiny::titlePanel("NEON Continuous discharge (DP4.00130.001)and Stage-discharge rating curves (DP4.00133.001)) data visualization application"),
+                shiny::titlePanel("NEON Continous discharge (DP4.00130.001)and Stage-discharge rating curves (DP4.00133.001)) data visualization application"),
                 fluidRow(
                   column(3,
                          fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
