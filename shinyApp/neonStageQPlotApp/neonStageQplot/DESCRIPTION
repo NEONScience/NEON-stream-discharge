@@ -1,0 +1,11 @@
+Package: neonStageQplot
+Type: Package
+Title:Plots continues discharge,stage discharge and rating curve(s) 
+Version: 0.1.0
+Authors: Divine Aseaku and Zach Nickerson
+Maintainer: The package maintainer <yourself@somewhere.net>
+Description:An interactive app which  plots continuous discharge, Stage discharge and rating- curves using language R
+Data is downloaded from the NEON data portal using neonUltilities and ploting is done at 20mins time interval
+License: AGPL-3 + file LICENSE
+Encoding: UTF-8
+LazyData: true

@@ -27,7 +27,7 @@ options(stringsAsFactors = F)
 # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp")
 productList <- readr::read_csv(url("https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
 
-run.RC.cont.Q.app.plot.R <-function (){
+#run.RC.cont.Q.app.plot.R <-function (){
 
 # user interface
 ui <- fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -95,7 +95,7 @@ server <- function(session, input, output) {
     href <- paste0("https://www.neonscience.org/field-sites/",tolower(isolate(input$siteId)))
     url <- a("Click here", href= href ,target="_blank", style="text-decoration: none; hover:{font-size:150%;}")
     output$siteInfo <- renderUI({
-      tagList("Site: ",input$siteId, url,"for site description",sep="\n")
+      tagList("Site: ",input$siteId, url, "for site description",sep="\n")
     })
     
     # # Manually set input variables for local testing
@@ -322,12 +322,12 @@ server <- function(session, input, output) {
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group2')%>%
     
       # H Uncertainty
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=list(color='lightgreen'),yaxis='y2',showlegend=F,legendgroup='group3')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightgreen',yaxis='y2',showlegend=T,legendgroup='group3')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=list(color='lightblue'),yaxis='y2',showlegend=F,legendgroup='group3')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightblue',yaxis='y2',showlegend=T,legendgroup='group3')%>%
     
       # H and Q Series
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group4')%>%
-      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = 'green'),yaxis='y2',showlegend=T,legendgroup='group5')%>%
+      add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = 'blue'),yaxis='y2',showlegend=T,legendgroup='group5')%>%
     
       # Empirical H and Q
       add_trace(x=~as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = 'blue',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
@@ -423,7 +423,7 @@ server <- function(session, input, output) {
 # Run the app ----
 shiny::shinyApp(ui = ui, server = server)
 
-}
+#}
 
 
 
