@@ -2,23 +2,23 @@ NEON Stage-Discharge Rating Curve & Continuous Discharge Shiny App
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- ****** Description ****** -->
-
 <!-- ****** Usage ****** -->
 
 ## User Inputs
 
 **NEON Domain & Site Selection**
-
+User makes a selection from 19 domains, then chooses a site id from the sites available in  the domain.
 **Date Range**
+Ability to specify date ranges for which data is to be visualized 
 
 **Quality Flag Viewer**
+Functionality for toggling  between Final Review quality flags, Science Review quality flags before or afer clicking the sumit button.
 
 ## App Outpus
 
 **Site Description**
-
+Link to the 
 **Metadata Table**
 
 **Continuous Discharge Plot**
@@ -30,7 +30,6 @@ NEON Stage-Discharge Rating Curve & Continuous Discharge Shiny App
 ## Credits & Acknowledgements
 
 <!-- HTML tags to produce image, resize, add hyperlink. -->
-
 <!-- ONLY WORKS WITH HTML or GITHUB documents -->
 
 <a href="http://www.neonscience.org/">
