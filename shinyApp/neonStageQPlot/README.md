@@ -32,10 +32,14 @@ Ability to specify date ranges for which data is to be visualized
 **Quality Flag Viewer**
 
 Functionality for toggling between Final Review quality flags, Science
-Review quality flags before or after clicking the submit button. The
-final quality flags is assigned via an algorithm in the processing code
-The science review QF is assigned by an HQ scientist when data anomalies
-are found
+Review quality flags before or after clicking the submit button.
+
+-   Discharge final quality flag indicating whether a data product has
+    passed or failed an overall assessment of its quality; detailed in
+    ATBD.
+
+-   Discharge final quality flag indicating whether a data product has
+    failed a science review of its quality detailed in NEON.DOC.001113.
 
 ## App Outpus
 
@@ -72,22 +76,32 @@ selected Site ID.
 
 The continuous Discharge graph represents the predicted continuous
 discharge from sensor-based surface water pressure and stage-discharge.
-User can perform the following on this graph: \* Zoom in an out of
-graphs by right-click the section they what to view and dragging the
-mouse to a any stop. \* Toggle lines and data points on the graph ON an
-OFF by clicking their on their representation in the legend \* Change
-scales between linear and log by clicking either buttons \* Switch tabs
-to view the rating curve plot
+User can perform the following on this graph:
+
+-   Zoom in an out of graphs by right-click the section they what to
+    view and dragging the mouse to a any stop.
+
+-   Toggle lines and data points on the graph ON an OFF by clicking
+    their on their representation in the legend
+
+-   Change scales between linear and log by clicking either buttons
+
+-   Switch tabs to view the rating curve plot
 
 **Stage-Discharge Rating Curve(s) Plot**
 
 The rating curve graph plots the relationship between Stage and
-Discharge. User can perform the following on this graph: \* Zoom in an
-out of graphs by right-click the section they what to view and dragging
-the mouse to a any stop. \* Toggle lines and data points on the graph ON
-an OFF by clicking their on their representation in the legend \* Change
-scales between linear and log by clicking either buttons \* Switch tabs
-to view the continuous discharge plot
+Discharge. User can perform the following on this graph:
+
+-   Zoom in an out of graphs by right-click the section they what to
+    view and dragging the mouse to a any stop.
+
+-   Toggle lines and data points on the graph ON an OFF by clicking
+    their on their representation in the legend.
+
+-   Change scales between linear and log by clicking either buttons.
+
+-   Switch tabs to view the continuous discharge plot.
 
 <!-- ****** Acknowledgements ****** -->
 
