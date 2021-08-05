@@ -2,19 +2,23 @@ NEON Stage-Discharge Rating Curve & Continuous Discharge Shiny App
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 <!-- ****** Description ****** -->
 
-This interactive app plots continuous discharge, Stage discharge and
-rating- curve(s) using language R. in the left section, users can input
-a domain ID, site ID and date range for which they want data
-plotted.Users can include quality flags in the continuous discharge plot
-before or after clicking sum Graphs are render in the right section
-after user click the submit button. The first tab from the left displays
-a continuous discharge plots at a 20mins time interval, and the second
-tab plots rating curves for user selected site ID
+This interactive shiny app plots NEON stage-discharge rating curve and
+continuous discharge data using language R. In the left panel, users can
+input a domain ID, site ID and date range for which they want data
+plotted. Users can include quality flags in the continuous discharge
+plot before or after clicking submit. Graphs are render in the right
+panel after user click the submit button. The first tab from the left
+displays a continuous discharge plot for the selected time range, and
+the second tab plots the rating curves used in predicting continuous
+discharge.
 
-Note: All data plotted on this app is sourced from the NEON data portal
-using neonUltilities.
+Note: All data plotted on this app is sourced from the [NEON Data
+Portal](https://data.neonscience.org/home) using the
+[neonUtilities](https://github.com/NEONScience/NEON-utilities) R
+package.
 
 <!-- ****** Usage ****** -->
 
@@ -27,19 +31,22 @@ sites available in the domain.
 
 **Date Range**
 
-Ability to specify date ranges for which data is to be visualized
+Ability to specify date ranges for which data is to be visualized.
 
 **Quality Flag Viewer**
 
 Functionality for toggling between Final Review quality flags, Science
-Review quality flags before or after clicking the submit button.
+Review quality flags before or after clicking the submit button. When
+activated, the quality flags will be rendered as a shaded backround on
+the continuous discharge plot spanning the flagged time range.
 
--   Discharge final quality flag indicating whether a data product has
-    passed or failed an overall assessment of its quality; detailed in
-    ATBD.
+“Include Final Quality Flag” = Discharge final quality flag indicating
+whether a data product has passed or failed an overall assessment of its
+quality; detailed in ATBD.
 
--   Discharge final quality flag indicating whether a data product has
-    failed a science review of its quality detailed in NEON.DOC.001113.
+“Include Science Review Quality Flag” = Discharge final quality flag
+indicating whether a data product has failed a science review of its
+quality detailed in NEON.DOC.001113.
 
 ## App Outpus
 
@@ -47,27 +54,27 @@ Review quality flags before or after clicking the submit button.
 
 Contains a hyperlink of user selected site description hosted on [The
 NEON
-WEBSITE](https://www.neonscience.org/field-sites/explore-field-sites)
+Website](https://www.neonscience.org/field-sites/explore-field-sites)
 
 **Metadata Table**
 
 The metaData table Contains some key variables associated with the
 selected Site ID.
 
--   Upstream watershed area (km^2): The area (km2) of land that drains
+  - Upstream watershed area (km^2): The area (km2) of land that drains
     water into the aquatic site.
 
--   Reach slope (m): The gradient (m) of the stream bed from the
+  - Reach slope (m): The gradient (m) of the stream bed from the
     upstream to downstream reach boundary of the aquatic site. Slope is
     measured using a total station during topographic site surveys.
 
--   Mean bankfull width (m): The mean bankfull width (m) of the channel
+  - Mean bankfull width (m): The mean bankfull width (m) of the channel
     measured with total station instruments at transects located
     throughout the monitoring reach. At bankfull stage water is just
     beginning to spill out of the channel and into the floodplain.
     Bankfull flows typically occur at 1.5-year recurrence intervals.
 
--   D50 particle size(mm): The diameter (mm) of bed substrate
+  - D50 particle size(mm): The diameter (mm) of bed substrate
     corresponding to 50% finer in the particle-size distribution.
     Substrate is measured throughout the monitoring reach using
     200-point pebble count methods.
@@ -76,38 +83,72 @@ selected Site ID.
 
 The continuous Discharge graph represents the predicted continuous
 discharge from sensor-based surface water pressure and stage-discharge.
+
+The plot includes:
+
+  - Continuous discharge (black line)
+
+  - Discharge uncertainty (red and pink ribbons)
+
+  - Empirical discharge (purple points)
+
+  - Continuous stage (blue line)
+
+  - Stage uncertainty (light blue ribbon)
+
+  - Empirical stage (orange points)
+
 User can perform the following on this graph:
 
--   Zoom in an out of graphs by right-click the section they what to
-    view and dragging the mouse to a any stop.
+  - Zoom in an out of graphs by right-click the section they what to
+    view and dragging the mouse to a any stop
 
--   Toggle lines and data points on the graph ON an OFF by clicking
-    their on their representation in the legend
+  - Toggle legend attributes on the graph ON and OFF by clicking their
+    on their representation in the legend
 
--   Change scales between linear and log by clicking either buttons
+  - Change discharge scales between linear and log by clicking either
+    buttons
 
--   Switch tabs to view the rating curve plot
+  - Switch tabs to view the rating curve plot
 
 **Stage-Discharge Rating Curve(s) Plot**
 
-The rating curve graph plots the relationship between Stage and
-Discharge. User can perform the following on this graph:
+The rating curve graph plots the relationship between stage and
+discharge.
 
--   Zoom in an out of graphs by right-click the section they what to
-    view and dragging the mouse to a any stop.
+The plot includes:
 
--   Toggle lines and data points on the graph ON an OFF by clicking
-    their on their representation in the legend.
+  - Posterior rating curve (black line)
 
--   Change scales between linear and log by clicking either buttons.
+  - Empirical stage-discharge pairs (black points)
 
--   Switch tabs to view the continuous discharge plot.
+  - Rating curve uncertainty (red and pink ribbons)
+
+User can perform the following on this graph:
+
+  - Zoom in an out of graphs by right-click the section they what to
+    view and dragging the mouse to a any stop
+
+  - Toggle legend attributes on the graph ON and OFF by clicking their
+    on their representation in the legend
+
+  - Change discharge scales between linear and log by clicking either
+    buttons
+
+  - Switch tabs to view the continuous discharge plot
 
 <!-- ****** Acknowledgements ****** -->
 
 ## Credits & Acknowledgements
 
+Authors:
+
+Divine Aseaku - email: <divineaseaku@gmail.com>
+
+Zachary L. Nickerson - email: <nickerson@battelleecology.org>
+
 <!-- HTML tags to produce image, resize, add hyperlink. -->
+
 <!-- ONLY WORKS WITH HTML or GITHUB documents -->
 
 <a href="http://www.neonscience.org/">

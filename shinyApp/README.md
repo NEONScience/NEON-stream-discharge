@@ -64,7 +64,11 @@ dependencies = TRUE, force = TRUE)`
 
 ## Credits & Acknowledgements
 
-Authors: Divine Aseaku, Zachary L. Nickerson
+Authors:
+
+Divine Aseaku - email: <divineaseaku@gmail.com>
+
+Zachary L. Nickerson - email: <nickerson@battelleecology.org>
 
 <!-- HTML tags to produce image, resize, add hyperlink. -->
 

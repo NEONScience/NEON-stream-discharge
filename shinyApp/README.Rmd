@@ -45,7 +45,12 @@ To install the stageQCurve package, you may also need to install the [geoNEON](h
 
 <!-- ****** Acknowledgements ****** -->
 ## Credits & Acknowledgements
-Authors: Divine Aseaku, Zachary L. Nickerson
+
+Authors:
+
+Divine Aseaku - email: divineaseaku@gmail.com
+
+Zachary L. Nickerson - email: nickerson@battelleecology.org
 
 <!-- HTML tags to produce image, resize, add hyperlink. -->
 <!-- ONLY WORKS WITH HTML or GITHUB documents -->
