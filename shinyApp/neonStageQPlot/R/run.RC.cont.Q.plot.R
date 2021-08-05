@@ -27,7 +27,7 @@ run.RC.cont.Q.plot <-function(){
 
   # Read in refernce table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
-  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
+  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -349,7 +349,7 @@ run.RC.cont.Q.plot <-function(){
 
       # Get the data for plotting
       utils::download.file(
-        "https://raw.githubusercontent.com/divineaseaku/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds",
+        "https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds",
         "rcPlottingData.rds",
         method = "curl"
       )
