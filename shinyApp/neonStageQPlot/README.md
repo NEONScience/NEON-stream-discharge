@@ -17,7 +17,7 @@ Ability to specify date ranges for which data is to be visualized
 
 **Quality Flag Viewer**
 
-Functionality for toggling  between Final Review quality flags, Science Review quality flags before or afer clicking the submit button.
+Functionality for toggling  between Final Review quality flags, Science Review quality flags before or after clicking the submit button.
 
 ## App Outpus
 
@@ -27,11 +27,11 @@ Contains a hyperlink of user selected site description hosted on neeonscience.or
 
 **Metadata Table**
 
-Conatains some  key data assocaited with the  selected Site ID.
+The metaData table Contains some  key variables and their  associated with the  selected Site ID.
 
 Upstream watershed area (km^2):	The area (km2) of land that drains water into the aquatic site. 
 
-Reach slope (m): 	The gradient (m) of the streambed from the upstream to downstream reach boundary of the aquatic site.
+Reach slope (m): 	The gradient (m) of the stream bed from the upstream to downstream reach boundary of the aquatic site.
 Slope is measured using a total station during topographic site surveys. 
 
 Mean bankfull width (m):	The mean bankfull width (m) of the channel measured with total station instruments at transects located throughout the monitoring reach.  At bankfull stage water is just beginning to spill out of the channel and into the floodplain.  Bankfull flows typically occur at 1.5-year recurrence intervals.  
