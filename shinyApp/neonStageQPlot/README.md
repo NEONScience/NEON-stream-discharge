@@ -2,7 +2,12 @@ NEON Stage-Discharge Rating Curve & Continuous Discharge Shiny App
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 <!-- ****** Description ****** -->
+
+*ZLNnote, ADD A DESCRIPTION OF THE APP HERE - LIKE THE FIRST FEW SLIDES
+OF YOUR POWERPOINT FROM EARLIER THIS WEEK*
+
 <!-- ****** Usage ****** -->
 
 ## User Inputs
@@ -21,6 +26,10 @@ Ability to specify date ranges for which data is to be visualized
 Functionality for toggling between Final Review quality flags, Science
 Review quality flags before or after clicking the submit button.
 
+*ZLNnote, Define these two quality flags - you can find the definitions
+in the variables files when you download DP4.00130.001 data using
+neonUtilities*
+
 ## App Outpus
 
 **Site Description**
@@ -28,10 +37,14 @@ Review quality flags before or after clicking the submit button.
 Contains a hyperlink of user selected site description hosted on
 neeonscience.org
 
+*ZLNnote, Replace the url above with a hyperlink to
+<https://www.neonscience.org/field-sites/explore-field-sites> - give the
+hyperlink a title of “The NEON Website”*
+
 **Metadata Table**
 
-The metaData table Contains some key variables and their associated with
-the selected Site ID.
+The metaData table Contains some key variables associated with the
+selected Site ID.
 
 Upstream watershed area (km^2): The area (km2) of land that drains water
 into the aquatic site.
@@ -50,21 +63,32 @@ D50 particle size(mm): The diameter (mm) of bed substrate corresponding
 to 50% finer in the particle-size distribution. Substrate is measured
 throughout the monitoring reach using 200-point pebble count methods.
 
+*ZLNnote, Make this in to a bullet point list - look up how to do
+bullets in R Markdown*
+
 **Continuous Discharge Plot**
 
 The continuous Discharge graph represents the predicted continuous
 discharge from sensor-based surface water pressure and stage-discharge.
+
+\_\\emph{*ZLNnote, You should exaplain more about the functionality of
+the plot like you did in the demo presentation - describe the legenend,
+talk about the interactivness (zooming, scrolling, toggling legend),
+describe the linear/log y-axis options*
 
 **Stage-Discharge Rating Curve(s) Plot**
 
 The rating curve graph plots the relationship between Stage and
 Discharge
 
+*ZLNnote, same comment as above*
+
 <!-- ****** Acknowledgements ****** -->
 
 ## Credits & Acknowledgements
 
 <!-- HTML tags to produce image, resize, add hyperlink. -->
+
 <!-- ONLY WORKS WITH HTML or GITHUB documents -->
 
 <a href="http://www.neonscience.org/">
