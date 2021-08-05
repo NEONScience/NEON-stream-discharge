@@ -14,7 +14,12 @@ knitr::opts_chunk$set(
 
 ```
 <!-- ****** Description ****** -->
-_ZLNnote, ADD A DESCRIPTION OF THE APP HERE - LIKE THE FIRST FEW SLIDES OF YOUR POWERPOINT FROM EARLIER THIS WEEK_
+
+This interactive app plots continuous discharge, Stage discharge and rating- curve(s) using language R.
+in the left section, users can input a domain ID, site ID and date range for  which they want data plotted.Users can include quality flags in the continuous discharge plot before or after clicking sum
+Graphs are render in the right section after user click the submit button. The first tab from the left displays a continuous discharge plots at a 20mins time interval, and the second tab plots rating curves for user selected site ID
+
+Note: All data plotted on this app is sourced from the  NEON data portal using neonUltilities.
 
 <!-- ****** Usage ****** -->
 ## User Inputs
@@ -30,43 +35,48 @@ Ability to specify date ranges for which data is to be visualized
 **Quality Flag Viewer**
 
 Functionality for toggling  between Final Review quality flags, Science Review quality flags before or after clicking the submit button.
-
-_ZLNnote, Define these two quality flags - you can find the definitions in the variables files when you download DP4.00130.001 data using neonUtilities_
+The final quality flags is assigned via an algorithm in the processing code 
+The science review QF is assigned by an HQ scientist when data anomalies are found 
 
 ## App Outpus
 
 **Site Description**
 
-Contains a hyperlink of user selected site description hosted on neeonscience.org
-
-_ZLNnote, Replace the url above with a hyperlink to https://www.neonscience.org/field-sites/explore-field-sites - give the hyperlink a title of "The NEON Website"_
+Contains a hyperlink of user selected site description hosted on [The NEON WEBSITE](https://www.neonscience.org/field-sites/explore-field-sites)
 
 **Metadata Table**
 
 The metaData table Contains some  key variables associated with the  selected Site ID.
 
-Upstream watershed area (km^2):	The area (km2) of land that drains water into the aquatic site. 
+* Upstream watershed area (km^2):	The area (km2) of land that drains water into the aquatic site. 
 
-Reach slope (m): 	The gradient (m) of the stream bed from the upstream to downstream reach boundary of the aquatic site.
+* Reach slope (m): 	The gradient (m) of the stream bed from the upstream to downstream reach boundary of the aquatic site.
 Slope is measured using a total station during topographic site surveys. 
 
-Mean bankfull width (m):	The mean bankfull width (m) of the channel measured with total station instruments at transects located throughout the monitoring reach.  At bankfull stage water is just beginning to spill out of the channel and into the floodplain.  Bankfull flows typically occur at 1.5-year recurrence intervals.  
+* Mean bankfull width (m):	The mean bankfull width (m) of the channel measured with total station instruments at transects located throughout the monitoring reach.  At bankfull stage water is just beginning to spill out of the channel and into the floodplain.  Bankfull flows typically occur at 1.5-year recurrence intervals.  
 
-D50 particle size(mm):	The diameter (mm) of bed substrate corresponding to 50% finer in the particle-size distribution.   Substrate is measured throughout the monitoring reach using 200-point pebble count methods.  
+* D50 particle size(mm):	The diameter (mm) of bed substrate corresponding to 50% finer in the particle-size distribution.   Substrate is measured throughout the monitoring reach using 200-point pebble count methods.  
 
-_ZLNnote, Make this in to a bullet point list - look up how to do bullets in R Markdown_
+
 
 **Continuous Discharge Plot**
 
 The continuous Discharge graph represents the  predicted continuous discharge from sensor-based surface water pressure and stage-discharge.
-
-_\emph{\color{red}_ZLNnote, You should exaplain more about the functionality of the plot like you did in the demo presentation - describe the legenend, talk about the interactivness (zooming, scrolling, toggling legend), describe the linear/log y-axis options_
+User can perform the following on this graph:
+* Zoom in an out of graphs by right-click the section they what to view and dragging the mouse to a any stop.
+* Toggle lines and data points on the graph ON an OFF by clicking their on their representation in the legend
+* Change scales between linear and log by clicking either buttons
+* Switch tabs to view the rating curve plot
 
 **Stage-Discharge Rating Curve(s) Plot**
 
-The rating curve graph plots the relationship between  Stage and Discharge
+The rating curve graph plots the relationship between  Stage and Discharge.
+User can perform the following on this graph:
+* Zoom in an out of graphs by right-click the section they what to view and dragging the mouse to a any stop.
+* Toggle lines and data points on the graph ON an OFF by clicking their on their representation in the legend
+* Change scales between linear and log by clicking either buttons
+* Switch tabs to view the continuous discharge plot
 
-_ZLNnote, same comment as above_
 
 <!-- ****** Acknowledgements ****** -->
 ## Credits & Acknowledgements
