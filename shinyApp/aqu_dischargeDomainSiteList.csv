@@ -1,0 +1,30 @@
+domain,siteID,siteType,upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM
+D01,HOPB,stream,12,0.03,8.1,68
+D02,LEWI,stream,12,0.01,5.27,< 2
+D02,POSE,stream,2,0.03,4.34,14
+D03,FLNT,river,14999,NA,NA,NA
+D04,GUIL,stream,10,0.02,11.96,48
+D04,CUPE,stream,4,0.03,8.74,47
+D06,KING,stream,13,0.0004,7.06,27
+D06,MCDI,stream,23,0.01,21.09,53
+D07,LECO,stream,9,0.06,8.5,77
+D07,WALK,stream,1,0.03,3.46,27
+D08,BLWA,river,16159,NA,NA,NA
+D08,TOMB,river,47085,NA,NA,NA
+D08,MAYF,stream,14,0,5.48,NA
+D10,ARIK,stream,2632,0,5.76,< 2
+D11,PRIN,stream,49,0,7.19,< 2
+D11,BLUE,stream,322,0,32.04,32
+D12,BLDE,stream,38,0.02,6.15,28
+D13,COMO,stream,4,0.09,6.26,27
+D13,WLOU,stream,5,0.05,2.73,38
+D14,SYCA,stream,280,0.01,9.89,< 2
+D15,REDB,stream,17,0.04,3.23,10
+D16,MART,stream,6,0.03,8.97,47
+D16,MCRA,stream,4,0.07,6.46,117
+D17,TECR,stream,3,NA,NA,NA
+D17,BIGC,stream,11,0,6.21,2
+D18,TOOK_inlet,lake,67.6,0.01,10.56,NA
+D18,TOOK_outlet,lake,67.6,0.01,21.53,NA
+D18,OKSR,stream,58,NA,NA,NA
+D19,CARI,stream,31,0.01,3.64,40
