@@ -4,23 +4,15 @@
 \alias{def.calc.Q.slug}
 \title{Salt-based discharge calculations for a slug injection}
 \usage{
-def.calc.Q.slug(inputFile, slugMass = inputFile$slugTracerMass,
-  slugVol = inputFile$carboyVolume, dataDir = paste0(getwd(),
-  "/NEON_discharge-stream-saltbased.zip"), site = "all")
+def.calc.Q.slug(inputFile, conductivityData)
 }
 \arguments{
 \item{inputFile}{Name of the data fram containing the information needed to calculate 
 discharge from a slug tracer injection. If the headers are named: "slugMass" and 
 "slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. 
-Otherwise, the names of the columns need to be input for the function to work.}
+Otherwise, the names of the columns need to be input for the function to work. [dataframe]}
 
-\item{slugMass}{Mass of the tracer injectate [g]}
-
-\item{slugVol}{Volume of the tracer injectate [L]}
-
-\item{dataDir}{User identifies the directory that contains the zipped data}
-
-\item{site}{User identifies the site(s), defaults to "all" [string]}
+\item{conductivityData}{Conductivity timeseries data for bouts in the inputFile [dataframe]}
 }
 \value{
 This function returns stream discharge [lps] appended as an additional column 
