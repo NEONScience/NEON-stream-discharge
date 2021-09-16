@@ -1,6 +1,6 @@
 Package: neonStageQplot
 Type: Package
-Title:Continues discharge,Stage discharge and RSating curve(s) plots
+Title: Continues discharge,Stage discharge and RSating curve(s) plots
 Version: 1.0.0
 Author: Divine Aseaku and Zach Nickerson
 Maintainer: The package maintainer <yourself@somewhere.net>
@@ -21,4 +21,4 @@ Depends:
 License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

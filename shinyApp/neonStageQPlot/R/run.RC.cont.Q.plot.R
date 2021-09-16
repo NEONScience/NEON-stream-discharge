@@ -92,23 +92,25 @@ run.RC.cont.Q.plot <-function(){
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
-      # Create site description output
-      siteURL <- paste0("https://www.neonscience.org/field-sites/",tolower(isolate(input$siteId)))
-      url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
-      output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
-
       # # Manually set input variables for local testing - comment out when running app
-      # input <- list()
-      # input$siteId <- "CARI"
-      # input$dateRange[[1]] <- "2019-01-01"
-      # input$dateRange[[2]] <- "2019-12-31"
+      # input <- base::list()
+      # input$siteId <- "COMO"
+      # input$dateRange[[1]] <- "2021-08-01"
+      # input$dateRange[[2]] <- "2021-09-30"
 
-      # Set variables for app running (special consideration for TOOK)
+      # Set site variables (special considerations for TOOK)
       if (stringr::str_detect(input$siteId,"TOOK")) {
         site <- "TOOK"
       }else{
         site <- input$siteId
       }
+
+      # Create site description output
+      siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(site))
+      url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
+      output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
+
+      # Set date variables for app running (special consideration for TOOK)
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
@@ -144,9 +146,10 @@ run.RC.cont.Q.plot <-function(){
           dpID="DP4.00133.001",
           package = "basic",
           check.size = F,
-          site = site,
-          startdate = searchIntervalStartDate,
-          enddate = searchIntervalEndDate)
+          site = site
+          # startdate = searchIntervalStartDate,
+          # enddate = searchIntervalEndDate
+          )
 
         #updating progress bar
         shiny::incProgress(amount = 0.33,
@@ -339,6 +342,8 @@ run.RC.cont.Q.plot <-function(){
         plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=F,legendgroup='group7')%>%
         plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7')
     })# End plot1
+
+    # method
 
     # Plotting rating curve(s) with uncertainty
     output$plot2 <- plotly::renderPlotly({
