@@ -2,7 +2,6 @@ NEON Stream Discharge Repo
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- ****** Description ****** -->
 
 This repository is for code related to the NEON discharge data products:
@@ -32,12 +31,17 @@ run the BaM executable in a Docker container that should allow the R
 scripts and executable to run regradless of operating system as long as
 the user has Docker (<https://www.docker.com/>) installed.
 
+The /shinyApp/ folder contains the R package, **neonStageQPlot**. When
+run, the function will launch a shiny app that downloads Continuous
+discharge (NEON.DP4.00130.001) and Stage-discharge rating curves
+(NEON.DP4.00133.001) data products from the NEON Data Portal, and plots
+the data in an interactive HTML format.
+
 <!-- ****** Acknowledgements ****** -->
 
 ## Credits & Acknowledgements
 
 <!-- HTML tags to produce image, resize, add hyperlink. -->
-
 <!-- ONLY WORKS WITH HTML or GITHUB documents -->
 
 <a href="http://www.neonscience.org/">

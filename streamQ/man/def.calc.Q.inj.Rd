@@ -4,13 +4,16 @@
 \alias{def.calc.Q.inj}
 \title{Salt-based discharge calculations for a constant rate injection}
 \usage{
-def.calc.Q.inj(inputFile, injRate = inputFile$injRate,
+def.calc.Q.inj(
+  inputFile,
+  injRate = inputFile$injRate,
   injConc = inputFile$injConc,
   backgroundConc = inputFile$backgroundConc,
-  plateauConc = inputFile$plateauConc)
+  plateauConc = inputFile$plateauConc
+)
 }
 \arguments{
-\item{inputFile}{Name of the data fram containing the information needed to calculate stream discharge from a constant-rate injection. If the headers are named: "injRate", "injConc", "backgroundConc", and "plateauConc", no other inputs are required. Otherwise, the names of the columns need to be input for the function to work.}
+\item{inputFile}{Name of the data frame containing the information needed to calculate stream discharge from a constant-rate injection. If the headers are named: "injRate", "injConc", "backgroundConc", and "plateauConc", no other inputs are required. Otherwise, the names of the columns need to be input for the function to work.}
 
 \item{injRate}{Flow rate of tracer injection [mL/min]}
 

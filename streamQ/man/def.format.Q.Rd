@@ -4,32 +4,45 @@
 \alias{def.format.Q}
 \title{Stream discharge formatting}
 \usage{
-def.format.Q(dataDir = paste0(getwd(),
-  "/NEON_discharge-stream-saltbased.zip"), site = "all")
+def.format.Q(
+  backgroundFieldCondData = NULL,
+  backgroundDataSalt = NULL,
+  fieldDataSite = NULL,
+  plateauDataCond = NULL,
+  plateauDataSalt = NULL,
+  externalLabDataSalt = NULL
+)
 }
 \arguments{
-\item{dataDir}{User identifies the directory that contains the zipped data}
+\item{backgroundFieldCondData}{Field data for conductivity timeseries, from 
+sbd_backgroundFieldCondData table for NEON data [dataframe]}
 
-\item{site}{User identifies the site(s), defaults to "all" [string]}
+\item{backgroundDataSalt}{Field data with background conductivity data, from 
+sbd_backgroundFieldCondData table for NEON data [dataframe]}
+
+\item{fieldDataSite}{Field data with experiment type information, from sbd_fieldData 
+table for NEON data [dataframe]}
+
+\item{plateauDataCond}{Field data with plateau conductivity data, from 
+sbd_plateauMeasurementFieldData table for NEON data [dataframe]}
+
+\item{plateauDataSalt}{Field data for salt sample data, from sbd_plateauSampleFieldData 
+table for NEON data [dataframe]}
+
+\item{externalLabDataSalt}{External lab data for injectate, background, and plateau, from 
+sbd_externalLabDataSalt table for NEON data [dataframe]}
 }
 \value{
 This function returns one data frame formatted for use with def.calc.Q.slug.R 
 and def.calc.Q.constantRate.R to calculate stream discharge
 }
 \description{
-This function reads in and formats data from the NEON Salt-based Discharge 
-data product to calculate stream discharge from slug and constant-rate injection. 
-No need to unzip the downloaded files, just place them all in the smae directory.
+This function formats data from the NEON Salt-based discharge (DP1.20193.001)
+data product to calculate stream discharge from slug and constant-rate injections.
 }
 \examples{
-#where the data .zip file is in the working directory and has the default name, 
-#sbdFormatted <- def.format.Q()
-#where the data.zip file is in the downloads folder and has default name, 
-#sbdFormatted <- def.format.Q(dataDir = path.expand("~/NEON_discharge-stream-saltbased.zip"))
-#where the data.zip file is in the downloads folder and has a specified name,
-#sbdFormatted <- def.format.Q(dataDir = path.expand("~/Downloads/non-standard-name.zip"))
 #Using the example data in this package
-#dataDirectory <- paste(path.package("neonStreamQ"),"inst\\\\extdata", sep = "\\\\")
+#dataDirectory <- paste(path.package("neonStreamQ"),"inst\\extdata", sep = "\\")
 #sbdFormatted <- def.format.Q(dataDir = dataDirectory)
 }
 \references{
