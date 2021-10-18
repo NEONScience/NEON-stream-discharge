@@ -36,68 +36,31 @@ sbd_plateauDataCondIn <- qInputList$sbd_plateauMeasurementFieldData
 sbd_plateauDataSaltIn <- qInputList$sbd_plateauSampleFieldData
 sbd_externalLabDataSaltIn <- qInputList$sbd_externalLabDataSalt
 
-#ARIK testing
-backgroundDataLogger = sbd_backgroundFieldCondDataIn
-fieldDataSite = sbd_fieldDataIn
-backgroundDataSalt = NULL
-plateauDataCond = NULL
-plateauDataSalt = NULL
-externalLabDataSalt = NULL
-processingInfo = NULL
+# #ARIK testing
+# backgroundFieldCondData = sbd_backgroundFieldCondDataIn
+# fieldDataSite = sbd_fieldDataIn
+# backgroundDataSalt = NULL
+# plateauDataCond = NULL
+# plateauDataSalt = NULL
+# externalLabDataSalt = NULL
+# processingInfo = NULL
+# 
+# plateauDataCond = sbd_plateauDataCondIn
+# plateauDataSalt = sbd_plateauDataSaltIn
+# externalLabDataSalt = sbd_externalLabDataSaltIn
 
 
-
-plateauDataCond = sbd_plateauDataCondIn
-plateauDataSalt = sbd_plateauDataSaltIn
-externalLabDataSalt = sbd_externalLabDataSaltIn
-
-
-sbdFormatted <- streamQ::def.format.Q(backgroundDataLogger = sbd_backgroundFieldCondDataIn,
+sbdFormatted <- streamQ::def.format.Q(backgroundFieldCondData = sbd_backgroundFieldCondDataIn,
                                       backgroundDataSalt = NULL,
                                       fieldDataSite = sbd_fieldDataIn,
                                       plateauDataCond = NULL,
                                       plateauDataSalt = NULL,
                                       externalLabDataSalt = NULL)
 
-inputFile = sbdFormatted
-conductivityData = sbd_conductivityFieldDataIn
+# inputFile = sbdFormatted
+# conductivityData = sbd_conductivityFieldDataIn
 
 dscSlug <- streamQ::def.calc.Q.slug(inputFile = sbdFormatted,
                                     conductivityData = sbd_conductivityFieldDataIn)
 
 
-# inputFile = reaFormatted
-# loggerData = reaInputList$rea_conductivityFieldData
-# namedLocation = "namedLocation"
-# injectionTypeName = "injectionType"
-# eventID = "eventID"
-# stationToInjectionDistance = "stationToInjectionDistance"
-# plateauGasConc = "plateauGasConc"
-# corrPlatSaltConc = "corrPlatSaltConc"
-# hoboSampleID = "hoboSampleID"
-# discharge = "fieldDischarge"
-# waterTemp = "waterTemp"
-# wettedWidth = "wettedWidth"
-# plot = TRUE
-# savePlotPath = NULL
-# processingInfo = NULL
-
-reaRatesCalc <- reaRate::def.calc.reaeration(inputFile = reaFormatted,
-                                             loggerData = reaInputList$rea_conductivityFieldData,
-                                             namedLocation = "namedLocation",
-                                             injectionTypeName = "injectionType",
-                                             eventID = "eventID",
-                                             stationToInjectionDistance = "stationToInjectionDistance",
-                                             plateauGasConc = "plateauGasConc",
-                                             corrPlatSaltConc = "corrPlatSaltConc",
-                                             hoboSampleID = "hoboSampleID",
-                                             discharge = "fieldDischarge",
-                                             waterTemp = "waterTemp",
-                                             wettedWidth = "wettedWidth",
-                                             plot = TRUE,
-                                             savePlotPath = NULL,
-                                             processingInfo = NULL)
-
-outputDF <- reaRatesCalc$outputDF
-outputDFClean <- outputDF[outputDF$k600 > 0,]
-plot(outputDFClean$meanQ, outputDFClean$k600)
