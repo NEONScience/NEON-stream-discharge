@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: person("Kaelin", "Cawley", email = "kcawley@battelleecology.org", role = c("aut", "cre"))
 Description: The stageQCurve package can be used for calculating a stage-discharge rating curve using the same procedure described in NEON User Guide to Stream Discharge Rating Curve, revision A. Briefly, the NEON stage-discharge rating curve is developed using a Bayesian modeling technique developed by the Bayesian Rating Curve Advanced Graphical Environment (BaRatinAGE) development team (Le Coz et al., 2013; Le Coz et al., 2014). The executable and/or a GUI is available freely with an individual license by sending an email to: baratin.dev@lists.irstea.fr.
 Depends: R (>= 3.4.3),neonUtilities,geoNEON
-Remotes: NEONScience/NEON-utilities/neonUtilities
+Remotes: NEONScience/NEON-geolocation/geoNEON
 License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
