@@ -31,13 +31,13 @@ library(plotly)
 siteID <- "BLUE"
 domainID <- "D11"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D11_BLUE_20190918_weir"
+filepath <- "N:/Science/AQU/Controls/D11_BLUE_20190918_WY19-20"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
-dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
-neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
-neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
+# dataFromAPI <- neonUtilities::zipsByProduct(streamMorphoDPID,siteID,package="expanded",check.size=FALSE,savepath = filepath)
+# neonUtilities::stackByTable(filepath=paste(filepath,"filesToStack00131",sep = "/"), folder = TRUE)
+# neonUtilities::zipsByURI(filepath=URIpath, savepath = URIpath, pick.files=FALSE, unzip = TRUE, check.size = FALSE)
 
 #Read in downloaded data
 surveyPtsDF <- read.table(paste0(URIpath,"/D11_BLUE_surveyPts_20190918.CSV"),
@@ -49,10 +49,10 @@ surveyPtsDF <- read.table(paste0(URIpath,"/D11_BLUE_surveyPts_20190918.CSV"),
 surveyDate<-'20190918' 
 
 #The date when this survey applies to the gauging record
-surveyActiveDate <- "2019-08-10" #Date when dam was constructed
+surveyActiveDate <- "2019-08-11" #This is the second set of controls created from this survey
 
 #Stipulate 4-digit site code, underscore, and survey year (ex: HOPB_2017)
-surveyID <- "BLUE_2019" 
+surveyID <- "BLUE_2020"  #These controls will be used for WY2020 rating curve 
 
 #Creates dataframe of all points associated with transect DSC1.
 names(surveyPtsDF) <- c("name","latitude","Longitude","northing","easting","elevation","mapCode","E","N","H")
@@ -213,20 +213,20 @@ geo_controlType_in$controlNumber <- 1:numControls
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
 geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LEW2"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS23"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS33"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 #Entries for Control #2
 geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
 geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS2"]
-geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_REW"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS33"]
 geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
 geo_controlType_in$rectangularWidthUnc[2] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
 #Entries for Control #3
 geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_REW"]
-geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RB_PIN2"]
+geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS33"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_RBF"]
 geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
 geo_controlType_in$rectangularWidthUnc[3] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
@@ -293,14 +293,14 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS14"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_THL"]
+geo_priorParameters_in$priorActivationStageUnc[1] <- 0.3 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS12"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_50D"]
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.3 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
-geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS32"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS34"]
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.5 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$locationID <- siteID
 geo_priorParameters_in$startDate <- surveyActiveDate

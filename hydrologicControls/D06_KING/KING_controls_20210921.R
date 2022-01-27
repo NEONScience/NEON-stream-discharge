@@ -226,8 +226,8 @@ geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
 geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS40"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_XS25"]
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_REW"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "DSC_LEW"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
 geo_controlType_in$rectangularWidthUnc[1] <- 1.0 #Combined uncertainty associated with survey and where actual control begins (1.0 m default)
 
@@ -325,11 +325,11 @@ names(geo_priorParameters_in) <- c("locationID",
 geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS35"]
 geo_priorParameters_in$priorActivationStageUnc[1] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
-geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS42"]
-geo_priorParameters_in$priorActivationStageUnc[2] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS49"]
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.3 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS67"]
-geo_priorParameters_in$priorActivationStageUnc[3] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
+geo_priorParameters_in$priorActivationStageUnc[3] <- 0.3 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)
 
 geo_priorParameters_in$priorActivationStage[4] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "DSC_XS14"]
 geo_priorParameters_in$priorActivationStageUnc[4] <- 0.1 # Combined uncertainty associated with survey and actual activation stage (0.1 m default)

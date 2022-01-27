@@ -31,7 +31,7 @@ library(plotly)
 siteID <- "BLUE"
 domainID <- "D11"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D11_BLUE_20190918_weir3"
+filepath <- "N:/Science/AQU/Controls/D11_BLUE_20190918_WY18-19"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from API and store somewhere
