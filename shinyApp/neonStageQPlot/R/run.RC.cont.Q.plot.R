@@ -7,7 +7,9 @@
 #' Divine Aseaku \email{divineaseaku@gmail.com} \cr
 #' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
-#' @description  An interactive app which  plots continuous discharge, Stage discharge and rating- curves using language R Data is downloaded from the NEON data portal using neonUltilities and ploting is done at 20mins time interval
+#' @description  An interactive app which  plots continuous discharge, Stage discharge and
+#' rating curves using language R Data is downloaded from the NEON data portal using
+#' neonUltilities and ploting is done at 20mins time interval
 
 #' @return This function launches a shiny app to interactively plot published NEON data
 
@@ -17,8 +19,12 @@
 #' @export run.RC.cont.Q.plot
 
 # changelog and author contributions / copyrights
-#   YOUR NAME (YYYY-MM-DD)
+#   Divine Aseaku (2021-08-04)
 #     original creation
+#   Zachary L. Nickerson (2021-09-16)
+#     updates for plotting provisional 2021 data and TOOK inlet and outlet
+#   Zachary L. Nickerson (2022-02-04)
+#     updates for plotting TOMB-USGS discharge data
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)
@@ -94,9 +100,9 @@ run.RC.cont.Q.plot <-function(){
 
       # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
-      # input$siteId <- "COMO"
-      # input$dateRange[[1]] <- "2021-08-01"
-      # input$dateRange[[2]] <- "2021-09-30"
+      # input$siteId <- "TOMB"
+      # input$dateRange[[1]] <- "2020-01-01"
+      # input$dateRange[[2]] <- "2020-03-31"
 
       # Set site variables (special considerations for TOOK)
       if (stringr::str_detect(input$siteId,"TOOK")) {
@@ -142,14 +148,16 @@ run.RC.cont.Q.plot <-function(){
         base::Sys.sleep(0.25)
 
         # Get rating curve data from the NEON API
-        DP4.00133.001 <- neonUtilities::loadByProduct(
-          dpID="DP4.00133.001",
-          package = "basic",
-          check.size = F,
-          site = site
-          # startdate = searchIntervalStartDate,
-          # enddate = searchIntervalEndDate
+        if(site!="TOMB"){
+          DP4.00133.001 <- neonUtilities::loadByProduct(
+            dpID="DP4.00133.001",
+            package = "basic",
+            check.size = F,
+            site = site
+            # startdate = searchIntervalStartDate,
+            # enddate = searchIntervalEndDate
           )
+        }
 
         #updating progress bar
         shiny::incProgress(amount = 0.33,
@@ -159,92 +167,118 @@ run.RC.cont.Q.plot <-function(){
         base::Sys.sleep(0.25)
 
         # Format gauge-discharge measurement data
-        sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
-        if (input$siteId=="TOOK_inlet") {
-          sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
-            dplyr::filter(stringr::str_detect(curveID,"TKIN"))
-        }else{
-          if(input$siteId=="TOOK_outlet"){
+        if(site!="TOMB"){
+          sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
+          if (input$siteId=="TOOK_inlet") {
             sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
-              dplyr::filter(stringr::str_detect(curveID,"TKOT"))
+              dplyr::filter(stringr::str_detect(curveID,"TKIN"))
+          }else{
+            if(input$siteId=="TOOK_outlet"){
+              sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
+                dplyr::filter(stringr::str_detect(curveID,"TKOT"))
+            }
           }
+          sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
+            tidyr::separate(gaugeEventID,c("site","date"),5,remove = F)%>%
+            dplyr::mutate(date=base::paste0(base::as.Date(date,format="%Y%m%d")," 20:00:00"))%>%
+            dplyr::select(date,gaugeHeight,streamDischarge)
+          sdrc_gaugeDischargeMeas$date <- base::as.character(sdrc_gaugeDischargeMeas$date)
         }
-        sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
-          tidyr::separate(gaugeEventID,c("site","date"),5,remove = F)%>%
-          dplyr::mutate(date=base::paste0(base::as.Date(date,format="%Y%m%d")," 20:00:00"))%>%
-          dplyr::select(date,gaugeHeight,streamDischarge)
-        sdrc_gaugeDischargeMeas$date <- base::as.character(sdrc_gaugeDischargeMeas$date)
 
         # Format continuous discharge data
-        csd_continuousDischarge <- DP4.00130.001$csd_continuousDischarge
-        csd_continuousDischarge$date <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
-        if (input$siteId=="TOOK_inlet") {
-          csd_continuousDischarge <- csd_continuousDischarge%>%
-            dplyr::filter(stringr::str_detect(curveID,"TKIN"))
-        }else{
-          if(input$siteId=="TOOK_outlet"){
+        if(site!="TOMB"){
+          csd_continuousDischarge <- DP4.00130.001$csd_continuousDischarge
+          csd_continuousDischarge$date <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
+          if (input$siteId=="TOOK_inlet") {
             csd_continuousDischarge <- csd_continuousDischarge%>%
-              dplyr::filter(stringr::str_detect(curveID,"TKOT"))
+              dplyr::filter(stringr::str_detect(curveID,"TKIN"))
+          }else{
+            if(input$siteId=="TOOK_outlet"){
+              csd_continuousDischarge <- csd_continuousDischarge%>%
+                dplyr::filter(stringr::str_detect(curveID,"TKOT"))
+            }
           }
+        }else{
+          csd_continuousDischarge <- DP4.00130.001$csd_continuousDischargeUSGS
+          csd_continuousDischarge$date <- csd_continuousDischarge$endDate
         }
 
         # Format gauge-pressure relationship data
-        sdrc_gaugePressureRelationship <- DP4.00130.001$sdrc_gaugePressureRelationship
-        if(!base::is.null(sdrc_gaugePressureRelationship)){
-          if (input$siteId=="TOOK_inlet") {
-            sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
-              dplyr::filter(stringr::str_detect(regressionID,"TKIN"))
-          }else{
-            if(input$siteId=="TOOK_outlet"){
+        if(site!="TOMB"){
+          sdrc_gaugePressureRelationship <- DP4.00130.001$sdrc_gaugePressureRelationship
+          if(!base::is.null(sdrc_gaugePressureRelationship)){
+            if (input$siteId=="TOOK_inlet") {
               sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
-                dplyr::filter(stringr::str_detect(regressionID,"TKOT"))
+                dplyr::filter(stringr::str_detect(regressionID,"TKIN"))
+            }else{
+              if(input$siteId=="TOOK_outlet"){
+                sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
+                  dplyr::filter(stringr::str_detect(regressionID,"TKOT"))
+              }
             }
+            sdrc_gaugePressureRelationship$date <- base::paste0(base::as.Date(sdrc_gaugePressureRelationship$gaugeCollectDate)," 20:00:00")
+            sdrc_gaugePressureRelationship$date <- base::as.character(sdrc_gaugePressureRelationship$date)
+            sdrc_gaugePressureRelationship$gauge_Height <- sdrc_gaugePressureRelationship$gaugeHeight
+            sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
+              dplyr::select(gauge_Height, date)
           }
-          sdrc_gaugePressureRelationship$date <- base::paste0(base::as.Date(sdrc_gaugePressureRelationship$gaugeCollectDate)," 20:00:00")
-          sdrc_gaugePressureRelationship$date <- base::as.character(sdrc_gaugePressureRelationship$date)
-          sdrc_gaugePressureRelationship$gauge_Height <- sdrc_gaugePressureRelationship$gaugeHeight
-          sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
-            dplyr::select(gauge_Height, date)
         }
 
-        #creating summary table for variables and  uncertainties to be included
-        continuousDischarge_sum <- csd_continuousDischarge%>%
-          dplyr::group_by(date)%>%
-          dplyr::summarize(meanQ=base::mean(maxpostDischarge,na.rm = T),
-                           meanH=base::mean(equivalentStage,na.rm = T),
-                           meanHUnc=base::mean(stageUnc,na.rm = T),
-                           meanURemnUnc=base::mean(withRemnUncQUpper2Std,na.rm = T),
-                           meanLRemnUnc=base::mean(withRemnUncQLower2Std,na.rm = T),
-                           meanUParaUnc=base::mean(withParaUncQUpper2Std,na.rm = T),
-                           meanLParaUnc=base::mean(withParaUncQLower2Std,na.rm = T),
-                           dischargeFinalQF=base::sum(dischargeFinalQF,na.rm = T),
-                           dischargeFinalQFSciRvw=base::sum(dischargeFinalQFSciRvw,na.rm = T))%>%
-          dplyr::mutate(meanLHUnc=meanH-meanHUnc,
-                        meanUHUnc=meanH+meanHUnc)
-        continuousDischarge_sum$date <- base::as.character(continuousDischarge_sum$date)
+        if(site!="TOMB"){
+          #creating summary table for variables and  uncertainties to be included
+          continuousDischarge_sum <- csd_continuousDischarge%>%
+            dplyr::group_by(date)%>%
+            dplyr::summarize(meanQ=base::mean(maxpostDischarge,na.rm = T),
+                             meanH=base::mean(equivalentStage,na.rm = T),
+                             meanHUnc=base::mean(stageUnc,na.rm = T),
+                             meanURemnUnc=base::mean(withRemnUncQUpper2Std,na.rm = T),
+                             meanLRemnUnc=base::mean(withRemnUncQLower2Std,na.rm = T),
+                             meanUParaUnc=base::mean(withParaUncQUpper2Std,na.rm = T),
+                             meanLParaUnc=base::mean(withParaUncQLower2Std,na.rm = T),
+                             dischargeFinalQF=base::sum(dischargeFinalQF,na.rm = T),
+                             dischargeFinalQFSciRvw=base::sum(dischargeFinalQFSciRvw,na.rm = T))%>%
+            dplyr::mutate(meanLHUnc=meanH-meanHUnc,
+                          meanUHUnc=meanH+meanHUnc)
+          continuousDischarge_sum$date <- base::as.character(continuousDischarge_sum$date)
 
-        # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
-        continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF<4] <- 0
-        continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
-        continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw<4] <- 0
-        continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
+          # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
+          continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF<4] <- 0
+          continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
+          continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw<4] <- 0
+          continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
 
-        #joining gauge discharge vars to continuous summary table
-        continuousDischarge_sum <- dplyr::full_join(continuousDischarge_sum, sdrc_gaugeDischargeMeas, by="date")
+          #joining gauge discharge vars to continuous summary table
+          continuousDischarge_sum <- dplyr::full_join(continuousDischarge_sum, sdrc_gaugeDischargeMeas, by="date")
 
-        #joining guagepressure to  continuoussummary table
-        if(!base::is.null(sdrc_gaugePressureRelationship)){
-          continuousDischarge_sum <- dplyr::full_join(continuousDischarge_sum, sdrc_gaugePressureRelationship, by="date")
+          #joining guagepressure to  continuoussummary table
+          if(!base::is.null(sdrc_gaugePressureRelationship)){
+            continuousDischarge_sum <- dplyr::full_join(continuousDischarge_sum, sdrc_gaugePressureRelationship, by="date")
+          }else{
+            continuousDischarge_sum$gauge_Height <- NA
+          }
+
+          # Subset the summary data frame to only those records in the selected date range
+          continuousDischarge_sum <- continuousDischarge_sum%>%
+            dplyr::filter(date>=startDate&date<=endDate)
+
+          # Create a vector of unique rating curve IDs
+          curveIDs <- base::unique(csd_continuousDischarge$curveID)
         }else{
-          continuousDischarge_sum$gauge_Height <- NA
+          continuousDischarge_sum <- csd_continuousDischarge%>%
+            dplyr::mutate(meanQ=usgsDischarge,
+                          meanH=NA,
+                          meanLHUnc=NA,
+                          meanUHUnc=NA,
+                          meanUParaUnc=withRegressionUncQUpper2Std,
+                          meanLParaUnc=withRegressionUncQLower2Std,
+                          meanURemnUnc=NA,
+                          meanLRemnUnc=NA,
+                          dischargeFinalQF=NA,
+                          streamDischarge=NA,
+                          gaugeHeight=NA,
+                          gauge_Height=NA)
+          curveIDs <- NA
         }
-
-        # Subset the summary data frame to only those records in the selected date range
-        continuousDischarge_sum <- continuousDischarge_sum%>%
-          dplyr::filter(date>=startDate&date<=endDate)
-
-        # Create a vector of unique rating curve IDs
-        curveIDs <- base::unique(csd_continuousDischarge$curveID)
 
         # Make an output list
         continuousDischarge_list <- base::list(
@@ -352,76 +386,89 @@ run.RC.cont.Q.plot <-function(){
       continuousDischarge_list <- getPackage()
       curveIDs <- continuousDischarge_list[[2]]
 
-      # Get the data for plotting
-      utils::download.file(
-        "https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds",
-        "rcPlottingData.rds",
-        method = "curl"
-      )
-      rcPlotData <- base::readRDS("rcPlottingData.rds")
-      rcData <- rcPlotData$rcData%>%
-        dplyr::filter(curveID%in%curveIDs)
-      rcGaugings <- rcPlotData$rcGaugings%>%
-        dplyr::filter(curveID%in%curveIDs)
+      if(!is.na(curveIDs)){
+        # Get the data for plotting
+        utils::download.file(
+          "https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds",
+          "rcPlottingData.rds",
+          method = "curl"
+        )
+        rcPlotData <- base::readRDS("rcPlottingData.rds")
+        rcData <- rcPlotData$rcData%>%
+          dplyr::filter(curveID%in%curveIDs)
+        rcGaugings <- rcPlotData$rcGaugings%>%
+          dplyr::filter(curveID%in%curveIDs)
+        base::rm("rcPlottingData.rds")
 
-      # Build plot layout
-      rcPlot <- plotly::plot_ly(data=rcData)%>%
-        layout(
-          xaxis=list(tick=14,
-                     automargin=T,
-                     title="Stage (meter)",
-                     tickfont=list(size=16),
-                     titlefont=list(size=18)),
-          yaxis=list(automargin=T,
-                     title="Discharge (liters per second)",
-                     range=c(0,base::max(rcData$totalUBottom)*1.05),
-                     tickfont=list(size=16),
-                     titlefont=list(size=18),
-                     showgrid=T,
-                     zeroline=T),
-          legend=list(x=-0.2,y=0.87,
-                      font=list(size=14)),
-          updatemenus=list(
-            list(
-              type='buttons',
-              buttons=list(
-                list(label='Scale Discharge\n- Linear -',
-                     method='relayout',
-                     args=list(list(yaxis=list(type='linear',
-                                               title="Discharge (liters per second)",
-                                               range=c(0,base::max(rcData$totalUBottom)*1.05),
-                                               tickfont=list(size=16),
-                                               titlefont=list(size=18),
-                                               showgrid=T,
-                                               zeroline=T)))),
-                list(label='Scale Discharge\n- Log -',
-                     method='relayout',
-                     args=list(list(yaxis=list(type='log',
-                                               title="Discharge (liters per second) - log",
-                                               range=c(0,base::log10(base::max(rcData$totalUBottom)*1.05)),
-                                               tickfont=list(size=16),
-                                               titlefont=list(size=18),
-                                               showgrid=T,
-                                               zeroline=T))))))))
+        # Build plot layout
+        rcPlot <- plotly::plot_ly(data=rcData)%>%
+          layout(
+            xaxis=list(tick=14,
+                       automargin=T,
+                       title="Stage (meter)",
+                       tickfont=list(size=16),
+                       titlefont=list(size=18)),
+            yaxis=list(automargin=T,
+                       title="Discharge (liters per second)",
+                       range=c(0,base::max(rcData$totalUBottom)*1.05),
+                       tickfont=list(size=16),
+                       titlefont=list(size=18),
+                       showgrid=T,
+                       zeroline=T),
+            legend=list(x=-0.2,y=0.87,
+                        font=list(size=14)),
+            updatemenus=list(
+              list(
+                type='buttons',
+                buttons=list(
+                  list(label='Scale Discharge\n- Linear -',
+                       method='relayout',
+                       args=list(list(yaxis=list(type='linear',
+                                                 title="Discharge (liters per second)",
+                                                 range=c(0,base::max(rcData$totalUBottom)*1.05),
+                                                 tickfont=list(size=16),
+                                                 titlefont=list(size=18),
+                                                 showgrid=T,
+                                                 zeroline=T)))),
+                  list(label='Scale Discharge\n- Log -',
+                       method='relayout',
+                       args=list(list(yaxis=list(type='log',
+                                                 title="Discharge (liters per second) - log",
+                                                 range=c(0,base::log10(base::max(rcData$totalUBottom)*1.05)),
+                                                 tickfont=list(size=16),
+                                                 titlefont=list(size=18),
+                                                 showgrid=T,
+                                                 zeroline=T))))))))
 
-      # Add each rating curve based on the vector of unique rating curve IDs
-      for(i in 1:length(unique(rcData$curveID))){
-        currentCurveID <- unique(rcData$curveID)[i]
-        rcData_curveID <- rcData%>%
-          filter(curveID==currentCurveID)
-        rcGaugings_curveID <- rcGaugings%>%
-          filter(curveID==currentCurveID)
-        rcPlot <- rcPlot%>%
-          # Total Uncertainty
-          plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='red'),showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-          plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='red',line=list(color='red'),showlegend=T,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-          # Parametric Uncertainty
-          plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='lightpink'),showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-          plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='lightpink',line=list(color='lightpink'),showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-          # Max Post Q
-          plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=list(color='black'),showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
-          # Empirical H/Q Pairs
-          plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=list(color='black'),showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
+        # Add each rating curve based on the vector of unique rating curve IDs
+        for(i in 1:length(unique(rcData$curveID))){
+          currentCurveID <- unique(rcData$curveID)[i]
+          rcData_curveID <- rcData%>%
+            filter(curveID==currentCurveID)
+          rcGaugings_curveID <- rcGaugings%>%
+            filter(curveID==currentCurveID)
+          rcPlot <- rcPlot%>%
+            # Total Uncertainty
+            plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='red'),showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+            plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='red',line=list(color='red'),showlegend=T,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+            # Parametric Uncertainty
+            plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='lightpink'),showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+            plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='lightpink',line=list(color='lightpink'),showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+            # Max Post Q
+            plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=list(color='black'),showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
+            # Empirical H/Q Pairs
+            plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=list(color='black'),showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
+        }
+      }else{
+        rcPlot <- plotly::plotly_empty()%>%
+          layout(
+            title=list(
+              text = "No Stage-discharge rating curves (DP4.00133.001)\n data available for this site.",
+              yref = "paper",
+              y = 0.5,
+              font=list(size=28)
+            )
+          )
       }
 
       rcPlot
