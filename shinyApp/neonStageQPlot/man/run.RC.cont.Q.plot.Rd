@@ -7,7 +7,9 @@
 This function launches a shiny app to interactively plot published NEON data
 }
 \description{
-An interactive app which  plots continuous discharge, Stage discharge and rating- curves using language R Data is downloaded from the NEON data portal using neonUltilities and ploting is done at 20mins time interval
+An interactive app which  plots continuous discharge, Stage discharge and
+rating curves using language R Data is downloaded from the NEON data portal using
+neonUltilities and ploting is done at 20mins time interval
 }
 \references{
 License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
