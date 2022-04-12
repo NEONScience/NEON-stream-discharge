@@ -25,6 +25,8 @@
 #     original creation
 #   Zachary L. Nickerson (2021-04-27)
 #     update to which field in the input data frame references re-calculated discharge
+#   Zachary L. Nickerson (2022-04-11)
+#     add gaugeCollectDate field
 ##############################################################################################
 frmt.gaug.disc.mea.file <- function(
   dataFrame,
@@ -44,6 +46,7 @@ frmt.gaug.disc.mea.file <- function(
     'gaugeHeightOffset',
     'streamDischarge',
     'streamDischargeUnc',
+    'gaugeCollectDate',
     'gaugeEventID',
     'includedInRatingCurve',
     'recalculatedL1QF',
@@ -65,6 +68,7 @@ frmt.gaug.disc.mea.file <- function(
   outputDF$gaugeHeightOffset <- dataFrame$gaugeHeightOffset
   outputDF$streamDischarge <- as.numeric(dataFrame$finalDischarge)
   outputDF$streamDischargeUnc <- as.numeric(outputDF$streamDischarge) * 0.1
+  outputDF$gaugeCollectDate <- dataFrame$endDate 
   outputDF$gaugeEventID <- dataFrame$eventID
   outputDF$includedInRatingCurve <- "true"
   #outputDF$recalculatedL1QF <- dataFrame$recalculatedL1QF
