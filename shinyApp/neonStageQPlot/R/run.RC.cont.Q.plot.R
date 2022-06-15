@@ -134,8 +134,6 @@ run.RC.cont.Q.plot <-function(){
         base::Sys.sleep(0.25)
 
         # Get continuous discharge data from the NEON API
-        neonToken <- input$apiToken
-        print(neonToken)
         DP4.00130.001 <- neonUtilities::loadByProduct(
           dpID="DP4.00130.001",
           package = "expanded",
@@ -143,7 +141,7 @@ run.RC.cont.Q.plot <-function(){
           site = site,
           startdate = base::format(base::as.POSIXct(startDate),"%Y-%m"),
           enddate = base::format(base::as.POSIXct(endDate),"%Y-%m"),
-          token = neonToken)
+          token = input$apiToken)
 
         shiny::incProgress(amount = 0.33,
                            message = "Downloading DP4.00133.001",
@@ -158,7 +156,7 @@ run.RC.cont.Q.plot <-function(){
             package = "basic",
             check.size = F,
             site = site,
-            token = neonToken
+            token = input$apiToken
             # startdate = searchIntervalStartDate,
             # enddate = searchIntervalEndDate
           )
