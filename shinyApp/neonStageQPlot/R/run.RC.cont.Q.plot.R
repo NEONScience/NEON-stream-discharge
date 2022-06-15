@@ -37,7 +37,7 @@ run.RC.cont.Q.plot <-function(){
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
-                         shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+                         shiny::titlePanel("DEV 2 NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                                          shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
@@ -64,7 +64,9 @@ run.RC.cont.Q.plot <-function(){
                                                                             style = "background-color:#F8F8F8;"),
                                                             shiny::tabPanel("Rating Curve(s)",
                                                                             shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
-                                                                                                         color = "#00ADD7"))))#end of second col
+                                                                                                         color = "#00ADD7")),
+                                                            # shiny::hr(),
+                                                            shiny::fluidRow(shiny::textOutput("phenoImage")),))#end of second col
                            )#end of fluid row
     ) # end of ui and fluidPage
 
@@ -98,6 +100,19 @@ run.RC.cont.Q.plot <-function(){
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
+      # phenoImage test row
+      output$phenoImage <- renderText({
+        print("test print 333")
+        #click event data
+        event.data <- event_data(event = "plotly_click", source = "phenoDate")
+        if (is.null(event.data)) {
+          print("event data is null")
+        } else {
+          print("event data is Not null")
+          #View(event.data)
+        }
+      })
+      
       # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
       # input$siteId <- "TOMB"
@@ -293,13 +308,14 @@ run.RC.cont.Q.plot <-function(){
 
     # Plotting continuous discharge with uncertainty
     output$plot1 <- plotly::renderPlotly({
-
+      
       # Unpack the data frame from getPackage
       continuousDischarge_list <- getPackage()
       continuousDischarge_sum <- continuousDischarge_list[[1]]
 
       # Build plot layout
-      method <- plotly::plot_ly(data=continuousDischarge_sum)%>%
+      View(continuousDischarge_sum)
+      method <- plotly::plot_ly(data=continuousDischarge_sum, key = ~date, source = "phenoDate")%>% 
         layout(
           xaxis=list(tick=14,
                      automargin=T,
