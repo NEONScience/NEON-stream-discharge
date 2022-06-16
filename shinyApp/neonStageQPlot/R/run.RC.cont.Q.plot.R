@@ -31,12 +31,15 @@ options(stringsAsFactors = F)
 
 run.RC.cont.Q.plot <-function(){
 
+  #addResourcePath(prefix = 'pics', directoryPath = '~/pictures')
+  dir.create("www")
   # Read in refernce table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
+                         tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling 
                          shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
@@ -100,26 +103,59 @@ run.RC.cont.Q.plot <-function(){
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
-      # ####################### phenoImage test row
-      # output$phenoImage <- renderUI({
-      #   print("above event data")
-      #   #click event data
-      #   event.data <- event_data(event = "plotly_click", source = "phenoDate")
-      #   if (is.null(event.data)) {
-      #     print("event data is null")
-      #   } else {
-      #     print("event data is Not null")
-      #     
-      #   }
-      # })
-      plot1Done <- FALSE
-      plot2Done <- FALSE
-      if(plot1Done & plot2Done){
-        print("plots done boss")
+      # phenoImage click event
+      output$phenoImage <- renderUI({
+        event.data <- event_data(event = "plotly_click", source = "phenoDate")
+        if (is.null(event.data)) {
+        } else {
+          phenocamAPIcall()
+          showModal(phenoModal())
+        }
+      })
+      
+      phenoModal <- function(failed = FALSE)
+        {modalDialog(
+          title = "Phenocam Image",
+          size = "l",
+          tags$img(
+            src = base64enc::dataURI(file = "www/phenoImage.jpg", mime = "image/jpeg")),
+          footer = downloadButton('downloadImg', 'Download Image'),
+          easyClose = TRUE)}
+      
+      output$downloadImg <- downloadHandler(
+        print("inside download handler"),
+        filename = function() {
+          paste("phenoCam-",Sys.Date(),".jpg", sep = "")
+        },
+        content = function(file) {
+          write_file(data, file)
+        }
+      )
+      
+      ##what happens if no image is availible?
+      
+      phenocamAPIcall <- function(){
+        siteID <- "PRIN"
+        domainID <- "D11"
+        #UTC dateTime
+        dateTime <- "2021-12-01T18:00:00Z"
+        
+        phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
+                                  as = "parsed",
+                                  encoding = "UTF-8")
+        phenoURL <- phenoGET$url
+        if(!is.null(phenoURL)){
+          #image has to be saved to www directory 
+          utils::download.file(phenoURL,"www/phenoImage.jpg",mode='wb')
+        }else{
+          print(paste0("Null URL: No phenocam image available at ",siteID," for this timestamp"))
+        }
       }
       
+      # if(exists("method"))
       
-      # # Manually set input variables for local testing - comment out when running app
+      
+      # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
       # input$siteId <- "TOMB"
       # input$dateRange[[1]] <- "2020-01-01"
@@ -379,7 +415,6 @@ run.RC.cont.Q.plot <-function(){
           plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
       }
       
-      event_register(method, 'plotly_click')
       
       # Add base plot
       method <- method %>%
@@ -403,7 +438,6 @@ run.RC.cont.Q.plot <-function(){
         plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7')
       
     })# End plot1
-    plot1Done <- TRUE
 
     # method
 
@@ -502,8 +536,6 @@ run.RC.cont.Q.plot <-function(){
       rcPlot
 
     })# End plot2
-    plot2Done <- TRUE
-    print("plots done boss")
 
   }#end of server
 
