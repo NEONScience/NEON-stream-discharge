@@ -119,21 +119,15 @@ run.RC.cont.Q.plot <-function(){
           size = "l",
           tags$img(
             src = base64enc::dataURI(file = "www/phenoImage.jpg", mime = "image/jpeg")),
-          footer = downloadButton('downloadImg', 'Download Image'),
+          footer = actionButton('downloadImg', 'Download Image'),
           easyClose = TRUE)}
       
-      output$downloadImg <- downloadHandler(
-        print("inside download handler"),
-        filename = function() {
-          paste("phenoCam-",Sys.Date(),".jpg", sep = "")
-        },
-        content = function(file) {
-          write_file(data, file)
-        }
-      )
+      observeEvent(input$downloadImg, {
+        print("action button")
+        
+      })
       
-      ##what happens if no image is availible?
-      
+      ##what happens if no image is available?
       phenocamAPIcall <- function(){
         siteID <- "PRIN"
         domainID <- "D11"
