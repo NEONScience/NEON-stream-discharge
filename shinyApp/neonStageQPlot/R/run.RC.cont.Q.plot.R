@@ -31,8 +31,6 @@ options(stringsAsFactors = F)
 
 run.RC.cont.Q.plot <-function(){
 
-  #addResourcePath(prefix = 'pics', directoryPath = '~/pictures')
-  dir.create("www")
   # Read in refernce table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
@@ -80,12 +78,10 @@ run.RC.cont.Q.plot <-function(){
     # Select site ID based on the domain ID chosen
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
-    
-    shiny::observe({domain <- input$domainID})
 
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
-
+      
       # Define site-specific metadata for rendering
       metaD <-  productList%>%
         dplyr::filter(siteID == input$siteId)%>%
@@ -104,33 +100,46 @@ run.RC.cont.Q.plot <-function(){
 
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
-
+      
+      
       # phenoImage click event
       output$phenoImage <- renderUI({
         event.data <- event_data(event = "plotly_click", source = "phenoDate")
-        if (is.null(event.data)) {
-        } else {
-          
-          print(input$domainID)
-          print(domain)
-          phenoURL <- phenocamGET(site,domain)
-          if(is.null(phenoURL)){
-            print("is null")
+        
+        if (!is.null(event.data)) {
+          dateTime <- stringr::str_replace(event.data$x, " ","T")
+          dateTime <- paste0(dateTime,":00Z")
+          domain <- input$domainId
+          phenocamImg <- phenocamGET(site,domain,dateTime)
+          if(is.null(phenocamImg$url)){
+            usrDateTime <- dateTime
+            usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
+            usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
+            phenoModalBad(usrDateTime)
           }else{
-            showModal(phenoModal(phenoURL))
+            showModal(phenoModalGood(phenocamImg))
           }
         }
       })
       
-      phenoModal <- function(phenoURL,failed = FALSE)
+      phenoModalGood <- function(phenocamImg)
         {modalDialog(
           title = "Phenocam Image",
           size = "l",
           tags$img(
-            src = phenoURL),
+            src = phenocamImg$url),
             #src = base64enc::dataURI(file = "www/phenoImage.jpg", mime = "image/jpeg")),
           footer = actionButton('downloadImg', 'Download Image'),
           easyClose = TRUE)}
+      
+      phenoModalBad <- function(usrDateTime)
+      {modalDialog(
+        title = "Phenocam Image",
+        "No phenocam image available at ",site," for",usrDateTime,
+        size = "s",
+        #src = base64enc::dataURI(file = "www/phenoImage.jpg", mime = "image/jpeg")),
+        # footer = actionButton('downloadImg', 'Download Image'),
+        easyClose = TRUE)}
       
       observeEvent(input$downloadImg, {
         print("action button")
@@ -138,18 +147,25 @@ run.RC.cont.Q.plot <-function(){
       })
       
       ##what happens if no image is available?
-      phenocamGET <- function(site,domain){
+      phenocamGET <- function(site,domain,dateTime){
         print(site)
         print(domain)
+        print(dateTime)
+        ####API Call
         siteID <- site
         domainID <- domain
         #UTC dateTime
-        dateTime <- "2021-12-01T18:00:00Z"
+        dateTime <- dateTime
         
-        phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")))
-        
-        phenoURL <- phenoGET$url
-        return(phenoURL)
+        phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
+                                  encoding = "UTF-8")
+        print(phenoGET$url)
+        if(!is.null(phenoGET$url)){
+          print("image is not null")
+        }else{
+          print(paste0("Null URL: No phenocam image available at ",siteID," for this timestamp"))
+        }
+        return(phenoGET)
       }
       
       # if(exists("method"))
@@ -357,7 +373,7 @@ run.RC.cont.Q.plot <-function(){
       continuousDischarge_sum <- continuousDischarge_list[[1]]
       
       # Build plot layout
-      method <- plotly::plot_ly(data=continuousDischarge_sum, key = ~date, source = "phenoDate")%>% 
+      method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>% 
         layout(
           xaxis=list(tick=14,
                      automargin=T,
