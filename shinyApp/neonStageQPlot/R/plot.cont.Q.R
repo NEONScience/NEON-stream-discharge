@@ -1,0 +1,142 @@
+##############################################################################################
+#' Plot NEON Continuous Discharge (DP4.00130.001) Data
+
+#' @name plot.cont.Q
+
+#' @author
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
+
+#' @description  This function will generate a plotly plot of NEON Continuous Discharge
+#' (DP4.00130.001) data to be rendered in the discharge visualization shiny app
+
+#' @param site.id Required: NEON AQU site ID selected by the shiny app user [string]
+#' @param start.date Required: Search interval start date (YYYY-MM-DD) selected by the shiny 
+#' app user [string]
+#' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app 
+#' user [string]
+#' @param input.list Required: List containing the data used in plotting [list]
+#' @param plot.final.QF Required: Indicator of plotting the finalDischargeQF field from the 
+#' DP4.00130.001 data product [boolean]
+#' @param plot.sci.rvw.QF Required: Indicator of plotting the finalDischargeQFSciRvw field 
+#' from the DP4.00130.001 data product [boolean]
+
+#' @return Returns a plotly plot object
+
+#' @references
+#' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
+
+#' @export plot.cont.Q
+
+# changelog and author contributions / copyrights
+#   Zachary L. Nickerson (2022-06-20)
+#     original creation
+##############################################################################################
+# # Source packages and set options
+options(stringsAsFactors = F)
+
+plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF){
+ 
+  if(missing(site.id)){
+    stop('must provide site.id for plotting continuous discharge')
+  }
+  if(missing(start.date)){
+    stop('must provide start.date for plotting continuous discharge')
+  }
+  if(missing(end.date)){
+    stop('must provide end.date for plotting continuous discharge')
+  }
+  if(missing(input.list)){
+    stop('must provide input.list for plotting continuous discharge')
+  }
+  if(missing(plot.final.QF)){
+    stop('must provide plot.final.QF for plotting continuous discharge')
+  }
+  if(missing(plot.sci.rvw.QF)){
+    stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
+  }
+  
+  # Get data
+  continuousDischarge_sum <- input.list[[1]]
+  
+  # Build plot layout
+  method <- plotly::plot_ly(data=continuousDischarge_sum)%>%
+    layout(
+      xaxis=list(tick=14,
+                 automargin=T,
+                 title="Date",
+                 tickfont=list(size=16),
+                 titlefont=list(size=18)#,
+                 # range=c(base::format(shiny::isolate({input$dateRange[1]}) ),base::format(shiny::isolate({input$dateRange[2]}) ))
+                 ),
+      yaxis=list(side='left',
+                 automargin=T,
+                 title='Discharge (liters per second)',
+                 tickfont=list(size=16),
+                 titlefont=list(size=18),
+                 showgrid=F,
+                 zeroline=F),
+      yaxis2=list(side='right',
+                  overlaying="y",
+                  automargin=T,
+                  title="Stage (meter)",
+                  tickfont=list(size=16),
+                  titlefont=list(size=18),
+                  showgrid=F,
+                  zeroline=F),
+      legend=list(x=-0.2,y=0.87,
+                  font=list(size=14)),
+      updatemenus=list(
+        list(
+          type='buttons',
+          buttons=list(
+            list(label='Scale Discharge\n- Linear -',
+                 method='relayout',
+                 args=list(list(yaxis=list(type='linear',
+                                           title='Discharge (liters per second)',
+                                           tickfont=list(size=16),
+                                           titlefont=list(size=18),
+                                           showgrid=F,
+                                           zeroline=F)))),
+            list(label='Scale Discharge\n- Log -',
+                 method='relayout',
+                 args=list(list(yaxis=list(type='log',
+                                           title='Discharge (liters per second) - log',
+                                           tickfont=list(size=16),
+                                           titlefont=list(size=18),
+                                           showgrid=F,
+                                           zeroline=F))))))))
+  
+  # Add Quality flags
+  if(plot.final.QF){
+    method <- method %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
+  }
+  if(plot.sci.rvw.QF){
+    method <- method %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
+  }
+  
+  # Add base plot
+  method <- method %>%
+    # Q Uncertainty
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='line',line=list(color='red'),showlegend=F,legendgroup='group1')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'red',showlegend=T,legendgroup='group1')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='line',line=list(color='lightpink'),showlegend=F,legendgroup='group2')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightpink',showlegend=T,legendgroup='group2')%>%
+    
+    # H Uncertainty
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=list(color='lightblue'),yaxis='y2',showlegend=F,legendgroup='group3')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = 'lightblue',yaxis='y2',showlegend=T,legendgroup='group3')%>%
+    
+    # H and Q Series
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = 'black'),showlegend=T,legendgroup='group4')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = 'blue'),yaxis='y2',showlegend=T,legendgroup='group5')%>%
+    
+    # Empirical H and Q
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = 'purple',size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group6')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=F,legendgroup='group7')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="orange",size=8,line = list(color = "black",width = 1)),showlegend=T,legendgroup='group7')
+  
+  return(method)
+  
+}
