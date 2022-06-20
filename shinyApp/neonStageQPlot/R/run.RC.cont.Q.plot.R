@@ -40,7 +40,7 @@ run.RC.cont.Q.plot <-function(){
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling 
-                         shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+                         shiny::titlePanel("API TEST NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                                          shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
@@ -80,6 +80,8 @@ run.RC.cont.Q.plot <-function(){
     # Select site ID based on the domain ID chosen
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
+    
+    shiny::observe({domain <- input$domainID})
 
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
@@ -108,17 +110,25 @@ run.RC.cont.Q.plot <-function(){
         event.data <- event_data(event = "plotly_click", source = "phenoDate")
         if (is.null(event.data)) {
         } else {
-          phenocamAPIcall()
-          showModal(phenoModal())
+          
+          print(input$domainID)
+          print(domain)
+          phenoURL <- phenocamGET(site,domain)
+          if(is.null(phenoURL)){
+            print("is null")
+          }else{
+            showModal(phenoModal(phenoURL))
+          }
         }
       })
       
-      phenoModal <- function(failed = FALSE)
+      phenoModal <- function(phenoURL,failed = FALSE)
         {modalDialog(
           title = "Phenocam Image",
           size = "l",
           tags$img(
-            src = base64enc::dataURI(file = "www/phenoImage.jpg", mime = "image/jpeg")),
+            src = phenoURL),
+            #src = base64enc::dataURI(file = "www/phenoImage.jpg", mime = "image/jpeg")),
           footer = actionButton('downloadImg', 'Download Image'),
           easyClose = TRUE)}
       
@@ -128,22 +138,18 @@ run.RC.cont.Q.plot <-function(){
       })
       
       ##what happens if no image is available?
-      phenocamAPIcall <- function(){
-        siteID <- "PRIN"
-        domainID <- "D11"
+      phenocamGET <- function(site,domain){
+        print(site)
+        print(domain)
+        siteID <- site
+        domainID <- domain
         #UTC dateTime
         dateTime <- "2021-12-01T18:00:00Z"
         
-        phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
-                                  as = "parsed",
-                                  encoding = "UTF-8")
+        phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")))
+        
         phenoURL <- phenoGET$url
-        if(!is.null(phenoURL)){
-          #image has to be saved to www directory 
-          utils::download.file(phenoURL,"www/phenoImage.jpg",mode='wb')
-        }else{
-          print(paste0("Null URL: No phenocam image available at ",siteID," for this timestamp"))
-        }
+        return(phenoURL)
       }
       
       # if(exists("method"))
