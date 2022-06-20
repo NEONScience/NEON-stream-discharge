@@ -56,9 +56,7 @@ run.RC.cont.Q.plot <-function(){
                                          shiny::fluidRow(shiny::uiOutput("siteInfo" )),
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::textOutput("title"),
-                                                         DT::dataTableOutput("table")),
-                                         # shiny::hr(),
-                                         shiny::fluidRow(shiny::uiOutput("phenoImage"))),#end of first col
+                                                         DT::dataTableOutput("table"))),#end of first col
                                          shiny::column(9,
                                          shiny::tabsetPanel(type = "tabs",
                                                             shiny::tabPanel("Continuous Discharge",
@@ -74,7 +72,7 @@ run.RC.cont.Q.plot <-function(){
 
   #server function
   server <- function(session, input, output) {
-
+    
     # Select site ID based on the domain ID chosen
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
@@ -102,20 +100,22 @@ run.RC.cont.Q.plot <-function(){
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
       
       
+      
       # phenoImage click event
-      output$phenoImage <- renderUI({
-        event.data <- event_data(event = "plotly_click", source = "phenoDate")
-        
-        if (!is.null(event.data)) {
-          dateTime <- stringr::str_replace(event.data$x, " ","T")
+      observe({clickEvent <- event_data(event = "plotly_click", source = "phenoDate")
+
+        if (!is.null(clickEvent)) {
+          dateTime <- stringr::str_replace(clickEvent$x, " ","T")
           dateTime <- paste0(dateTime,":00Z")
           domain <- input$domainId
           phenocamImg <- phenocamGET(site,domain,dateTime)
+          
           if(is.null(phenocamImg$url)){
             usrDateTime <- dateTime
             usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
             usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
             phenoModalBad(usrDateTime)
+            
           }else{
             showModal(phenoModalGood(phenocamImg))
           }
@@ -135,16 +135,11 @@ run.RC.cont.Q.plot <-function(){
       phenoModalBad <- function(usrDateTime)
       {modalDialog(
         title = "Phenocam Image",
-        "No phenocam image available at ",site," for",usrDateTime,
+        "No phenocam image available at ",site," for Date/Time",usrDateTime,
         size = "s",
         #src = base64enc::dataURI(file = "www/phenoImage.jpg", mime = "image/jpeg")),
         # footer = actionButton('downloadImg', 'Download Image'),
         easyClose = TRUE)}
-      
-      observeEvent(input$downloadImg, {
-        print("action button")
-        
-      })
       
       ##what happens if no image is available?
       phenocamGET <- function(site,domain,dateTime){
