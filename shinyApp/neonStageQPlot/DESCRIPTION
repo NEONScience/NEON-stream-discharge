@@ -17,7 +17,11 @@ Depends:
 		stringr,
 		dplyr,
 		readr,
-		tidyr
+		tidyr,
+		httr,
+		XML,
+		jsonlite,
+		jpeg
 License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
