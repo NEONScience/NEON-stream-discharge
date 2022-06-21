@@ -39,7 +39,7 @@ run.RC.cont.Q.plot <-function(){
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
-                         tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling 
+                         tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
                          shiny::titlePanel("API TEST NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
@@ -74,45 +74,45 @@ run.RC.cont.Q.plot <-function(){
 
   #server function
   server <- function(session, input, output) {
-    
+
     #Global Vars
     old_clickEvent <- 0
     site <- NULL
     domain <- NULL
-    
+
     # Select site ID based on the domain ID chosen
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
 
-    
+
     # phenoImage
     #displays phenocam image when point is clicked on graph
     #pulls image closest to selected date
     observe({
-      new_clickEvent <- event_data(event = "plotly_click", source = "phenoDate")
+      new_clickEvent <- plotly::event_data(event = "plotly_click", source = "phenoDate")
       new_value <- ifelse(is.null(new_clickEvent),"0",new_clickEvent$x)
-      
+
       #compares clickEvents to keep phenoimage from appearing on submit click
       if (old_clickEvent!=new_value) {
         old_clickEvent <<- new_value
         dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
         dateTime <- paste0(dateTime,":00Z")
         phenocamImg <- phenocamGET(site,domain,dateTime)
-        
+
         #shows modal from Bad GET request
         if(is.null(phenocamImg$url)){
           usrDateTime <- dateTime
           usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
           usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
           phenoModalBad(usrDateTime)
-          
+
           #shows modal from Good GET request
         }else{
           showModal(phenoModalGood(phenocamImg))
         }
       }
     })
-    
+
     #modal for good phenocamGET request
     phenoModalGood <- function(phenocamImg)
     {modalDialog(
@@ -122,7 +122,7 @@ run.RC.cont.Q.plot <-function(){
       tags$img(
         src = phenocamImg$url),
       easyClose = TRUE)}
-    
+
     #modal for bad phenocamGET request
     phenoModalBad <- function(usrDateTime)
     {modalDialog(
@@ -130,8 +130,8 @@ run.RC.cont.Q.plot <-function(){
       "No phenocam image available at ",site," for Date/Time",usrDateTime,
       size = "s",
       easyClose = TRUE)}
-    
-    
+
+
     #phenocamGET returns url to phenocam image
     phenocamGET <- function(site,domain,dateTime){
       ###API Call
@@ -139,21 +139,21 @@ run.RC.cont.Q.plot <-function(){
       domainID <- domain
       #UTC dateTime
       dateTime <- dateTime
-      
+
       ###Test GET
       # siteID <- "PRIN"
       # domainID <- "D11"
       # #UTC dateTime
       # dateTime <- "2021-12-01T18:00:00Z"
-      
+
       phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
                                 encoding = "UTF-8")
       return(phenoGET)
     }
-   
+
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
-      
+
       # Run function
       metaD <- neonStageQplot::frmt.meta.data.df(input.list = input,
                                                  product.list = productList)
@@ -163,7 +163,7 @@ run.RC.cont.Q.plot <-function(){
 
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
-      
+
       # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
 
@@ -181,32 +181,32 @@ run.RC.cont.Q.plot <-function(){
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
-      
+
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
-        
+
         shiny::incProgress(amount = 0.50,
                            message = "Pulling data from neonUtilities",
                            detail = NULL,
                            session = shiny::getDefaultReactiveDomain())
         base::Sys.sleep(0.25)
-        
+
         # Download and process NEON data
         continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
                                                                         end.date = endDate)
 
       })#end of withProgress
-      
+
 
     },ignoreInit = T)# End getPackage
 
     # Plotting continuous discharge with uncertainty
     output$plot1 <- plotly::renderPlotly({
-      
+
       # Unpack the data frame from getPackage
       continuousDischarge_list <- getPackage()
-      
+
       # Format QF inputs
 
       if(input$qctrFlag == TRUE){
@@ -227,7 +227,7 @@ run.RC.cont.Q.plot <-function(){
                                             input.list = continuousDischarge_list,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput)
-      
+
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
@@ -235,7 +235,7 @@ run.RC.cont.Q.plot <-function(){
 
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
-      
+
       # Plot rating curve(s) and store in outpus
       rcPlot <- neonStageQplot::plot.RC(site.id = input$siteId,
                                         start.date = input$dateRange[[1]],
