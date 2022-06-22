@@ -40,7 +40,7 @@ run.RC.cont.Q.plot <-function(){
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
-                         shiny::titlePanel("API TEST NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+                         shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                                          shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
@@ -77,15 +77,14 @@ run.RC.cont.Q.plot <-function(){
 
     #Global Vars
     old_clickEvent <- 0
-    site <- NULL
-    domain <- NULL
+    siteID <- NULL
+    domainID <- NULL
 
     # Select site ID based on the domain ID chosen
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
 
-
-    # phenoImage
+    #phenoImage observe
     #displays phenocam image when point is clicked on graph
     #pulls image closest to selected date
     observe({
@@ -95,61 +94,28 @@ run.RC.cont.Q.plot <-function(){
       #compares clickEvents to keep phenoimage from appearing on submit click
       if (old_clickEvent!=new_value) {
         old_clickEvent <<- new_value
+
         dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
         dateTime <- paste0(dateTime,":00Z")
-        phenocamImg <- phenocamGET(site,domain,dateTime)
 
-        #shows modal from Bad GET request
-        if(is.null(phenocamImg$url)){
-          usrDateTime <- dateTime
-          usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
-          usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
-          phenoModalBad(usrDateTime)
+        phenoURL <- phenocamGET(siteID,domainID,dateTime)
 
-          #shows modal from Good GET request
-        }else{
-          showModal(phenoModalGood(phenocamImg))
+        usrDateTime <- dateTime
+        usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
+        usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
+
+        isGoodRequest <- FALSE
+
+        if(!is.null(phenoURL)){
+          isGoodRequest <- TRUE
+          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest))
+
+        }
+        else{
+          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest))
         }
       }
     })
-
-    #modal for good phenocamGET request
-    phenoModalGood <- function(phenocamImg)
-    {modalDialog(
-      title = "Phenocam Image",
-      "To download the image right click on the image and click 'Save image as...'",
-      size = "l",
-      tags$img(
-        src = phenocamImg$url),
-      easyClose = TRUE)}
-
-    #modal for bad phenocamGET request
-    phenoModalBad <- function(usrDateTime)
-    {modalDialog(
-      title = "Phenocam Image",
-      "No phenocam image available at ",site," for Date/Time",usrDateTime,
-      size = "s",
-      easyClose = TRUE)}
-
-
-    #phenocamGET returns url to phenocam image
-    phenocamGET <- function(site,domain,dateTime){
-      ###API Call
-      siteID <- site
-      domainID <- domain
-      #UTC dateTime
-      dateTime <- dateTime
-
-      ###Test GET
-      # siteID <- "PRIN"
-      # domainID <- "D11"
-      # #UTC dateTime
-      # dateTime <- "2021-12-01T18:00:00Z"
-
-      phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
-                                encoding = "UTF-8")
-      return(phenoGET)
-    }
 
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
@@ -177,7 +143,8 @@ run.RC.cont.Q.plot <-function(){
       output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
 
       # Set date variables for app running (special consideration for TOOK)
-      siteID <- input$siteId
+      siteID <<- input$siteId
+      domainID <<- input$domainId
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
@@ -227,7 +194,6 @@ run.RC.cont.Q.plot <-function(){
                                             input.list = continuousDischarge_list,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput)
-
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
@@ -245,6 +211,8 @@ run.RC.cont.Q.plot <-function(){
     })# End plot2
 
   }#end of server
+
+
 
   # Run the app ----
   shiny::shinyApp(ui = ui, server = server)
