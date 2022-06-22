@@ -1,3 +1,6 @@
+##############################################################################################
+#' Phenocam modal
+
 #' @name phenoModal
 
 #' @author
@@ -11,6 +14,10 @@
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
 #' @export phenoModal
+# # changelog and author contributions / copyrights
+#   James M. Ross
+#     original creation
+##############################################################################################
 
 options(stringsAsFactors = F)
 
@@ -24,6 +31,8 @@ phenoModal <- function(phenoURL,usrDateTime,isGoodRequest){
   }
 }
 
+##############################################################################################
+#' Phenocam modal good request
 #' @name phenoModalGood
 
 #' @author
@@ -36,7 +45,10 @@ phenoModal <- function(phenoURL,usrDateTime,isGoodRequest){
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 #' @export phenoModalGood
-
+# # changelog and author contributions / copyrights
+#   James M. Ross
+#     original creation
+##############################################################################################
 phenoModalGood <- function(phenoURL)
 {modalDialog(
   title = "Phenocam Image",
@@ -46,6 +58,8 @@ phenoModalGood <- function(phenoURL)
     src = phenoURL),
   easyClose = TRUE)}
 
+##############################################################################################
+#' Phenocam modal bad request
 #' @name phenoModalBad
 
 #' @author
@@ -58,7 +72,10 @@ phenoModalGood <- function(phenoURL)
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 #' @export phenoModalBad
-
+# # changelog and author contributions / copyrights
+#   James M. Ross
+#     original creation
+##############################################################################################
 phenoModalBad <- function(usrDateTime)
 {modalDialog(
   title = "Phenocam Image",
