@@ -21,13 +21,14 @@
 
 options(stringsAsFactors = F)
 
-phenoModal <- function(phenoURL,usrDateTime,isGoodRequest){
+phenoModal <- function(phenoURL,usrDateTime,isGoodRequest,siteID){
 
   if(isGoodRequest==TRUE){
     return(phenoModalGood(phenoURL))
   }
   else{
-    return(phenoModalBad(usrDateTime))
+    print("bad modal")
+    return(phenoModalBad(usrDateTime,siteID))
   }
 }
 
@@ -76,7 +77,7 @@ phenoModalGood <- function(phenoURL)
 #   James M. Ross
 #     original creation
 ##############################################################################################
-phenoModalBad <- function(usrDateTime)
+phenoModalBad <- function(usrDateTime,siteID)
 {modalDialog(
   title = "Phenocam Image",
   "No phenocam image available at ",siteID," for Date/Time",usrDateTime,

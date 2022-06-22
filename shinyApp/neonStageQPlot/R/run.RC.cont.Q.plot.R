@@ -79,8 +79,6 @@ run.RC.cont.Q.plot <-function(){
   #server function
   server <- function(session, input, output) {
 
-
-
     # Select site ID based on the domain ID chosen
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
@@ -113,13 +111,15 @@ run.RC.cont.Q.plot <-function(){
 
         isGoodRequest <- FALSE
 
+        print(phenoURL)
+        print("phenoURL")
         if(!is.null(phenoURL)){
           isGoodRequest <- TRUE
-          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest))
+          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID))
 
         }
         else{
-          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest))
+          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID))
         }
       }
     })

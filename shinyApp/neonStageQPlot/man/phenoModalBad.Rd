@@ -4,7 +4,7 @@
 \alias{phenoModalBad}
 \title{Phenocam modal bad request}
 \usage{
-phenoModalBad(usrDateTime)
+phenoModalBad(usrDateTime, siteID)
 }
 \value{
 This function returns a modal object based on phenoGET return.
