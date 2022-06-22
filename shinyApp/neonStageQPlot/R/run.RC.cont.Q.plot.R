@@ -36,6 +36,10 @@ run.RC.cont.Q.plot <-function(){
   # Read in refernce table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
+  #Global Vars
+  old_clickEvent <- 0
+  siteID <- NULL
+  domainID <- NULL
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -75,10 +79,7 @@ run.RC.cont.Q.plot <-function(){
   #server function
   server <- function(session, input, output) {
 
-    #Global Vars
-    old_clickEvent <- 0
-    siteID <- NULL
-    domainID <- NULL
+
 
     # Select site ID based on the domain ID chosen
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
@@ -98,6 +99,12 @@ run.RC.cont.Q.plot <-function(){
         dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
         dateTime <- paste0(dateTime,":00Z")
 
+        print(siteID)
+        print("siteID")
+        print(domainID)
+        print("domainID")
+        print(dateTime)
+        print("dateTime")
         phenoURL <- phenocamGET(siteID,domainID,dateTime)
 
         usrDateTime <- dateTime
