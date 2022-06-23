@@ -44,6 +44,7 @@ run.RC.cont.Q.plot <-function(){
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                                          shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
+                                                         shiny::textInput("apiToken", "API Token"),
                                                          shiny::selectInput("domainId","Domain ID",productList$domain),
                                                          shiny::selectInput("siteId","Select Site ID",NULL),
                                                          shiny::dateRangeInput("dateRange","Date range:",
@@ -187,6 +188,7 @@ run.RC.cont.Q.plot <-function(){
         
         shiny::incProgress(amount = 0.50,
                            message = "Pulling data from neonUtilities",
+
                            detail = NULL,
                            session = shiny::getDefaultReactiveDomain())
         base::Sys.sleep(0.25)
