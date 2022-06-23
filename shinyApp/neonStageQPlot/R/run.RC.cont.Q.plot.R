@@ -37,7 +37,7 @@ run.RC.cont.Q.plot <-function(){
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
   #Global Vars
-  old_clickEvent <- 0
+  # old_clickEvent <- 0
   siteID <- NULL
   domainID <- NULL
 
@@ -88,11 +88,12 @@ run.RC.cont.Q.plot <-function(){
     #pulls image closest to selected date
     observe({
       new_clickEvent <- plotly::event_data(event = "plotly_click", source = "phenoDate")
-      new_value <- ifelse(is.null(new_clickEvent),"0",new_clickEvent$x)
+      # new_value <- ifelse(is.null(new_clickEvent),"0",new_clickEvent$x)
 
       #compares clickEvents to keep phenoimage from appearing on submit click
-      if (old_clickEvent!=new_value) {
-        old_clickEvent <<- new_value
+      # if (old_clickEvent!=new_value) {
+      if (!is.null(new_clickEvent)) {
+        # old_clickEvent <<- new_value
 
         dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
         dateTime <- paste0(dateTime,":00Z")
