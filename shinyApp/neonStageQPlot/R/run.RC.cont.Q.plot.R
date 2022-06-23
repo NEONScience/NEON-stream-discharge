@@ -35,9 +35,8 @@ run.RC.cont.Q.plot <-function(){
 
   # Read in refernce table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
-  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
   #Global Vars
-  # old_clickEvent <- 0
+  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
 
@@ -88,39 +87,27 @@ run.RC.cont.Q.plot <-function(){
     #pulls image closest to selected date
     observe({
       new_clickEvent <- plotly::event_data(event = "plotly_click", source = "phenoDate")
-      # new_value <- ifelse(is.null(new_clickEvent),"0",new_clickEvent$x)
 
-      #compares clickEvents to keep phenoimage from appearing on submit click
-      # if (old_clickEvent!=new_value) {
       if (!is.null(new_clickEvent)) {
-        # old_clickEvent <<- new_value
-
+        #formats date & time for phenocamGet
         dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
         dateTime <- paste0(dateTime,":00Z")
-
-        print(siteID)
-        print("siteID")
-        print(domainID)
-        print("domainID")
-        print(dateTime)
-        print("dateTime")
+        #returns url for phenocam image
         phenoURL <- phenocamGET(siteID,domainID,dateTime)
-
+        #formats date & time for bad request modal
         usrDateTime <- dateTime
         usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
         usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
 
         isGoodRequest <- FALSE
 
-        print(phenoURL)
-        print("phenoURL")
         if(!is.null(phenoURL)){
           isGoodRequest <- TRUE
-          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID))
+          phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID)
 
         }
         else{
-          showModal(phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID))
+          phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID)
         }
       }
     })
@@ -215,7 +202,6 @@ run.RC.cont.Q.plot <-function(){
                                         start.date = input$dateRange[[1]],
                                         end.date = input$dateRange[[2]],
                                         input.list = continuousDischarge_list)
-      rcPlot
     })# End plot2
 
   }#end of server

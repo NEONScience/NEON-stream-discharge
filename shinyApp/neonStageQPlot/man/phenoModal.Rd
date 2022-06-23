@@ -4,7 +4,7 @@
 \alias{phenoModal}
 \title{Phenocam modal}
 \value{
-This function returns a modal object based on phenoGET return.
+This function returns nothing
 }
 \description{
 Displays appropriate modal for phenoGET functionality.

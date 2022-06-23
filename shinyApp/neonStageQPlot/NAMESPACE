@@ -3,8 +3,6 @@
 export(frmt.meta.data.df)
 export(get.cont.Q.NEON.API)
 export(phenoModal)
-export(phenoModalBad)
-export(phenoModalGood)
 export(phenocamGET)
 export(plot.RC)
 export(plot.cont.Q)
