@@ -35,7 +35,9 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-get.cont.Q.NEON.API <-function(site.id,start.date,end.date){
+get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
+
+  print(api.token)
 
   if(missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
@@ -65,7 +67,8 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date){
     check.size = F,
     site = site,
     startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
-    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"))
+    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
+    token = api.token)
 
   # Get rating curve data from the NEON API
   if(site!="TOMB"){
@@ -74,8 +77,8 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date){
       package = "basic",
       check.size = F,
       site = site,
-      tabl = "sdrc_gaugeDischargeMeas"
-    )
+      tabl = "sdrc_gaugeDischargeMeas",
+      token = api.token)
 
     # Format gauge-discharge measurement data
     sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
