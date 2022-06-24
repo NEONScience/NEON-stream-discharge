@@ -55,7 +55,7 @@ run.RC.cont.Q.plot <-function(){
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
                                                          shiny::hr(),
                                                          conditionalPanel(
-                                                           condition = "input.submit == 1",
+                                                           condition = "input.submit != 0",
                                                            shiny::downloadButton("downloadPlotly", "Download Graph"))),
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::uiOutput("siteInfo" )),
