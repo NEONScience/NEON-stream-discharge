@@ -52,14 +52,18 @@ run.RC.cont.Q.plot <-function(){
                                                                                format="yyyy-mm-dd"),
                                                          shiny::actionButton(inputId="submit","Submit"),
                                                          shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
-                                                         shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE)),
+                                                         shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
+                                                         shiny::hr(),
+                                                         conditionalPanel(
+                                                           condition = "input.submit == 1",
+                                                           shiny::downloadButton("downloadPlotly", "Download Graph"))),
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::uiOutput("siteInfo" )),
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::textOutput("title"),
                                                          DT::dataTableOutput("table"))),#end of first col
                                          shiny::column(9,
-                                         shiny::tabsetPanel(type = "tabs",
+                                         shiny::tabsetPanel(type = "tabs",id = "selectedTab",
                                                             shiny::tabPanel("Continuous Discharge",
                                                                             shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"),
                                                                                                          color = "#00ADD7"),
@@ -80,7 +84,7 @@ run.RC.cont.Q.plot <-function(){
 
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
-      
+
       # Run function
       metaD <- neonStageQplot::frmt.meta.data.df(input.list = input,
                                                  product.list = productList)
@@ -107,16 +111,16 @@ run.RC.cont.Q.plot <-function(){
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
-      
+
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
-        
+
         shiny::incProgress(amount = 0.50,
                            message = "Pulling data from neonUtilities",
                            detail = NULL,
                            session = shiny::getDefaultReactiveDomain())
         base::Sys.sleep(0.25)
-        
+
         # Download and process NEON data
         continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
@@ -126,12 +130,20 @@ run.RC.cont.Q.plot <-function(){
 
     },ignoreInit = T)# End getPackage
 
+    plots <- reactiveValues()
+    whichPlot <- reactiveValues()
+
+    #download the correct graph according to tab
+    observeEvent(input$selectedTab, {
+      whichPlot$currentTab = input$selectedTab
+    })
+
     # Plotting continuous discharge with uncertainty
     output$plot1 <- plotly::renderPlotly({
 
       # Unpack the data frame from getPackage
       continuousDischarge_list <- getPackage()
-      
+
       # Format QF inputs
       if(input$qctrFlag == TRUE){
         finalQfInput <- T
@@ -143,15 +155,14 @@ run.RC.cont.Q.plot <-function(){
       }else{
         sciRvwQfInput <- F
       }
-      
+
       # Plot continuous discharge and store in output
-      method <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
+      plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
                                             start.date = input$dateRange[[1]],
                                             end.date = input$dateRange[[2]],
                                             input.list = continuousDischarge_list,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput)
-      
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
@@ -159,15 +170,28 @@ run.RC.cont.Q.plot <-function(){
 
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
-      
-      # Plot rating curve(s) and store in outpus
-      rcPlot <- neonStageQplot::plot.RC(site.id = input$siteId,
+
+      # Plot rating curve(s) and store in outputs
+      plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
                                         start.date = input$dateRange[[1]],
                                         end.date = input$dateRange[[2]],
                                         input.list = continuousDischarge_list)
-      rcPlot
-
     })# End plot2
+
+    #download handler for plotly download functionality
+    output$downloadPlotly <- downloadHandler(
+      filename = function() {
+        paste("plot-", Sys.Date(), ".html", sep = "")
+      },
+      content = function(file) {
+        if(whichPlot$currentTab == "Continuous Discharge"){
+          htmlwidgets::saveWidget(as_widget(partial_bundle(plots$plot.cont.Q)), file, selfcontained = TRUE)
+        }
+        else{
+          htmlwidgets::saveWidget(as_widget(partial_bundle(plots$plot.RC)), file, selfcontained = TRUE)
+        }
+      }
+    )
 
   }#end of server
 
