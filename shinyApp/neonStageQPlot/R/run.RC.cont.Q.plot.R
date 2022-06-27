@@ -187,10 +187,10 @@ run.RC.cont.Q.plot <-function(){
       },
       content = function(file) {
         if(whichPlot$currentTab == "Continuous Discharge"){
-          htmlwidgets::saveWidget(as_widget(partial_bundle(plots$plot.cont.Q)), file, selfcontained = TRUE)
+          htmlwidgets::saveWidget(as_widget(plotly::partial_bundle(plots$plot.cont.Q)), file, selfcontained = TRUE)
         }
         else{
-          htmlwidgets::saveWidget(as_widget(partial_bundle(plots$plot.RC)), file, selfcontained = TRUE)
+          htmlwidgets::saveWidget(as_widget(plotly::partial_bundle(plots$plot.RC)), file, selfcontained = TRUE)
         }
       }
     )
