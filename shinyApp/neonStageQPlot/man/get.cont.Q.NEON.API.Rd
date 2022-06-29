@@ -11,6 +11,8 @@ app user [string]}
 
 \item{end.date}{Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 user [string]}
+
+\item{api.token}{Optional: NEON API token provided by the user}
 }
 \value{
 Returns a list of:
@@ -30,4 +32,5 @@ License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 }
 \author{
 Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
+James M. Ross \email{ross.james94@gmail.com} \cr
 }
