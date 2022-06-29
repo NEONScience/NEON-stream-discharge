@@ -5,6 +5,7 @@
 
 #' @author
 #' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
+#' James M. Ross \email{ross.james94@gmail.com} \cr
 
 #' @description  This function will download data from the NEON Portal API using neonUtilities
 #' based on user input and wrangle the data to create a summary table smoothed to 20 min
@@ -15,6 +16,7 @@
 #' app user [string]
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
+#' @param api.token Optional: NEON API token provided by the user
 
 #' @return Returns a list of:
 #' 1) 'continuousDischarge_sum' is a data frame that contains continuous stage and discharge at
@@ -31,6 +33,8 @@
 # changelog and author contributions / copyrights
 #   Zachary L. Nickerson (2022-06-20)
 #     original creation
+#   James M. Ross (2022-06-29)
+#     updates that add NEON API Token functionality
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)

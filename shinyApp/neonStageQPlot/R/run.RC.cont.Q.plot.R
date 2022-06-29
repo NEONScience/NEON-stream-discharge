@@ -40,11 +40,10 @@ run.RC.cont.Q.plot <-function(){
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
-                         shiny::titlePanel("API TOKEN NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+                         shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                                          shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
-                                                         shiny::textInput("apiToken", "API Token"),
                                                          shiny::selectInput("domainId","Domain ID",productList$domain),
                                                          shiny::selectInput("siteId","Select Site ID",NULL),
                                                          shiny::dateRangeInput("dateRange","Date range:",
@@ -52,6 +51,7 @@ run.RC.cont.Q.plot <-function(){
                                                                                min="2016-01-01",
                                                                                start="2019-01-01",end="2019-01-31",
                                                                                format="yyyy-mm-dd"),
+                                                         shiny::textInput("apiToken", "NEON API Token (Optional)"),
                                                          shiny::actionButton(inputId="submit","Submit"),
                                                          shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE)),
