@@ -36,6 +36,8 @@ run.RC.cont.Q.plot <-function(){
   # Read in refernce table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
+  siteID <- NULL
+  domainID <- NULL
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -57,8 +59,7 @@ run.RC.cont.Q.plot <-function(){
                                                          conditionalPanel(
                                                            #checks that one of the graphs has been loaded
                                                            condition = "output.plot1 != null || output.plot2 != null",
-                                                           shiny::fluidRow("NOTE: Download will be slower with date ranges larger than 6 months.",
-                                                           shiny::downloadButton("downloadPlotly", "Download Graph")))),
+                                                           shiny::downloadButton("downloadPlotly", "Download Graph"))),
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::uiOutput("siteInfo" )),
                                          shiny::hr(),
@@ -109,7 +110,8 @@ run.RC.cont.Q.plot <-function(){
       output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
 
       # Set date variables for app running (special consideration for TOOK)
-      siteID <- input$siteId
+      siteID <<- input$siteId
+      domainID <<- input$domainId
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
@@ -133,11 +135,11 @@ run.RC.cont.Q.plot <-function(){
     },ignoreInit = T)# End getPackage
 
     plots <- reactiveValues()
-    whichPlot <- reactiveValues()
+    whichTab <- reactiveValues()
 
     #download the correct graph according to tab
     observeEvent(input$selectedTab, {
-      whichPlot$currentTab = input$selectedTab
+      whichTab$currentTab = input$selectedTab
     })
 
     # Plotting continuous discharge with uncertainty
@@ -183,17 +185,34 @@ run.RC.cont.Q.plot <-function(){
     #download handler for plotly download functionality
     output$downloadPlotly <- downloadHandler(
       filename = function() {
-        paste("plot-", Sys.Date(), ".html", sep = "")
+        downloadParam <- whichPlot()
+        #file name format NEON.DOMAIN.SITE.DP4.0013[0,3]_STARTDATE_ENDDATE.html
+        paste("NEON.",domainID,".",siteID,".",downloadParam$dpName,"_",input$dateRange[1],"_",input$dateRange[2],".html", sep = "")
       },
       content = function(file) {
-        if(whichPlot$currentTab == "Continuous Discharge"){
-          htmlwidgets::saveWidget(as_widget(plotly::partial_bundle(plots$plot.cont.Q)), file, selfcontained = TRUE)
-        }
-        else{
-          htmlwidgets::saveWidget(as_widget(plotly::partial_bundle(plots$plot.RC)), file, selfcontained = TRUE)
-        }
+        downloadParam <- whichPlot()
+        shiny::withProgress(
+          message = paste0("Downloading Plot to HTML file"),
+          value = 0,
+          {
+            shiny::incProgress(1/10)
+            base::Sys.sleep(1)
+            shiny::incProgress(5/10)
+            htmlwidgets::saveWidget(as_widget(plotly::partial_bundle(downloadParam$plotToWidget)), file, selfcontained = TRUE)
+          }
+        )
       }
     )
+    #sends the correct plot and data package name to download handler
+    whichPlot <- function(){
+      if(whichTab$currentTab == "Continuous Discharge"){
+      downloadParam <- list("plotToWidget" = plots$plot.cont.Q, "dpName" = "DP4.00130")
+    }
+      else{
+        downloadParam <- list("plotToWidget" = plots$plot.RC, "dpName" = "DP4.00133")
+      }
+      return(downloadParam)
+    }
 
   }#end of server
 
