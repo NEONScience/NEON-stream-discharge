@@ -29,7 +29,7 @@ phenocamGET <- function(siteID,domainID,dateTime){
   # #UTC dateTime
   # dateTime <- "2021-12-01T18:00:00Z"
 
-  phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.sr.unh.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
+  phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.nau.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
                             encoding = "UTF-8")
 
   if(is.null(phenoGET$url)){

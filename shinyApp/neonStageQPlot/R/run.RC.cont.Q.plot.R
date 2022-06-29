@@ -82,6 +82,8 @@ run.RC.cont.Q.plot <-function(){
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
 
+
+
     #phenoImage observe
     #displays phenocam image when point is clicked on graph
     #pulls image closest to selected date
@@ -103,6 +105,7 @@ run.RC.cont.Q.plot <-function(){
 
         if(!is.null(phenoURL)){
           isGoodRequest <- TRUE
+          phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
           phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID)
 
         }
@@ -111,6 +114,26 @@ run.RC.cont.Q.plot <-function(){
         }
       }
     })
+
+    output$downloadPheno <- downloadHandler(
+      filename = function() {
+        paste("NEON.",domainID,".",siteID,".","DP1.20002","_",phenoInfo$dateTime,".jpg", sep="")
+      },
+      content = function(file) {
+        utils::download.file(phenoInfo$URL,file,mode='wb')
+      }
+    )
+
+    #gets phenocam info for download handler
+    phenoInfo <- NULL
+    createPhenoInfo <- function(phenoURL,usrDateTime){
+      usrDateTime <- stringr::str_replace(usrDateTime, " ","_")
+      usrDateTime <- stringr::str_replace(usrDateTime, ":","-")
+      usrDateTime <- paste0(usrDateTime,"-UTC")
+      phenoInfo <- list("URL" = phenoURL, "dateTime" = usrDateTime)
+      return(phenoInfo)
+    }
+
 
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{

@@ -30,6 +30,7 @@ phenoModal <- function(phenoURL,usrDateTime,isGoodRequest,siteID){
       size = "l",
       tags$img(
         src = phenoURL),
+      footer = downloadButton("downloadPheno",label = "Download Phenocam Image"),
       easyClose = TRUE))
   }
   else{
