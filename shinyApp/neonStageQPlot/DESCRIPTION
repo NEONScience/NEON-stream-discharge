@@ -18,7 +18,8 @@ Depends:
 		dplyr,
 		readr,
 		tidyr,
-		htmlwidgets
+		htmlwidgets,
+		httr
 License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
