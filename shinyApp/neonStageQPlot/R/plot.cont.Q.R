@@ -5,6 +5,7 @@
 
 #' @author
 #' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
+#' James M. Ross \email{ross.james94@gmail.com} \cr
 
 #' @description  This function will generate a plotly plot of NEON Continuous Discharge
 #' (DP4.00130.001) data to be rendered in the discharge visualization shiny app
@@ -30,6 +31,8 @@
 # changelog and author contributions / copyrights
 #   Zachary L. Nickerson (2022-06-20)
 #     original creation
+#   James M. Ross (2022-07-01)
+#     updated graph colors to be more colorblind friendly
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)

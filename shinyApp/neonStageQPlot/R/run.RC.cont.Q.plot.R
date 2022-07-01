@@ -6,6 +6,7 @@
 #' @author
 #' Divine Aseaku \email{divineaseaku@gmail.com} \cr
 #' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
+#' James Ross \email{ross.james94@gmail.com} \cr
 
 #' @description  An interactive app which  plots continuous discharge, Stage discharge and
 #' rating curves using language R Data is downloaded from the NEON data portal using
@@ -27,6 +28,8 @@
 #     updates for plotting TOMB-USGS discharge data
 #   Zachary L. Nickerson (2022-06-20)
 #     updates that move code chunks in server to functions
+#   James M. Ross (2022-07-01)
+#     added phenocam functionality
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)

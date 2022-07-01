@@ -8,6 +8,10 @@
 #' @description  Uses given siteID, domainID, and dateTime to retrieve url to a phenocam image.
 #' Closest to given parameters.
 
+#' @param siteID Required: SiteID from app [string]
+#' @param domainID Required: domainID from app [string]
+#' @param dateTime Required: dateTime generated from plotly click event [string]
+
 #' @return This function returns a url to a phenocam image. If no image available returns NULL.
 
 #' @references
@@ -15,7 +19,7 @@
 
 #' @export phenocamGET
 
-# # # changelog and author contributions / copyrights
+# changelog and author contributions / copyrights
 #   James M. Ross
 #     original creation
 ##############################################################################################

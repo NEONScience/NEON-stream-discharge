@@ -34,7 +34,7 @@
 #   Zachary L. Nickerson (2022-06-20)
 #     original creation
 #   James M. Ross (2022-06-29)
-#     updates that add NEON API Token functionality
+#     added NEON API Token functionality
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)

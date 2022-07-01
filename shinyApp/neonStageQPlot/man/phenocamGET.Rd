@@ -3,6 +3,13 @@
 \name{phenocamGET}
 \alias{phenocamGET}
 \title{Phenocam GET request}
+\arguments{
+\item{siteID}{Required: SiteID from app [string]}
+
+\item{domainID}{Required: domainID from app [string]}
+
+\item{dateTime}{Required: dateTime generated from plotly click event [string]}
+}
 \value{
 This function returns a url to a phenocam image. If no image available returns NULL.
 }

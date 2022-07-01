@@ -12,7 +12,7 @@ app user [string]}
 \item{end.date}{Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 user [string]}
 
-\item{api.token}{Optional: NEON API token provided by the user}
+\item{api.token}{Optional: NEON API token provided by the user [string]}
 }
 \value{
 Returns a list of:

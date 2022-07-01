@@ -17,4 +17,5 @@ License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 \author{
 Divine Aseaku \email{divineaseaku@gmail.com} \cr
 Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
+James Ross \email{ross.james94@gmail.com} \cr
 }
