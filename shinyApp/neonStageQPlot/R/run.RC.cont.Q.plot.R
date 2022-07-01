@@ -127,7 +127,6 @@ run.RC.cont.Q.plot <-function(){
                                                                         start.date = startDate,
                                                                         end.date = endDate,
                                                                         api.token = apiToken)
-
       })#end of withProgress
 
 
