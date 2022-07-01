@@ -115,6 +115,7 @@ run.RC.cont.Q.plot <-function(){
       # Set date variables for app running (special consideration for TOOK)
       siteID <<- input$siteId
       domainID <<- input$domainId
+      apiToken <- input$apiToken
 
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])

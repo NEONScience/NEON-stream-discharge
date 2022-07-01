@@ -16,7 +16,7 @@
 #' app user [string]
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
-#' @param api.token Optional: NEON API token provided by the user
+#' @param api.token Optional: NEON API token provided by the user [string]
 
 #' @return Returns a list of:
 #' 1) 'continuousDischarge_sum' is a data frame that contains continuous stage and discharge at
