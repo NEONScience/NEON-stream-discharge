@@ -17,7 +17,8 @@ Depends:
 		stringr,
 		dplyr,
 		readr,
-		tidyr
+		tidyr,
+		httr
 License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true

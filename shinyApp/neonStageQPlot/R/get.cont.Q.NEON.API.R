@@ -5,6 +5,7 @@
 
 #' @author
 #' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
+#' James M. Ross \email{ross.james94@gmail.com} \cr
 
 #' @description  This function will download data from the NEON Portal API using neonUtilities
 #' based on user input and wrangle the data to create a summary table smoothed to 20 min
@@ -15,6 +16,7 @@
 #' app user [string]
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
+#' @param api.token Optional: NEON API token provided by the user
 
 #' @return Returns a list of:
 #' 1) 'continuousDischarge_sum' is a data frame that contains continuous stage and discharge at
@@ -31,11 +33,15 @@
 # changelog and author contributions / copyrights
 #   Zachary L. Nickerson (2022-06-20)
 #     original creation
+#   James M. Ross (2022-06-29)
+#     updates that add NEON API Token functionality
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-get.cont.Q.NEON.API <-function(site.id,start.date,end.date){
+get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
+
+  print(api.token)
 
   if(missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
@@ -65,7 +71,8 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date){
     check.size = F,
     site = site,
     startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
-    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"))
+    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
+    token = api.token)
 
   # Get rating curve data from the NEON API
   if(site!="TOMB"){
@@ -74,8 +81,8 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date){
       package = "basic",
       check.size = F,
       site = site,
-      tabl = "sdrc_gaugeDischargeMeas"
-    )
+      tabl = "sdrc_gaugeDischargeMeas",
+      token = api.token)
 
     # Format gauge-discharge measurement data
     sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas

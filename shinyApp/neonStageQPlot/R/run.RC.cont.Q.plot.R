@@ -39,6 +39,7 @@ run.RC.cont.Q.plot <-function(){
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
+                         tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
                          shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
                          shiny::fluidRow(shiny::column(3,
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
@@ -50,6 +51,7 @@ run.RC.cont.Q.plot <-function(){
                                                                                min="2016-01-01",
                                                                                start="2019-01-01",end="2019-01-31",
                                                                                format="yyyy-mm-dd"),
+                                                         shiny::textInput("apiToken", "NEON API Token (Optional)"),
                                                          shiny::actionButton(inputId="submit","Submit"),
                                                          shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE)),
@@ -80,7 +82,7 @@ run.RC.cont.Q.plot <-function(){
 
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
-      
+
       # Run function
       metaD <- neonStageQplot::frmt.meta.data.df(input.list = input,
                                                  product.list = productList)
@@ -91,8 +93,9 @@ run.RC.cont.Q.plot <-function(){
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
-      # # Manually set input variables for local testing - comment out when running app
+      # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
+
       # input$siteId <- "MAYF"
       # input$dateRange[[1]] <- "2020-09-01"
       # input$dateRange[[2]] <- "2020-10-31"
@@ -104,25 +107,29 @@ run.RC.cont.Q.plot <-function(){
 
       # Set date variables for app running (special consideration for TOOK)
       siteID <- input$siteId
+      apiToken <- input$apiToken
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
-      
+
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
-        
+
         shiny::incProgress(amount = 0.50,
                            message = "Pulling data from neonUtilities",
+
                            detail = NULL,
                            session = shiny::getDefaultReactiveDomain())
         base::Sys.sleep(0.25)
-        
+
         # Download and process NEON data
         continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
-                                                                        end.date = endDate)
+                                                                        end.date = endDate,
+                                                                        api.token = apiToken)
 
       })#end of withProgress
+
 
     },ignoreInit = T)# End getPackage
 
@@ -131,8 +138,9 @@ run.RC.cont.Q.plot <-function(){
 
       # Unpack the data frame from getPackage
       continuousDischarge_list <- getPackage()
-      
+
       # Format QF inputs
+
       if(input$qctrFlag == TRUE){
         finalQfInput <- T
       }else{
@@ -143,7 +151,7 @@ run.RC.cont.Q.plot <-function(){
       }else{
         sciRvwQfInput <- F
       }
-      
+
       # Plot continuous discharge and store in output
       method <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
                                             start.date = input$dateRange[[1]],
@@ -151,7 +159,7 @@ run.RC.cont.Q.plot <-function(){
                                             input.list = continuousDischarge_list,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput)
-      
+
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
@@ -159,14 +167,13 @@ run.RC.cont.Q.plot <-function(){
 
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
-      
+
       # Plot rating curve(s) and store in outpus
       rcPlot <- neonStageQplot::plot.RC(site.id = input$siteId,
                                         start.date = input$dateRange[[1]],
                                         end.date = input$dateRange[[2]],
                                         input.list = continuousDischarge_list)
       rcPlot
-
     })# End plot2
 
   }#end of server
