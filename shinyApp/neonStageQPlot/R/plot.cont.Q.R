@@ -59,7 +59,7 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   continuousDischarge_sum <- input.list[[1]]
 
   # Build plot layout
-  method <- plotly::plot_ly(data=continuousDischarge_sum)%>%
+  method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
     layout(
       xaxis=list(tick=14,
                  automargin=T,

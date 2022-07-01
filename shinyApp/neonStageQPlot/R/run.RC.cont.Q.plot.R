@@ -35,6 +35,7 @@ run.RC.cont.Q.plot <-function(){
 
   # Read in refernce table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
+  #Global Vars
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
@@ -87,6 +88,57 @@ run.RC.cont.Q.plot <-function(){
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
 
+
+    #phenoImage observe
+    #displays phenocam image when point is clicked on graph
+    #pulls image closest to selected date
+    observe({
+      new_clickEvent <- plotly::event_data(event = "plotly_click", source = "phenoDate")
+
+      if (!is.null(new_clickEvent)) {
+        #formats date & time for phenocamGet
+        dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
+        dateTime <- paste0(dateTime,":00Z")
+        #returns url for phenocam image
+        phenoURL <- phenocamGET(siteID,domainID,dateTime)
+        #formats date & time for bad request modal
+        usrDateTime <- dateTime
+        usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
+        usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
+
+        isGoodRequest <- FALSE
+
+        if(!is.null(phenoURL)){
+          isGoodRequest <- TRUE
+          phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
+          phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID)
+
+        }
+        else{
+          phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID)
+        }
+      }
+    })
+
+    output$downloadPheno <- downloadHandler(
+      filename = function() {
+        paste("NEON.",domainID,".",siteID,".","DP1.20002","_",phenoInfo$dateTime,".jpg", sep="")
+      },
+      content = function(file) {
+        utils::download.file(phenoInfo$URL,file,mode='wb')
+      }
+    )
+
+    #gets phenocam info for download handler
+    phenoInfo <- NULL
+    createPhenoInfo <- function(phenoURL,usrDateTime){
+      usrDateTime <- stringr::str_replace(usrDateTime, " ","_")
+      usrDateTime <- stringr::str_replace(usrDateTime, ":","-")
+      usrDateTime <- paste0(usrDateTime,"-UTC")
+      phenoInfo <- list("URL" = phenoURL, "dateTime" = usrDateTime)
+      return(phenoInfo)
+    }
+
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
 
@@ -116,7 +168,6 @@ run.RC.cont.Q.plot <-function(){
       siteID <<- input$siteId
       domainID <<- input$domainId
       apiToken <- input$apiToken
-
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
@@ -183,6 +234,7 @@ run.RC.cont.Q.plot <-function(){
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
 
+
       # Plot rating curve(s) and store in outputs
       plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
                                         start.date = input$dateRange[[1]],
@@ -223,6 +275,8 @@ run.RC.cont.Q.plot <-function(){
     }
 
   }#end of server
+
+
 
   # Run the app ----
   shiny::shinyApp(ui = ui, server = server)

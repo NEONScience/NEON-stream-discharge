@@ -6,18 +6,18 @@
 \arguments{
 \item{site.id}{Required: NEON AQU site ID selected by the shiny app user [string]}
 
-\item{start.date}{Required: Search interval start date (YYYY-MM-DD) selected by the shiny 
+\item{start.date}{Required: Search interval start date (YYYY-MM-DD) selected by the shiny
 app user [string]}
 
-\item{end.date}{Required: Search interval end date (YYYY-MM-DD) selected by the shiny app 
+\item{end.date}{Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 user [string]}
 
 \item{input.list}{Required: List containing the data used in plotting [list]}
 
-\item{plot.final.QF}{Required: Indicator of plotting the finalDischargeQF field from the 
+\item{plot.final.QF}{Required: Indicator of plotting the finalDischargeQF field from the
 DP4.00130.001 data product [boolean]}
 
-\item{plot.sci.rvw.QF}{Required: Indicator of plotting the finalDischargeQFSciRvw field 
+\item{plot.sci.rvw.QF}{Required: Indicator of plotting the finalDischargeQFSciRvw field
 from the DP4.00130.001 data product [boolean]}
 }
 \value{
