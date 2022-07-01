@@ -152,6 +152,7 @@ run.RC.cont.Q.plot <-function(){
         sciRvwQfInput <- F
       }
 
+
       # Plot continuous discharge and store in output
       method <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
                                             start.date = input$dateRange[[1]],
@@ -159,7 +160,6 @@ run.RC.cont.Q.plot <-function(){
                                             input.list = continuousDischarge_list,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput)
-
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
@@ -173,7 +173,6 @@ run.RC.cont.Q.plot <-function(){
                                         start.date = input$dateRange[[1]],
                                         end.date = input$dateRange[[2]],
                                         input.list = continuousDischarge_list)
-      rcPlot
     })# End plot2
 
   }#end of server
