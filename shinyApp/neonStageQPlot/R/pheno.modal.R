@@ -26,7 +26,6 @@ phenoModal <- function(phenoURL,usrDateTime,isGoodRequest,siteID){
   if(isGoodRequest==TRUE){
     showModal(modalDialog(
       title = "Phenocam Image",
-      "To download the image right click on the image and click 'Save image as...'",
       size = "l",
       tags$img(
         src = phenoURL),
