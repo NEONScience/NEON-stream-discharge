@@ -51,6 +51,7 @@ run.RC.cont.Q.plot <-function(){
                                                                                min="2016-01-01",
                                                                                start="2019-01-01",end="2019-01-31",
                                                                                format="yyyy-mm-dd"),
+                                                         shiny::textInput("apiToken", "NEON API Token (Optional)"),
                                                          shiny::actionButton(inputId="submit","Submit"),
                                                          shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE)),
@@ -106,6 +107,7 @@ run.RC.cont.Q.plot <-function(){
 
       # Set date variables for app running (special consideration for TOOK)
       siteID <- input$siteId
+      apiToken <- input$apiToken
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
 
@@ -123,7 +125,8 @@ run.RC.cont.Q.plot <-function(){
         # Download and process NEON data
         continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
-                                                                        end.date = endDate)
+                                                                        end.date = endDate,
+                                                                        api.token = apiToken)
 
       })#end of withProgress
 
@@ -164,7 +167,6 @@ run.RC.cont.Q.plot <-function(){
 
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
-
 
       # Plot rating curve(s) and store in outpus
       rcPlot <- neonStageQplot::plot.RC(site.id = input$siteId,
