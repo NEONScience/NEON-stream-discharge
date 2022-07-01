@@ -41,8 +41,6 @@ options(stringsAsFactors = F)
 
 get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
 
-  print(api.token)
-
   if(missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
   }
