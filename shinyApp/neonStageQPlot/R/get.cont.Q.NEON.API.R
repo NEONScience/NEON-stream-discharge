@@ -193,7 +193,7 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA){
   }
 
   # Add historic median Q to the summary table
-  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VA.rds","rb"))
+  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VB.rds","rb"))
   histMedQ <- histMedQ%>%
     dplyr::filter(siteID==site.id)
   # histMedQ$medianEndDate[is.na(histMedQ$medianEndDate)] <- Sys.Date()
