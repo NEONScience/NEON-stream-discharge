@@ -52,7 +52,7 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
   # Get data
   curveIDs <- input.list[[2]]
 
-  if(!is.na(curveIDs)){
+  if(all(!is.na(curveIDs))){
     # Get the data for plotting
     utils::download.file(
       "https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds",
@@ -115,11 +115,11 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
         filter(curveID==currentCurveID)
       rcPlot <- rcPlot%>%
         # Total Uncertainty
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#D55E00',line=list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#D55E00',line=list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         # Parametric Uncertainty
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#E69F00',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#E69F00',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         # Max Post Q
         plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=list(color='black'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
         # Empirical H/Q Pairs
