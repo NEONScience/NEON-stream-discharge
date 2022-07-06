@@ -32,6 +32,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
+#comment out source files and clear global environment to run devtools::document()
 source("frmt.meta.data.df.R")
 source("get.cont.Q.NEON.API.R")
 source("pheno.GET.R")
@@ -54,9 +55,6 @@ library(readr)
 library(tidyr)
 library(htmlwidgets)
 library(httr)
-
-
-
 
 
   # Read in reference table from Github
@@ -252,6 +250,11 @@ library(httr)
                                             input.list = continuousDischarge_list,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput)
+
+      # plot_csdWebGL <- plots$plot.cont.Q %>% toWebGL()
+      #
+      # plot_csdWebGL
+
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
