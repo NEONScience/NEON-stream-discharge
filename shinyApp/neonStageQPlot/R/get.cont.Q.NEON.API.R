@@ -192,12 +192,14 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA){
     curveIDs <- NA
   }
 
+  # browser()
   # Add historic median Q to the summary table
   histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VA.rds","rb"))
   histMedQ <- histMedQ%>%
     dplyr::filter(siteID==site.id)
+  View(histMedQ)
   # histMedQ$medianEndDate[is.na(histMedQ$medianEndDate)] <- Sys.Date()
-  continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",lubridate::round_date(continuousDischarge_sum$date,"20 mins"))
+  continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
   continuousDischarge_sum$histMedQ <- NA
   for(i in 1:nrow(continuousDischarge_sum)){
     continuousDischarge_sum$histMedQ[i] <- histMedQ$medianQ[histMedQ$monthDay==continuousDischarge_sum$monthDay[i]#&
