@@ -33,6 +33,8 @@
 #     original creation
 #   James M. Ross (2022-07-01)
 #     updated graph colors to be more colorblind friendly
+#   James M. Ross (2022-07-06)
+#     added historical medQ to graph
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)
