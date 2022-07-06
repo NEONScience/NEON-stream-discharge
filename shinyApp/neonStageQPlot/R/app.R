@@ -17,8 +17,6 @@
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
-#' @export run.RC.cont.Q.plot
-
 # changelog and author contributions / copyrights
 #   Divine Aseaku (2021-08-04)
 #     original creation
@@ -34,9 +32,34 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-run.RC.cont.Q.plot <-function(){
+source("frmt.meta.data.df.R")
+source("get.cont.Q.NEON.API.R")
+source("pheno.GET.R")
+source("pheno.modal.R")
+source("plot.cont.Q.R")
+source("plot.RC.R")
 
-  # Read in refernce table from Github
+
+library(shiny)
+library(plotly)
+library(neonUtilities)
+library(DT)
+library(shinyWidgets)
+library(shinycssloaders)
+library(lubridate)
+library(stageQCurve)
+library(stringr)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(htmlwidgets)
+library(httr)
+
+
+
+
+
+  # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   #Global Vars
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
@@ -103,7 +126,7 @@ run.RC.cont.Q.plot <-function(){
         dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
         dateTime <- paste0(dateTime,":00Z")
         #returns url for phenocam image
-        phenoURL <- phenocamGET(siteID,domainID,dateTime)
+        phenoURL <- pheno.GET(siteID,domainID,dateTime)
         #formats date & time for bad request modal
         usrDateTime <- dateTime
         usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
@@ -114,11 +137,11 @@ run.RC.cont.Q.plot <-function(){
         if(!is.null(phenoURL)){
           isGoodRequest <- TRUE
           phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
-          phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID)
+          pheno.modal(phenoURL,usrDateTime,isGoodRequest,siteID)
 
         }
         else{
-          phenoModal(phenoURL,usrDateTime,isGoodRequest,siteID)
+          pheno.modal(phenoURL,usrDateTime,isGoodRequest,siteID)
         }
       }
     })
@@ -146,7 +169,7 @@ run.RC.cont.Q.plot <-function(){
     getPackage <- shiny::eventReactive(input$submit,{
 
       # Run function
-      metaD <- neonStageQplot::frmt.meta.data.df(input.list = input,
+      metaD <- frmt.meta.data.df(input.list = input,
                                                  product.list = productList)
 
       # Enter header for metadata table
@@ -186,7 +209,7 @@ run.RC.cont.Q.plot <-function(){
         base::Sys.sleep(0.25)
 
         # Download and process NEON data
-        continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
+        continuousDischarge_list <- get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
                                                                         end.date = endDate,
                                                                         api.token = apiToken)
@@ -223,7 +246,7 @@ run.RC.cont.Q.plot <-function(){
       }
 
       # Plot continuous discharge and store in output
-      plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
+      plots$plot.cont.Q <- plot.cont.Q(site.id = input$siteId,
                                             start.date = input$dateRange[[1]],
                                             end.date = input$dateRange[[2]],
                                             input.list = continuousDischarge_list,
@@ -239,7 +262,7 @@ run.RC.cont.Q.plot <-function(){
 
 
       # Plot rating curve(s) and store in outputs
-      plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
+      plots$plot.RC <- plot.RC(site.id = input$siteId,
                                         start.date = input$dateRange[[1]],
                                         end.date = input$dateRange[[2]],
                                         input.list = continuousDischarge_list)
@@ -284,7 +307,7 @@ run.RC.cont.Q.plot <-function(){
   # Run the app ----
   shiny::shinyApp(ui = ui, server = server)
 
-}
+
 
 
 
