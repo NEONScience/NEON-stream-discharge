@@ -33,10 +33,8 @@
 options(stringsAsFactors = F)
 
 #comment out source files and clear global environment to run devtools::document()
-source("frmt.meta.data.df.R")
 source("get.cont.Q.NEON.API.R")
 source("pheno.GET.R")
-source("pheno.modal.R")
 source("plot.cont.Q.R")
 source("plot.RC.R")
 
@@ -130,16 +128,22 @@ library(httr)
         usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
         usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
 
-        isGoodRequest <- FALSE
-
         if(!is.null(phenoURL)){
-          isGoodRequest <- TRUE
           phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
-          pheno.modal(phenoURL,usrDateTime,isGoodRequest,siteID)
-
+          showModal(modalDialog(
+            title = "Phenocam Image",
+            size = "l",
+            tags$img(
+              src = phenoURL),
+            footer = downloadButton("downloadPheno",label = "Download Phenocam Image"),
+            easyClose = TRUE))
         }
         else{
-          pheno.modal(phenoURL,usrDateTime,isGoodRequest,siteID)
+          showModal(modalDialog(
+            title = "Phenocam Image",
+            "No phenocam image available at ",siteID," for Date/Time",usrDateTime,
+            size = "s",
+            easyClose = TRUE))
         }
       }
     })
@@ -166,9 +170,17 @@ library(httr)
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
 
-      # Run function
-      metaD <- frmt.meta.data.df(input.list = input,
-                                                 product.list = productList)
+      metaD <-  productList%>%
+        dplyr::filter(siteID == input$siteId)%>%
+        dplyr::select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
+        dplyr::rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,
+                      "Reach slope (m)" = reachSlopeM,
+                      "Mean bankfull width (m)"= averageBankfullWidthM,
+                      "D50 particle size (mm)"=d50ParticleSizeMM) %>%
+        dplyr::mutate_all(as.character)%>%
+        tidyr::pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),
+                            names_to = "MetaData",
+                            values_to = "Values")
 
       # Enter header for metadata table
       output$title <- shiny::renderText("Metadata Table")
