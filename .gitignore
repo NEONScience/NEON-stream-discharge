@@ -2,5 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-phenoImage.png
-www
+www/
+rsconnect/
+rcPlottingData.rds

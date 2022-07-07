@@ -2,8 +2,7 @@
 
 export(frmt.meta.data.df)
 export(get.cont.Q.NEON.API)
-export(phenoModal)
-export(phenocamGET)
+export(pheno.GET)
+export(pheno.modal)
 export(plot.RC)
 export(plot.cont.Q)
-export(run.RC.cont.Q.plot)

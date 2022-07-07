@@ -1,6 +1,6 @@
 ##############################################################################################
 #' Phenocam GET request
-#' @name phenocamGET
+#' @name pheno.GET
 
 #' @author
 #' James Ross \email{ross.james94@gmail.com} \cr
@@ -17,7 +17,7 @@
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
-#' @export phenocamGET
+#' @export pheno.GET
 
 # changelog and author contributions / copyrights
 #   James M. Ross
@@ -26,7 +26,7 @@
 
 options(stringsAsFactors = F)
 
-phenocamGET <- function(siteID,domainID,dateTime){
+pheno.GET <- function(siteID,domainID,dateTime){
   # ###Test GET
   # siteID <- "PRIN"
   # domainID <- "D11"
