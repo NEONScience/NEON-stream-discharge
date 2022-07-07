@@ -1,7 +1,7 @@
 ##############################################################################################
 #' Phenocam modal
 
-#' @name phenoModal
+#' @name pheno.modal
 
 #' @author
 #' James Ross \email{ross.james94@gmail.com} \cr
@@ -18,7 +18,7 @@
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
-#' @export phenoModal
+#' @export pheno.modal
 
 # changelog and author contributions / copyrights
 #   James M. Ross (2022-07-01)
@@ -27,7 +27,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-phenoModal <- function(phenoURL,usrDateTime,isGoodRequest,siteID){
+pheno.modal <- function(phenoURL,usrDateTime,isGoodRequest,siteID){
 
   if(isGoodRequest==TRUE){
     showModal(modalDialog(
