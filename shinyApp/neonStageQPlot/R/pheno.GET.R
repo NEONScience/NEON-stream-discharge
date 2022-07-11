@@ -1,18 +1,20 @@
 ##############################################################################################
-#' Phenocam GET request
+#' Get URL to render Phenocam image for a NEON site at a given timestamp
 #' @name pheno.GET
 
 #' @author
 #' James Ross \email{ross.james94@gmail.com} \cr
 
-#' @description  Uses given siteID, domainID, and dateTime to retrieve url to a phenocam image.
-#' Closest to given parameters.
+#' @description  This function queries the Phenocam API to retrieve an image for the nearest
+#' timestamp basedo on user input and prints the image as an output.
 
-#' @param siteID Required: SiteID from app [string]
-#' @param domainID Required: domainID from app [string]
-#' @param dateTime Required: dateTime generated from plotly click event [string]
+#' @param dpID Required: Phenocam DPID formatted as DP#.##### [string]
+#' @param siteID Required: NEON site ID [string]
+#' @param domainID Required: NEON domain ID [string]
+#' @param dateTime Required: Date-time formatted as YYYY-MM-DDTHH:MM:SSZ [string]
 
-#' @return This function returns a url to a phenocam image. If no image available returns NULL.
+#' @return This function returns a url to render a Phenocam image. If no image available, the
+#' function returns NULL.
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -26,21 +28,35 @@
 
 options(stringsAsFactors = F)
 
-pheno.GET <- function(siteID,domainID,dateTime){
+pheno.GET <- function(dp.id,site.id,domain.id,date.time){
   # ###Test GET
-  # siteID <- "PRIN"
-  # domainID <- "D11"
+  # dp.id <- "DP1.20002"
+  # site.id <- "PRIN"
+  # domain.id <- "D11"
   # #UTC dateTime
-  # dateTime <- "2021-12-01T18:00:00Z"
+  # date.time <- "2021-12-01T18:00:00Z"
 
-  phenoGET <- httr::content(httr::GET(url = paste0("https://phenocam.nau.edu/neonapi/imageurl/NEON.",domainID,".",siteID,".DP1.20002/",dateTime,"/")),
+  if(missing(dp.id)){
+    stop('must provide dp.id to query Phenocam API')
+  }
+  if(missing(site.id)){
+    stop('must provide site.id to query Phenocam API')
+  }
+  if(missing(domain.id)){
+    stop('must provide domain.id to query Phenocam API')
+  }
+  if(missing(date.time)){
+    stop('must provide date.time to query Phenocam API')
+  }
+
+  phenoGET <- httr::content(httr::GET(url = base::paste0("https://phenocam.nau.edu/neonapi/imageurl/NEON.",domain.id,".",site.id,".",dp.id,"/",date.time,"/")),
                             encoding = "UTF-8")
 
-  if(is.null(phenoGET$url)){
+  if(base::is.null(phenoGET$url)){
     phenoURL <- NULL
-  }
-  else{
+  }else{
     phenoURL <- phenoGET$url
   }
+
   return(phenoURL)
 }

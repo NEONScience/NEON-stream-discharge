@@ -16,14 +16,20 @@
 #' app user [string]
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
-#' @param api.token Optional: NEON API token provided by the user [string]
+#' @param api.token Defaults to NA: NEON API personal access token. Learn about API tokens at
+#' https://www.neonscience.org/resources/learning-hub/tutorials/neon-api-tokens-tutorial [string]
+#' @param include.q.stats Defaults to FALSE: Include values for 3x median discharge and 25-75%
+#' flow in the outputs. Statistics are calculated from the time range selected by the user and
+#' exclude records that contain a science review quality flag (dischargeFinalQFSciRvw) [boolean]
 
 #' @return Returns a list of:
 #' 1) 'continuousDischarge_sum' is a data frame that contains continuous stage and discharge at
 #' 20 min intervals, discrete stage and discharge, and quality flags (finalDischargeQF and
-#' dischargeFinalQFSciRvw from DP4.00130.001), and
+#' dischargeFinalQFSciRvw from DP4.00130.001),
 #' 2) 'curveIDs' is a vector of all the unique rating curve IDs that are used to build the
-#' timeseries data.
+#' timeseries data, and
+#' 3) 'dischargeStats' is either a list of 3 values (3x median discharge, 25% discharge, 75%
+#' discharge) if include.q.stats = TRUE, or NA if include.q.stats = FALSE.
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -39,7 +45,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
+get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.q.stats=F){
 
   if(missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
@@ -192,11 +198,19 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
     curveIDs <- NA
   }
 
+  if(include.q.stats){
+    # Code for stats here
+  }else{
+    dischargeStats <- NA
+  }
+
   # Make an output list
-  continuousDischarge_list <- base::list(
-    continuousDischarge_sum,
-    curveIDs
-  )
+  continuousDischarge_list <- base::list(continuousDischarge_sum,
+                                         curveIDs,
+                                         dischargeStats)
+  names(continuousDischarge_list) <- c("continuousDischarge_sum",
+                                       "curveIDs",
+                                       "dischargeStats")
 
   return(continuousDischarge_list)
 

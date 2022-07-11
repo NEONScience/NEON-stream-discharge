@@ -2,20 +2,23 @@
 % Please edit documentation in R/pheno.GET.R
 \name{pheno.GET}
 \alias{pheno.GET}
-\title{Phenocam GET request}
+\title{Get URL to render Phenocam image for a NEON site at a given timestamp}
 \arguments{
-\item{siteID}{Required: SiteID from app [string]}
+\item{dpID}{Required: Phenocam DPID formatted as DP#.##### [string]}
 
-\item{domainID}{Required: domainID from app [string]}
+\item{siteID}{Required: NEON site ID [string]}
 
-\item{dateTime}{Required: dateTime generated from plotly click event [string]}
+\item{domainID}{Required: NEON domain ID [string]}
+
+\item{dateTime}{Required: Date-time formatted as YYYY-MM-DDTHH:MM:SSZ [string]}
 }
 \value{
-This function returns a url to a phenocam image. If no image available returns NULL.
+This function returns a url to render a Phenocam image. If no image available, the
+function returns NULL.
 }
 \description{
-Uses given siteID, domainID, and dateTime to retrieve url to a phenocam image.
-Closest to given parameters.
+This function queries the Phenocam API to retrieve an image for the nearest
+timestamp basedo on user input and prints the image as an output.
 }
 \references{
 License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
