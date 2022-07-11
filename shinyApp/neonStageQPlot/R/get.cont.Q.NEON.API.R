@@ -82,6 +82,16 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
       tabl = "sdrc_gaugeDischargeMeas",
       token = api.token)
 
+  #precipitation data from the NEON API
+  DP1.00006.001 <- loadByProduct(
+    dpID="DP1.00006.001",
+    package = "basic",
+    check.size = F,
+    site = site,
+    startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
+    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
+    token = api.token)
+
     # Format gauge-discharge measurement data
     sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
     if (site.id=="TOOK_inlet") {
@@ -192,10 +202,31 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
     curveIDs <- NA
   }
 
+  #DO1 HOPB yes primary
+  #DO2 LEWI no primary
+
+  #checks if primary precipitation data exist if not use secondary
+  #lubridate from highest available resolution data to 20 mins
+  if(!is.null(DP1.00006.001$PRIPRE_5min)){
+    primaryPtp <- DP1.00006.001$PRIPRE_5min
+    primaryPtp$date <- lubridate::round_date(primaryPtp$endDateTime, "20 mins")
+    gaugeID<-primaryPtp$siteID[1]
+
+    precipitationData <- list(primaryPtp,gaugeID)
+  }
+  else{
+    secondaryPtp <- DP1.00006.001$SECPRE_1min
+    secondaryPtp$date <- lubridate::round_date(secondaryPtp$endDateTime, "20 mins")
+    gaugeID<-secondaryPtp$siteID[1]
+
+    precipitationData <- list(secondaryPtp,gaugeID)
+  }
+
   # Make an output list
   continuousDischarge_list <- base::list(
     continuousDischarge_sum,
-    curveIDs
+    curveIDs,
+    precipitationData
   )
 
   return(continuousDischarge_list)
