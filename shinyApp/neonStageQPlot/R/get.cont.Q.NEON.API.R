@@ -39,7 +39,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
+get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA){
 
   if(missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
@@ -192,10 +192,25 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
     curveIDs <- NA
   }
 
+  # Add historic median Q to the summary table
+  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VB.rds","rb"))
+  histMedQ <- histMedQ%>%
+    dplyr::filter(siteID==site.id)
+  continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
+  continuousDischarge_sum$histMedQ <- NA
+  for(i in 1:nrow(continuousDischarge_sum)){
+    continuousDischarge_sum$histMedQ[i] <- histMedQ$medianQ[histMedQ$monthDay==continuousDischarge_sum$monthDay[i]]
+  }
+
+  minYear <- unique(histMedQ$minYear)
+  maxYear <- unique(histMedQ$maxYear)
+  histMedQYearRange <- list(minYear,maxYear)
+
   # Make an output list
   continuousDischarge_list <- base::list(
     continuousDischarge_sum,
-    curveIDs
+    curveIDs,
+    histMedQYearRange
   )
 
   return(continuousDischarge_list)
