@@ -27,7 +27,9 @@
 #' 20 min intervals, discrete stage and discharge, and quality flags (finalDischargeQF and
 #' dischargeFinalQFSciRvw from DP4.00130.001),
 #' 2) 'curveIDs' is a vector of all the unique rating curve IDs that are used to build the
-#' timeseries data, and
+#' timeseries data,
+#' 4) 'histMedQYearRange' is a list of 2 items: the min and max year from which the historic
+#' median discharge is calculated, and
 #' 3) 'dischargeStats' is either a list of 3 values (3x median discharge, 25% discharge, 75%
 #' discharge) if include.q.stats = TRUE, or NA if include.q.stats = FALSE.
 
@@ -204,21 +206,13 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
     dplyr::filter(siteID==site.id)
   continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
   continuousDischarge_sum$histMedQ <- NA
-  for(i in 1:nrow(continuousDischarge_sum)){
+  for(i in 1:base::nrow(continuousDischarge_sum)){
     continuousDischarge_sum$histMedQ[i] <- histMedQ$medianQ[histMedQ$monthDay==continuousDischarge_sum$monthDay[i]]
   }
+  minYear <- base::unique(histMedQ$minYear)
+  maxYear <- base::unique(histMedQ$maxYear)
+  histMedQYearRange <- base::list(minYear,maxYear)
 
-  minYear <- unique(histMedQ$minYear)
-  maxYear <- unique(histMedQ$maxYear)
-  histMedQYearRange <- list(minYear,maxYear)
-
-  # Make an output list
-  continuousDischarge_list <- base::list(
-    continuousDischarge_sum,
-    curveIDs,
-    histMedQYearRange
-  )
-  
   if(include.q.stats){
     # Code for stats here
   }else{
@@ -228,9 +222,11 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   # Make an output list
   continuousDischarge_list <- base::list(continuousDischarge_sum,
                                          curveIDs,
+                                         histMedQYearRange,
                                          dischargeStats)
   names(continuousDischarge_list) <- c("continuousDischarge_sum",
                                        "curveIDs",
+                                       "histMedQYearRange",
                                        "dischargeStats")
 
   return(continuousDischarge_list)
