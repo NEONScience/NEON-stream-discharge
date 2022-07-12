@@ -134,11 +134,15 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
             dplyr::filter(stringr::str_detect(regressionID,"TKOT"))
         }
       }
-      sdrc_gaugePressureRelationship$date <- base::paste0(base::as.Date(sdrc_gaugePressureRelationship$gaugeCollectDate)," 20:00:00")
-      sdrc_gaugePressureRelationship$date <- base::as.character(sdrc_gaugePressureRelationship$date)
-      sdrc_gaugePressureRelationship$gauge_Height <- sdrc_gaugePressureRelationship$gaugeHeight
-      sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
-        dplyr::select(gauge_Height, date)
+      if(base::nrow(sdrc_gaugePressureRelationship)>0){
+        sdrc_gaugePressureRelationship$date <- base::paste0(base::as.Date(sdrc_gaugePressureRelationship$gaugeCollectDate)," 20:00:00")
+        sdrc_gaugePressureRelationship$date <- base::as.character(sdrc_gaugePressureRelationship$date)
+        sdrc_gaugePressureRelationship$gauge_Height <- sdrc_gaugePressureRelationship$gaugeHeight
+        sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
+          dplyr::select(gauge_Height, date)
+      }else{
+        sdrc_gaugePressureRelationship <- NULL
+      }
     }
 
     # Creating summary table for variables and  uncertainties to be included
@@ -183,20 +187,21 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   }else{
     # Format continuous discharge for TOMB
     csd_continuousDischarge <- DP4.00130.001$csd_continuousDischargeUSGS
-    csd_continuousDischarge$date <- csd_continuousDischarge$endDate
+    csd_continuousDischarge$date <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
     continuousDischarge_sum <- csd_continuousDischarge%>%
-      dplyr::mutate(meanQ=usgsDischarge,
-                    meanH=NA,
-                    meanLHUnc=NA,
-                    meanUHUnc=NA,
-                    meanUParaUnc=withRegressionUncQUpper2Std,
-                    meanLParaUnc=withRegressionUncQLower2Std,
-                    meanURemnUnc=NA,
-                    meanLRemnUnc=NA,
-                    dischargeFinalQF=NA,
-                    streamDischarge=NA,
-                    gaugeHeight=NA,
-                    gauge_Height=NA)
+      dplyr::group_by(date)%>%
+      dplyr::summarize(meanQ=base::mean(usgsDischarge,na.rm = T),
+                       meanH=NA,
+                       meanLHUnc=NA,
+                       meanUHUnc=NA,,
+                       meanURemnUnc=NA,
+                       meanLRemnUnc=NA,
+                       meanUParaUnc=base::mean(withRegressionUncQUpper2Std,na.rm = T),
+                       meanLParaUnc=base::mean(withRegressionUncQLower2Std,na.rm = T),
+                       dischargeFinalQF=NA,
+                       streamDischarge=NA,
+                       gaugeHeight=NA,
+                       gauge_Height=NA)
     curveIDs <- NA
   }
 

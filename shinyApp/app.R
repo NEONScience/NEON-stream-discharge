@@ -111,29 +111,32 @@ library(httr)
     observe({
       new_clickEvent <- plotly::event_data(event = "plotly_click", source = "phenoDate")
 
-      if (!is.null(new_clickEvent)) {
+      if (!base::is.null(new_clickEvent)) {
         #formats date & time for phenocamGet
         dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
-        dateTime <- paste0(dateTime,":00Z")
+        dateTime <- base::paste0(dateTime,":00Z")
         #returns url for phenocam image
-        phenoURL <- pheno.GET(siteID,domainID,dateTime)
+        phenoURL <- neonStageQplot::pheno.GET(dp.id="DP1.20002",
+                                              site.id=siteID,
+                                              domain.id=domainID,
+                                              date.time=dateTime)
         #formats date & time for bad request modal
         usrDateTime <- dateTime
         usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
-        usrDateTime <- substr(usrDateTime,1,nchar(usrDateTime)-4)
+        usrDateTime <- base::substr(usrDateTime,1,base::nchar(usrDateTime)-4)
 
-        if(!is.null(phenoURL)){
+        if(!base::is.null(phenoURL)){
           phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
-          showModal(modalDialog(
+          shiny::showModal(shiny::modalDialog(
             title = "Phenocam Image",
             size = "l",
             tags$img(
               src = phenoURL),
-            footer = downloadButton("downloadPheno",label = "Download Phenocam Image"),
+            footer = shiny::downloadButton("downloadPheno",label = "Download Phenocam Image"),
             easyClose = TRUE))
         }
         else{
-          showModal(modalDialog(
+          shiny::showModal(shiny::modalDialog(
             title = "Phenocam Image",
             "No phenocam image available at ",siteID," for Date/Time",usrDateTime,
             size = "s",
@@ -142,9 +145,9 @@ library(httr)
       }
     })
 
-    output$downloadPheno <- downloadHandler(
+    output$downloadPheno <- shiny::downloadHandler(
       filename = function() {
-        paste("NEON.",domainID,".",siteID,".","DP1.20002","_",phenoInfo$dateTime,".jpg", sep="")
+        base::paste0("NEON.",domainID,".",siteID,".","DP1.20002","_",phenoInfo$dateTime,".jpg")
       },
       content = function(file) {
         utils::download.file(phenoInfo$URL,file,mode='wb')
@@ -156,7 +159,7 @@ library(httr)
     createPhenoInfo <- function(phenoURL,usrDateTime){
       usrDateTime <- stringr::str_replace(usrDateTime, " ","_")
       usrDateTime <- stringr::str_replace(usrDateTime, ":","-")
-      usrDateTime <- paste0(usrDateTime,"-UTC")
+      usrDateTime <- base::paste0(usrDateTime,"-UTC")
       phenoInfo <- list("URL" = phenoURL, "dateTime" = usrDateTime)
       return(phenoInfo)
     }
@@ -182,12 +185,13 @@ library(httr)
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
-      # Manually set input variables for local testing - comment out when running app
+      # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
-
-      # input$siteId <- "MAYF"
+      # input$siteId <- "TOOK_inlet"
+      # input$domainId <- "D18"
       # input$dateRange[[1]] <- "2020-09-01"
       # input$dateRange[[2]] <- "2020-10-31"
+      # apiToken <- NA
 
       # Create site description output
       siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
@@ -197,10 +201,9 @@ library(httr)
       # Set date variables for app running (special consideration for TOOK)
       siteID <<- input$siteId
       domainID <<- input$domainId
-      apiToken <- input$apiToken
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
-
+      apiToken <- input$apiToken
 
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
@@ -213,7 +216,7 @@ library(httr)
         base::Sys.sleep(0.25)
 
         # Download and process NEON data
-        continuousDischarge_list <- get.cont.Q.NEON.API(site.id = siteID,
+        continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
                                                                         end.date = endDate,
                                                                         api.token = apiToken)
@@ -222,11 +225,11 @@ library(httr)
 
     },ignoreInit = T)# End getPackage
 
-    plots <- reactiveValues()
-    whichTab <- reactiveValues()
+    plots <- shiny::reactiveValues()
+    whichTab <- shiny::reactiveValues()
 
     #download the correct graph according to tab
-    observeEvent(input$selectedTab, {
+    shiny::observeEvent(input$selectedTab, {
       whichTab$currentTab = input$selectedTab
     })
 
@@ -250,12 +253,12 @@ library(httr)
       }
 
       # Plot continuous discharge and store in output
-      plots$plot.cont.Q <- plot.cont.Q(site.id = input$siteId,
-                                            start.date = input$dateRange[[1]],
-                                            end.date = input$dateRange[[2]],
-                                            input.list = continuousDischarge_list,
-                                            plot.final.QF = finalQfInput,
-                                            plot.sci.rvw.QF = sciRvwQfInput)
+      plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
+                                                       start.date = input$dateRange[[1]],
+                                                       end.date = input$dateRange[[2]],
+                                                       input.list = continuousDischarge_list,
+                                                       plot.final.QF = finalQfInput,
+                                                       plot.sci.rvw.QF = sciRvwQfInput)
 
       # plot_csdWebGL <- plots$plot.cont.Q %>% toWebGL()
       #
@@ -271,18 +274,18 @@ library(httr)
 
 
       # Plot rating curve(s) and store in outputs
-      plots$plot.RC <- plot.RC(site.id = input$siteId,
-                                        start.date = input$dateRange[[1]],
-                                        end.date = input$dateRange[[2]],
-                                        input.list = continuousDischarge_list)
+      plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
+                                               start.date = input$dateRange[[1]],
+                                               end.date = input$dateRange[[2]],
+                                               input.list = continuousDischarge_list)
     })# End plot2
 
     #download handler for plotly download functionality
-    output$downloadPlotly <- downloadHandler(
+    output$downloadPlotly <- shiny::downloadHandler(
       filename = function() {
         downloadParam <- whichPlot()
         #file name format NEON.DOMAIN.SITE.DP4.0013[0,3]_STARTDATE_ENDDATE.html
-        paste("NEON.",domainID,".",siteID,".",downloadParam$dpName,"_",input$dateRange[1],"_",input$dateRange[2],".html", sep = "")
+        base::paste0("NEON.",domainID,".",siteID,".",downloadParam$dpName,"_",input$dateRange[1],"_",input$dateRange[2],".html")
       },
       content = function(file) {
         downloadParam <- whichPlot()
@@ -301,10 +304,10 @@ library(httr)
     #sends the correct plot and data package name to download handler
     whichPlot <- function(){
       if(whichTab$currentTab == "Continuous Discharge"){
-      downloadParam <- list("plotToWidget" = plots$plot.cont.Q, "dpName" = "DP4.00130")
+      downloadParam <- base::list("plotToWidget" = plots$plot.cont.Q, "dpName" = "DP4.00130")
     }
       else{
-        downloadParam <- list("plotToWidget" = plots$plot.RC, "dpName" = "DP4.00133")
+        downloadParam <- base::list("plotToWidget" = plots$plot.RC, "dpName" = "DP4.00133")
       }
       return(downloadParam)
     }
