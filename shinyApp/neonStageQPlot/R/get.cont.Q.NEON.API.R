@@ -175,8 +175,10 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
       continuousDischarge_sum$gauge_Height <- NA
     }
 
+    # browser()
     # Subset the summary data frame to only those records in the selected date range
     continuousDischarge_sum <- continuousDischarge_sum%>%
+      ###### rounding day wrong
       dplyr::filter(date>=start.date&date<=end.date)
 
     # Create a vector of unique rating curve IDs
@@ -207,26 +209,51 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
 
   #checks if primary precipitation data exist if not use secondary
   #lubridate from highest available resolution data to 20 mins
-  if(!is.null(DP1.00006.001$PRIPRE_5min)){
-    primaryPtp <- DP1.00006.001$PRIPRE_5min
-    primaryPtp$date <- lubridate::round_date(primaryPtp$endDateTime, "20 mins")
-    gaugeID<-primaryPtp$siteID[1]
 
-    precipitationData <- list(primaryPtp,gaugeID)
+  # browser()
+  #####add data to summary table
+  if(!is.null(DP1.00006.001$PRIPRE_5min)){
+    ptp <- DP1.00006.001$PRIPRE_5min
+    ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
+    ptp <- ptp%>%
+      dplyr::group_by(date)%>%
+      dplyr::summarize(priPrecipBulk=base::mean(priPrecipBulk,na.rm = T))
+    gaugeID<-ptp$siteID[1]
   }
   else{
-    secondaryPtp <- DP1.00006.001$SECPRE_1min
-    secondaryPtp$date <- lubridate::round_date(secondaryPtp$endDateTime, "20 mins")
-    gaugeID<-secondaryPtp$siteID[1]
-
-    precipitationData <- list(secondaryPtp,gaugeID)
+    ptp <- DP1.00006.001$SECPRE_1min
+    ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
+    ptp <- ptp%>%
+      dplyr::group_by(date)%>%
+      dplyr::summarize(secPrecipBulk=base::mean(secPrecipBulk,na.rm = T))
+    gaugeID<-ptp$siteID[1]
   }
+
+
+  # View(DP1.00006.001)
+  # View(ptp)
+  ptp$date <- base::as.character(ptp$date)
+  # browser()
+  ptp <- ptp%>%
+    ###### rounding day wrong
+    dplyr::filter(date>=start.date&date<=end.date)
+  # continuousDischarge_sum$priPrecipBulk <- NA
+
+  continuousDischarge_sum <- full_join(continuousDischarge_sum,ptp)
+  # continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
+  # continuousDischarge_sum$ptp <- NA
+  # for(i in 1:nrow(continuousDischarge_sum)){
+  #   continuousDischarge_sum$ptp[i] <- ptp$priPrecipBulk[ptp$date==continuousDischarge_sum$date[i]]
+  # }
+
+  # View(continuousDischarge_sum)
+  precipitationSite <- list(gaugeID)
 
   # Make an output list
   continuousDischarge_list <- base::list(
     continuousDischarge_sum,
     curveIDs,
-    precipitationData
+    precipitationSite
   )
 
   return(continuousDischarge_list)

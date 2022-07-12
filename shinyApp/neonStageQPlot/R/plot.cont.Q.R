@@ -58,13 +58,47 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
 
+  # browser()
   # Get data
   continuousDischarge_sum <- input.list[[1]]
+  View(continuousDischarge_sum)
+  # precipitationData <- input.list[[3]]
+  #
+  # if(!is.null(precipitationData[[1]]$priPrecipBulk)){
+  #   priPrecipBulk <- precipitationData[[1]]$priPrecipBulk
+  #   # View(priPrecipBulk)
+  # }
+  # else{
+  #
+  # }
+
+
+  y2 <- list(side='right',
+              overlaying="y",
+              automargin=T,
+              title="Stage (meter)",
+              tickfont=list(size=16,color = '#CC79A7'),
+              titlefont=list(size=18,color = '#CC79A7'),
+              showgrid=F,
+              zeroline=F)
+
+  y3 <- list(side='right',
+              overlaying="y",
+              automargin=T,
+              title="Percipitation (milimeter)",
+              tickfont=list(size=16,color = "#0072B2"),
+              titlefont=list(size=18,color = "#0072B2"),
+              showgrid=F,
+              zeroline=F,
+              anchor="free",
+              position=0.98)
 
   # Build plot layout
   method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
     layout(
-      xaxis=list(tick=14,
+      yaxis2 = y2, yaxis3 = y3,
+      xaxis=list(domain=c(0,.9),
+                 tick=14,
                  automargin=T,
                  title="Date",
                  tickfont=list(size=16),
@@ -78,14 +112,6 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
                  titlefont=list(size=18),
                  showgrid=F,
                  zeroline=F),
-      yaxis2=list(side='right',
-                  overlaying="y",
-                  automargin=T,
-                  title="Stage (meter)",
-                  tickfont=list(size=16),
-                  titlefont=list(size=18),
-                  showgrid=F,
-                  zeroline=F),
       legend=list(x=-0.2,y=0.87,
                   font=list(size=14)),
       updatemenus=list(
@@ -96,8 +122,8 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
                  method='relayout',
                  args=list(list(yaxis=list(type='linear',
                                            title='Discharge (liters per second)',
-                                           tickfont=list(size=16),
-                                           titlefont=list(size=18),
+                                           tickfont=list(size=16,color = "black"),
+                                           titlefont=list(size=18,color = "black"),
                                            showgrid=F,
                                            zeroline=F)))),
             list(label='Scale Discharge\n- Log -',
@@ -121,6 +147,10 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
 
   # Add base plot
   method <- method %>%
+
+    #Precipitation Data
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulk,name="Continuous\nPrecipitation",yaxis = "y3",type='scatter',mode='lines',line = list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly")%>%
+
     # Q Uncertainty
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='line',line=list(color='#D55E00'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group1')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#D55E00',hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group1')%>%
