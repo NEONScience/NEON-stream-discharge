@@ -25,7 +25,9 @@ Returns a list of:
 20 min intervals, discrete stage and discharge, and quality flags (finalDischargeQF and
 dischargeFinalQFSciRvw from DP4.00130.001),
 2) 'curveIDs' is a vector of all the unique rating curve IDs that are used to build the
-timeseries data, and
+timeseries data,
+4) 'histMedQYearRange' is a list of 2 items: the min and max year from which the historic
+median discharge is calculated, and
 3) 'dischargeStats' is either a list of 3 values (3x median discharge, 25% discharge, 75%
 discharge) if include.q.stats = TRUE, or NA if include.q.stats = FALSE.
 }
