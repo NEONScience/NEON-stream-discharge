@@ -32,13 +32,6 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-#comment out source files and clear global environment to run devtools::document()
-source("get.cont.Q.NEON.API.R")
-source("pheno.GET.R")
-source("plot.cont.Q.R")
-source("plot.RC.R")
-
-
 library(shiny)
 library(plotly)
 library(neonUtilities)
@@ -47,6 +40,7 @@ library(shinyWidgets)
 library(shinycssloaders)
 library(lubridate)
 library(stageQCurve)
+library(neonStageQplot)
 library(stringr)
 library(dplyr)
 library(readr)
