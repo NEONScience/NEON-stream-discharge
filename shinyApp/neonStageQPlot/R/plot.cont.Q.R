@@ -58,14 +58,17 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
 
-  # Get data
-  continuousDischarge_sum <- input.list[[1]]
-  precipitationData <- input.list[[3]]
-
   #symbolics
-  precipPrimaryData <- 2
+  isPrimaryPtp <- 2
   precipSite <- 1
-  precipSiteID <- precipitationData[[precipSite]]
+  csd_summary <- 1
+  ptpData <- 3
+
+  # Get data
+  continuousDischarge_sum <- input.list[[csd_summary]]
+  ptpDataset <- input.list[[ptpData]]
+  precipSiteID <- ptpDataset[[precipSite]]
+
 
   y2 <- list(side='right',
               overlaying="y",
@@ -134,7 +137,8 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     method <- method %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
 
-    if(precipitationData[[precipPrimaryData]]){
+    #wraps precip flag data to prevent plotting when data does not exist
+    if(ptpDataset[[isPrimaryPtp]]){
       method <- method %>%
         plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
       }
@@ -143,7 +147,8 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     method <- method %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
 
-    if(precipitationData[[precipPrimaryData]]==FALSE){
+    #wraps precip flag data to prevent plotting when data does not exist
+    if(ptpDataset[[isPrimaryPtp]]==FALSE){
       method <- method %>%
         plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipSciRvwQF,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
     }
@@ -173,7 +178,8 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
 
 
   #Precipitation Data
-  if(precipitationData[[precipPrimaryData]]){
+  #plots whichever data is available using isPrimaryPtp bool
+  if(ptpDataset[[isPrimaryPtp]]){
     method <- method %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulk,name=str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly") %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipExpUncert,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='lines',line = list(color = '#431A74'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",visible = "legendonly")
