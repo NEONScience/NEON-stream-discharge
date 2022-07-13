@@ -58,20 +58,9 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
 
-  # browser()
   # Get data
   continuousDischarge_sum <- input.list[[1]]
-  View(continuousDischarge_sum)
-  # precipitationData <- input.list[[3]]
-  #
-  # if(!is.null(precipitationData[[1]]$priPrecipBulk)){
-  #   priPrecipBulk <- precipitationData[[1]]$priPrecipBulk
-  #   # View(priPrecipBulk)
-  # }
-  # else{
-  #
-  # }
-
+  precipitationData <- input.list[[3]]
 
   y2 <- list(side='right',
               overlaying="y",
@@ -138,18 +127,17 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   # Add Quality flags
   if(plot.final.QF){
     method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray') %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
   }
   if(plot.sci.rvw.QF){
     method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray') %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipSciRvwQF,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
   }
 
   # Add base plot
   method <- method %>%
-
-    #Precipitation Data
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulk,name="Continuous\nPrecipitation",yaxis = "y3",type='scatter',mode='lines',line = list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly")%>%
 
     # Q Uncertainty
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='line',line=list(color='#D55E00'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group1')%>%
@@ -170,6 +158,22 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="#F0E442",size=8,line = list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group7')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="#F0E442",size=8,line = list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group7')
 
-  return(method)
 
+  #Precipitation Data
+  precipPrimaryData <- 2
+  precipSite <- 1
+  precipSiteID <- precipitationData[[precipSite]]
+
+  if(precipitationData[[precipPrimaryData]]){
+    method <- method %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulk,name=str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly") %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipExpUncert,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='lines',line = list(color = '#431A74'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",visible = "legendonly")
+  }
+  else{
+    method <- method %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulk,name=str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly") %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipExpUncert,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='lines',line = list(color = '#431A74'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",visible = "legendonly")
+  }
+
+  return(method)
 }

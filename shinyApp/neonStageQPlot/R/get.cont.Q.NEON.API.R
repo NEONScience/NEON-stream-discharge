@@ -175,10 +175,8 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
       continuousDischarge_sum$gauge_Height <- NA
     }
 
-    # browser()
     # Subset the summary data frame to only those records in the selected date range
     continuousDischarge_sum <- continuousDischarge_sum%>%
-      ###### rounding day wrong
       dplyr::filter(date>=start.date&date<=end.date)
 
     # Create a vector of unique rating curve IDs
@@ -209,45 +207,50 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
 
   #checks if primary precipitation data exist if not use secondary
   #lubridate from highest available resolution data to 20 mins
-
-  # browser()
-  #####add data to summary table
+  #add data to summary table
+  isPrimaryPtp <- NULL
+  gaugeID <- NULL
   if(!is.null(DP1.00006.001$PRIPRE_5min)){
     ptp <- DP1.00006.001$PRIPRE_5min
+    gaugeID<-ptp$siteID[1]
     ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
     ptp <- ptp%>%
       dplyr::group_by(date)%>%
-      dplyr::summarize(priPrecipBulk=base::mean(priPrecipBulk,na.rm = T))
-    gaugeID<-ptp$siteID[1]
+      dplyr::summarize(priPrecipBulk=base::mean(priPrecipBulk,na.rm = T),
+                       priPrecipExpUncert=base::mean(priPrecipExpUncert,na.rm = T),
+                       priPrecipFinalQF=base::sum(priPrecipFinalQF,na.rm = T))
+
+    # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
+    ptp$priPrecipFinalQF[ptp$priPrecipFinalQF<=1] <- 0
+    ptp$priPrecipFinalQF[ptp$priPrecipFinalQF>=2] <- 1
+
+    isPrimaryPtp <- TRUE
   }
   else{
     ptp <- DP1.00006.001$SECPRE_1min
+    gaugeID<-ptp$siteID[1]
     ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
     ptp <- ptp%>%
       dplyr::group_by(date)%>%
-      dplyr::summarize(secPrecipBulk=base::mean(secPrecipBulk,na.rm = T))
-    gaugeID<-ptp$siteID[1]
+      dplyr::summarize(secPrecipBulk=base::mean(secPrecipBulk,na.rm = T),
+                       secPrecipExpUncert=base::mean(secPrecipExpUncert,na.rm = T),
+                       secPrecipSciRvwQF=base::sum(secPrecipSciRvwQF,na.rm = T))
+
+    # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
+    ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF<=1] <- 0
+    ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF>=2] <- 1
+
+    isPrimaryPtp <- FALSE
   }
 
-
-  # View(DP1.00006.001)
-  # View(ptp)
+  #filtering ptp date to match continuousDischarge_sum date
   ptp$date <- base::as.character(ptp$date)
-  # browser()
   ptp <- ptp%>%
-    ###### rounding day wrong
     dplyr::filter(date>=start.date&date<=end.date)
-  # continuousDischarge_sum$priPrecipBulk <- NA
 
   continuousDischarge_sum <- full_join(continuousDischarge_sum,ptp)
-  # continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
-  # continuousDischarge_sum$ptp <- NA
-  # for(i in 1:nrow(continuousDischarge_sum)){
-  #   continuousDischarge_sum$ptp[i] <- ptp$priPrecipBulk[ptp$date==continuousDischarge_sum$date[i]]
-  # }
 
-  # View(continuousDischarge_sum)
-  precipitationSite <- list(gaugeID)
+  precipitationSite <- list(gaugeID,isPrimaryPtp)
 
   # Make an output list
   continuousDischarge_list <- base::list(
