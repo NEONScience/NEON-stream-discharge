@@ -72,7 +72,8 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   y1Units <- "(liters per second)"
   y2Units <- "(meter)"
 
-  #SI to imperial tied to button
+  #SI to imperial tied to button.
+  ##needs to be above plotly call so axis are created correctly
   if(plot.imp.unit){
     continuousDischarge_sum <- continuousDischarge_sum %>%
       #Discharge
@@ -92,7 +93,7 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
       mutate(gauge_Height = conv_unit(gauge_Height,"m","ft"))
 
     y1Units <- "(Cubic Feet per second)"
-    y2Units <- "(feet)"
+    y2Units <- "(Feet)"
   }
 
   # Build plot layout
