@@ -236,5 +236,4 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
                                        "dischargeStats")
 
   return(continuousDischarge_list)
-
 }

@@ -47,6 +47,7 @@ library(readr)
 library(tidyr)
 library(htmlwidgets)
 library(httr)
+library(measurements)
 
 
   # Read in reference table from Github
@@ -74,12 +75,13 @@ library(httr)
                                                          shiny::actionButton(inputId="submit","Submit"),
                                                          shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
-                                                         shiny::checkboxInput("unitSwap", "Imperial Units", FALSE),
-                                                         shiny::hr(),
+                                                         shiny::checkboxInput("impUnitFlag", "Imperial Units", FALSE),
                                                          conditionalPanel(
                                                            #checks that one of the graphs has been loaded
                                                            condition = "output.plot1 != null || output.plot2 != null",
-                                                           shiny::downloadButton("downloadPlotly", "Download Graph"))),
+                                                            
+                                                            shiny::hr(),
+                                                            shiny::downloadButton("downloadPlotly", "Download Graph"))),
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::uiOutput("siteInfo" )),
                                          shiny::hr(),
@@ -251,6 +253,11 @@ library(httr)
       }else{
         sciRvwQfInput <- F
       }
+      if(input$impUnitFlag == TRUE){
+        impUnitInput <- T
+      }else{
+        impUnitInput <- F
+      }
 
       # Plot continuous discharge and store in output
       plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
@@ -258,12 +265,8 @@ library(httr)
                                                        end.date = input$dateRange[[2]],
                                                        input.list = continuousDischarge_list,
                                                        plot.final.QF = finalQfInput,
-                                                       plot.sci.rvw.QF = sciRvwQfInput)
-
-      # plot_csdWebGL <- plots$plot.cont.Q %>% toWebGL()
-      #
-      # plot_csdWebGL
-
+                                                       plot.sci.rvw.QF = sciRvwQfInput,
+                                                       plot.imp.unit = impUnitInput)
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty

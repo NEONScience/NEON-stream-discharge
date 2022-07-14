@@ -39,7 +39,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF){
+plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF,plot.imp.unit){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -59,12 +59,41 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   if(missing(plot.sci.rvw.QF)){
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
-
+  if(missing(plot.imp.unit)){
+    stop('must provide plot.imp.unit for plotting contninuous discharge')
+  }
 
   # Get data
   continuousDischarge_sum <- input.list$continuousDischarge_sum
   histMedQMinYear <- input.list$histMedQYearRange$minYear
   histMedQMaxYear <- input.list$histMedQYearRange$maxYear
+
+  #axis units
+  y1Units <- "(liters per second)"
+  y2Units <- "(meter)"
+
+  #SI to imperial tied to button
+  if(plot.imp.unit){
+    continuousDischarge_sum <- continuousDischarge_sum %>%
+      #Discharge
+      mutate(histMedQImp = conv_unit(histMedQ,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanURemnUnc = conv_unit(meanURemnUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanLRemnUnc = conv_unit(meanLRemnUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanUParaUnc = conv_unit(meanUParaUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanLParaUnc = conv_unit(meanLParaUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanQ = conv_unit(meanQ,"l_per_sec","ft3_per_sec")) %>%
+      mutate(streamDischarge = conv_unit(streamDischarge,"l_per_sec","ft3_per_sec")) %>%
+
+      #Stage
+      mutate(meanUHUnc = conv_unit(meanUHUnc,"m","ft")) %>%
+      mutate(meanLHUnc = conv_unit(meanLHUnc,"m","ft")) %>%
+      mutate(meanH = conv_unit(meanH,"m","ft")) %>%
+      mutate(gaugeHeight = conv_unit(gaugeHeight,"m","ft")) %>%
+      mutate(gauge_Height = conv_unit(gauge_Height,"m","ft"))
+
+    y1Units <- "(Cubic Feet per second)"
+    y2Units <- "(feet)"
+  }
 
   # Build plot layout
   method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
@@ -78,7 +107,7 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
                  ),
       yaxis=list(side='left',
                  automargin=T,
-                 title='Discharge (liters per second)',
+                 title=str_c("Discharge ",y1Units),
                  tickfont=list(size=16),
                  titlefont=list(size=18),
                  showgrid=F,
@@ -86,7 +115,7 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
       yaxis2=list(side='right',
                   overlaying="y",
                   automargin=T,
-                  title="Stage (meter)",
+                  title=str_c("Stage ",y2Units),
                   tickfont=list(size=16),
                   titlefont=list(size=18),
                   showgrid=F,
@@ -126,7 +155,6 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
 
   # Add base plot
   method <- method %>%
-
 
     #Historical Med Q
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~histMedQ, name=str_c("Historic Median\nDischarge: ","\n", histMedQMinYear,"-",histMedQMaxYear),type='scatter',mode='lines',line = list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly")%>%
