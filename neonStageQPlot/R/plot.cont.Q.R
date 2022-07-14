@@ -60,16 +60,11 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
 
-  #symbolic
-  histMedQYearRange <- 3
-  csd_summary <- 1
-  minYear <- 1
-  maxYear <- 2
 
   # Get data
-  continuousDischarge_sum <- input.list[[csd_summary]]
-  histMedQMinYear <- input.list[[histMedQYearRange]][minYear]
-  histMedQMaxYear <- input.list[[histMedQYearRange]][maxYear]
+  continuousDischarge_sum <- input.list$continuousDischarge_sum
+  histMedQMinYear <- input.list$histMedQYearRange$minYear
+  histMedQMaxYear <- input.list$histMedQYearRange$maxYear
 
   # Build plot layout
   method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%

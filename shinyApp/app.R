@@ -74,6 +74,7 @@ library(httr)
                                                          shiny::actionButton(inputId="submit","Submit"),
                                                          shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
+                                                         shiny::checkboxInput("unitSwap", "Imperial Units", FALSE),
                                                          shiny::hr(),
                                                          conditionalPanel(
                                                            #checks that one of the graphs has been loaded
@@ -221,9 +222,8 @@ library(httr)
                                                                         end.date = endDate,
                                                                         api.token = apiToken)
       })#end of withProgress
-
-
     },ignoreInit = T)# End getPackage
+
 
     plots <- shiny::reactiveValues()
     whichTab <- shiny::reactiveValues()
