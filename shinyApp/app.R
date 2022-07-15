@@ -47,6 +47,7 @@ library(readr)
 library(tidyr)
 library(htmlwidgets)
 library(httr)
+library(bslib)
 
 
   # Read in reference table from Github
@@ -56,43 +57,48 @@ library(httr)
   siteID <- NULL
   domainID <- NULL
 
+  light <- bs_theme(version = 3,bootswatch = "flatly")
+  dark <- bs_theme(version = 3,bootswatch = "darkly")
   # Develop the User Interface
-  ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
+  ui <- shiny::fluidPage(theme = bs_theme(version = 3,bootswatch = "flatly"),
+                         style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
                          shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
-                         shiny::fluidRow(shiny::column(3,
-                                         shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
-                                         shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
-                                                         shiny::selectInput("domainId","Domain ID",productList$domain),
-                                                         shiny::selectInput("siteId","Select Site ID",NULL),
-                                                         shiny::dateRangeInput("dateRange","Date range:",
+                         shiny::fluidRow(shiny::column(2,
+                                         # shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
+                                         shiny::fluidRow(shiny::selectInput("domainId","Domain ID",productList$domain)),
+                                         shiny::fluidRow(shiny::uiOutput("domainInfo")),
+                                         shiny::br(),
+                                         shiny::fluidRow(shiny::selectInput("siteId","Select Site ID",NULL)),
+                                         shiny::fluidRow(shiny::uiOutput("siteInfo")),
+                                         shiny::br(),
+                                         shiny::fluidRow(shiny::dateRangeInput("dateRange","Date range:",
                                                                                startview="month",
                                                                                min="2016-01-01",
                                                                                start="2019-01-01",end="2019-01-31",
-                                                                               format="yyyy-mm-dd"),
-                                                         shiny::textInput("apiToken", "NEON API Token (Optional)"),
-                                                         shiny::actionButton(inputId="submit","Submit"),
-                                                         shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
+                                                                               format="yyyy-mm-dd")),
+                                         shiny::br(), 
+                                         shiny::fluidRow(shiny::textInput("apiToken", "NEON API Token (Optional)")),
+                                         shiny::fluidRow(shiny::actionButton(inputId="submit","Submit")),
+                                         shiny::br(),                
+                                         shiny::fluidRow(shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
-                                                         shiny::hr(),
-                                                         conditionalPanel(
-                                                           #checks that one of the graphs has been loaded
-                                                           condition = "output.plot1 != null || output.plot2 != null",
-                                                           shiny::downloadButton("downloadPlotly", "Download Graph"))),
+                                                         shiny::checkboxInput("dark_mode", "Dark mode")),
                                          shiny::hr(),
-                                         shiny::fluidRow(shiny::uiOutput("siteInfo" )),
-                                         shiny::hr(),
+                                         shiny::fluidRow(conditionalPanel(
+                                           #checks that one of the graphs has been loaded
+                                           condition = "output.plot1 != null || output.plot2 != null",
+                                           shiny::downloadButton("downloadPlotly", "Download Graph"))),
+                                         shiny::br(),
                                          shiny::fluidRow(shiny::textOutput("title"),
                                                          DT::dataTableOutput("table"))),#end of first col
-                                         shiny::column(9,
+                                         shiny::column(10,
                                          shiny::tabsetPanel(type = "tabs",id = "selectedTab",
                                                             shiny::tabPanel("Continuous Discharge",
-                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"),
-                                                                                                         color = "#00ADD7"),
-                                                                            style = "background-color:#F8F8F8;"),
+                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
                                                             shiny::tabPanel("Rating Curve(s)",
-                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
-                                                                                                         color = "#00ADD7"))))#end of second col
+                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px")
+                                                                                                         ))))#end of second col
                            )#end of fluid row
     ) # end of ui and fluidPage
 
@@ -104,7 +110,11 @@ library(httr)
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
 
-
+    #handles light and dark mode switch
+    observe(session$setCurrentTheme(
+      if (isTRUE(input$dark_mode)) dark else light
+    ))
+    
     #phenoImage observe
     #displays phenocam image when point is clicked on graph
     #pulls image closest to selected date
@@ -164,6 +174,16 @@ library(httr)
       return(phenoInfo)
     }
 
+    shiny::observeEvent(input$siteId,{
+      # Create site description output
+      siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
+      domainURL <- base::paste0("https://www.neonscience.org/field-sites/about-field-sites")
+      siteLink <- a("Click here", href=siteURL,target="_blank")
+      domainLink <- a("Click here", href=domainURL,target="_blank")
+      output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, siteLink, "for site description",sep="\n")})
+      output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
+    })
+    
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
 
@@ -192,11 +212,6 @@ library(httr)
       # input$dateRange[[1]] <- "2020-09-01"
       # input$dateRange[[2]] <- "2020-10-31"
       # apiToken <- NA
-
-      # Create site description output
-      siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
-      url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
-      output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
 
       # Set date variables for app running (special consideration for TOOK)
       siteID <<- input$siteId
