@@ -83,7 +83,7 @@ library(bslib)
                                          shiny::br(),                
                                          shiny::fluidRow(shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
-                                                         shiny::checkboxInput("dark_mode", "Dark mode")),
+                                                         shiny::checkboxInput("dark_mode", "Dark Mode")),
                                          shiny::hr(),
                                          shiny::fluidRow(conditionalPanel(
                                            #checks that one of the graphs has been loaded
@@ -266,6 +266,12 @@ library(bslib)
       }else{
         sciRvwQfInput <- F
       }
+      if(input$dark_mode == TRUE){
+        darkModeInput <- T
+      }
+      else{
+        darkModeInput <- F
+      }
 
       # Plot continuous discharge and store in output
       plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
@@ -273,7 +279,8 @@ library(bslib)
                                                        end.date = input$dateRange[[2]],
                                                        input.list = continuousDischarge_list,
                                                        plot.final.QF = finalQfInput,
-                                                       plot.sci.rvw.QF = sciRvwQfInput)
+                                                       plot.sci.rvw.QF = sciRvwQfInput,
+                                                       mode.dark = darkModeInput)
 
       # plot_csdWebGL <- plots$plot.cont.Q %>% toWebGL()
       #

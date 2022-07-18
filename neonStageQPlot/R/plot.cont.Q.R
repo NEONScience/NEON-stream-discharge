@@ -39,7 +39,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF){
+plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF,mode.dark){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -101,6 +101,7 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
       updatemenus=list(
         list(
           type='buttons',
+          showactive=FALSE,
           buttons=list(
             list(label='Scale Discharge\n- Linear -',
                  method='relayout',
@@ -118,6 +119,15 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
                                            titlefont=list(size=18),
                                            showgrid=F,
                                            zeroline=F))))))))
+
+
+  #dark mode styling
+  dischargeColor <- "black"
+  if(mode.dark){
+    method <- method %>% layout(paper_bgcolor="#222",plot_bgcolor='#222',
+      font = list(color = 'white'))
+    dischargeColor <- "white"
+  }
 
   # Add Quality flags
   if(plot.final.QF){
@@ -147,7 +157,7 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#56B4E9',hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",yaxis='y2',showlegend=T,legendgroup='group3',visible = "legendonly")%>%
 
     # H and Q Series
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = 'black'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group4')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = list(color = dischargeColor),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group4')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = list(color = '#CC79A7'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",yaxis='y2',showlegend=T,legendgroup='group5')%>%
 
     # Empirical H and Q
