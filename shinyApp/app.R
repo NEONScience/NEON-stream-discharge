@@ -129,7 +129,7 @@ library(httr)
         #took handling
         if(siteID == "TOOK_inlet" || siteID == "TOOK_outlet"){
           tookInfo <- "Note: The phenocam image is NOT located at the inlet or outlet.
-           It is located on the shore near the center of the lake."
+           The phenocam shows the main lake."
         }
 
         if(!base::is.null(phenoURL)){
