@@ -218,7 +218,9 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
       dplyr::group_by(date)%>%
       dplyr::summarize(priPrecipBulk=base::mean(priPrecipBulk,na.rm = T),
                        priPrecipExpUncert=base::mean(priPrecipExpUncert,na.rm = T),
-                       priPrecipFinalQF=base::sum(priPrecipFinalQF,na.rm = T))
+                       priPrecipFinalQF=base::sum(priPrecipFinalQF,na.rm = T)) %>%
+      dplyr::mutate(priPrecipBulkLoUnc=priPrecipBulk-priPrecipExpUncert,
+                    priPrecipBulkUpUnc=priPrecipBulk+priPrecipExpUncert)
 
     # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
     ptp$priPrecipFinalQF[ptp$priPrecipFinalQF<=1] <- 0
@@ -234,7 +236,10 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
       dplyr::group_by(date)%>%
       dplyr::summarize(secPrecipBulk=base::mean(secPrecipBulk,na.rm = T),
                        secPrecipExpUncert=base::mean(secPrecipExpUncert,na.rm = T),
-                       secPrecipSciRvwQF=base::sum(secPrecipSciRvwQF,na.rm = T))
+                       secPrecipSciRvwQF=base::sum(secPrecipSciRvwQF,na.rm = T)) %>%
+      dplyr::mutate(secPrecipBulkLoUnc=secPrecipBulk-secPrecipExpUncert,
+                    secPrecipBulkUpUnc=secPrecipBulk+secPrecipExpUncert)
+
 
     # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
     ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF<=1] <- 0
