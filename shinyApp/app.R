@@ -26,8 +26,12 @@
 #     updates for plotting TOMB-USGS discharge data
 #   Zachary L. Nickerson (2022-06-20)
 #     updates that move code chunks in server to functions
+#   James M. Ross (2022-06-23)
+#     added API Token functionality
 #   James M. Ross (2022-07-01)
 #     added phenocam functionality
+#   James M. Ross (2022-07-01)
+#     added phenocam and plot download
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)
@@ -63,9 +67,9 @@ library(bslib)
   ui <- shiny::fluidPage(theme = bs_theme(version = 3,bootswatch = "flatly"),
                          style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
-                         shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
+                         shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "applogo-transparent.png",width = 250,height = 150)),
+                                                           shiny::column(2, img(src = "logo-NEON-NSF.png",width = 250,height = 150)))),
                          shiny::fluidRow(shiny::column(2,
-                                         # shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                                          shiny::fluidRow(shiny::selectInput("domainId","Domain ID",productList$domain)),
                                          shiny::fluidRow(shiny::uiOutput("domainInfo")),
                                          shiny::br(),
