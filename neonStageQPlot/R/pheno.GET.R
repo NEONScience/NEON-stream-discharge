@@ -49,6 +49,12 @@ pheno.GET <- function(dp.id,site.id,domain.id,date.time){
     stop('must provide date.time to query Phenocam API')
   }
 
+  # browser()
+
+  if(site.id == "TOOK_inlet" || site.id == "TOOK_outlet"){
+    site.id <- "TOOK"
+  }
+
   phenoGET <- httr::content(httr::GET(url = base::paste0("https://phenocam.nau.edu/neonapi/imageurl/NEON.",domain.id,".",site.id,".",dp.id,"/",date.time,"/")),
                             encoding = "UTF-8")
 

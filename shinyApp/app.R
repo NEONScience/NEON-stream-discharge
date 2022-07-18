@@ -124,12 +124,20 @@ library(httr)
         usrDateTime <- dateTime
         usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
         usrDateTime <- base::substr(usrDateTime,1,base::nchar(usrDateTime)-4)
+        
+        tookInfo <- ""
+        #took handling
+        if(siteID == "TOOK_inlet" || siteID == "TOOK_outlet"){
+          tookInfo <- "Note: The phenocam image is NOT located at the inlet or outlet.
+           The phenocam shows the main lake."
+        }
 
         if(!base::is.null(phenoURL)){
           phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
           shiny::showModal(shiny::modalDialog(
             title = "Phenocam Image",
             size = "l",
+            tookInfo,
             tags$img(
               src = phenoURL),
             footer = shiny::downloadButton("downloadPheno",label = "Download Phenocam Image"),
