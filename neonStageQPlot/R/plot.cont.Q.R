@@ -20,6 +20,9 @@
 #' DP4.00130.001 data product [boolean]
 #' @param plot.sci.rvw.QF Required: Indicator of plotting the finalDischargeQFSciRvw field
 #' from the DP4.00130.001 data product [boolean]
+#' @param include.q.stats Defaults to FALSE: Include values for 3x median discharge and 25-75%
+#' flow in the plot. Statistics are calculated from the time range selected by the user and
+#' exclude records that contain a science review quality flag (dischargeFinalQFSciRvw) [boolean]
 
 #' @return Returns a plotly plot object
 
@@ -39,7 +42,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF){
+plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF,plot.q.stats=F){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -65,11 +68,20 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   csd_summary <- 1
   minYear <- 1
   maxYear <- 2
+  dischargeStats <- 4
+  medQValue <- 1
+  twentyFiveQValue <- 2
+  seventyFiveQValue <- 3
 
   # Get data
   continuousDischarge_sum <- input.list[[csd_summary]]
   histMedQMinYear <- input.list[[histMedQYearRange]][minYear]
   histMedQMaxYear <- input.list[[histMedQYearRange]][maxYear]
+  if(plot.q.stats){
+    medQ <- base::as.numeric(input.list[[dischargeStats]][medQValue])
+    twentyFiveQ <- base::as.numeric(input.list[[dischargeStats]][twentyFiveQValue])
+    seventyFiveQ <- base::as.numeric(input.list[[dischargeStats]][seventyFiveQValue])
+  }
 
   # Build plot layout
   method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
@@ -132,10 +144,6 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   # Add base plot
   method <- method %>%
 
-
-    #Historical Med Q
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~histMedQ, name=str_c("Historic Median\nDischarge: ","\n", histMedQMinYear,"-",histMedQMaxYear),type='scatter',mode='lines',line = list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly")%>%
-
     # Q Uncertainty
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='line',line=list(color='#D55E00'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group1',visible = "legendonly")%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#D55E00',hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group1',visible = "legendonly")%>%
@@ -153,7 +161,18 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
     # Empirical H and Q
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = list(color = '#009E73',size=8,line = list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group6')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="#F0E442",size=8,line = list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group7')%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="#F0E442",size=8,line = list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group7')
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=list(color="#F0E442",size=8,line = list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group7')%>%
+
+    #Historical Med Q
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~histMedQ, name=str_c("Historic Median\nDischarge: ","\n", histMedQMinYear,"-",histMedQMaxYear),type='scatter',mode='lines',line = list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly")
+
+  # Add the internal parameters
+  if(plot.q.stats){
+    method <- method%>%
+      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~medQ,yend=~medQ,line=list(color='grey',dash='dash'),name="3x Median\nDischarge",showlegend=T,legendgroup='group9',visible = "legendonly")%>%
+      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~twentyFiveQ,yend=~twentyFiveQ,line=list(color='black',dash='dash'),name="25-75%\nischarge",showlegend=F,legendgroup='group10',visible = "legendonly")%>%
+      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~seventyFiveQ,yend=~seventyFiveQ,line=list(color='black',dash='dash'),name="25-75%\nDischarge",showlegend=T,legendgroup='group10',visible = "legendonly")
+  }
 
   return(method)
 

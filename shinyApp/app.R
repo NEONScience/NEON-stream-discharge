@@ -175,6 +175,15 @@ library(httr)
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
 
+      # Manually set input variables for local testing - comment out when running app
+      input <- base::list()
+      input$siteId <- "HOPB"
+      input$domainId <- "D01"
+      input$dateRange[[1]] <- "2020-09-01"
+      input$dateRange[[2]] <- "2020-10-31"
+      input$apiToken <- NA
+      output <- base::list()
+      
       metaD <-  productList%>%
         dplyr::filter(siteID == input$siteId)%>%
         dplyr::select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
@@ -186,20 +195,6 @@ library(httr)
         tidyr::pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),
                             names_to = "MetaData",
                             values_to = "Values")
-
-      # Enter header for metadata table
-      output$title <- shiny::renderText("Metadata Table")
-
-      # Create metadata table output
-      output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
-
-      # # Manually set input variables for local testing - comment out when running app
-      # input <- base::list()
-      # input$siteId <- "TOOK_inlet"
-      # input$domainId <- "D18"
-      # input$dateRange[[1]] <- "2020-09-01"
-      # input$dateRange[[2]] <- "2020-10-31"
-      # apiToken <- NA
 
       # Create site description output
       siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
@@ -223,14 +218,36 @@ library(httr)
                            session = shiny::getDefaultReactiveDomain())
         base::Sys.sleep(0.25)
 
+        # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+        include.q.stats <- T
+        
         # Download and process NEON data
         continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
                                                                         end.date = endDate,
-                                                                        api.token = apiToken)
+                                                                        api.token = apiToken,
+                                                                        include.q.stats = include.q.stats)
+        # Append metadata table if discharge parameters are included in function output
+        if(include.q.stats){
+          metaD_internal <- base::data.frame(base::matrix(data=NA,ncol = 2,nrow = 3))
+          base::names(metaD_internal) <- base::names(metaD)
+          metaD_internal$MetaData <- c("3x Median Discharge (lps)",
+                                       "25% Discharge (lps)",
+                                       "75% Discharge (lps)")
+          metaD_internal$Values <- base::as.character(c(continuousDischarge_list$dischargeStats$medQ,
+                                                        continuousDischarge_list$dischargeStats$twentyFiveQ,
+                                                        continuousDischarge_list$dischargeStats$seventyFiveQ))
+          metaD <- dplyr::full_join(metaD_internal,metaD)
+        }
+        
       })#end of withProgress
-
-
+      
+      # Enter header for metadata table
+      output$title <- shiny::renderText("Metadata Table")
+      
+      # Create metadata table output
+      output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
+      
     },ignoreInit = T)# End getPackage
 
     plots <- shiny::reactiveValues()
@@ -248,7 +265,6 @@ library(httr)
       continuousDischarge_list <- getPackage()
 
       # Format QF inputs
-
       if(input$qctrFlag == TRUE){
         finalQfInput <- T
       }else{
@@ -266,7 +282,8 @@ library(httr)
                                                        end.date = input$dateRange[[2]],
                                                        input.list = continuousDischarge_list,
                                                        plot.final.QF = finalQfInput,
-                                                       plot.sci.rvw.QF = sciRvwQfInput)
+                                                       plot.sci.rvw.QF = sciRvwQfInput,
+                                                       plot.q.stats = T)
 
       # plot_csdWebGL <- plots$plot.cont.Q %>% toWebGL()
       #
@@ -279,7 +296,6 @@ library(httr)
 
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
-
 
       # Plot rating curve(s) and store in outputs
       plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
@@ -322,12 +338,5 @@ library(httr)
 
   }#end of server
 
-
-
   # Run the app ----
   shiny::shinyApp(ui = ui, server = server)
-
-
-
-
-

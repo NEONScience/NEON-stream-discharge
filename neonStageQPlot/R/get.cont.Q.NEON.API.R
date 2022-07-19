@@ -219,7 +219,22 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   histMedQYearRange <- base::list(minYear,maxYear)
 
   if(include.q.stats){
-    # Code for stats here
+    # Remove SRQF data
+    csd_continuousDischarge <- csd_continuousDischarge%>%
+      dplyr::mutate(dischargeFinalQFSciRvw = base::ifelse(is.na(dischargeFinalQFSciRvw), 0, dischargeFinalQFSciRvw))
+    csd_continuousDischarge <- csd_continuousDischarge%>%
+      dplyr::filter(dischargeFinalQFSciRvw == 0)
+    # Calculate the parameters
+    medQ <- 3*stats::median(csd_continuousDischarge$maxpostDischarge,na.rm = T)
+    twentyFiveQ <- stats::quantile(csd_continuousDischarge$maxpostDischarge,0.25,na.rm = T)
+    seventyFiveQ <- stats::quantile(csd_continuousDischarge$maxpostDischarge,0.75,na.rm = T)
+    # Make an output list
+    dischargeStats <- list(medQ,
+                           twentyFiveQ,
+                           seventyFiveQ)
+    names(dischargeStats) <- c("medQ",
+                               "twentyFiveQ",
+                               "seventyFiveQ")
   }else{
     dischargeStats <- NA
   }
