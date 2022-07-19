@@ -55,6 +55,8 @@ library(httr)
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
+  # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+  include.q.stats <- F
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -68,7 +70,8 @@ library(httr)
                                                          shiny::dateRangeInput("dateRange","Date range:",
                                                                                startview="month",
                                                                                min="2016-01-01",
-                                                                               start="2019-01-01",end="2019-01-31",
+                                                                               start=lubridate::floor_date(base::Sys.Date(),"month")-base::months(1),
+                                                                               end=lubridate::floor_date(base::Sys.Date(),"month")-1,
                                                                                format="yyyy-mm-dd"),
                                                          shiny::textInput("apiToken", "NEON API Token (Optional)"),
                                                          shiny::actionButton(inputId="submit","Submit"),
@@ -175,7 +178,7 @@ library(httr)
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
 
-      # Manually set input variables for local testing - comment out when running app
+      # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
       # input$siteId <- "HOPB"
       # input$domainId <- "D01"
@@ -224,9 +227,6 @@ library(httr)
                            session = shiny::getDefaultReactiveDomain())
         base::Sys.sleep(0.25)
 
-        # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
-        include.q.stats <- T
-        
         # Download and process NEON data
         continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
@@ -266,9 +266,6 @@ library(httr)
         sciRvwQfInput <- F
       }
 
-      # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
-      include.q.stats <- T
-      
       # Plot continuous discharge and store in output
       plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
                                                        start.date = input$dateRange[[1]],
