@@ -46,11 +46,12 @@ plot.cont.Q <-function(site.id,
                        start.date,
                        end.date,
                        input.list,
+                       plot.imp.unit,
                        plot.final.QF,
                        plot.sci.rvw.QF,
                        plot.precip.final.QF,
                        plot.precip.sci.rvw.QF,
-					   plot.q.stats=F){
+					             plot.q.stats=F){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -70,13 +71,17 @@ plot.cont.Q <-function(site.id,
   if(missing(plot.sci.rvw.QF)){
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
+
+  if(missing(plot.imp.unit)){
+    stop('must provide plot.imp.unit for plotting contninuous discharge')
+  }
+  
   if(missing(plot.precip.final.QF)){
     stop('must provide plot.precip.final.QF for plotting precipitation')
   }
   if(missing(plot.precip.sci.rvw.QF)){
     stop('must provide plot.precip.sci.rvw.QF for plotting precipitation')
   }
-
 
   # Get data
   continuousDischarge_sum <- input.list$continuousDischarge_sum
@@ -105,6 +110,33 @@ plot.cont.Q <-function(site.id,
               anchor="free",
               position=0.98)
 
+  #axis units
+  y1Units <- "(liters per second)"
+  y2Units <- "(meter)"
+
+  #SI to imperial tied to button.
+  ##needs to be above plotly call so axis are created correctly
+  if(plot.imp.unit){
+    continuousDischarge_sum <- continuousDischarge_sum %>%
+      #Discharge
+      mutate(histMedQImp = conv_unit(histMedQ,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanURemnUnc = conv_unit(meanURemnUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanLRemnUnc = conv_unit(meanLRemnUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanUParaUnc = conv_unit(meanUParaUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanLParaUnc = conv_unit(meanLParaUnc,"l_per_sec","ft3_per_sec")) %>%
+      mutate(meanQ = conv_unit(meanQ,"l_per_sec","ft3_per_sec")) %>%
+      mutate(streamDischarge = conv_unit(streamDischarge,"l_per_sec","ft3_per_sec")) %>%
+
+      #Stage
+      mutate(meanUHUnc = conv_unit(meanUHUnc,"m","ft")) %>%
+      mutate(meanLHUnc = conv_unit(meanLHUnc,"m","ft")) %>%
+      mutate(meanH = conv_unit(meanH,"m","ft")) %>%
+      mutate(gaugeHeight = conv_unit(gaugeHeight,"m","ft")) %>%
+      mutate(gauge_Height = conv_unit(gauge_Height,"m","ft"))
+
+    y1Units <- "(Cubic Feet per second)"
+    y2Units <- "(Feet)"
+  }
 
   # Build plot layout
   method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
@@ -120,11 +152,19 @@ plot.cont.Q <-function(site.id,
                  ),
       yaxis=list(side='left',
                  automargin=T,
-                 title='Discharge (liters per second)',
+                 title=str_c("Discharge ",y1Units),
                  tickfont=list(size=16),
                  titlefont=list(size=18),
                  showgrid=F,
                  zeroline=F),
+      yaxis2=list(side='right',
+                  overlaying="y",
+                  automargin=T,
+                  title=str_c("Stage ",y2Units),
+                  tickfont=list(size=16),
+                  titlefont=list(size=18),
+                  showgrid=F,
+                  zeroline=F),
       legend=list(x=-0.2,y=0.87,
                   font=list(size=14)),
       updatemenus=list(
@@ -134,15 +174,15 @@ plot.cont.Q <-function(site.id,
             list(label='Scale Discharge\n- Linear -',
                  method='relayout',
                  args=list(list(yaxis=list(type='linear',
-                                           title='Discharge (liters per second)',
-                                           tickfont=list(size=16,color = "black"),
-                                           titlefont=list(size=18,color = "black"),
+                                           title=str_c("Discharge ",y1Units),
+                                           tickfont=list(size=16),
+                                           titlefont=list(size=18),
                                            showgrid=F,
                                            zeroline=F)))),
             list(label='Scale Discharge\n- Log -',
                  method='relayout',
                  args=list(list(yaxis=list(type='log',
-                                           title='Discharge (liters per second) - log',
+                                           title=str_c("Discharge ",y1Units," - log"),
                                            tickfont=list(size=16),
                                            titlefont=list(size=18),
                                            showgrid=F,
@@ -164,7 +204,7 @@ plot.cont.Q <-function(site.id,
     method <- method %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'gray')
   }
-
+  
   #wraps precip flag data to prevent plotting when data does not exist
   if(isPrimaryPtp==FALSE & plot.precip.sci.rvw.QF){
     method <- method %>%
@@ -214,7 +254,6 @@ plot.cont.Q <-function(site.id,
                    xref="paper",
                    x=0.1))
   }
-
 
   #Precipitation Data
   #plots whichever data is available using isPrimaryPtp bool

@@ -47,6 +47,7 @@ library(readr)
 library(tidyr)
 library(htmlwidgets)
 library(httr)
+library(measurements)
 
 
   # Read in reference table from Github
@@ -79,11 +80,14 @@ library(httr)
                                                          shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag for Discharge(light gray)", FALSE),
                                                          shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
                                                          shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
+                                                         shiny::checkboxInput("impUnitFlag", "Imperial Units", FALSE),
                                                          shiny::hr(),
                                                          conditionalPanel(
                                                            #checks that one of the graphs has been loaded
                                                            condition = "output.plot1 != null || output.plot2 != null",
-                                                           shiny::downloadButton("downloadPlotly", "Download Graph"))),
+                                                            
+                                                            shiny::hr(),
+                                                            shiny::downloadButton("downloadPlotly", "Download Graph"))),
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::uiOutput("siteInfo" )),
                                          shiny::hr(),
@@ -239,8 +243,8 @@ library(httr)
       })#end of withProgress
       
 
-      
     },ignoreInit = T)# End getPackage
+
 
     plots <- shiny::reactiveValues()
     whichTab <- shiny::reactiveValues()
@@ -267,6 +271,11 @@ library(httr)
       }else{
         sciRvwQfInput <- F
       }
+      if(input$impUnitFlag == TRUE){
+        impUnitInput <- T
+      }else{
+        impUnitInput <- F
+      }
       if(input$precipQctrFlag == TRUE){
         precipQctrFlag <- T
       }else{
@@ -284,11 +293,12 @@ library(httr)
                                             start.date = input$dateRange[[1]],
                                             end.date = input$dateRange[[2]],
                                             input.list = continuousDischarge_list,
+                                            plot.imp.unit = impUnitInput,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput,
                                             plot.precip.final.QF = precipQctrFlag,
                                             plot.precip.sci.rvw.QF = precipQctrFlagScRv,
-											plot.q.stats = include.q.stats)
+											                      plot.q.stats = include.q.stats)
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty

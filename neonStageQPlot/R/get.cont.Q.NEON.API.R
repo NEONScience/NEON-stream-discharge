@@ -203,7 +203,7 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
       dplyr::summarize(meanQ=base::mean(usgsDischarge,na.rm = T),
                        meanH=NA,
                        meanLHUnc=NA,
-                       meanUHUnc=NA,,
+                       meanUHUnc=NA,
                        meanURemnUnc=NA,
                        meanLRemnUnc=NA,
                        meanUParaUnc=base::mean(withRegressionUncQUpper2Std,na.rm = T),
@@ -286,9 +286,10 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   minYear <- base::unique(histMedQ$minYear)
   maxYear <- base::unique(histMedQ$maxYear)
   histMedQYearRange <- base::list(minYear,maxYear)
+
   names(histMedQYearRange) <- c("minYear",
                                 "maxYear")
-
+                                
   # 3x median
   if(include.q.stats){
     # Remove SRQF data
@@ -331,5 +332,4 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
 									                     "precipitationSite")
 
   return(continuousDischarge_list)
-
 }
