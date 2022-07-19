@@ -56,6 +56,8 @@ library(measurements)
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
+  # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+  include.q.stats <- F
 
   # Develop the User Interface
   ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
@@ -69,13 +71,17 @@ library(measurements)
                                                          shiny::dateRangeInput("dateRange","Date range:",
                                                                                startview="month",
                                                                                min="2016-01-01",
-                                                                               start="2019-01-01",end="2019-01-31",
+                                                                               start=lubridate::floor_date(base::Sys.Date(),"month")-base::months(1),
+                                                                               end=lubridate::floor_date(base::Sys.Date(),"month")-1,
                                                                                format="yyyy-mm-dd"),
                                                          shiny::textInput("apiToken", "NEON API Token (Optional)"),
                                                          shiny::actionButton(inputId="submit","Submit"),
-                                                         shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
-                                                         shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
+                                                         shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
+                                                         shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag for Discharge(light gray)", FALSE),
+                                                         shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
+                                                         shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
                                                          shiny::checkboxInput("impUnitFlag", "Imperial Units", FALSE),
+                                                         shiny::hr(),
                                                          conditionalPanel(
                                                            #checks that one of the graphs has been loaded
                                                            condition = "output.plot1 != null || output.plot2 != null",
@@ -127,12 +133,20 @@ library(measurements)
         usrDateTime <- dateTime
         usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
         usrDateTime <- base::substr(usrDateTime,1,base::nchar(usrDateTime)-4)
+        
+        tookInfo <- ""
+        #took handling
+        if(siteID == "TOOK_inlet" || siteID == "TOOK_outlet"){
+          tookInfo <- "Note: The phenocam image is NOT located at the inlet or outlet.
+           The phenocam shows the main lake."
+        }
 
         if(!base::is.null(phenoURL)){
           phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
           shiny::showModal(shiny::modalDialog(
             title = "Phenocam Image",
             size = "l",
+            tookInfo,
             tags$img(
               src = phenoURL),
             footer = shiny::downloadButton("downloadPheno",label = "Download Phenocam Image"),
@@ -170,6 +184,15 @@ library(measurements)
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
 
+      # # Manually set input variables for local testing - comment out when running app
+      # input <- base::list()
+      # input$siteId <- "HOPB"
+      # input$domainId <- "D01"
+      # input$dateRange[[1]] <- "2020-09-01"
+      # input$dateRange[[2]] <- "2020-10-31"
+      # input$apiToken <- NA
+      # output <- base::list()
+      
       metaD <-  productList%>%
         dplyr::filter(siteID == input$siteId)%>%
         dplyr::select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
@@ -181,20 +204,12 @@ library(measurements)
         tidyr::pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),
                             names_to = "MetaData",
                             values_to = "Values")
-
+      
       # Enter header for metadata table
       output$title <- shiny::renderText("Metadata Table")
-
+      
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
-
-      # # Manually set input variables for local testing - comment out when running app
-      # input <- base::list()
-      # input$siteId <- "TOOK_inlet"
-      # input$domainId <- "D18"
-      # input$dateRange[[1]] <- "2020-09-01"
-      # input$dateRange[[2]] <- "2020-10-31"
-      # apiToken <- NA
 
       # Create site description output
       siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
@@ -222,8 +237,12 @@ library(measurements)
         continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
                                                                         start.date = startDate,
                                                                         end.date = endDate,
-                                                                        api.token = apiToken)
+                                                                        api.token = apiToken,
+                                                                        include.q.stats = include.q.stats)
+
       })#end of withProgress
+      
+
     },ignoreInit = T)# End getPackage
 
 
@@ -242,7 +261,6 @@ library(measurements)
       continuousDischarge_list <- getPackage()
 
       # Format QF inputs
-
       if(input$qctrFlag == TRUE){
         finalQfInput <- T
       }else{
@@ -258,15 +276,29 @@ library(measurements)
       }else{
         impUnitInput <- F
       }
+      if(input$precipQctrFlag == TRUE){
+        precipQctrFlag <- T
+      }else{
+        precipQctrFlag <- F
+      }
+      if(input$precipQctrFlagScRv == TRUE){
+        precipQctrFlagScRv <- T
+      }else{
+        precipQctrFlagScRv <- F
+      }
 
       # Plot continuous discharge and store in output
-      plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
-                                                       start.date = input$dateRange[[1]],
-                                                       end.date = input$dateRange[[2]],
-                                                       input.list = continuousDischarge_list,
-                                                       plot.final.QF = finalQfInput,
-                                                       plot.sci.rvw.QF = sciRvwQfInput,
-                                                       plot.imp.unit = impUnitInput)
+
+      plots$plot.cont.Q <- plot.cont.Q(site.id = input$siteId,
+                                            start.date = input$dateRange[[1]],
+                                            end.date = input$dateRange[[2]],
+                                            input.list = continuousDischarge_list,
+                                            plot.imp.unit = impUnitInput,
+                                            plot.final.QF = finalQfInput,
+                                            plot.sci.rvw.QF = sciRvwQfInput,
+                                            plot.precip.final.QF = precipQctrFlag,
+                                            plot.precip.sci.rvw.QF = precipQctrFlagScRv,
+											                      plot.q.stats = include.q.stats)
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
@@ -274,7 +306,6 @@ library(measurements)
 
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
-
 
       # Plot rating curve(s) and store in outputs
       plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
@@ -317,12 +348,5 @@ library(measurements)
 
   }#end of server
 
-
-
   # Run the app ----
   shiny::shinyApp(ui = ui, server = server)
-
-
-
-
-

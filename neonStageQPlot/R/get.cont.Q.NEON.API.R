@@ -90,6 +90,16 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
       tabl = "sdrc_gaugeDischargeMeas",
       token = api.token)
 
+  #precipitation data from the NEON API
+  DP1.00006.001 <- loadByProduct(
+    dpID="DP1.00006.001",
+    package = "basic",
+    check.size = F,
+    site = site,
+    startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
+    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
+    token = api.token)
+
     # Format gauge-discharge measurement data
     sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
     if (site.id=="TOOK_inlet") {
@@ -205,6 +215,65 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
     curveIDs <- NA
   }
 
+
+  #DO1 HOPB yes primary
+  #DO2 LEWI no primary
+
+  #checks if primary precipitation data exist if not use secondary
+  #lubridate from highest available resolution data to 20 mins
+  #add data to summary table
+  isPrimaryPtp <- NULL
+  gaugeID <- NULL
+  if(!is.null(DP1.00006.001$PRIPRE_5min)){
+    ptp <- DP1.00006.001$PRIPRE_5min
+    gaugeID<-ptp$siteID[1]
+    ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
+    ptp <- ptp%>%
+      dplyr::group_by(date)%>%
+      dplyr::summarize(priPrecipBulk=base::mean(priPrecipBulk,na.rm = T),
+                       priPrecipExpUncert=base::mean(priPrecipExpUncert,na.rm = T),
+                       priPrecipFinalQF=base::sum(priPrecipFinalQF,na.rm = T)) %>%
+      dplyr::mutate(priPrecipBulkLoUnc=priPrecipBulk-priPrecipExpUncert,
+                    priPrecipBulkUpUnc=priPrecipBulk+priPrecipExpUncert)
+
+    # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
+    ptp$priPrecipFinalQF[ptp$priPrecipFinalQF<=1] <- 0
+    ptp$priPrecipFinalQF[ptp$priPrecipFinalQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)/2
+
+    isPrimaryPtp <- TRUE
+  }
+  else{
+    ptp <- DP1.00006.001$SECPRE_1min
+    gaugeID<-ptp$siteID[1]
+    ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
+    ptp <- ptp%>%
+      dplyr::group_by(date)%>%
+      dplyr::summarize(secPrecipBulk=base::mean(secPrecipBulk,na.rm = T),
+                       secPrecipExpUncert=base::mean(secPrecipExpUncert,na.rm = T),
+                       secPrecipSciRvwQF=base::sum(secPrecipSciRvwQF,na.rm = T)) %>%
+      dplyr::mutate(secPrecipBulkLoUnc=secPrecipBulk-secPrecipExpUncert,
+                    secPrecipBulkUpUnc=secPrecipBulk+secPrecipExpUncert)
+
+
+    # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
+    ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF<=1] <- 0
+    ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
+
+    isPrimaryPtp <- FALSE
+  }
+
+  #filtering ptp date to match continuousDischarge_sum date
+  ptp$date <- base::as.character(ptp$date)
+  ptp <- ptp%>%
+    dplyr::filter(date>=start.date&date<=end.date)
+
+  continuousDischarge_sum <- full_join(continuousDischarge_sum,ptp)
+
+  precipitationSite <- list(gaugeID,isPrimaryPtp)
+  names(precipitationSite) <- c("gaugeID",
+                             "isPrimaryPtp")
+
+
   # Add historic median Q to the summary table
   histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VB.rds","rb"))
   histMedQ <- histMedQ%>%
@@ -217,10 +286,35 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   minYear <- base::unique(histMedQ$minYear)
   maxYear <- base::unique(histMedQ$maxYear)
   histMedQYearRange <- base::list(minYear,maxYear)
-  names(histMedQYearRange) <- c("minYear","maxYear")
 
+  names(histMedQYearRange) <- c("minYear",
+                                "maxYear")
+                                
+  # 3x median
   if(include.q.stats){
-    # Code for stats here
+    # Remove SRQF data
+    csd_continuousDischarge <- csd_continuousDischarge%>%
+      dplyr::mutate(dischargeFinalQFSciRvw = base::ifelse(is.na(dischargeFinalQFSciRvw), 0, dischargeFinalQFSciRvw))
+    csd_continuousDischarge <- csd_continuousDischarge%>%
+      dplyr::filter(dischargeFinalQFSciRvw == 0)
+    if(site!="TOMB"){
+      # Calculate the parameters
+      medQ <- 3*stats::median(csd_continuousDischarge$maxpostDischarge,na.rm = T)
+      twentyFiveQ <- stats::quantile(csd_continuousDischarge$maxpostDischarge,0.25,na.rm = T)
+      seventyFiveQ <- stats::quantile(csd_continuousDischarge$maxpostDischarge,0.75,na.rm = T)
+    }else{
+      # Calculate the parameters
+      medQ <- 3*stats::median(csd_continuousDischarge$usgsDischarge,na.rm = T)
+      twentyFiveQ <- stats::quantile(csd_continuousDischarge$usgsDischarge,0.25,na.rm = T)
+      seventyFiveQ <- stats::quantile(csd_continuousDischarge$usgsDischarge,0.75,na.rm = T)
+    }
+    # Make an output list
+    dischargeStats <- list(medQ,
+                           twentyFiveQ,
+                           seventyFiveQ)
+    names(dischargeStats) <- c("medQ",
+                               "twentyFiveQ",
+                               "seventyFiveQ")
   }else{
     dischargeStats <- NA
   }
@@ -229,11 +323,13 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   continuousDischarge_list <- base::list(continuousDischarge_sum,
                                          curveIDs,
                                          histMedQYearRange,
-                                         dischargeStats)
+                                         dischargeStats,
+										                     precipitationSite)
   names(continuousDischarge_list) <- c("continuousDischarge_sum",
                                        "curveIDs",
                                        "histMedQYearRange",
-                                       "dischargeStats")
+                                       "dischargeStats",
+									                     "precipitationSite")
 
   return(continuousDischarge_list)
 }
