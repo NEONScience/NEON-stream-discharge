@@ -16,14 +16,22 @@
 #' app user [string]
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
-#' @param api.token Optional: NEON API token provided by the user [string]
+#' @param api.token Defaults to NA: NEON API personal access token. Learn about API tokens at
+#' https://www.neonscience.org/resources/learning-hub/tutorials/neon-api-tokens-tutorial [string]
+#' @param include.q.stats Defaults to FALSE: Include values for 3x median discharge and 25-75%
+#' flow in the outputs. Statistics are calculated from the time range selected by the user and
+#' exclude records that contain a science review quality flag (dischargeFinalQFSciRvw) [boolean]
 
 #' @return Returns a list of:
 #' 1) 'continuousDischarge_sum' is a data frame that contains continuous stage and discharge at
 #' 20 min intervals, discrete stage and discharge, and quality flags (finalDischargeQF and
-#' dischargeFinalQFSciRvw from DP4.00130.001), and
+#' dischargeFinalQFSciRvw from DP4.00130.001),
 #' 2) 'curveIDs' is a vector of all the unique rating curve IDs that are used to build the
-#' timeseries data.
+#' timeseries data,
+#' 4) 'histMedQYearRange' is a list of 2 items: the min and max year from which the historic
+#' median discharge is calculated, and
+#' 3) 'dischargeStats' is either a list of 3 values (3x median discharge, 25% discharge, 75%
+#' discharge) if include.q.stats = TRUE, or NA if include.q.stats = FALSE.
 
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
@@ -39,7 +47,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
+get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.q.stats=F){
 
   if(missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
@@ -136,11 +144,15 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
             dplyr::filter(stringr::str_detect(regressionID,"TKOT"))
         }
       }
-      sdrc_gaugePressureRelationship$date <- base::paste0(base::as.Date(sdrc_gaugePressureRelationship$gaugeCollectDate)," 20:00:00")
-      sdrc_gaugePressureRelationship$date <- base::as.character(sdrc_gaugePressureRelationship$date)
-      sdrc_gaugePressureRelationship$gauge_Height <- sdrc_gaugePressureRelationship$gaugeHeight
-      sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
-        dplyr::select(gauge_Height, date)
+      if(base::nrow(sdrc_gaugePressureRelationship)>0){
+        sdrc_gaugePressureRelationship$date <- base::paste0(base::as.Date(sdrc_gaugePressureRelationship$gaugeCollectDate)," 20:00:00")
+        sdrc_gaugePressureRelationship$date <- base::as.character(sdrc_gaugePressureRelationship$date)
+        sdrc_gaugePressureRelationship$gauge_Height <- sdrc_gaugePressureRelationship$gaugeHeight
+        sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
+          dplyr::select(gauge_Height, date)
+      }else{
+        sdrc_gaugePressureRelationship <- NULL
+      }
     }
 
     # Creating summary table for variables and  uncertainties to be included
@@ -185,22 +197,24 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
   }else{
     # Format continuous discharge for TOMB
     csd_continuousDischarge <- DP4.00130.001$csd_continuousDischargeUSGS
-    csd_continuousDischarge$date <- csd_continuousDischarge$endDate
+    csd_continuousDischarge$date <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
     continuousDischarge_sum <- csd_continuousDischarge%>%
-      dplyr::mutate(meanQ=usgsDischarge,
-                    meanH=NA,
-                    meanLHUnc=NA,
-                    meanUHUnc=NA,
-                    meanUParaUnc=withRegressionUncQUpper2Std,
-                    meanLParaUnc=withRegressionUncQLower2Std,
-                    meanURemnUnc=NA,
-                    meanLRemnUnc=NA,
-                    dischargeFinalQF=NA,
-                    streamDischarge=NA,
-                    gaugeHeight=NA,
-                    gauge_Height=NA)
+      dplyr::group_by(date)%>%
+      dplyr::summarize(meanQ=base::mean(usgsDischarge,na.rm = T),
+                       meanH=NA,
+                       meanLHUnc=NA,
+                       meanUHUnc=NA,,
+                       meanURemnUnc=NA,
+                       meanLRemnUnc=NA,
+                       meanUParaUnc=base::mean(withRegressionUncQUpper2Std,na.rm = T),
+                       meanLParaUnc=base::mean(withRegressionUncQLower2Std,na.rm = T),
+                       dischargeFinalQF=NA,
+                       streamDischarge=NA,
+                       gaugeHeight=NA,
+                       gauge_Height=NA)
     curveIDs <- NA
   }
+
 
   #DO1 HOPB yes primary
   #DO2 LEWI no primary
@@ -257,12 +271,59 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
 
   precipitationSite <- list(gaugeID,isPrimaryPtp)
 
+  # Add historic median Q to the summary table
+  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VB.rds","rb"))
+  histMedQ <- histMedQ%>%
+    dplyr::filter(siteID==site.id)
+  continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
+  continuousDischarge_sum$histMedQ <- NA
+  for(i in 1:base::nrow(continuousDischarge_sum)){
+    continuousDischarge_sum$histMedQ[i] <- histMedQ$medianQ[histMedQ$monthDay==continuousDischarge_sum$monthDay[i]]
+  }
+  minYear <- base::unique(histMedQ$minYear)
+  maxYear <- base::unique(histMedQ$maxYear)
+  histMedQYearRange <- base::list(minYear,maxYear)
+
+  # 3x median 
+  if(include.q.stats){
+    # Remove SRQF data
+    csd_continuousDischarge <- csd_continuousDischarge%>%
+      dplyr::mutate(dischargeFinalQFSciRvw = base::ifelse(is.na(dischargeFinalQFSciRvw), 0, dischargeFinalQFSciRvw))
+    csd_continuousDischarge <- csd_continuousDischarge%>%
+      dplyr::filter(dischargeFinalQFSciRvw == 0)
+    if(site!="TOMB"){
+      # Calculate the parameters
+      medQ <- 3*stats::median(csd_continuousDischarge$maxpostDischarge,na.rm = T)
+      twentyFiveQ <- stats::quantile(csd_continuousDischarge$maxpostDischarge,0.25,na.rm = T)
+      seventyFiveQ <- stats::quantile(csd_continuousDischarge$maxpostDischarge,0.75,na.rm = T)
+    }else{
+      # Calculate the parameters
+      medQ <- 3*stats::median(csd_continuousDischarge$usgsDischarge,na.rm = T)
+      twentyFiveQ <- stats::quantile(csd_continuousDischarge$usgsDischarge,0.25,na.rm = T)
+      seventyFiveQ <- stats::quantile(csd_continuousDischarge$usgsDischarge,0.75,na.rm = T)
+    }
+    # Make an output list
+    dischargeStats <- list(medQ,
+                           twentyFiveQ,
+                           seventyFiveQ)
+    names(dischargeStats) <- c("medQ",
+                               "twentyFiveQ",
+                               "seventyFiveQ")
+  }else{
+    dischargeStats <- NA
+  }
+
   # Make an output list
-  continuousDischarge_list <- base::list(
-    continuousDischarge_sum,
-    curveIDs,
-    precipitationSite
-  )
+  continuousDischarge_list <- base::list(continuousDischarge_sum,
+                                         curveIDs,
+                                         histMedQYearRange,
+                                         dischargeStats,
+										 precipitationSite)
+  names(continuousDischarge_list) <- c("continuousDischarge_sum",
+                                       "curveIDs",
+                                       "histMedQYearRange",
+                                       "dischargeStats",
+									   "precipitationSite")
 
   return(continuousDischarge_list)
 

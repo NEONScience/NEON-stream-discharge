@@ -12,15 +12,24 @@ app user [string]}
 \item{end.date}{Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 user [string]}
 
-\item{api.token}{Optional: NEON API token provided by the user [string]}
+\item{api.token}{Defaults to NA: NEON API personal access token. Learn about API tokens at
+https://www.neonscience.org/resources/learning-hub/tutorials/neon-api-tokens-tutorial [string]}
+
+\item{include.q.stats}{Defaults to FALSE: Include values for 3x median discharge and 25-75%
+flow in the outputs. Statistics are calculated from the time range selected by the user and
+exclude records that contain a science review quality flag (dischargeFinalQFSciRvw) [boolean]}
 }
 \value{
 Returns a list of:
 1) 'continuousDischarge_sum' is a data frame that contains continuous stage and discharge at
 20 min intervals, discrete stage and discharge, and quality flags (finalDischargeQF and
-dischargeFinalQFSciRvw from DP4.00130.001), and
+dischargeFinalQFSciRvw from DP4.00130.001),
 2) 'curveIDs' is a vector of all the unique rating curve IDs that are used to build the
-timeseries data.
+timeseries data,
+4) 'histMedQYearRange' is a list of 2 items: the min and max year from which the historic
+median discharge is calculated, and
+3) 'dischargeStats' is either a list of 3 values (3x median discharge, 25% discharge, 75%
+discharge) if include.q.stats = TRUE, or NA if include.q.stats = FALSE.
 }
 \description{
 This function will download data from the NEON Portal API using neonUtilities

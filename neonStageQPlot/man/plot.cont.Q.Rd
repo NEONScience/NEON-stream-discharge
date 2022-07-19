@@ -19,6 +19,10 @@ DP4.00130.001 data product [boolean]}
 
 \item{plot.sci.rvw.QF}{Required: Indicator of plotting the finalDischargeQFSciRvw field
 from the DP4.00130.001 data product [boolean]}
+
+\item{include.q.stats}{Defaults to FALSE: Include values for 3x median discharge and 25-75%
+flow in the plot. Statistics are calculated from the time range selected by the user and
+exclude records that contain a science review quality flag (dischargeFinalQFSciRvw) [boolean]}
 }
 \value{
 Returns a plotly plot object
