@@ -66,8 +66,8 @@ library(httr)
                                          shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
                                          shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
                                                          shiny::selectInput("domainId","Domain ID",productList$domain),
-                                                         shiny::selectInput("siteId","Select Site ID",NULL),
-                                                         shiny::dateRangeInput("dateRange","Date range:",
+                                                         shiny::selectInput("siteId","Site ID",NULL),
+                                                         shiny::dateRangeInput("dateRange","Date range",
                                                                                startview="month",
                                                                                min="2016-01-01",
                                                                                start=lubridate::floor_date(base::Sys.Date(),"month")-base::months(1),
@@ -95,7 +95,9 @@ library(httr)
                                                                             style = "background-color:#F8F8F8;"),
                                                             shiny::tabPanel("Rating Curve(s)",
                                                                             shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
-                                                                                                         color = "#00ADD7"))))#end of second col
+                                                                                                         color = "#00ADD7")),
+                                                            shiny::tabPanel("About the App",
+                                                                            shiny::includeMarkdown("about.Rmd"))))#end of second col
                            )#end of fluid row
     ) # end of ui and fluidPage
 

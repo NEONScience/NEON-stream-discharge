@@ -1,0 +1,61 @@
+---
+output: html_document
+---
+
+<font size="10">**Welcome to Open Flow!**</font> 
+
+## Overview
+
+This application allows you view and interact with NEON hydrologic data in 29 stream and river sites across the contiguous United States, Alaska, and Puerto Rico. In this app, you can visually explore data from the following NEON Data Products:
+
+* Stage-discharge rating curves [(DP4.00133.001)](https://data.neonscience.org/data-products/DP4.00133.001)
+* Continuous discharge [(DP4.00130.001)](https://data.neonscience.org/data-products/DP4.00130.001)
+* Precipitation [(DP1.00006.001)](https://data.neonscience.org/data-products/DP1.00006.001)
+* Land-water interface images [(DP1.20002.001)](https://data.neonscience.org/data-products/DP1.20002.001)
+
+## Using the App
+
+### Inputs
+
+#### Before 'Submit'
+
+For the app to run, users must select a NEON **Domain ID** and **Site ID** from dropdown menus and specify a **Date Range** across which to download and plot data. Visit the NEON website to learn more [About Field Sites and Domains](https://www.neonscience.org/field-sites/about-field-sites) and [Explore Field Sites](https://www.neonscience.org/field-sites/explore-field-sites).
+
+_* **Note:**_ The Open Flow app uses the [_neonUtilities_ R package](https://cran.r-project.org/web/packages/neonUtilities/index.html) to download data from the NEON API. Users that select larger date ranges (> 6 months) will experience longer wait times.
+
+Users also have the option to enter their **NEON API Token** before running the app to link their app activity to their user account and enable faster download speeds. Learn more about the benefits of using an API token [here](https://www.neonscience.org/resources/learning-hub/tutorials/neon-api-tokens-tutorial).
+
+#### Independent of 'Submit'
+
+The following inputs can be selected/de-selected either before or after a user selects 'Submit'.
+
+Users can visualize quality flags:
+
+* **Include Discharge Final Quality Flag** - Shaded area (light grey) in background of plotting field for time ranges when csd_continuousDischarge:dischargeFinalQF = 1
+* **Include Discharge Science Review Quality Flag** - Shaded area (light grey) in background of plotting field for time ranges when csd_continuousDischarge:dischargeFinalQFSciRvw = 1
+* **Include Precipitation Final Quality Flag** - Shaded area (dark grey) in background of plotting field for time ranges when <span style="color: red;">_tableName:fieldName_</span> = 1
+* **Include Precipitation Science Review Quality Flag** - Shaded area (dark grey) in background of plotting field for time ranges when <span style="color: red;">_tableName:fieldName_</span> = 1
+
+<span style="color: red;">Ohter inputs from other branches</span>
+
+### Outputs
+
+### Features
+
+## Change Log
+
+## Additional Information
+
+### Contact Us
+
+#### Questions or Comments About the App?
+
+#### Find a Bug?
+
+### Credits & Acknowledgements
+
+### License
+
+### Disclaimer
+
+_Last Updated: 2022-07-26_
