@@ -270,6 +270,9 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   continuousDischarge_sum <- full_join(continuousDischarge_sum,ptp)
 
   precipitationSite <- list(gaugeID,isPrimaryPtp)
+  names(precipitationSite) <- c("gaugeID",
+                             "isPrimaryPtp")
+
 
   # Add historic median Q to the summary table
   histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VB.rds","rb"))
@@ -283,8 +286,10 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   minYear <- base::unique(histMedQ$minYear)
   maxYear <- base::unique(histMedQ$maxYear)
   histMedQYearRange <- base::list(minYear,maxYear)
+  names(histMedQYearRange) <- c("minYear",
+                                "maxYear")
 
-  # 3x median 
+  # 3x median
   if(include.q.stats){
     # Remove SRQF data
     csd_continuousDischarge <- csd_continuousDischarge%>%
@@ -318,12 +323,12 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
                                          curveIDs,
                                          histMedQYearRange,
                                          dischargeStats,
-										 precipitationSite)
+										                     precipitationSite)
   names(continuousDischarge_list) <- c("continuousDischarge_sum",
                                        "curveIDs",
                                        "histMedQYearRange",
                                        "dischargeStats",
-									   "precipitationSite")
+									                     "precipitationSite")
 
   return(continuousDischarge_list)
 
