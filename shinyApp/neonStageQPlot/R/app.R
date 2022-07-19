@@ -78,8 +78,10 @@ library(httr)
                                                                                format="yyyy-mm-dd"),
                                                          shiny::textInput("apiToken", "NEON API Token (Optional)"),
                                                          shiny::actionButton(inputId="submit","Submit"),
-                                                         shiny::checkboxInput("qctrFlag", "Include Final Quality Flag", FALSE),
-                                                         shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag", FALSE),
+                                                         shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
+                                                         shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag for Discharge(light gray)", FALSE),
+                                                         shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
+                                                         shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
                                                          shiny::hr(),
                                                          conditionalPanel(
                                                            #checks that one of the graphs has been loaded
@@ -254,6 +256,16 @@ library(httr)
       }else{
         sciRvwQfInput <- F
       }
+      if(input$precipQctrFlag == TRUE){
+        precipQctrFlag <- T
+      }else{
+        precipQctrFlag <- F
+      }
+      if(input$precipQctrFlagScRv == TRUE){
+        precipQctrFlagScRv <- T
+      }else{
+        precipQctrFlagScRv <- F
+      }
 
       # Plot continuous discharge and store in output
       plots$plot.cont.Q <- plot.cont.Q(site.id = input$siteId,
@@ -261,7 +273,9 @@ library(httr)
                                             end.date = input$dateRange[[2]],
                                             input.list = continuousDischarge_list,
                                             plot.final.QF = finalQfInput,
-                                            plot.sci.rvw.QF = sciRvwQfInput)
+                                            plot.sci.rvw.QF = sciRvwQfInput,
+                                            plot.precip.final.QF = precipQctrFlag,
+                                            plot.precip.sci.rvw.QF = precipQctrFlagScRv)
 
       # plot_csdWebGL <- plots$plot.cont.Q %>% toWebGL()
       #

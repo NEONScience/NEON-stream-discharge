@@ -37,7 +37,14 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot.sci.rvw.QF){
+plot.cont.Q <-function(site.id,
+                       start.date,
+                       end.date,
+                       input.list,
+                       plot.final.QF,
+                       plot.sci.rvw.QF,
+                       plot.precip.final.QF,
+                       plot.precip.sci.rvw.QF){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -57,6 +64,15 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   if(missing(plot.sci.rvw.QF)){
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
+  if(missing(plot.precip.final.QF)){
+    stop('must provide plot.precip.final.QF for plotting precipitation')
+  }
+  if(missing(plot.precip.sci.rvw.QF)){
+    stop('must provide plot.precip.sci.rvw.QF for plotting precipitation')
+  }
+
+
+  precipitationa <- 5
 
   #symbolics
   isPrimaryPtp <- 2
@@ -136,22 +152,22 @@ plot.cont.Q <-function(site.id,start.date,end.date,input.list,plot.final.QF,plot
   if(plot.final.QF){
     method <- method %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
+  }
 
-    #wraps precip flag data to prevent plotting when data does not exist
-    if(ptpDataset[[isPrimaryPtp]]){
-      method <- method %>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'gray')
-      }
-    }
   if(plot.sci.rvw.QF){
     method <- method %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
+  }
+  #wraps precip flag data to prevent plotting when data does not exist
+  if(ptpDataset[[isPrimaryPtp]] & plot.precip.final.QF){
+    method <- method %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'gray')
+  }
 
-    #wraps precip flag data to prevent plotting when data does not exist
-    if(ptpDataset[[isPrimaryPtp]]==FALSE){
-      method <- method %>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipSciRvwQF,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'gray')
-    }
+  #wraps precip flag data to prevent plotting when data does not exist
+  if(ptpDataset[[isPrimaryPtp]]==FALSE & plot.precip.sci.rvw.QF){
+    method <- method %>%
+      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipSciRvwQF,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'gray')
   }
 
   # Add base plot

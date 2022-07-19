@@ -224,7 +224,7 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token){
 
     # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
     ptp$priPrecipFinalQF[ptp$priPrecipFinalQF<=1] <- 0
-    ptp$priPrecipFinalQF[ptp$priPrecipFinalQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
+    ptp$priPrecipFinalQF[ptp$priPrecipFinalQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)/2
 
     isPrimaryPtp <- TRUE
   }
