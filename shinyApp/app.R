@@ -233,19 +233,7 @@ library(httr)
                                                                         end.date = endDate,
                                                                         api.token = apiToken,
                                                                         include.q.stats = include.q.stats)
-        # Append metadata table if discharge parameters are included in function output
-        # if(include.q.stats){
-        #   metaD_internal <- base::data.frame(base::matrix(data=NA,ncol = 2,nrow = 3))
-        #   base::names(metaD_internal) <- base::names(metaD)
-        #   metaD_internal$MetaData <- c("3x Median Discharge (lps)",
-        #                                "25% Discharge (lps)",
-        #                                "75% Discharge (lps)")
-        #   metaD_internal$Values <- base::as.character(c(continuousDischarge_list$dischargeStats$medQ,
-        #                                                 continuousDischarge_list$dischargeStats$twentyFiveQ,
-        #                                                 continuousDischarge_list$dischargeStats$seventyFiveQ))
-        #   metaD <- dplyr::full_join(metaD_internal,metaD)
-        # }
-        
+
       })#end of withProgress
       
 
@@ -278,6 +266,9 @@ library(httr)
         sciRvwQfInput <- F
       }
 
+      # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+      include.q.stats <- T
+      
       # Plot continuous discharge and store in output
       plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
                                                        start.date = input$dateRange[[1]],
@@ -285,7 +276,7 @@ library(httr)
                                                        input.list = continuousDischarge_list,
                                                        plot.final.QF = finalQfInput,
                                                        plot.sci.rvw.QF = sciRvwQfInput,
-                                                       plot.q.stats = T)
+                                                       plot.q.stats = include.q.stats)
 
       # plot_csdWebGL <- plots$plot.cont.Q %>% toWebGL()
       #
