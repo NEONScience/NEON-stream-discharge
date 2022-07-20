@@ -67,8 +67,7 @@ library(bslib)
   ui <- shiny::fluidPage(theme = bs_theme(version = 3,bootswatch = "flatly"),
                          style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
-                         shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "applogo-transparent.png",width = 250,height = 150)),
-                                                           shiny::column(2, img(src = "logo-NEON-NSF.png",width = 250,height = 150)))),
+                         shiny::titlePanel(shiny::fluidRow(img(src = "app_logo2.png",width = 250,height = 150))),
                          shiny::fluidRow(shiny::column(2,
                                          shiny::fluidRow(shiny::selectInput("domainId","Domain ID",productList$domain)),
                                          shiny::fluidRow(shiny::uiOutput("domainInfo")),
