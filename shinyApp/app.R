@@ -93,15 +93,6 @@ library(measurements)
                                                          shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
                                                          shiny::checkboxInput("impUnitFlag", "Imperial Units", FALSE),
                                                          shiny::checkboxInput("dark_mode", "Dark Mode")),
-                                                         shiny::hr(),
-                                                         conditionalPanel(
-                                                           #checks that one of the graphs has been loaded
-                                                           condition = "output.plot1 != null || output.plot2 != null",
-                                                            
-                                                            shiny::hr(),
-                                                            shiny::downloadButton("downloadPlotly", "Download Graph"))),
-                                         shiny::hr(),
-                                         shiny::fluidRow(shiny::uiOutput("siteInfo" )),
                                          shiny::hr(),
                                          shiny::fluidRow(conditionalPanel(
                                            #checks that one of the graphs has been loaded
@@ -352,11 +343,24 @@ library(measurements)
       # Unpack the list of curve IDs from getPackage
       continuousDischarge_list <- getPackage()
 
+      #format flags
+      if(input$dark_mode == TRUE){
+        darkModeInput <- T
+      }else{
+        darkModeInput <- F
+      }
+      if(input$impUnitFlag == TRUE){
+        impUnitInput <- T
+      }else{
+        impUnitInput <- F
+      }
+      
       # Plot rating curve(s) and store in outputs
       plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
                                                start.date = input$dateRange[[1]],
                                                end.date = input$dateRange[[2]],
-                                               input.list = continuousDischarge_list)
+                                               input.list = continuousDischarge_list,
+                                               mode.dark = darkModeInput)
     })# End plot2
 
     #download handler for plotly download functionality

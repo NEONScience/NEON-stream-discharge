@@ -34,7 +34,7 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-plot.RC <-function(site.id,start.date,end.date,input.list){
+plot.RC <-function(site.id,start.date,end.date,input.list,mode.dark){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -86,6 +86,7 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
         updatemenus=list(
           list(
             type='buttons',
+            showactive=FALSE,
             buttons=list(
               list(label='Scale Discharge\n- Linear -',
                    method='relayout',
@@ -106,6 +107,14 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
                                              showgrid=T,
                                              zeroline=T))))))))
 
+    #dark mode styling
+    ratingColor <- "black"
+    if(mode.dark){
+      rcPlot <- rcPlot %>% layout(paper_bgcolor="#222",plot_bgcolor='#222',
+                                  font = list(color = 'white'))
+      ratingColor <- "white"
+    }
+
     # Add each rating curve based on the vector of unique rating curve IDs
     for(i in 1:length(unique(rcData$curveID))){
       currentCurveID <- unique(rcData$curveID)[i]
@@ -121,9 +130,9 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
         plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#E69F00',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         # Max Post Q
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=list(color='black'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=list(color=ratingColor),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
         # Empirical H/Q Pairs
-        plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=list(color='black'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
+        plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=list(color=ratingColor),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
     }
   }else{
     rcPlot <- plotly::plotly_empty()%>%
@@ -135,6 +144,13 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
           font=list(size=28)
         )
       )
+    #dark mode styling
+    ratingColor <- "black"
+    if(mode.dark){
+      rcPlot <- rcPlot %>% layout(paper_bgcolor="#222",plot_bgcolor='#222',
+                                  font = list(color = 'white'))
+      ratingColor <- "white"
+    }
   }
 
   return(rcPlot)
