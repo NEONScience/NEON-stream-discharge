@@ -16,11 +16,12 @@
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
 #' @param input.list Required: List containing the data used in plotting [list]
-#' @param plot.final.QF Required: Indicator of plotting the finalDischargeQF field from the
-#' DP4.00130.001 data product [boolean]
+#' @param plot.imp.unit Required: Idicator of plotting data in metric or imperial units
+#' [boolean]
+#' @param mode.dark Required: Indicator of plotting data in light or dark mode [boolean]
 #' @param plot.sci.rvw.QF Required: Indicator of plotting the finalDischargeQFSciRvw field
 #' from the DP4.00130.001 data product [boolean]
-#' @param include.q.stats Defaults to FALSE: Include values for 3x median discharge and 25-75%
+#' @param plot.q.stats Defaults to FALSE: Include values for 3x median discharge and 25-75%
 #' flow in the plot. Statistics are calculated from the time range selected by the user and
 #' exclude records that contain a science review quality flag (dischargeFinalQFSciRvw) [boolean]
 
@@ -49,10 +50,10 @@ plot.cont.Q <-function(site.id,
                        input.list,
                        plot.imp.unit,
                        mode.dark,
-                       plot.final.QF,
+                       # plot.final.QF,
                        plot.sci.rvw.QF,
-                       plot.precip.final.QF,
-                       plot.precip.sci.rvw.QF,
+                       # plot.precip.final.QF,
+                       # plot.precip.sci.rvw.QF,
 					             plot.q.stats=F){
 
   if(missing(site.id)){
@@ -67,21 +68,24 @@ plot.cont.Q <-function(site.id,
   if(missing(input.list)){
     stop('must provide input.list for plotting continuous discharge')
   }
-  if(missing(plot.final.QF)){
-    stop('must provide plot.final.QF for plotting continuous discharge')
-  }
+  # if(missing(plot.final.QF)){
+  #   stop('must provide plot.final.QF for plotting continuous discharge')
+  # }
   if(missing(plot.sci.rvw.QF)){
     stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
   }
   if(missing(plot.imp.unit)){
     stop('must provide plot.imp.unit for plotting contninuous discharge')
   }
-  if(missing(plot.precip.final.QF)){
-    stop('must provide plot.precip.final.QF for plotting precipitation')
+  if(missing(mode.dark)){
+    stop('must provide mode.dark for plotting contninuous discharge')
   }
-  if(missing(plot.precip.sci.rvw.QF)){
-    stop('must provide plot.precip.sci.rvw.QF for plotting precipitation')
-  }
+  # if(missing(plot.precip.final.QF)){
+  #   stop('must provide plot.precip.final.QF for plotting precipitation')
+  # }
+  # if(missing(plot.precip.sci.rvw.QF)){
+  #   stop('must provide plot.precip.sci.rvw.QF for plotting precipitation')
+  # }
 
 
   # Get data
@@ -224,27 +228,25 @@ plot.cont.Q <-function(site.id,
   }
 
   # Add Quality flags
-  if(plot.final.QF){
-    method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
-  }
-
+  # if(plot.final.QF){
+  #   method <- method %>%
+  #     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'lightgray')
+  # }
   if(plot.sci.rvw.QF){
     method <- method %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
   }
-
-  #wraps precip flag data to prevent plotting when data does not exist
-  if(isPrimaryPtp & plot.precip.final.QF){
-    method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'gray')
-  }
-
-  #wraps precip flag data to prevent plotting when data does not exist
-  if(isPrimaryPtp==FALSE & plot.precip.sci.rvw.QF){
-    method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipSciRvwQF,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'gray')
-  }
+  # #wraps precip flag data to prevent plotting when data does not exist
+  # if(isPrimaryPtp & plot.precip.final.QF){
+  #   method <- method %>%
+  #     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipFinalQF,type='scatter',mode='none',fill = 'tozeroy',showlegend= F, hoverinfo="none", fillcolor = 'gray')
+  # }
+  #
+  # #wraps precip flag data to prevent plotting when data does not exist
+  # if(isPrimaryPtp==FALSE & plot.precip.sci.rvw.QF){
+  #   method <- method %>%
+  #     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipSciRvwQF,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'gray')
+  # }
 
   # Add base plot
   method <- method %>%
@@ -290,24 +292,24 @@ plot.cont.Q <-function(site.id,
   if(plot.q.stats){
     method <- method%>%
       plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~medQ,yend=~medQ,line=list(color='grey',dash='dash'),name="3x Median\nDischarge",showlegend=T,legendgroup='group11',visible = "legendonly")%>%
-      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~twentyFiveQ,yend=~twentyFiveQ,line=list(color='black',dash='dash'),name="25-75%\nischarge",showlegend=F,legendgroup='group12',visible = "legendonly")%>%
-      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~seventyFiveQ,yend=~seventyFiveQ,line=list(color='black',dash='dash'),name="25-75%\nDischarge",showlegend=T,legendgroup='group12',visible = "legendonly")
+      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~twentyFiveQ,yend=~twentyFiveQ,line=list(color=dischargeColor,dash='dash'),name="25-75%\nischarge",showlegend=F,legendgroup='group12',visible = "legendonly")%>%
+      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~seventyFiveQ,yend=~seventyFiveQ,line=list(color=dischargeColor,dash='dash'),name="25-75%\nDischarge",showlegend=T,legendgroup='group12',visible = "legendonly")
 
     if(!plot.imp.unit){
       method <- method%>%
        plotly::layout(
-         title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 1)," L/s<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 1)," - ",base::round(seventyFiveQ,digits = 1)," L/s<b>"),
+         title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," L/s<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 0)," - ",base::round(seventyFiveQ,digits = 0)," L/s<b>"),
                     xanchor="left",
                     xref="paper",
-                    x=0.1))
+                    x=0.02))
     }
     else{
       method <- method%>%
         plotly::layout(
-          title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 1)," Ft^3/s<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 1)," - ",base::round(seventyFiveQ,digits = 1)," Ft^3/s<b>"),
+          title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," cfs<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 0)," - ",base::round(seventyFiveQ,digits = 0)," cfs<b>"),
                      xanchor="left",
                      xref="paper",
-                     x=0.1))
+                     x=0.02))
     }
   }
 

@@ -64,6 +64,8 @@ library(measurements)
   domainID <- NULL
   # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
   include.q.stats <- F
+  # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
+  constrain.dates <- T
 
   light <- bs_theme(version = 3,bootswatch = "flatly")
   dark <- bs_theme(version = 3,bootswatch = "darkly")
@@ -87,12 +89,12 @@ library(measurements)
                                                                                format="yyyy-mm-dd"),
                                                          shiny::textInput("apiToken", "NEON API Token (Optional)"),
                                                          shiny::actionButton(inputId="submit","Submit"),
-                                                         shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
-                                                         shiny::checkboxInput("qctrFlagScRv", "Include Science Review Quality Flag for Discharge(light gray)", FALSE),
-                                                         shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
-                                                         shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
-                                                         shiny::checkboxInput("impUnitFlag", "Imperial Units", FALSE),
-                                                         shiny::checkboxInput("dark_mode", "Dark Mode")),
+                                                         # shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
+                                                         shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
+                                                         # shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
+                                                         # shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
+                                                         shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
+                                                         shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
                                          shiny::hr(),
                                          shiny::fluidRow(conditionalPanel(
                                            #checks that one of the graphs has been loaded
@@ -231,21 +233,10 @@ library(measurements)
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
-
-      # # # Manually set input variables for local testing - comment out when running app
-      # input <- base::list()
-      # input$siteId <- "TOOK_inlet"
-      # input$domainId <- "D18"
-      # input$dateRange[[1]] <- "2020-09-01"
-      # input$dateRange[[2]] <- "2020-10-31"
-      # apiToken <- NA
-
-
       # Create site description output
       siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
       url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
       output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
-
 
       # Set date variables for app running (special consideration for TOOK)
       siteID <<- input$siteId
@@ -292,26 +283,26 @@ library(measurements)
       continuousDischarge_list <- getPackage()
 
       # Format QF inputs
-      if(input$qctrFlag == TRUE){
-        finalQfInput <- T
-      }else{
-        finalQfInput <- F
-      }
+      # if(input$qctrFlag == TRUE){
+      #   finalQfInput <- T
+      # }else{
+      #   finalQfInput <- F
+      # }
       if(input$qctrFlagScRv == TRUE){
         sciRvwQfInput <- T
       }else{
         sciRvwQfInput <- F
       }
-      if(input$precipQctrFlag == TRUE){
-        precipQctrFlag <- T
-      }else{
-        precipQctrFlag <- F
-      }
-      if(input$precipQctrFlagScRv == TRUE){
-        precipQctrFlagScRv <- T
-      }else{
-        precipQctrFlagScRv <- F
-      }
+      # if(input$precipQctrFlag == TRUE){
+      #   precipQctrFlag <- T
+      # }else{
+      #   precipQctrFlag <- F
+      # }
+      # if(input$precipQctrFlagScRv == TRUE){
+      #   precipQctrFlagScRv <- T
+      # }else{
+      #   precipQctrFlagScRv <- F
+      # }
       if(input$dark_mode == TRUE){
         darkModeInput <- T
       }else{
@@ -330,10 +321,10 @@ library(measurements)
                                             input.list = continuousDischarge_list,
                                             plot.imp.unit = impUnitInput,
                                             mode.dark = darkModeInput,
-                                            plot.final.QF = finalQfInput,
+                                            # plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput,
-                                            plot.precip.final.QF = precipQctrFlag,
-                                            plot.precip.sci.rvw.QF = precipQctrFlagScRv,                                          
+                                            # plot.precip.final.QF = precipQctrFlag,
+                                            # plot.precip.sci.rvw.QF = precipQctrFlagScRv,                                          
 											                      plot.q.stats = include.q.stats)
     })# End plot1
 

@@ -16,7 +16,9 @@
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
 #' @param input.list Required: List containing the curve IDs used in plotting [list]
-
+#' @param plot.imp.unit Required: Idicator of plotting data in metric or imperial units
+#' [boolean]
+#' @param mode.dark Required: Indicator of plotting data in light or dark mode [boolean]
 
 #' @return Returns a plotly plot object
 
@@ -34,7 +36,12 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-plot.RC <-function(site.id,start.date,end.date,input.list,mode.dark,plot.imp.unit){
+plot.RC <-function(site.id,
+                   start.date,
+                   end.date,
+                   input.list,
+                   plot.imp.unit,
+                   mode.dark){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -47,6 +54,12 @@ plot.RC <-function(site.id,start.date,end.date,input.list,mode.dark,plot.imp.uni
   }
   if(missing(input.list)){
     stop('must provide input.list for plotting continuous discharge')
+  }
+  if(missing(plot.imp.unit)){
+    stop('must provide plot.imp.unit for plotting contninuous discharge')
+  }
+  if(missing(mode.dark)){
+    stop('must provide mode.dark for plotting contninuous discharge')
   }
 
   # Get data

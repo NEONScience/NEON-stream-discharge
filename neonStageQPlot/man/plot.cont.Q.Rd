@@ -14,13 +14,15 @@ user [string]}
 
 \item{input.list}{Required: List containing the data used in plotting [list]}
 
-\item{plot.final.QF}{Required: Indicator of plotting the finalDischargeQF field from the
-DP4.00130.001 data product [boolean]}
+\item{plot.imp.unit}{Required: Idicator of plotting data in metric or imperial units
+[boolean]}
+
+\item{mode.dark}{Required: Indicator of plotting data in light or dark mode [boolean]}
 
 \item{plot.sci.rvw.QF}{Required: Indicator of plotting the finalDischargeQFSciRvw field
 from the DP4.00130.001 data product [boolean]}
 
-\item{include.q.stats}{Defaults to FALSE: Include values for 3x median discharge and 25-75%
+\item{plot.q.stats}{Defaults to FALSE: Include values for 3x median discharge and 25-75%
 flow in the plot. Statistics are calculated from the time range selected by the user and
 exclude records that contain a science review quality flag (dischargeFinalQFSciRvw) [boolean]}
 }

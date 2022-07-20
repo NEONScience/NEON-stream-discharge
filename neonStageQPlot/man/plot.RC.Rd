@@ -13,6 +13,11 @@ app user [string]}
 user [string]}
 
 \item{input.list}{Required: List containing the curve IDs used in plotting [list]}
+
+\item{plot.imp.unit}{Required: Idicator of plotting data in metric or imperial units
+[boolean]}
+
+\item{mode.dark}{Required: Indicator of plotting data in light or dark mode [boolean]}
 }
 \value{
 Returns a plotly plot object
