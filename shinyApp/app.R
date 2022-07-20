@@ -26,8 +26,12 @@
 #     updates for plotting TOMB-USGS discharge data
 #   Zachary L. Nickerson (2022-06-20)
 #     updates that move code chunks in server to functions
+#   James M. Ross (2022-06-23)
+#     added API Token functionality
 #   James M. Ross (2022-07-01)
 #     added phenocam functionality
+#   James M. Ross (2022-07-01)
+#     added phenocam and plot download
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)
@@ -47,7 +51,9 @@ library(readr)
 library(tidyr)
 library(htmlwidgets)
 library(httr)
+library(bslib)
 library(measurements)
+
 
 
   # Read in reference table from Github
@@ -59,16 +65,21 @@ library(measurements)
   # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
   include.q.stats <- F
 
+  light <- bs_theme(version = 3,bootswatch = "flatly")
+  dark <- bs_theme(version = 3,bootswatch = "darkly")
   # Develop the User Interface
-  ui <- shiny::fluidPage(style = "padding:25px; margin-bottom: 30px;",
+  ui <- shiny::fluidPage(theme = bs_theme(version = 3,bootswatch = "flatly"),
+                         style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
-                         shiny::titlePanel("NEON Continuous discharge (DP4.00130.001) and Stage-discharge rating curves (DP4.00133.001) data visualization application"),
-                         shiny::fluidRow(shiny::column(3,
-                                         shiny::fluidRow("Welcome! This application allows you view and interact with NEON's Continuous discharge",tags$a(href="https://data.neonscience.org/data-products/DP4.00130.001", "(DP4.00130.001)", target="_blank"), "and Stage-discharge rating curves",tags$a(href="https://data.neonscience.org/data-products/DP4.00133.001", "(DP4.00133.001)", target="_blank")," data products. Select a site and date range and the app will download data from the NEON Data Portal and plot continuous and discrete stage and discharge timeseries data and all rating curves used in the development of the timeseries data."),
-                                         shiny::fluidRow(style = "background-color:#F8F8F8; height:auto;margin-top: 15px;padding: 15px;",
-                                                         shiny::selectInput("domainId","Domain ID",productList$domain),
-                                                         shiny::selectInput("siteId","Select Site ID",NULL),
-                                                         shiny::dateRangeInput("dateRange","Date range:",
+                         shiny::titlePanel(shiny::fluidRow(img(src = "app_logo2.png",width = 250,height = 150))),
+                         shiny::fluidRow(shiny::column(2,
+                                         shiny::fluidRow(shiny::selectInput("domainId","Domain ID",productList$domain)),
+                                         shiny::fluidRow(shiny::uiOutput("domainInfo")),
+                                         shiny::br(),
+                                         shiny::fluidRow(shiny::selectInput("siteId","Select Site ID",NULL)),
+                                         shiny::fluidRow(shiny::uiOutput("siteInfo")),
+                                         shiny::br(),
+                                         shiny::fluidRow(shiny::dateRangeInput("dateRange","Date range:",
                                                                                startview="month",
                                                                                min="2016-01-01",
                                                                                start=lubridate::floor_date(base::Sys.Date(),"month")-base::months(1),
@@ -81,6 +92,7 @@ library(measurements)
                                                          shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
                                                          shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
                                                          shiny::checkboxInput("impUnitFlag", "Imperial Units", FALSE),
+                                                         shiny::checkboxInput("dark_mode", "Dark Mode")),
                                                          shiny::hr(),
                                                          conditionalPanel(
                                                            #checks that one of the graphs has been loaded
@@ -91,17 +103,20 @@ library(measurements)
                                          shiny::hr(),
                                          shiny::fluidRow(shiny::uiOutput("siteInfo" )),
                                          shiny::hr(),
+                                         shiny::fluidRow(conditionalPanel(
+                                           #checks that one of the graphs has been loaded
+                                           condition = "output.plot1 != null || output.plot2 != null",
+                                           shiny::downloadButton("downloadPlotly", "Download Graph"))),
+                                         shiny::br(),
                                          shiny::fluidRow(shiny::textOutput("title"),
                                                          DT::dataTableOutput("table"))),#end of first col
-                                         shiny::column(9,
+                                         shiny::column(10,
                                          shiny::tabsetPanel(type = "tabs",id = "selectedTab",
                                                             shiny::tabPanel("Continuous Discharge",
-                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"),
-                                                                                                         color = "#00ADD7"),
-                                                                            style = "background-color:#F8F8F8;"),
+                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
                                                             shiny::tabPanel("Rating Curve(s)",
-                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
-                                                                                                         color = "#00ADD7"))))#end of second col
+                                                                            shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px")
+                                                                                                         ))))#end of second col
                            )#end of fluid row
     ) # end of ui and fluidPage
 
@@ -113,7 +128,11 @@ library(measurements)
     shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
 
-
+    #handles light and dark mode switch
+    observe(session$setCurrentTheme(
+      if (isTRUE(input$dark_mode)) dark else light
+    ))
+    
     #phenoImage observe
     #displays phenocam image when point is clicked on graph
     #pulls image closest to selected date
@@ -181,6 +200,16 @@ library(measurements)
       return(phenoInfo)
     }
 
+    shiny::observeEvent(input$siteId,{
+      # Create site description output
+      siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
+      domainURL <- base::paste0("https://www.neonscience.org/field-sites/about-field-sites")
+      siteLink <- a("Click here", href=siteURL,target="_blank")
+      domainLink <- a("Click here", href=domainURL,target="_blank")
+      output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, siteLink, "for site description",sep="\n")})
+      output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
+    })
+    
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
 
@@ -211,10 +240,21 @@ library(measurements)
       # Create metadata table output
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
+
+      # # # Manually set input variables for local testing - comment out when running app
+      # input <- base::list()
+      # input$siteId <- "TOOK_inlet"
+      # input$domainId <- "D18"
+      # input$dateRange[[1]] <- "2020-09-01"
+      # input$dateRange[[2]] <- "2020-10-31"
+      # apiToken <- NA
+
+
       # Create site description output
       siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
       url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
       output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
+
 
       # Set date variables for app running (special consideration for TOOK)
       siteID <<- input$siteId
@@ -271,11 +311,6 @@ library(measurements)
       }else{
         sciRvwQfInput <- F
       }
-      if(input$impUnitFlag == TRUE){
-        impUnitInput <- T
-      }else{
-        impUnitInput <- F
-      }
       if(input$precipQctrFlag == TRUE){
         precipQctrFlag <- T
       }else{
@@ -286,18 +321,28 @@ library(measurements)
       }else{
         precipQctrFlagScRv <- F
       }
+      if(input$dark_mode == TRUE){
+        darkModeInput <- T
+      }else{
+        darkModeInput <- F
+      }
+      if(input$impUnitFlag == TRUE){
+        impUnitInput <- T
+      }else{
+        impUnitInput <- F
+      }
 
       # Plot continuous discharge and store in output
-
       plots$plot.cont.Q <- plot.cont.Q(site.id = input$siteId,
                                             start.date = input$dateRange[[1]],
                                             end.date = input$dateRange[[2]],
                                             input.list = continuousDischarge_list,
                                             plot.imp.unit = impUnitInput,
+                                            mode.dark = darkModeInput,
                                             plot.final.QF = finalQfInput,
                                             plot.sci.rvw.QF = sciRvwQfInput,
                                             plot.precip.final.QF = precipQctrFlag,
-                                            plot.precip.sci.rvw.QF = precipQctrFlagScRv,
+                                            plot.precip.sci.rvw.QF = precipQctrFlagScRv,                                          
 											                      plot.q.stats = include.q.stats)
     })# End plot1
 
