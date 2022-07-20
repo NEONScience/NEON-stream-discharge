@@ -65,10 +65,10 @@ library(measurements)
   # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
   constrain.dates <- F
 
-  light <- bs_theme(version = 3,bootswatch = "flatly")
-  dark <- bs_theme(version = 3,bootswatch = "darkly")
+  light <- bs_theme(version = 4,bootswatch = "flatly")
+  dark <- bs_theme(version = 4,bootswatch = "darkly")
   # Develop the User Interface
-  ui <- shiny::fluidPage(theme = bs_theme(version = 3,bootswatch = "flatly"),
+  ui <- shiny::fluidPage(theme = bs_theme(version = 4),
                          style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
                          shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "app-logo.png",width = 250,height = 150)), 
@@ -87,13 +87,15 @@ library(measurements)
                                                                                end=lubridate::floor_date(base::Sys.Date(),"month")-1,
                                                                                format="yyyy-mm-dd"),
                                                          shiny::textInput("apiToken", "NEON API Token (Optional)"),
-                                                         shiny::actionButton(inputId="submit","Submit"),
-                                                         # shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
-                                                         shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
-                                                         # shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
-                                                         # shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
-                                                         shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
-                                                         shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
+                                                         shiny::actionButton(inputId="submit","Submit")),
+                                         shiny::br(),
+                                         shiny::fluidRow(# shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
+                                           shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
+                                           # shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
+                                           # shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
+                                           shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
+                                           shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
+                                                         
                                          shiny::hr(),
                                          shiny::fluidRow(conditionalPanel(
                                            #checks that one of the graphs has been loaded
