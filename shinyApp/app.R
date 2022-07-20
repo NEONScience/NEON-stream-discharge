@@ -54,8 +54,6 @@ library(httr)
 library(bslib)
 library(measurements)
 
-
-
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   #Global Vars
@@ -65,7 +63,7 @@ library(measurements)
   # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
   include.q.stats <- F
   # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
-  constrain.dates <- T
+  constrain.dates <- F
 
   light <- bs_theme(version = 3,bootswatch = "flatly")
   dark <- bs_theme(version = 3,bootswatch = "darkly")

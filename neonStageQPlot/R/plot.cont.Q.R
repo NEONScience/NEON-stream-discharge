@@ -43,17 +43,16 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-
 plot.cont.Q <-function(site.id,
                        start.date,
                        end.date,
                        input.list,
-                       plot.imp.unit,
-                       mode.dark,
-                       # plot.final.QF,
-                       plot.sci.rvw.QF,
-                       # plot.precip.final.QF,
-                       # plot.precip.sci.rvw.QF,
+                       plot.imp.unit=F,
+                       mode.dark=F,
+                       # plot.final.QF=F,
+                       plot.sci.rvw.QF=F,
+                       # plot.precip.final.QF=F,
+                       # plot.precip.sci.rvw.QF=F,
 					             plot.q.stats=F){
 
   if(missing(site.id)){
@@ -68,25 +67,6 @@ plot.cont.Q <-function(site.id,
   if(missing(input.list)){
     stop('must provide input.list for plotting continuous discharge')
   }
-  # if(missing(plot.final.QF)){
-  #   stop('must provide plot.final.QF for plotting continuous discharge')
-  # }
-  if(missing(plot.sci.rvw.QF)){
-    stop('must provide plot.sci.rvw.QF for plotting contninuous discharge')
-  }
-  if(missing(plot.imp.unit)){
-    stop('must provide plot.imp.unit for plotting contninuous discharge')
-  }
-  if(missing(mode.dark)){
-    stop('must provide mode.dark for plotting contninuous discharge')
-  }
-  # if(missing(plot.precip.final.QF)){
-  #   stop('must provide plot.precip.final.QF for plotting precipitation')
-  # }
-  # if(missing(plot.precip.sci.rvw.QF)){
-  #   stop('must provide plot.precip.sci.rvw.QF for plotting precipitation')
-  # }
-
 
   # Get data
   continuousDischarge_sum <- input.list$continuousDischarge_sum
@@ -101,7 +81,6 @@ plot.cont.Q <-function(site.id,
     twentyFiveQ <- base::as.numeric(input.list$dischargeStats$twentyFiveQ)
     seventyFiveQ <- base::as.numeric(input.list$dischargeStats$seventyFiveQ)
   }
-
 
   #axis units
   y1Units <- "(liters per second)"
@@ -141,7 +120,6 @@ plot.cont.Q <-function(site.id,
           mutate(secPrecipBulkUpUnc = conv_unit(secPrecipBulkUpUnc,"mm","inch")) %>%
           mutate(secPrecipBulk = conv_unit(secPrecipBulk,"mm","inch"))
       }
-
 
       #3x internal#
       if(plot.q.stats){
@@ -312,8 +290,6 @@ plot.cont.Q <-function(site.id,
                      x=0.02))
     }
   }
-
-
 
   return(method)
 }

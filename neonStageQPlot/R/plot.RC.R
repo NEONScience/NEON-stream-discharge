@@ -40,8 +40,8 @@ plot.RC <-function(site.id,
                    start.date,
                    end.date,
                    input.list,
-                   plot.imp.unit,
-                   mode.dark){
+                   plot.imp.unit=F,
+                   mode.dark=F){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -54,12 +54,6 @@ plot.RC <-function(site.id,
   }
   if(missing(input.list)){
     stop('must provide input.list for plotting continuous discharge')
-  }
-  if(missing(plot.imp.unit)){
-    stop('must provide plot.imp.unit for plotting contninuous discharge')
-  }
-  if(missing(mode.dark)){
-    stop('must provide mode.dark for plotting contninuous discharge')
   }
 
   # Get data
@@ -156,7 +150,6 @@ plot.RC <-function(site.id,
                                   font = list(color = 'white'))
       ratingColor <- "white"
     }
-
 
       rcPlot <- rcPlot%>%
         # Total Uncertainty
