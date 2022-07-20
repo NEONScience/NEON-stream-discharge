@@ -197,15 +197,126 @@ pre code {
 <p>The following inputs can be selected/de-selected either before or after a user selects ‘Submit’.</p>
 <p>Users can visualize quality flags:</p>
 <ul>
-<li><strong>Include Discharge Final Quality Flag</strong> - Shaded area (light grey) in background of plotting field for time ranges when csd_continuousDischarge:dischargeFinalQF = 1</li>
-<li><strong>Include Discharge Science Review Quality Flag</strong> - Shaded area (light grey) in background of plotting field for time ranges when csd_continuousDischarge:dischargeFinalQFSciRvw = 1</li>
-<li><strong>Include Precipitation Final Quality Flag</strong> - Shaded area (dark grey) in background of plotting field for time ranges when <span style="color: red;"><em>tableName:fieldName</em></span> = 1</li>
-<li><strong>Include Precipitation Science Review Quality Flag</strong> - Shaded area (dark grey) in background of plotting field for time ranges when <span style="color: red;"><em>tableName:fieldName</em></span> = 1</li>
+<li><strong>Include Discharge Final Quality Flag</strong> - Shaded area (light grey) in background of plotting field for time ranges when DP4.00130.001:csd_continuousDischarge:dischargeFinalQF = 1</li>
+<li><strong>Include Discharge Science Review Quality Flag</strong> - Shaded area (light grey) in background of plotting field for time ranges when DP4.00130.001:csd_continuousDischarge:dischargeFinalQFSciRvw = 1</li>
+<li><strong>Include Precipitation Final Quality Flag</strong> - Shaded area (dark grey) in background of plotting field for time ranges when quality DP1.00006.001:PRIPRE_5min:priPrecipFinalQF (<em>Note:</em> There is no final quality flag field in DP1.00006.001:SECPRE_1min)</li>
+<li><strong>Include Precipitation Science Review Quality Flag</strong> - Shaded area (dark grey) in background of plotting field for time ranges when the science review quality flag associated with the plotted data (either DP1.00006.001:PRIPRE_5min:priPrecipFinalQFSciRvw or DP1.00006.001:SECPRE_1min:secPrecipSciRvwQF) = 1</li>
 </ul>
+<p><span style="color: red;">Other inputs from other branches</span></p>
 </div>
 </div>
 <div id="outputs" class="section level3">
 <h3>Outputs</h3>
+<div id="metadata-table" class="section level4">
+<h4>Metadata Table</h4>
+<p>The metadata table contains the following reach-scale variables that describe landscape and morphological controls on within-channel discharge:</p>
+<ul>
+<li>Upstream watershed area (km<sup>2</sup>): The area of land that drains water into the aquatic site.</li>
+<li>Reach slope (m): The gradient of the stream bed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.</li>
+<li>Mean bankfull width (m): The mean bankfull width of the channel measured with total station instruments at transects located throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.</li>
+<li>D50 particle size (mm): The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured throughout the monitoring reach using 200-point pebble count methods.</li>
+</ul>
+</div>
+<div id="the-continuous-discharge-tab" class="section level4">
+<h4>The ‘Continuous Discharge’ Tab</h4>
+<p>In the ‘Continuous Discharge’ tab, a plot is generated based on user input that contains the following data:</p>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="10%" />
+<col width="23%" />
+<col width="10%" />
+<col width="38%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Units (SI,US)</th>
+<th>Derived From</th>
+<th>Aesthetic</th>
+<th>Default<br>Visibility</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Continuous Discharge</td>
+<td>L/s, ft<sup>3</sup>/s</td>
+<td>DP4.00130.001:csd_continuousDischarge:maxpostDischarge</td>
+<td>black line</td>
+<td>on</td>
+</tr>
+<tr class="even">
+<td>Discharge Parametric Uncertainty</td>
+<td>L/s, ft<sup>3</sup>/s</td>
+<td>DP4.00130.001:csd_continuousDischarge:withParaUncQLower2Std<br>DP4.00130.001:csd_continuousDischarge:withParaUncQUpper2Std</td>
+<td>orange ribbon</td>
+<td>off</td>
+</tr>
+<tr class="odd">
+<td>Discharge Remnant Uncertainty</td>
+<td>L/s, ft<sup>3</sup>/s</td>
+<td>DP4.00130.001:csd_continuousDischarge:withRemnUncQLower2Std<br>DP4.00130.001:csd_continuousDischarge:withRemnUncQUpper2Std</td>
+<td>dark orange ribbon</td>
+<td>off</td>
+</tr>
+<tr class="even">
+<td>Continuous Stage</td>
+<td>m, ft</td>
+<td>DP4.00130.001:csd_continuousDischarge:equivalentStage</td>
+<td>pink line</td>
+<td>on</td>
+</tr>
+<tr class="odd">
+<td>Stage Uncertainty</td>
+<td>m, ft</td>
+<td>DP4.00130.001:csd_continuousDischarge:stageUnc</td>
+<td>blue ribbon</td>
+<td>off</td>
+</tr>
+<tr class="even">
+<td>Measured Discharge</td>
+<td>L/s, ft<sup>3</sup>/s</td>
+<td>DP4.00133.001:sdrc_gaugeDischargeMeas:streamDischarge</td>
+<td>green point</td>
+<td>on</td>
+</tr>
+<tr class="odd">
+<td>Measured Gauge Height</td>
+<td>m, ft</td>
+<td>DP4.00133.001:sdrc_gaugeDischargeMeas:gaugeHeight<br>DP4.00130.001:sdrc_gaugePressureRelationship:gaugeHeight</td>
+<td>yellow point</td>
+<td>on</td>
+</tr>
+<tr class="even">
+<td>Historic Median Discharge*</td>
+<td>L/s, ft<sup>3</sup>/s</td>
+<td>DP4.00130.001:csd_continuousDischarge:maxpostDischarge</td>
+<td>grey line</td>
+<td>off</td>
+</tr>
+<tr class="odd">
+<td>Continuous Precipitation**</td>
+<td>mm, in</td>
+<td>DP1.00006.001:PRIPRE_5min:priPrecipBulk <em>or</em> DP1.00006.001:SECPRE_1min:secPrecipBulk</td>
+<td>light blue line</td>
+<td>off</td>
+</tr>
+<tr class="even">
+<td>Precipitation Uncertainty**</td>
+<td>mm, in</td>
+<td>DP1.00006.001:PRIPRE_5min:priPrecipExpUncert <em>or</em> DP1.00006.001:SECPRE_1min:secPrecipExpUncert</td>
+<td>purple ribbon</td>
+<td>off</td>
+</tr>
+</tbody>
+</table>
+<p><font size="2">* - Historic Median Discharge is calculated from all RELEASED data at a given site. <a href="https://www.neonscience.org/data-samples/data-management/data-revisions-releases">Click here</a> to learn more about NEON data releases.</font></p>
+<p><font size="2">** - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE_1min). The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a site, the <em>neonUtilities</em> R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.</font></p>
+</div>
+<div id="the-rating-curves-tab" class="section level4">
+<h4>The ‘Rating Curve(s)’ Tab</h4>
+<p>In the ‘Rating Curve(s)’ tab, a plot is generated that show all the rating curves used in modelling continuous discharge for the time range specified by user input. Continuous discharge and stage-discharge rating curve data are linked by the <strong>curveID</strong> field. The app will identify all unique <strong>curveID</strong> values within the continuous discharge data and plot the stage-discharge relationship (black points), rating curve (black line), and uncertainties (parametric uncertainty = orange ribbon, remnant uncertainty = dark orange ribbon) for each rating curve.</p>
+</div>
 </div>
 <div id="features" class="section level3">
 <h3>Features</h3>
