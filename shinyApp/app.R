@@ -360,6 +360,7 @@ library(measurements)
                                                start.date = input$dateRange[[1]],
                                                end.date = input$dateRange[[2]],
                                                input.list = continuousDischarge_list,
+                                               plot.imp.unit = impUnitInput,
                                                mode.dark = darkModeInput)
     })# End plot2
 
