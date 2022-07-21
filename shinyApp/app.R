@@ -53,6 +53,7 @@ library(htmlwidgets)
 library(httr)
 library(bslib)
 library(measurements)
+library(shinyalert)
 
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
@@ -60,19 +61,17 @@ library(measurements)
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
-  # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
-  include.q.stats <- F
-  # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
-  constrain.dates <- F
+  include.q.stats <- F # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+  constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
 
-  light <- bs_theme(version = 4,bootswatch = "flatly")
-  dark <- bs_theme(version = 4,bootswatch = "darkly")
+  light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
+  dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
   # Develop the User Interface
-  ui <- shiny::fluidPage(theme = bs_theme(version = 4),
+  ui <- shiny::fluidPage(theme = bslib::bs_theme(version = 4),
                          style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
-                         shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "app-logo.png",width = 250,height = 150)), 
-                                                    shiny::column(2, img(src = "logo-NEON-NSF.png",width = 250,height = 125)))),
+                         shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "app-logo.png",width = 300,height = 150)), 
+                                                           shiny::column(2, img(src = "logo-NEON-NSF.png",width = 200,height = 75)))),# End of title panel
                          shiny::fluidRow(shiny::column(2,
                                          shiny::fluidRow(shiny::selectInput("domainId","Domain ID",productList$domain)),
                                          shiny::fluidRow(shiny::uiOutput("domainInfo")),
@@ -86,18 +85,18 @@ library(measurements)
                                                                                start=lubridate::floor_date(base::Sys.Date(),"month")-base::months(1),
                                                                                end=lubridate::floor_date(base::Sys.Date(),"month")-1,
                                                                                format="yyyy-mm-dd"),
-                                                         shiny::textInput("apiToken", "NEON API Token (Optional)"),
-                                                         shiny::actionButton(inputId="submit","Submit")),
+                                                         shiny::textInput("apiToken", "NEON API Token (Optional)")),
+                                         shiny::br(),
+                                         shiny::fluidRow(shiny::actionButton(inputId="submit","Submit")),
                                          shiny::br(),
                                          shiny::fluidRow(# shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
-                                           shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
-                                           # shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
-                                           # shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
-                                           shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
-                                           shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
-                                                         
+                                                         shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
+                                                         # shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
+                                                         # shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
+                                                         shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
+                                                         shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
                                          shiny::hr(),
-                                         shiny::fluidRow(conditionalPanel(
+                                         shiny::fluidRow(shiny::conditionalPanel(
                                            #checks that one of the graphs has been loaded
                                            condition = "output.plot1 != null || output.plot2 != null",
                                            shiny::downloadButton("downloadPlotly", "Download Graph"))),
@@ -123,14 +122,14 @@ library(measurements)
     shiny::updateSelectInput(session,"siteId",choices = unique(x))})
 
     #handles light and dark mode switch
-    observe(session$setCurrentTheme(
-      if (isTRUE(input$dark_mode)) dark else light
+    shiny::observe(session$setCurrentTheme(
+      if (base::isTRUE(input$dark_mode)) dark else light
     ))
     
     #phenoImage observe
     #displays phenocam image when point is clicked on graph
     #pulls image closest to selected date
-    observe({
+    shiny::observe({
       new_clickEvent <- plotly::event_data(event = "plotly_click", source = "phenoDate")
 
       if (!base::is.null(new_clickEvent)) {
@@ -190,7 +189,7 @@ library(measurements)
       usrDateTime <- stringr::str_replace(usrDateTime, " ","_")
       usrDateTime <- stringr::str_replace(usrDateTime, ":","-")
       usrDateTime <- base::paste0(usrDateTime,"-UTC")
-      phenoInfo <- list("URL" = phenoURL, "dateTime" = usrDateTime)
+      phenoInfo <- base::list("URL" = phenoURL, "dateTime" = usrDateTime)
       return(phenoInfo)
     }
 
@@ -204,9 +203,18 @@ library(measurements)
       output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
     })
     
+    # if(constrain.dates&
+    #    base::difftime(endDate,startDate,units="days")>90){
+    #   shiny::observeEvent(input$submit,{
+    #     shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
+    #   })
+    #   stop("Requested time period must be no more than 90 days")
+    # }
+    
+
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
-
+      
       # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
       # input$siteId <- "HOPB"
@@ -245,7 +253,13 @@ library(measurements)
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
       apiToken <- input$apiToken
-
+      
+      # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
+      if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
+        shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
+        stop("Requested time period must be no more than 90 days")
+      }
+      
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
 
@@ -316,17 +330,17 @@ library(measurements)
       }
 
       # Plot continuous discharge and store in output
-      plots$plot.cont.Q <- plot.cont.Q(site.id = input$siteId,
-                                            start.date = input$dateRange[[1]],
-                                            end.date = input$dateRange[[2]],
-                                            input.list = continuousDischarge_list,
-                                            plot.imp.unit = impUnitInput,
-                                            mode.dark = darkModeInput,
-                                            # plot.final.QF = finalQfInput,
-                                            plot.sci.rvw.QF = sciRvwQfInput,
-                                            # plot.precip.final.QF = precipQctrFlag,
-                                            # plot.precip.sci.rvw.QF = precipQctrFlagScRv,                                          
-											                      plot.q.stats = include.q.stats)
+      plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
+                                                       start.date = input$dateRange[[1]],
+                                                       end.date = input$dateRange[[2]],
+                                                       input.list = continuousDischarge_list,
+                                                       plot.imp.unit = impUnitInput,
+                                                       mode.dark = darkModeInput,
+                                                       # plot.final.QF = finalQfInput,
+                                                       plot.sci.rvw.QF = sciRvwQfInput,
+                                                       # plot.precip.final.QF = precipQctrFlag,
+                                                       # plot.precip.sci.rvw.QF = precipQctrFlagScRv,                                          
+            											                     plot.q.stats = include.q.stats)
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
