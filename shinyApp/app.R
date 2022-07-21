@@ -51,13 +51,14 @@ library(bslib)
 library(measurements)
 library(shinyalert)
 library(devtools)
+library(markdown)
 if(!require(stageQCurve)){
   devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", dependencies = TRUE, force = TRUE)
 }else{
   library(stageQCurve)
 }
 if(!require(neonStageQplot)){
-  devtools::install_github(repo = "Ross0-0/NEON-stream-discharge/shinyApp/neonStageQPlot", ref="dev", dependencies = TRUE, force = TRUE)
+  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
 }else{
   library(neonStageQplot)
 }
