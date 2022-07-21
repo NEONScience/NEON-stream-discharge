@@ -21,22 +21,23 @@ This application allows you view and interact with NEON hydrologic data in 29 st
 
 For the app to run, users must select a NEON **Domain ID** and **Site ID** from dropdown menus and specify a **Date Range** across which to download and plot data. Visit the NEON website to learn more [About Field Sites and Domains](https://www.neonscience.org/field-sites/about-field-sites) and [Explore Field Sites](https://www.neonscience.org/field-sites/explore-field-sites).
 
-_* **Note:**_ The Open Flow app uses the [_neonUtilities_ R package](https://cran.r-project.org/web/packages/neonUtilities/index.html) to download data from the NEON API. Users that select larger date ranges (> 6 months) will experience longer wait times.
+_**Note:**_ The Open Flow app uses the [_neonUtilities_ R package](https://cran.r-project.org/web/packages/neonUtilities/index.html) to download data from the NEON API. Users that select larger date ranges (> 6 months) will experience longer wait times.
 
 Users also have the option to enter their **NEON API Token** before running the app to link their app activity to their user account and enable faster download speeds. Learn more about the benefits of using an API token [here](https://www.neonscience.org/resources/learning-hub/tutorials/neon-api-tokens-tutorial).
 
 #### Independent of 'Submit'
 
-The following inputs can be selected/de-selected either before or after a user selects 'Submit'.
+The following checkbox inputs can be selected/de-selected either before or after a user selects 'Submit'.
 
-Users can visualize quality flags:
+**Include Discharge Science Review Quality Flags** - If selected, shaded areas (grey) will plot in background of plotting field for time ranges when DP4.00130.001:csd\_continuousDischarge:dischargeFinalQFSciRvw = 1
 
-* **Include Discharge Final Quality Flag** - Shaded area (light grey) in background of plotting field for time ranges when DP4.00130.001:csd_continuousDischarge:dischargeFinalQF = 1
-* **Include Discharge Science Review Quality Flag** - Shaded area (light grey) in background of plotting field for time ranges when DP4.00130.001:csd_continuousDischarge:dischargeFinalQFSciRvw = 1
-* **Include Precipitation Final Quality Flag** - Shaded area (dark grey) in background of plotting field for time ranges when quality DP1.00006.001:PRIPRE_5min:priPrecipFinalQF (_Note:_ There is no final quality flag field in DP1.00006.001:SECPRE_1min)
-* **Include Precipitation Science Review Quality Flag** - Shaded area (dark grey) in background of plotting field for time ranges when the science review quality flag associated with the plotted data (either DP1.00006.001:PRIPRE_5min:priPrecipFinalQFSciRvw or DP1.00006.001:SECPRE_1min:secPrecipSciRvwQF) = 1
+**Convert to Imperial Units** - If selected, plots in the 'Continuous Discharge' and 'Rating Curve(s)' tabs will be converted to imperial units. Units (metric, imperial) for the main groups of variables are:
 
-<span style="color: red;">Other inputs from other branches</span>
+* Discharge (liters per second, cubic feet per second)
+* Stage (meters, feet)
+* Precipitation (millimeters, inches)
+
+**Show in Dark Mode** - If selected, the app will have a global dark theme
 
 ### Outputs
 
@@ -44,31 +45,40 @@ Users can visualize quality flags:
 
 The metadata table contains the following reach-scale variables that describe landscape and morphological controls on within-channel discharge:
 
-* Upstream watershed area (km^2^): The area of land that drains water into the aquatic site.
-* Reach slope (m): The gradient of the stream bed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
-* Mean bankfull width (m): The mean bankfull width of the channel measured with total station instruments at transects located throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.
-* D50 particle size (mm): The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured throughout the monitoring reach using 200-point pebble count methods.
+**Upstream watershed area (km^2^)** - The area of land that drains water into the aquatic site.
+
+**Reach slope (m)** - The gradient of the stream bed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
+
+**Mean bankfull width (m)** - The mean bankfull width of the channel measured with total station instruments at transects located throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.
+
+**D50 particle size (mm)** - The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured throughout the monitoring reach using 200-point pebble count methods.
 
 #### The 'Continuous Discharge' Tab
 
-In the 'Continuous Discharge' tab, a plot is generated based on user input that contains the following data:
+In the 'Continuous Discharge' tab, a timeseries plot is generated that plots three groups of data:
 
-Variable|Units (SI,US)|Derived From|Aesthetic|Default<br>Visibility
---------|-----|-----------|-----|------------------
-Continuous Discharge| L/s, ft^3^/s|DP4.00130.001:csd_continuousDischarge:maxpostDischarge|black line|on
-Discharge Parametric Uncertainty| L/s, ft^3^/s|DP4.00130.001:csd_continuousDischarge:withParaUncQLower2Std<br>DP4.00130.001:csd_continuousDischarge:withParaUncQUpper2Std|orange ribbon|off
-Discharge Remnant Uncertainty| L/s, ft^3^/s|DP4.00130.001:csd_continuousDischarge:withRemnUncQLower2Std<br>DP4.00130.001:csd_continuousDischarge:withRemnUncQUpper2Std|dark orange ribbon|off
-Continuous Stage| m, ft|DP4.00130.001:csd_continuousDischarge:equivalentStage|pink line|on
-Stage Uncertainty| m, ft|DP4.00130.001:csd_continuousDischarge:stageUnc|blue ribbon|off
-Measured Discharge| L/s, ft^3^/s|DP4.00133.001:sdrc_gaugeDischargeMeas:streamDischarge|green point|on
-Measured Gauge Height| m, ft|DP4.00133.001:sdrc_gaugeDischargeMeas:gaugeHeight<br>DP4.00130.001:sdrc_gaugePressureRelationship:gaugeHeight|yellow point|on
-Historic Median Discharge*| L/s, ft^3^/s|DP4.00130.001:csd_continuousDischarge:maxpostDischarge|grey line|off
-Continuous Precipitation**| mm, in|DP1.00006.001:PRIPRE_5min:priPrecipBulk _or_ DP1.00006.001:SECPRE_1min:secPrecipBulk|light blue line|off
-Precipitation Uncertainty**| mm, in|DP1.00006.001:PRIPRE_5min:priPrecipExpUncert _or_ DP1.00006.001:SECPRE_1min:secPrecipExpUncert|purple ribbon|off
+**Discharge**
+
+* Continuous discharge (black line) - derived from DP4.00130.001:csd\_continuousDischarge:maxpostDischarge
+* Discharge Parametric Uncertainty (orange ribbon) - derived from DP4.00130.001:csd\_continuousDischarge:withParaUncQLower2Std and DP4.00130.001:csd\_continuousDischarge:withParaUncQUpper2Std
+* Discharge Remnant Uncertainy (dark orange ribbon) - derived from DP4.00130.001:csd\_continuousDischarge:withRemnUncQLower2Std and DP4.00130.001:csd\_continuousDischarge:withRemnUncQUpper2Std
+* Measured Discharge (green point) - derived from DP4.00133.001:sdrc\_gaugeDischargeMeas:streamDischarge
+* Historic Median Discharge\* (grey line) - DP4.00130.001:csd\_continuousDischarge:maxpostDischarge
+
+**Stage**
+
+* Continuous Stage (pink line) - derived from DP4.00130.001:csd\_continuousDischarge:equivalentStage
+* Stage Uncertainty (blue ribbon) - derived from DP4.00130.001:csd\_continuousDischarge:stageUnc
+* Measured Gauge Height (yellow point) - DP4.00133.001:sdrc\_gaugeDischargeMeas:gaugeHeight and DP4.00130.001:sdrc\_gaugePressureRelationship:gaugeHeight
+
+**Precipitation**\*\*
+
+* Continuous Precipitation (blue line) - DP1.00006.001:PRIPRE\_5min:priPrecipBulk *or* DP1.00006.001:SECPRE\_1min:secPrecipBulk
+* Precipitation Uncertainty (purple ribbon) - DP1.00006.001:PRIPRE\_5min:priPrecipExpUncert *or* DP1.00006.001:SECPRE\_1min:secPrecipExpUncert
 
 <font size="2">\* - Historic Median Discharge is calculated from all RELEASED data at a given site. [Click here](https://www.neonscience.org/data-samples/data-management/data-revisions-releases) to learn more about NEON data releases.</font> 
 
-<font size="2">** - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE_1min). The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a site, the _neonUtilities_ R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.</font> 
+<font size="2">\*\* - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE\_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE\_1min). The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a site, the _neonUtilities_ R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.</font> 
 
 #### The 'Rating Curve(s)' Tab
 
@@ -76,7 +86,34 @@ In the 'Rating Curve(s)' tab, a plot is generated that show all the rating curve
 
 ### Features
 
+#### Plotly Features
+
+Plotting in the Open Flow app is done using the [_plotly_ R package](https://cran.r-project.org/web/packages/plotly/plotly.pdf). Plots created in _plotly_ contain built-in functionality that allow users to better interact and interpret data. The plots in the Open Flow app contain the following useful functionality built into the plots:
+
+* Click and drag on the plot to zoom in, then double click to autoscale both axes
+* Toggle visibility of attributes by clicking on them in the legend. 
+  + In the 'Continuous Discharge' tab, Continuous Discharge, Continuous Stage, Measured Discharge, and Measured Gauge Height attributes default to _on_ while all other attributes default to _off_
+  + In the 'Rating Curve(s)' tab, Rating Curve w/ Gaugings attribute defaults to _on_ and Uncertainty defaults to _off_
+* Change discharge scales between linear and log using the buttons above the legend
+* Hover over attributes on the plotting field to see values at specific timestamps
+
+#### Render PhenoCam Image
+
+* In the 'Continuous Discharge' tab, users can hover over any plot attribute and click to render an image of the site published in the [PhenoCam Gallery](https://phenocam.nau.edu/webcam/). Images are queried from the PhenoCam API for the timestamp closest to the timestamp clicked by the user.
+
+#### Download Handler
+
+* In the 'Continuous Discharge' and 'Rating Curve(s)' tabs, users can download the plots as HTML files. When the plots are rendered in the app, a 'Download Graph' button will appear in the lefthand panel of the app above the Metadata Table. If downloaded, the HTML file will retain all the interactive functionality built into _plotly_. _**Note:**_ Users that download data for larger date ranges (> 6 months) will experience longer wait times.
+
+* Users can also download PhenoCam images. When PhenoCam images render in a new window, users can click the 'Download Phenocam Image' button to save the image as a PNG file.
+
 ## Change Log
+
+2022-02-04: Updates for app to work with TOMB data
+
+2021-09-16: Updates for app to work with TOOK data
+
+2021-08-05: Original creation
 
 ## Additional Information
 
@@ -84,12 +121,36 @@ In the 'Rating Curve(s)' tab, a plot is generated that show all the rating curve
 
 #### Questions or Comments About the App?
 
+NEON is always looking to improve user experience! If you have any comments, questions, or general feedback about the app, please follow the link below to contact the app developer and enter 'Zach Nickerson' in the **Direct to Staff Member** field.
+
+<font size="4">[**NEON Staff Contact Form**](https://www.neonscience.org/about/contact-us)</font>
+
 #### Find a Bug?
+
+Is the app not working at all or as expected? Do you have an enhancement request for the app? Please submit a Github issue [here](https://github.com/NEONScience/NEON-stream-discharge/issues).
 
 ### Credits & Acknowledgements
 
+Authors:
+
+James Ross - email: 
+
+Divine Aseaku - email: divineaseaku@gmail.com
+
+Zachary L. Nickerson - email: nickerson@battelleecology.org
+
+<a href="http://www.neonscience.org/">
+<img src="logo.png" width="300px" />
+</a>
+
+The National Ecological Observatory Network is a project solely funded by the National Science Foundation and managed under cooperative agreement by Battelle. Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation.
+
 ### License
 
+GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
+
 ### Disclaimer
+
+*Information and documents contained within this package are available as-is. Codes or documents, or their use, may not be supported or maintained under any program or service and may not be compatible with data currently available from the NEON Data Portal.*
 
 _Last Updated: 2022-07-26_

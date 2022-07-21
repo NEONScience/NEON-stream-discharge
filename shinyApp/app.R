@@ -62,7 +62,7 @@ library(shinyalert)
   siteID <- NULL
   domainID <- NULL
   include.q.stats <- F # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
-  constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
+  constrain.dates <- T # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
 
   light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
   dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
