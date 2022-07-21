@@ -16,7 +16,9 @@
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
 #' @param input.list Required: List containing the curve IDs used in plotting [list]
-
+#' @param plot.imp.unit Required: Idicator of plotting data in metric or imperial units
+#' [boolean]
+#' @param mode.dark Required: Indicator of plotting data in light or dark mode [boolean]
 
 #' @return Returns a plotly plot object
 
@@ -34,7 +36,12 @@
 # # Source packages and set options
 options(stringsAsFactors = F)
 
-plot.RC <-function(site.id,start.date,end.date,input.list){
+plot.RC <-function(site.id,
+                   start.date,
+                   end.date,
+                   input.list,
+                   plot.imp.unit=F,
+                   mode.dark=F){
 
   if(missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -66,17 +73,46 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
       dplyr::filter(curveID%in%curveIDs)
     base::rm("rcPlottingData.rds")
 
+    # Add each rating curve based on the vector of unique rating curve IDs
+    for(i in 1:length(unique(rcData$curveID))){
+      currentCurveID <- unique(rcData$curveID)[i]
+      rcData_curveID <- rcData%>%
+        filter(curveID==currentCurveID)
+      rcGaugings_curveID <- rcGaugings%>%
+        filter(curveID==currentCurveID)
+
+      #axis units
+      x1Units <- "(meter)"
+      y1Units <- "(liters per second)"
+
+      if(plot.imp.unit){
+        rcData_curveID <- rcData_curveID %>%
+
+          mutate(totalUTop = conv_unit(totalUTop,"l_per_sec","ft3_per_sec")) %>%
+          mutate(totalUBottom = conv_unit(totalUBottom,"l_per_sec","ft3_per_sec")) %>%
+          mutate(pramUTop = conv_unit(pramUTop,"l_per_sec","ft3_per_sec")) %>%
+          mutate(pramUBottom = conv_unit(pramUBottom,"l_per_sec","ft3_per_sec")) %>%
+          mutate(maxPostQ = conv_unit(maxPostQ,"l_per_sec","ft3_per_sec"))
+
+        rcGaugings_curveID <- rcGaugings_curveID %>%
+
+          mutate(Q = conv_unit(Q,"l_per_sec","ft3_per_sec"))
+
+        x1Units <- "(Feet)"
+        y1Units <- "(Cubic Feet per second)"
+      }
+
     # Build plot layout
     rcPlot <- plotly::plot_ly(data=rcData)%>%
       layout(
         xaxis=list(tick=14,
                    automargin=T,
-                   title="Stage (meter)",
+                   title=str_c("Stage ", x1Units),
                    tickfont=list(size=16),
                    titlefont=list(size=18)),
         yaxis=list(automargin=T,
-                   title="Discharge (liters per second)",
-                   range=c(0,base::max(rcData$totalUBottom)*1.05),
+                   title=str_c("Discharge ", y1Units),
+                   # range=c(0,base::max(rcData$totalUBottom)*1.05),
                    tickfont=list(size=16),
                    titlefont=list(size=18),
                    showgrid=T,
@@ -86,12 +122,13 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
         updatemenus=list(
           list(
             type='buttons',
+            showactive=FALSE,
             buttons=list(
               list(label='Scale Discharge\n- Linear -',
                    method='relayout',
                    args=list(list(yaxis=list(type='linear',
-                                             title="Discharge (liters per second)",
-                                             range=c(0,base::max(rcData$totalUBottom)*1.05),
+                                             title=str_c("Discharge ", y1Units),
+                                             # range=c(0,base::max(rcData$totalUBottom)*1.05),
                                              tickfont=list(size=16),
                                              titlefont=list(size=18),
                                              showgrid=T,
@@ -99,31 +136,32 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
               list(label='Scale Discharge\n- Log -',
                    method='relayout',
                    args=list(list(yaxis=list(type='log',
-                                             title="Discharge (liters per second) - log",
-                                             range=c(0,base::log10(base::max(rcData$totalUBottom)*1.05)),
+                                             title=str_c("Discharge ",y1Units," - log"),
+                                             # range=c(0,base::log10(base::max(rcData$totalUBottom)*1.05)),
                                              tickfont=list(size=16),
                                              titlefont=list(size=18),
                                              showgrid=T,
                                              zeroline=T))))))))
 
-    # Add each rating curve based on the vector of unique rating curve IDs
-    for(i in 1:length(unique(rcData$curveID))){
-      currentCurveID <- unique(rcData$curveID)[i]
-      rcData_curveID <- rcData%>%
-        filter(curveID==currentCurveID)
-      rcGaugings_curveID <- rcGaugings%>%
-        filter(curveID==currentCurveID)
+    #dark mode styling
+    ratingColor <- "black"
+    if(mode.dark){
+      rcPlot <- rcPlot %>% layout(paper_bgcolor="#222",plot_bgcolor='#222',
+                                  font = list(color = 'white'))
+      ratingColor <- "white"
+    }
+
       rcPlot <- rcPlot%>%
         # Total Uncertainty
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#D55E00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#D55E00',line=list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         # Parametric Uncertainty
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#E69F00',line=list(color='#E69F00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=list(color='#E69F00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#E69F00',line=list(color='#E69F00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         # Max Post Q
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=list(color='black'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=list(color=ratingColor),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
         # Empirical H/Q Pairs
-        plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=list(color='black'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
+        plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=list(color=ratingColor),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
     }
   }else{
     rcPlot <- plotly::plotly_empty()%>%
@@ -135,6 +173,13 @@ plot.RC <-function(site.id,start.date,end.date,input.list){
           font=list(size=28)
         )
       )
+    #dark mode styling
+    ratingColor <- "black"
+    if(mode.dark){
+      rcPlot <- rcPlot %>% layout(paper_bgcolor="#222",plot_bgcolor='#222',
+                                  font = list(color = 'white'))
+      ratingColor <- "white"
+    }
   }
 
   return(rcPlot)
