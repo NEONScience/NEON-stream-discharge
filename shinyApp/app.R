@@ -1,16 +1,18 @@
 ##############################################################################################
-#' NEON continuous discharge and stage-discharge rating curve data visualization app
-
-#' @name run.RC.cont.Q.plot
+#' openFlow: NEON Hydrologic Data Visualization App
 
 #' @author
+#' James Ross \email{ross.james94@gmail.com} \cr
 #' Divine Aseaku \email{divineaseaku@gmail.com} \cr
 #' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
-#' James Ross \email{ross.james94@gmail.com} \cr
 
-#' @description  An interactive app which  plots continuous discharge, Stage discharge and
-#' rating curves using language R Data is downloaded from the NEON data portal using
-#' neonUltilities and ploting is done at 20mins time interval
+#' @description  This application allows you view and interact with select hydrologic data 
+#' collected at 29 stream, river, and lake inflow/outflow sites across the National Ecological
+#' Observatory Network (NEON). NEON spans the continential United States and includes 
+#' monitoring sites in Alaska and Puerto Rico. In this app you can visually explore data from 
+#' the following NEON Data Products: Stage-discharge rating curves (DP4.00133.001), Continuous 
+#' discharge (DP4.00130.001), Precipitation (DP1.00006.001), and Land-water interface images 
+#' (DP1.20002.001)
 
 #' @return This function launches a shiny app to interactively plot published NEON data
 
@@ -24,14 +26,10 @@
 #     updates for plotting provisional 2021 data and TOOK inlet and outlet
 #   Zachary L. Nickerson (2022-02-04)
 #     updates for plotting TOMB-USGS discharge data
-#   Zachary L. Nickerson (2022-06-20)
-#     updates that move code chunks in server to functions
-#   James M. Ross (2022-06-23)
-#     added API Token functionality
-#   James M. Ross (2022-07-01)
-#     added phenocam functionality
-#   James M. Ross (2022-07-01)
-#     added phenocam and plot download
+#   James M. Ross (2022-07-25)
+#     major updates include plotting NEON precipitation data, rendering NEON PhenoCam images 
+#     via a click event, download buttons for plots and images, aesthetic updates to color 
+#     paletes, axes, and app themes, and an 'About the App' tab.
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)
@@ -43,8 +41,6 @@ library(DT)
 library(shinyWidgets)
 library(shinycssloaders)
 library(lubridate)
-library(stageQCurve)
-library(neonStageQplot)
 library(stringr)
 library(dplyr)
 library(readr)
@@ -54,6 +50,17 @@ library(httr)
 library(bslib)
 library(measurements)
 library(shinyalert)
+library(devtools)
+if(!require(stageQCurve)){
+  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", dependencies = TRUE, force = TRUE)
+}else{
+  library(stageQCurve)
+}
+if(!require(neonStageQplot)){
+  devtools::install_github(repo = "Ross0-0/NEON-stream-discharge/shinyApp/neonStageQPlot", ref="dev", dependencies = TRUE, force = TRUE)
+}else{
+  library(neonStageQplot)
+}
 
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
