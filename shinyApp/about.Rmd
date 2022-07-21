@@ -2,16 +2,18 @@
 output: html_document
 ---
 
-<font size="10">**Welcome to Open Flow!**</font> 
+<font size="10">**Welcome to openFlow!**</font> 
 
 ## Overview
 
-This application allows you view and interact with NEON hydrologic data in 29 stream and river sites across the contiguous United States, Alaska, and Puerto Rico. In this app, you can visually explore data from the following NEON Data Products:
+This application allows you view and interact with select hydrologic data collected at 29 stream,  river, and lake inflow/outflow sites across the National Ecological Observatory Network (NEON).  NEON spans the continential United States and includes monitoring sites in Alaska and Puerto Rico. In this app you can visually explore data from the following NEON Data Products:
 
 * Stage-discharge rating curves [(DP4.00133.001)](https://data.neonscience.org/data-products/DP4.00133.001)
 * Continuous discharge [(DP4.00130.001)](https://data.neonscience.org/data-products/DP4.00130.001)
 * Precipitation [(DP1.00006.001)](https://data.neonscience.org/data-products/DP1.00006.001)
 * Land-water interface images [(DP1.20002.001)](https://data.neonscience.org/data-products/DP1.20002.001)
+
+To learn more about each data product, follow the links above to data product landing pages and navigate to the 'Documents' section to find either Data Product User Guides (DPUG) or Algorithm Theoretical Basis Documents (ATBD) for each data product.
 
 ## Using the App
 
@@ -19,39 +21,39 @@ This application allows you view and interact with NEON hydrologic data in 29 st
 
 #### Before 'Submit'
 
-For the app to run, users must select a NEON **Domain ID** and **Site ID** from dropdown menus and specify a **Date Range** across which to download and plot data. Visit the NEON website to learn more [About Field Sites and Domains](https://www.neonscience.org/field-sites/about-field-sites) and [Explore Field Sites](https://www.neonscience.org/field-sites/explore-field-sites).
+To run the app, users must select a NEON **Domain ID** and **Site ID** from dropdown menus and specify a **Date Range** to download and plot data. Visit the NEON website to learn more [About Field Sites and Domains](https://www.neonscience.org/field-sites/about-field-sites) and [Explore Field Sites](https://www.neonscience.org/field-sites/explore-field-sites).
 
-_**Note:**_ The Open Flow app uses the [_neonUtilities_ R package](https://cran.r-project.org/web/packages/neonUtilities/index.html) to download data from the NEON API. Users that select larger date ranges (> 6 months) will experience longer wait times.
+_**Note:**_ The openFlow app uses the [_neonUtilities_ R package](https://cran.r-project.org/web/packages/neonUtilities/index.html) to download data from the NEON API. Users that select larger date ranges (> 6 months) will experience longer wait times.
 
 Users also have the option to enter their **NEON API Token** before running the app to link their app activity to their user account and enable faster download speeds. Learn more about the benefits of using an API token [here](https://www.neonscience.org/resources/learning-hub/tutorials/neon-api-tokens-tutorial).
 
 #### Independent of 'Submit'
 
-The following checkbox inputs can be selected/de-selected either before or after a user selects 'Submit'.
+The following checkbox inputs can be toggled either before or after a user selects 'Submit'.
 
-**Include Discharge Science Review Quality Flags** - If selected, shaded areas (grey) will plot in background of plotting field for time ranges when DP4.00130.001:csd\_continuousDischarge:dischargeFinalQFSciRvw = 1
+**Include Discharge Science Review Quality Flags** - If selected, shaded areas (grey) will plot in the background of the plotting field for time ranges when DP4.00130.001:csd\_continuousDischarge:dischargeFinalQFSciRvw = 1.
 
-**Convert to Imperial Units** - If selected, plots in the 'Continuous Discharge' and 'Rating Curve(s)' tabs will be converted to imperial units. Units (metric, imperial) for the main groups of variables are:
+**Convert to Imperial Units** - If selected, data in the 'Continuous Discharge' and 'Rating Curve(s)' tabs will be converted to imperial units. Units (Metric, Imperial) for the main groups of variables are:
 
 * Discharge (liters per second, cubic feet per second)
 * Stage (meters, feet)
 * Precipitation (millimeters, inches)
 
-**Show in Dark Mode** - If selected, the app will have a global dark theme
+**Show in Dark Mode** - If selected, the app will have a global dark theme.
 
 ### Outputs
 
 #### Metadata Table
 
-The metadata table contains the following reach-scale variables that describe landscape and morphological controls on within-channel discharge:
+The metadata table contains the following reach-scale variables that characterize the site that was selected:
 
 **Upstream watershed area (km^2^)** - The area of land that drains water into the aquatic site.
 
-**Reach slope (m)** - The gradient of the stream bed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
+**Reach slope (m)** - The gradient of the streambed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
 
-**Mean bankfull width (m)** - The mean bankfull width of the channel measured with total station instruments at transects located throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.
+**Mean bankfull width (m)** - The mean bankfull width of the channel measured at transects throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.
 
-**D50 particle size (mm)** - The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured throughout the monitoring reach using 200-point pebble count methods.
+**D50 particle size (mm)** - The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured at transects throughout the monitoring reach using 200-point pebble count methods.
 
 #### The 'Continuous Discharge' Tab
 
@@ -78,24 +80,28 @@ In the 'Continuous Discharge' tab, a timeseries plot is generated that plots thr
 
 <font size="2">\* - Historic Median Discharge is calculated from all RELEASED data at a given site. [Click here](https://www.neonscience.org/data-samples/data-management/data-revisions-releases) to learn more about NEON data releases.</font> 
 
-<font size="2">\*\* - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE\_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE\_1min). The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a site, the _neonUtilities_ R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.</font> 
+<font size="2">\*\* - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE\_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE\_1min). The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a NEON aquatic site, the _neonUtilities_ R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.  [Click here](https://www.neonscience.org/field-sites/about-field-sites) to learn more about co-located NEON sites.</font> 
+
+All continuous data and uncertainties are averaged and plotted at a 20 minute temporal resolution regardless of the temporal resolution at which an attribute is published.
+
+If there are no data published for an attribute in a given time range, the attribute will not be visible in the legend. 
 
 #### The 'Rating Curve(s)' Tab
 
-In the 'Rating Curve(s)' tab, a plot is generated that show all the rating curves used in modelling continuous discharge for the time range specified by user input. Continuous discharge and stage-discharge rating curve data are linked by the **curveID** field. The app will identify all unique **curveID** values within the continuous discharge data and plot the stage-discharge relationship (black points), rating curve (black line), and uncertainties (parametric uncertainty = orange ribbon, remnant uncertainty = dark orange ribbon) for each rating curve.
+In the 'Rating Curve(s)' tab, a plot is generated that shows all stage-discharge rating curves used to model continuous discharge for the time range specified by the user. Continuous discharge and stage-discharge rating curve data are linked by the **curveID** field. The app will identify all unique **curveID** values within the range of continuous discharge data and plot the stage-discharge relationship (black points), rating curve (black line), and uncertainties (parametric uncertainty = orange ribbon, remnant uncertainty = dark orange ribbon) for each rating curve.
 
 ### Features
 
 #### Plotly Features
 
-Plotting in the Open Flow app is done using the [_plotly_ R package](https://cran.r-project.org/web/packages/plotly/plotly.pdf). Plots created in _plotly_ contain built-in functionality that allow users to better interact and interpret data. The plots in the Open Flow app contain the following useful functionality built into the plots:
+Plotting in the openFlow app is done using the [_plotly_ R package](https://cran.r-project.org/web/packages/plotly/plotly.pdf). Plots created in _plotly_ contain built-in functionality that allow users to better interact and interpret data. The plots in the openFlow app contain the following useful functionality built into the plots:
 
-* Click and drag on the plot to zoom in, then double click to autoscale both axes
-* Toggle visibility of attributes by clicking on them in the legend. 
-  + In the 'Continuous Discharge' tab, Continuous Discharge, Continuous Stage, Measured Discharge, and Measured Gauge Height attributes default to _on_ while all other attributes default to _off_
-  + In the 'Rating Curve(s)' tab, Rating Curve w/ Gaugings attribute defaults to _on_ and Uncertainty defaults to _off_
-* Change discharge scales between linear and log using the buttons above the legend
-* Hover over attributes on the plotting field to see values at specific timestamps
+* Click and drag on the plot to zoom in and  double click to autoscale both axes.
+* Toggle visibility of attributes by clicking on them in the legend (double click on a legend attribute to view only this attribute in the plot. 
+  + In the 'Continuous Discharge' tab, Continuous Discharge, Continuous Stage, Measured Discharge, and Measured Gauge Height attributes default to _on_ while all other attributes default to _off_.
+  + In the 'Rating Curve(s)' tab, Rating Curve w/ Gaugings attribute defaults to _on_ and Uncertainty defaults to _off_.
+* Change discharge scales between linear and log using the buttons above the legend.
+* Hover over attributes on the plotting field to see values at specific timestamps.
 
 #### Render PhenoCam Image
 
@@ -121,19 +127,19 @@ Plotting in the Open Flow app is done using the [_plotly_ R package](https://cra
 
 #### Questions or Comments About the App?
 
-NEON is always looking to improve user experience! If you have any comments, questions, or general feedback about the app, please follow the link below to contact the app developer and enter 'Zach Nickerson' in the **Direct to Staff Member** field.
+NEON is always looking to improve the user experience! If you have any comments, questions, or general feedback about the app, please follow the link below to contact the app developer and enter 'Zach Nickerson' in the **Direct to Staff Member** field.
 
 <font size="4">[**NEON Staff Contact Form**](https://www.neonscience.org/about/contact-us)</font>
 
 #### Find a Bug?
 
-Is the app not working at all or as expected? Do you have an enhancement request for the app? Please submit a Github issue [here](https://github.com/NEONScience/NEON-stream-discharge/issues).
+Is the app not working as expected? Do you have an enhancement request for the app? Please submit a Github issue [here](https://github.com/NEONScience/NEON-stream-discharge/issues).
 
 ### Credits & Acknowledgements
 
 Authors:
 
-James Ross - email: 
+James Ross - email: ross.james94@gmail.com
 
 Divine Aseaku - email: divineaseaku@gmail.com
 
