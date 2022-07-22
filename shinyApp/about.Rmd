@@ -49,11 +49,13 @@ The metadata table contains the following reach-scale variables that characteriz
 
 **Upstream watershed area (km^2^)** - The area of land that drains water into the aquatic site.
 
-**Reach slope (m)** - The gradient of the streambed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
+**Reach slope (%)** - The gradient of the streambed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
 
 **Mean bankfull width (m)** - The mean bankfull width of the channel measured at transects throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.
 
 **D50 particle size (mm)** - The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured at transects throughout the monitoring reach using 200-point pebble count methods.
+
+_**Note:**_  At NEON river sites (BLWA, FLNT, TOMB), reach slope, mean bankfull width, and D50 particle size are not measured. Also, at the Toolik Lake (TOOK) inflow and outflow locations, D50 particle size is not measured.
 
 #### The 'Continuous Discharge' Tab
 
@@ -80,7 +82,42 @@ In the 'Continuous Discharge' tab, a timeseries plot is generated that plots thr
 
 <font size="2">\* - Historic Median Discharge is calculated from all RELEASED data at a given site. [Click here](https://www.neonscience.org/data-samples/data-management/data-revisions-releases) to learn more about NEON data releases.</font> 
 
-<font size="2">\*\* - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE\_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE\_1min). The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a NEON aquatic site, the _neonUtilities_ R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.  [Click here](https://www.neonscience.org/field-sites/about-field-sites) to learn more about co-located NEON sites.</font> 
+<font size="2">\*\* - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE\_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE\_1min).</font> 
+
+**Table:** The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a NEON aquatic site, the _neonUtilities_ R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.  [Click here](https://www.neonscience.org/field-sites/about-field-sites) to learn more about co-located NEON sites.
+
+NEON Domain ID|	NEON Aquatics Site ID|	Precipitation Data Source Site ID
+--------------|----------------------|-----------------------------------
+D01|	HOPB|	HARV|
+D02|	LEWI|	BLAN|
+D02|	POSE|	SCBI|
+D03|	FLNT|	JERC|
+D04|	CUPE|	CUPE|
+D04|	GUIL|	GUIL|
+D06|	KING|	KONZ|
+D06|	MCDI|	MCDI|
+D07|	LECO|	GRSM|
+D07|	WALK|	ORNL|
+D08|	BLWA|	DELA|
+D08|	MAYF|	TALL|
+D08|	TOMB|	LENO|
+D10|	ARIK|	ARIK|
+D11|	BLUE|	BLUE|
+D11|	PRIN|	PRIN|
+D12|	BLDE|	YELL|
+D13|	COMO|	NIWO|
+D13|	WLOU|	WLOU|
+D14|	SYCA|	SYCA|
+D15|	REDB|	REDB|
+D16|	MART|	WREF|
+D16|	MCRA|	ABBY|
+D17|	BIGC|	BIGC|
+D17|	TECR|	TEAK|
+D18|	OKSR|	TOOL|
+D18|	TOOK_inlet|	TOOK|
+D18|	TOOK_outlet|	TOOK|
+D19|	CARI|	BONA|
+<br>
 
 All continuous data and uncertainties are averaged and plotted at a 20 minute temporal resolution regardless of the temporal resolution at which an attribute is published.
 

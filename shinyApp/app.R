@@ -58,7 +58,7 @@ if(!require(stageQCurve)){
   library(stageQCurve)
 }
 if(!require(neonStageQplot)){
-  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
+  devtools::install_github(repo = "Ross0-0/NEON-stream-discharge/neonStageQPlot", ref="dev", dependencies = TRUE, force = TRUE)
 }else{
   library(neonStageQplot)
 }
@@ -213,15 +213,6 @@ if(!require(neonStageQplot)){
       output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
     })
     
-    # if(constrain.dates&
-    #    base::difftime(endDate,startDate,units="days")>90){
-    #   shiny::observeEvent(input$submit,{
-    #     shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
-    #   })
-    #   stop("Requested time period must be no more than 90 days")
-    # }
-    
-
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
       
