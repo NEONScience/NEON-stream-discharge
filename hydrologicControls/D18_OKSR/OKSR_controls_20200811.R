@@ -35,12 +35,11 @@ filepath <- "N:/Science/AQU/Controls/D18_OKSR_20200811"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # Download data from CERT using restR
-L0pull_site <- restR::get.os.l0.by.namedLocation(
-  pullType = "startDate",
+L0pull_site <- restR2::get.os.l0.data(
   stack = "cert",
-  tab = 'DP0.00131.001:geo_AISsiteSurveyResultsFile_in',
-  minDate = '2019-01-01',
-  maxDate = '2020-12-01',
+  dpID = 'DP0.00131.001',
+  minStartDate = '2019-01-01',
+  maxEndDate = '2020-12-01',
   namedLocationName = 'OKSR')
 download.file(L0pull_site$rawDataFilePath,L0pull_site$rawDataFileName,mode="wb")
 unzip(paste0("~/",L0pull_site$rawDataFileName),exdir="~")
