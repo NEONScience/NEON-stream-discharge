@@ -23,7 +23,9 @@ The **streamQ** package can be used for calculating stream discharge from consta
 
 The /L4Discharge/ folder contains an R package, **stageQCurve**, for calculating a stage-discharge rating curve using the same procedure described in *NEON User Guide to Stream Discharge Rating Curve, revision A*. Briefly, the NEON stage-discharge rating curve is developed using a Bayesian modeling technique developed by the Bayesian Rating Curve Advanced Graphical Environment (BaRatinAGE) development team (Le Coz et al., 2013; Le Coz et al., 2014). The executable and/or a GUI is available freely with an individual license by sending an email to: baratin.dev@lists.irstea.fr. In addition to the R package, the /L4Discharge/ folder contains a dockerfile and file structures needed to run the BaM executable in a Docker container that should allow the R scripts and executable to run regradless of operating system as long as the user has Docker (https://www.docker.com/) installed.
 
-The /shinyApp/ folder contains the R package, **neonStageQPlot**. When run, the function will launch a shiny app that downloads Continuous discharge (NEON.DP4.00130.001) and Stage-discharge rating curves (NEON.DP4.00133.001) data products from the NEON Data Portal, and plots the data in an interactive HTML format.
+The /shiny-openFlow/ folder contains the openFlow shiny application, which allows users to plot and interact with NEON hydrology data products.
+
+The **neonStageQPlot** package contains function that allow the openFlow app to run. The functions can also be used independently of the shiny app to download and plot NEON hydrology data, and generate URLs in order to render PhenoCam images in R.
 
 <!-- ****** Acknowledgements ****** -->
 ## Credits & Acknowledgements
