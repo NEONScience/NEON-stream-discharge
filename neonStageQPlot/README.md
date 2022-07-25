@@ -1,141 +1,78 @@
-NEON Stage-Discharge Rating Curve & Continuous Discharge Shiny App
+neonStageQPlot R package: Download and plot NEON hydrology data and
+retrieve NEON PhenoCam images from PhenoCam API
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- ****** Description ****** -->
 
-This interactive shiny app plots NEON stage-discharge rating curve and
-continuous discharge data using language R. In the left panel, users can
-input a domain ID, site ID and date range for which they want data
-plotted. Users can include quality flags in the continuous discharge
-plot before or after clicking submit. Graphs are render in the right
-panel after user click the submit button. The first tab from the left
-displays a continuous discharge plot for the selected time range, and
-the second tab plots the rating curves used in predicting continuous
-discharge.
+This package allows you view and interact with select hydrologic data
+collected at 29 stream, river, and lake inflow/outflow sites across the
+National Ecological Observatory Network (NEON). NEON spans the
+continential United States and includes monitoring sites in Alaska and
+Puerto Rico. In this package you can visually explore data from the
+following NEON Data Products:
 
-Note: All data plotted on this app is sourced from the [NEON Data
-Portal](https://data.neonscience.org/home) using the
-[neonUtilities](https://github.com/NEONScience/NEON-utilities) R
-package.
+-   Stage-discharge rating curves
+    [(DP4.00133.001)](https://data.neonscience.org/data-products/DP4.00133.001)
+-   Continuous discharge
+    [(DP4.00130.001)](https://data.neonscience.org/data-products/DP4.00130.001)
+-   Precipitation
+    [(DP1.00006.001)](https://data.neonscience.org/data-products/DP1.00006.001)
+-   Land-water interface images
+    [(DP1.20002.001)](https://data.neonscience.org/data-products/DP1.20002.001)
+
+The `neonStageQPlot` package was developed to work in conjunction with
+the
+[openFlow](https://github.com/NEONScience/NEON-stream-discharge/tree/master/shiny-openFlow)
+shiny application, but the functions can also be run independently
+outside the openFlow app.
 
 <!-- ****** Usage ****** -->
 
-## User Inputs
+## How to Install & Run the App
 
-**NEON Domain & Site Selection**
+The **neonStageQPlot** package is only available for install from
+Github. To install the package:
 
-User makes a selection from 19 domains, then chooses a site id from the
-sites available in the domain.
+`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/shinyApp/neonStageQPlot", dependencies = TRUE, force = TRUE)`
 
-**Date Range**
+## App Dependencies
 
-Ability to specify date ranges for which data is to be visualized.
+The shiny app downloads published data from the [NEON Data
+Portal](https://data.neonscience.org/home) using the
+[neonUtilities](https://github.com/NEONScience/NEON-utilities) package.
+Users must have the neonUtilities (available in
+[CRAN](https://cran.r-project.org/web/packages/neonUtilities/index.html))
+package installed to run the app.
 
-**Quality Flag Viewer**
+The shiny app uses the
+[stageQCurve](https://github.com/NEONScience/NEON-stream-discharge/tree/master/L4Discharge/stageQCurve)
+package. The stageQCurve package is not available in CRAN and must be
+installed directly from Github:
 
-Functionality for toggling between Final Review quality flags, Science
-Review quality flags before or after clicking the submit button. When
-activated, the quality flags will be rendered as a shaded backround on
-the continuous discharge plot spanning the flagged time range.
+`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", dependencies = TRUE, force = TRUE)`
 
-“Include Final Quality Flag” = Discharge final quality flag indicating
-whether a data product has passed or failed an overall assessment of its
-quality; detailed in ATBD.
+To install the stageQCurve package, you may also need to install the
+[geoNEON](https://github.com/NEONScience/NEON-geolocation/tree/master/geoNEON)
+package that must also be installed directly from GutHub:
 
-“Include Science Review Quality Flag” = Discharge final quality flag
-indicating whether a data product has failed a science review of its
-quality detailed in NEON.DOC.001113.
+`devtools::install_github(repo = "NEONScience/NEON-geolocation/geoNEON", dependencies = TRUE, force = TRUE)`
 
-## App Outpus
+## Functions
 
-**Site Description**
+`get.cont.Q.NEON.API` - Downloads NEON continuous discharge and
+precipitation data from the NEON API, smooths the data to a 20 minute
+temporal resoltion, and outputs a data frame that contains the
+summarized data.
 
-Contains a hyperlink of user selected site description hosted on [The
-NEON
-Website](https://www.neonscience.org/field-sites/explore-field-sites)
+`cont.Q.plot` - Plots NEON continuous discharge and precipitation data
+using outputs from *get.cont.Q.NEON.API*.
 
-**Metadata Table**
+`RC.plot` - Plots NEON stage-discharge rating curves data using outputs
+from *get.cont.Q.NEON.API*.
 
-The metaData table Contains some key variables associated with the
-selected Site ID.
-
-  - Upstream watershed area (km^2): The area (km2) of land that drains
-    water into the aquatic site.
-
-  - Reach slope (m): The gradient (m) of the stream bed from the
-    upstream to downstream reach boundary of the aquatic site. Slope is
-    measured using a total station during topographic site surveys.
-
-  - Mean bankfull width (m): The mean bankfull width (m) of the channel
-    measured with total station instruments at transects located
-    throughout the monitoring reach. At bankfull stage water is just
-    beginning to spill out of the channel and into the floodplain.
-    Bankfull flows typically occur at 1.5-year recurrence intervals.
-
-  - D50 particle size(mm): The diameter (mm) of bed substrate
-    corresponding to 50% finer in the particle-size distribution.
-    Substrate is measured throughout the monitoring reach using
-    200-point pebble count methods.
-
-**Continuous Discharge Plot**
-
-The continuous Discharge graph represents the predicted continuous
-discharge from sensor-based surface water pressure and stage-discharge.
-
-The plot includes:
-
-  - Continuous discharge (black line)
-
-  - Discharge uncertainty (red and pink ribbons)
-
-  - Empirical discharge (purple points)
-
-  - Continuous stage (blue line)
-
-  - Stage uncertainty (light blue ribbon)
-
-  - Empirical stage (orange points)
-
-User can perform the following on this graph:
-
-  - Zoom in an out of graphs by right-click the section they what to
-    view and dragging the mouse to a any stop
-
-  - Toggle legend attributes on the graph ON and OFF by clicking their
-    on their representation in the legend
-
-  - Change discharge scales between linear and log by clicking either
-    buttons
-
-  - Switch tabs to view the rating curve plot
-
-**Stage-Discharge Rating Curve(s) Plot**
-
-The rating curve graph plots the relationship between stage and
-discharge.
-
-The plot includes:
-
-  - Posterior rating curve (black line)
-
-  - Empirical stage-discharge pairs (black points)
-
-  - Rating curve uncertainty (red and pink ribbons)
-
-User can perform the following on this graph:
-
-  - Zoom in an out of graphs by right-click the section they what to
-    view and dragging the mouse to a any stop
-
-  - Toggle legend attributes on the graph ON and OFF by clicking their
-    on their representation in the legend
-
-  - Change discharge scales between linear and log by clicking either
-    buttons
-
-  - Switch tabs to view the continuous discharge plot
+`pheno.GET` - Generates a URL with which a user can render a PhenoCam
+image from the PhenoCam API.
 
 <!-- ****** Acknowledgements ****** -->
 
@@ -143,12 +80,13 @@ User can perform the following on this graph:
 
 Authors:
 
+James Ross - email: <ross.james94@gmail.com>
+
 Divine Aseaku - email: <divineaseaku@gmail.com>
 
 Zachary L. Nickerson - email: <nickerson@battelleecology.org>
 
 <!-- HTML tags to produce image, resize, add hyperlink. -->
-
 <!-- ONLY WORKS WITH HTML or GITHUB documents -->
 
 <a href="http://www.neonscience.org/">

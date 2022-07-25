@@ -1,11 +1,11 @@
 ##############################################################################################
-#' Download and Wrangle DP4.00130.001 and DP4.00133.001 Data from NEON Portal API
+#' Download and Wrangle NEON Hydrology Data from NEON API
 
 #' @name get.cont.Q.NEON.API
 
 #' @author
-#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 #' James M. Ross \email{ross.james94@gmail.com} \cr
+#' Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 
 #' @description  This function will download data from the NEON Portal API using neonUtilities
 #' based on user input and wrangle the data to create a summary table smoothed to 20 min
@@ -36,26 +36,30 @@
 #' @references
 #' License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
+#' @importFrom dplyr %>%
+
 #' @export get.cont.Q.NEON.API
 
 # changelog and author contributions / copyrights
-#   Zachary L. Nickerson (2022-06-20)
+#   Zachary L. Nickerson (2022-07-25)
 #     original creation
-#   James M. Ross (2022-06-29)
-#     added NEON API Token functionality
 ##############################################################################################
-# # Source packages and set options
-options(stringsAsFactors = F)
+base::options(stringsAsFactors = F)
+utils::globalVariables(c('gaugeEventID','gaugeHeight','streamDischarge','regressionID','gauge_Height','maxpostDischarge','equivalentStage','stageUnc','withRemnUncQUpper2Std','withRemnUncQLower2Std','withParaUncQUpper2Std','withParaUncQLower2Std','dischargeFinalQF','dischargeFinalQFSciRvw','meanH','meanHUnc','usgsDischarge','withRegressionUncQUpper2Std','withRegressionUncQLower2Std','priPrecipBulk','priPrecipExpUncert','priPrecipFinalQF','secPrecipBulk','secPrecipExpUncert','secPrecipSciRvwQF','siteID'))
 
-get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.q.stats=F){
+get.cont.Q.NEON.API <-function(site.id,
+                               start.date,
+                               end.date,
+                               api.token=NA,
+                               include.q.stats=F){
 
-  if(missing(site.id)){
+  if(base::missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
   }
-  if(missing(start.date)){
+  if(base::missing(start.date)){
     stop('must provide start.date for neonUtilities pull')
   }
-  if(missing(end.date)){
+  if(base::missing(end.date)){
     stop('must provide end.date for neonUtilities pull')
   }
 
@@ -80,6 +84,16 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
     enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
     token = api.token)
 
+  #precipitation data from the NEON API
+  DP1.00006.001 <- neonUtilities::loadByProduct(
+    dpID="DP1.00006.001",
+    package = "basic",
+    check.size = F,
+    site = site,
+    startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
+    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
+    token = api.token)
+
   # Get rating curve data from the NEON API
   if(site!="TOMB"){
     DP4.00133.001 <- neonUtilities::loadByProduct(
@@ -89,16 +103,6 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
       site = site,
       tabl = "sdrc_gaugeDischargeMeas",
       token = api.token)
-
-  #precipitation data from the NEON API
-  DP1.00006.001 <- loadByProduct(
-    dpID="DP1.00006.001",
-    package = "basic",
-    check.size = F,
-    site = site,
-    startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
-    enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
-    token = api.token)
 
     # Format gauge-discharge measurement data
     sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
@@ -212,21 +216,18 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
                        streamDischarge=NA,
                        gaugeHeight=NA,
                        gauge_Height=NA)
+    continuousDischarge_sum$date <- as.character(continuousDischarge_sum$date)
     curveIDs <- NA
   }
 
-
-  #DO1 HOPB yes primary
-  #DO2 LEWI no primary
-
-  #checks if primary precipitation data exist if not use secondary
-  #lubridate from highest available resolution data to 20 mins
-  #add data to summary table
+  # Checks if primary precipitation data exist if not use secondary
+  # Lubridate from highest available resolution data to 20 mins
+  # Add data to summary table
   isPrimaryPtp <- NULL
   gaugeID <- NULL
-  if(!is.null(DP1.00006.001$PRIPRE_5min)){
+  if(!base::is.null(DP1.00006.001$PRIPRE_5min)){
     ptp <- DP1.00006.001$PRIPRE_5min
-    gaugeID<-ptp$siteID[1]
+    gaugeID <- ptp$siteID[1]
     ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
     ptp <- ptp%>%
       dplyr::group_by(date)%>%
@@ -239,12 +240,10 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
     # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
     ptp$priPrecipFinalQF[ptp$priPrecipFinalQF<=1] <- 0
     ptp$priPrecipFinalQF[ptp$priPrecipFinalQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)/2
-
     isPrimaryPtp <- TRUE
-  }
-  else{
+  }else{
     ptp <- DP1.00006.001$SECPRE_1min
-    gaugeID<-ptp$siteID[1]
+    gaugeID <- ptp$siteID[1]
     ptp$date <- lubridate::round_date(ptp$endDateTime, "20 mins")
     ptp <- ptp%>%
       dplyr::group_by(date)%>%
@@ -258,24 +257,21 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
     # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
     ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF<=1] <- 0
     ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
-
     isPrimaryPtp <- FALSE
   }
 
-  #filtering ptp date to match continuousDischarge_sum date
+  # Filtering ptp date to match continuousDischarge_sum date
   ptp$date <- base::as.character(ptp$date)
   ptp <- ptp%>%
     dplyr::filter(date>=start.date&date<=end.date)
-
-  continuousDischarge_sum <- full_join(continuousDischarge_sum,ptp)
-
-  precipitationSite <- list(gaugeID,isPrimaryPtp)
-  names(precipitationSite) <- c("gaugeID",
-                             "isPrimaryPtp")
-
+  continuousDischarge_sum <- dplyr::full_join(continuousDischarge_sum,ptp)
+  precipitationSite <- base::list(gaugeID,
+                                  isPrimaryPtp)
+  base::names(precipitationSite) <- c("gaugeID",
+                                      "isPrimaryPtp")
 
   # Add historic median Q to the summary table
-  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-test-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VB.rds","rb"))
+  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VB.rds","rb"))
   histMedQ <- histMedQ%>%
     dplyr::filter(siteID==site.id)
   continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
@@ -285,11 +281,11 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
   }
   minYear <- base::unique(histMedQ$minYear)
   maxYear <- base::unique(histMedQ$maxYear)
-  histMedQYearRange <- base::list(minYear,maxYear)
+  histMedQYearRange <- base::list(minYear,
+                                  maxYear)
+  base::names(histMedQYearRange) <- c("minYear",
+                                      "maxYear")
 
-  names(histMedQYearRange) <- c("minYear",
-                                "maxYear")
-                                
   # 3x median
   if(include.q.stats){
     # Remove SRQF data
@@ -312,9 +308,9 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
     dischargeStats <- list(medQ,
                            twentyFiveQ,
                            seventyFiveQ)
-    names(dischargeStats) <- c("medQ",
-                               "twentyFiveQ",
-                               "seventyFiveQ")
+    base::names(dischargeStats) <- c("medQ",
+                                     "twentyFiveQ",
+                                     "seventyFiveQ")
   }else{
     dischargeStats <- NA
   }
@@ -325,11 +321,11 @@ get.cont.Q.NEON.API <-function(site.id,start.date,end.date,api.token=NA,include.
                                          histMedQYearRange,
                                          dischargeStats,
 										                     precipitationSite)
-  names(continuousDischarge_list) <- c("continuousDischarge_sum",
-                                       "curveIDs",
-                                       "histMedQYearRange",
-                                       "dischargeStats",
-									                     "precipitationSite")
+  base::names(continuousDischarge_list) <- c("continuousDischarge_sum",
+                                             "curveIDs",
+                                             "histMedQYearRange",
+                                             "dischargeStats",
+      									                     "precipitationSite")
 
   return(continuousDischarge_list)
 }

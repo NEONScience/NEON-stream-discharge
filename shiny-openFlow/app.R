@@ -54,11 +54,13 @@ library(devtools)
 library(markdown)
 if(!require(stageQCurve)){
   devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", dependencies = TRUE, force = TRUE)
+  library(stageQCurve)
 }else{
   library(stageQCurve)
 }
 if(!require(neonStageQplot)){
-  devtools::install_github(repo = "Ross0-0/NEON-stream-discharge/neonStageQPlot", ref="dev", dependencies = TRUE, force = TRUE)
+  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
+  library(neonStageQplot)
 }else{
   library(neonStageQplot)
 }
@@ -218,18 +220,19 @@ if(!require(neonStageQplot)){
       
       # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
-      # input$siteId <- "HOPB"
-      # input$domainId <- "D01"
-      # input$dateRange[[1]] <- "2020-09-01"
-      # input$dateRange[[2]] <- "2020-10-31"
+      # input$siteId <- "TOMB"
+      # input$domainId <- "D08"
+      # input$dateRange[[1]] <- "2022-06-01"
+      # input$dateRange[[2]] <- "2022-06-30"
       # input$apiToken <- NA
       # output <- base::list()
+      # include.q.stats <-  F
       
       metaD <-  productList%>%
         dplyr::filter(siteID == input$siteId)%>%
-        dplyr::select(upstreamWatershedAreaKM2,reachSlopeM,averageBankfullWidthM,d50ParticleSizeMM)%>%
+        dplyr::select(upstreamWatershedAreaKM2,reachSlopePercent,averageBankfullWidthM,d50ParticleSizeMM)%>%
         dplyr::rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,
-                      "Reach slope (m)" = reachSlopeM,
+                      "Reach slope (%)" = reachSlopePercent,
                       "Mean bankfull width (m)"= averageBankfullWidthM,
                       "D50 particle size (mm)"=d50ParticleSizeMM) %>%
         dplyr::mutate_all(as.character)%>%
@@ -331,7 +334,7 @@ if(!require(neonStageQplot)){
       }
 
       # Plot continuous discharge and store in output
-      plots$plot.cont.Q <- neonStageQplot::plot.cont.Q(site.id = input$siteId,
+      plots$plot.cont.Q <- neonStageQplot::cont.Q.plot(site.id = input$siteId,
                                                        start.date = input$dateRange[[1]],
                                                        end.date = input$dateRange[[2]],
                                                        input.list = continuousDischarge_list,
@@ -363,7 +366,7 @@ if(!require(neonStageQplot)){
       }
       
       # Plot rating curve(s) and store in outputs
-      plots$plot.RC <- neonStageQplot::plot.RC(site.id = input$siteId,
+      plots$plot.RC <- neonStageQplot::RC.plot(site.id = input$siteId,
                                                start.date = input$dateRange[[1]],
                                                end.date = input$dateRange[[2]],
                                                input.list = continuousDischarge_list,

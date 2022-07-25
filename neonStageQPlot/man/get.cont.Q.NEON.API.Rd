@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.cont.Q.NEON.API.R
 \name{get.cont.Q.NEON.API}
 \alias{get.cont.Q.NEON.API}
-\title{Download and Wrangle DP4.00130.001 and DP4.00133.001 Data from NEON Portal API}
+\title{Download and Wrangle NEON Hydrology Data from NEON API}
 \arguments{
 \item{site.id}{Required: NEON AQU site ID selected by the shiny app user [string]}
 
@@ -40,6 +40,6 @@ temporal resolution.
 License: GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 }
 \author{
-Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 James M. Ross \email{ross.james94@gmail.com} \cr
+Zachary L. Nickerson \email{nickerson@battelleecology.org} \cr
 }

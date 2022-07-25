@@ -1,5 +1,6 @@
 ##############################################################################################
 #' Get URL to render Phenocam image for a NEON site at a given timestamp
+
 #' @name pheno.GET
 
 #' @author
@@ -22,13 +23,17 @@
 #' @export pheno.GET
 
 # changelog and author contributions / copyrights
-#   James M. Ross
+#   James Ross (2022-07-25)
 #     original creation
 ##############################################################################################
+base::options(stringsAsFactors = F)
+utils::globalVariables(".")
 
-options(stringsAsFactors = F)
+pheno.GET <- function(dp.id,
+                      site.id,
+                      domain.id,
+                      date.time){
 
-pheno.GET <- function(dp.id,site.id,domain.id,date.time){
   # ###Test GET
   # dp.id <- "DP1.20002"
   # site.id <- "PRIN"
@@ -36,16 +41,16 @@ pheno.GET <- function(dp.id,site.id,domain.id,date.time){
   # #UTC dateTime
   # date.time <- "2021-12-01T18:00:00Z"
 
-  if(missing(dp.id)){
+  if(base::missing(dp.id)){
     stop('must provide dp.id to query Phenocam API')
   }
-  if(missing(site.id)){
+  if(base::missing(site.id)){
     stop('must provide site.id to query Phenocam API')
   }
-  if(missing(domain.id)){
+  if(base::missing(domain.id)){
     stop('must provide domain.id to query Phenocam API')
   }
-  if(missing(date.time)){
+  if(base::missing(date.time)){
     stop('must provide date.time to query Phenocam API')
   }
 
