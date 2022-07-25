@@ -71,7 +71,7 @@ RC.plot <-function(site.id,
     #   method = "curl"
     # )
     # rcPlotData <- base::readRDS("rcPlottingData.rds")
-    rcPlotData <- base::readRDS(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds","rb"))
+    rcPlotData <- base::readRDS(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/rcPlottingData.rds","rb"))
     rcData <- rcPlotData$rcData%>%
       dplyr::filter(curveID%in%curveIDs)
     rcGaugings <- rcPlotData$rcGaugings%>%

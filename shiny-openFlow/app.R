@@ -68,7 +68,7 @@ if(!require(neonStageQplot)){
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   #Global Vars
-  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/aqu_dischargeDomainSiteList.csv"))
+  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
   include.q.stats <- F # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
@@ -236,7 +236,7 @@ if(!require(neonStageQplot)){
                       "Mean bankfull width (m)"= averageBankfullWidthM,
                       "D50 particle size (mm)"=d50ParticleSizeMM) %>%
         dplyr::mutate_all(as.character)%>%
-        tidyr::pivot_longer(c("Upstream watershed area (km^2)","Reach slope (m)","Mean bankfull width (m)","D50 particle size (mm)"),
+        tidyr::pivot_longer(c("Upstream watershed area (km^2)","Reach slope (%)","Mean bankfull width (m)","D50 particle size (mm)"),
                             names_to = "MetaData",
                             values_to = "Values")
       
