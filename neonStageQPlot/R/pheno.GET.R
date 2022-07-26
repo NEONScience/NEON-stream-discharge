@@ -56,7 +56,7 @@ pheno.GET <- function(dp.id,
 
   # browser()
 
-  if(site.id == "TOOK_inlet" || site.id == "TOOK_outlet"){
+  if(site.id == "TOOK_inflow" || site.id == "TOOK_outflow"){
     site.id <- "TOOK"
   }
 

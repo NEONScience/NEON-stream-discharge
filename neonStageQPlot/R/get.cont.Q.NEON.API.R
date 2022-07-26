@@ -106,11 +106,11 @@ get.cont.Q.NEON.API <-function(site.id,
 
     # Format gauge-discharge measurement data
     sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
-    if (site.id=="TOOK_inlet") {
+    if (site.id=="TOOK_inflow") {
       sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
         dplyr::filter(stringr::str_detect(curveID,"TKIN"))
     }else{
-      if(site.id=="TOOK_outlet"){
+      if(site.id=="TOOK_outflow"){
         sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
           dplyr::filter(stringr::str_detect(curveID,"TKOT"))
       }
@@ -126,11 +126,11 @@ get.cont.Q.NEON.API <-function(site.id,
     # Format continuous discharge data
     csd_continuousDischarge <- DP4.00130.001$csd_continuousDischarge
     csd_continuousDischarge$date <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
-    if (site.id=="TOOK_inlet") {
+    if (site.id=="TOOK_inflow") {
       csd_continuousDischarge <- csd_continuousDischarge%>%
         dplyr::filter(stringr::str_detect(curveID,"TKIN"))
     }else{
-      if(site.id=="TOOK_outlet"){
+      if(site.id=="TOOK_outflow"){
         csd_continuousDischarge <- csd_continuousDischarge%>%
           dplyr::filter(stringr::str_detect(curveID,"TKOT"))
       }
@@ -139,11 +139,11 @@ get.cont.Q.NEON.API <-function(site.id,
     # Format gauge-pressure relationship data
     sdrc_gaugePressureRelationship <- DP4.00130.001$sdrc_gaugePressureRelationship
     if(!base::is.null(sdrc_gaugePressureRelationship)){
-      if (site.id=="TOOK_inlet") {
+      if (site.id=="TOOK_inflow") {
         sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
           dplyr::filter(stringr::str_detect(regressionID,"TKIN"))
       }else{
-        if(site.id=="TOOK_outlet"){
+        if(site.id=="TOOK_outflow"){
           sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
             dplyr::filter(stringr::str_detect(regressionID,"TKOT"))
         }

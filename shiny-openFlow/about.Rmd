@@ -114,8 +114,8 @@ D16|	MCRA|	ABBY|
 D17|	BIGC|	BIGC|
 D17|	TECR|	TEAK|
 D18|	OKSR|	TOOL|
-D18|	TOOK_inlet|	TOOK|
-D18|	TOOK_outlet|	TOOK|
+D18|	TOOK_inflow|	TOOK|
+D18|	TOOK_outflow|	TOOK|
 D19|	CARI|	BONA|
 <br>
 

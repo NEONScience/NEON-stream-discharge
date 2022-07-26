@@ -23,7 +23,7 @@
 #   Divine Aseaku (2021-08-04)
 #     original creation
 #   Zachary L. Nickerson (2021-09-16)
-#     updates for plotting provisional 2021 data and TOOK inlet and outlet
+#     updates for plotting provisional 2021 data and TOOK inflow and outflow
 #   Zachary L. Nickerson (2022-02-04)
 #     updates for plotting TOMB-USGS discharge data
 #   James M. Ross (2022-07-25)
@@ -160,7 +160,7 @@ if(!require(neonStageQplot)){
         
         tookInfo <- ""
         #took handling
-        if(siteID == "TOOK_inlet" || siteID == "TOOK_outlet"){
+        if(siteID == "TOOK_inflow" || siteID == "TOOK_outflow"){
           tookInfo <- "Note: The phenocam image is NOT located at the inlet or outlet.
            The phenocam shows the main lake."
         }
