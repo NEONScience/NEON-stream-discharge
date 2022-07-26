@@ -207,11 +207,11 @@ if(!require(neonStageQplot)){
 
     shiny::observeEvent(input$siteId,{
       # Create site description output
-      siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
+      siteURL <- base::gsub("\\_inflow|\\_outflow","",base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId)))
       domainURL <- base::paste0("https://www.neonscience.org/field-sites/about-field-sites")
       siteLink <- a("Click here", href=siteURL,target="_blank")
       domainLink <- a("Click here", href=domainURL,target="_blank")
-      output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, siteLink, "for site description",sep="\n")})
+      output$siteInfo <- shiny::renderUI({tagList("Site: ",base::gsub("\\_inflow|\\_outflow","",input$siteId), siteLink, "for site description",sep="\n")})
       output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
     })
     
@@ -220,8 +220,8 @@ if(!require(neonStageQplot)){
       
       # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
-      # input$siteId <- "TOMB"
-      # input$domainId <- "D08"
+      # input$siteId <- "TOOK_inflow"
+      # input$domainId <- "D18"
       # input$dateRange[[1]] <- "2022-06-01"
       # input$dateRange[[2]] <- "2022-06-30"
       # input$apiToken <- NA
@@ -247,9 +247,9 @@ if(!require(neonStageQplot)){
       output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
 
       # Create site description output
-      siteURL <- base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId))
+      siteURL <- base::gsub("\\_inflow|\\_outflow","",base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId)))
       url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
-      output$siteInfo <- shiny::renderUI({tagList("Site: ",input$siteId, url, "for site description",sep="\n")})
+      output$siteInfo <- shiny::renderUI({tagList("Site: ",base::gsub("\\_inflow|\\_outflow","",input$siteId), url, "for site description",sep="\n")})
 
       # Set date variables for app running (special consideration for TOOK)
       siteID <<- input$siteId
