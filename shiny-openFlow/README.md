@@ -38,6 +38,28 @@ installed directly from Github:
 
 `devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)`
 
+## Step by Step Install Guide
+
+1.  Install the newest version of the [R
+    language](https://www.r-project.org/) and the [RStudio
+    desktop](https://www.rstudio.com/products/rstudio/) Open Source
+    Edition.
+2.  Go to the [NEON-stream-discharge
+    repository](https://github.com/NEONScience/NEON-stream-discharge)
+    then click the green code button in the top right and click Download
+    Zip.
+3.  Unzip the file then within the folder double click the
+    NEON-stream-discharge R project file which will then open RStudio.
+    In the bottom right panel navigate into the shiny-openFlow folder
+    and click app.R.
+4.  app.R will open in the panel on the top left of RStudio. Then a
+    banner will appear asking you to install required packages click
+    install and wait for the packages to install, this will take some
+    time.
+5.  Look at the top left panel then click the Run App button at the top
+    right and wait for the app to install dependencies from GitHub then
+    the app will launch.
+
 ## Other Content in the shinyApp Folder
 
 -   .Rmd file `about.Rmd` contains a user guide for the openFlow app

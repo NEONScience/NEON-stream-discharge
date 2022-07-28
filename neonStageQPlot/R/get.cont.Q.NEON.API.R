@@ -52,7 +52,7 @@ get.cont.Q.NEON.API <-function(site.id,
                                end.date,
                                api.token=NA,
                                include.q.stats=F){
-
+  
   if(base::missing(site.id)){
     stop('must provide site.id for neonUtilities pull')
   }
@@ -62,18 +62,18 @@ get.cont.Q.NEON.API <-function(site.id,
   if(base::missing(end.date)){
     stop('must provide end.date for neonUtilities pull')
   }
-
+  
   # Rating curve data queries need to span an entire water year to ensure we are getting all the appropriate data
   searchIntervalStartDate <- base::as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = start.date)$startDate)
   searchIntervalEndDate <- base::as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = end.date)$endDate)
-
+  
   # Set site variables (special considerations for TOOK)
   if (stringr::str_detect(site.id,"TOOK")) {
     site <- "TOOK"
   }else{
     site <- site.id
   }
-
+  
   # Get continuous discharge data from the NEON API
   DP4.00130.001 <- neonUtilities::loadByProduct(
     dpID="DP4.00130.001",
@@ -83,7 +83,7 @@ get.cont.Q.NEON.API <-function(site.id,
     startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
     enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
     token = api.token)
-
+  
   #precipitation data from the NEON API
   DP1.00006.001 <- neonUtilities::loadByProduct(
     dpID="DP1.00006.001",
@@ -93,7 +93,7 @@ get.cont.Q.NEON.API <-function(site.id,
     startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
     enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
     token = api.token)
-
+  
   # Get rating curve data from the NEON API
   if(site!="TOMB"){
     DP4.00133.001 <- neonUtilities::loadByProduct(
@@ -103,7 +103,7 @@ get.cont.Q.NEON.API <-function(site.id,
       site = site,
       tabl = "sdrc_gaugeDischargeMeas",
       token = api.token)
-
+    
     # Format gauge-discharge measurement data
     sdrc_gaugeDischargeMeas <- DP4.00133.001$sdrc_gaugeDischargeMeas
     if (site.id=="TOOK_inflow") {
@@ -122,7 +122,7 @@ get.cont.Q.NEON.API <-function(site.id,
       dplyr::distinct()%>%
       dplyr::filter(date>=start.date&date<=end.date)
     sdrc_gaugeDischargeMeas$date <- base::as.character(sdrc_gaugeDischargeMeas$date)
-
+    
     # Format continuous discharge data
     csd_continuousDischarge <- DP4.00130.001$csd_continuousDischarge
     csd_continuousDischarge$date <- lubridate::round_date(csd_continuousDischarge$endDate, "20 mins")
@@ -135,7 +135,7 @@ get.cont.Q.NEON.API <-function(site.id,
           dplyr::filter(stringr::str_detect(curveID,"TKOT"))
       }
     }
-
+    
     # Format gauge-pressure relationship data
     sdrc_gaugePressureRelationship <- DP4.00130.001$sdrc_gaugePressureRelationship
     if(!base::is.null(sdrc_gaugePressureRelationship)){
@@ -158,7 +158,7 @@ get.cont.Q.NEON.API <-function(site.id,
         sdrc_gaugePressureRelationship <- NULL
       }
     }
-
+    
     # Creating summary table for variables and  uncertainties to be included
     continuousDischarge_sum <- csd_continuousDischarge%>%
       dplyr::group_by(date)%>%
@@ -174,30 +174,30 @@ get.cont.Q.NEON.API <-function(site.id,
       dplyr::mutate(meanLHUnc=meanH-meanHUnc,
                     meanUHUnc=meanH+meanHUnc)
     continuousDischarge_sum$date <- base::as.character(continuousDischarge_sum$date)
-
-    # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
-    continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF<4] <- 0
-    continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
-    continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw<4] <- 0
-    continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
-
+    
     # Joining gauge discharge vars to continuous summary table
     continuousDischarge_sum <- dplyr::full_join(continuousDischarge_sum, sdrc_gaugeDischargeMeas, by="date")
-
+    
     # Joining guagepressure to  continuoussummary table
     if(!base::is.null(sdrc_gaugePressureRelationship)){
       continuousDischarge_sum <- dplyr::full_join(continuousDischarge_sum, sdrc_gaugePressureRelationship, by="date")
     }else{
       continuousDischarge_sum$gauge_Height <- NA
     }
-
+    
     # Subset the summary data frame to only those records in the selected date range
     continuousDischarge_sum <- continuousDischarge_sum%>%
       dplyr::filter(date>=start.date&date<=end.date)
-
+    
+    # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
+    continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF<4] <- 0
+    continuousDischarge_sum$dischargeFinalQF[continuousDischarge_sum$dischargeFinalQF>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
+    continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw<4] <- 0
+    continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw>=4] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
+    
     # Create a vector of unique rating curve IDs
     curveIDs <- base::unique(csd_continuousDischarge$curveID)
-
+    
   }else{
     # Format continuous discharge for TOMB
     csd_continuousDischarge <- DP4.00130.001$csd_continuousDischargeUSGS
@@ -219,7 +219,7 @@ get.cont.Q.NEON.API <-function(site.id,
     continuousDischarge_sum$date <- as.character(continuousDischarge_sum$date)
     curveIDs <- NA
   }
-
+  
   # Checks if primary precipitation data exist if not use secondary
   # Lubridate from highest available resolution data to 20 mins
   # Add data to summary table
@@ -236,7 +236,7 @@ get.cont.Q.NEON.API <-function(site.id,
                        priPrecipFinalQF=base::sum(priPrecipFinalQF,na.rm = T)) %>%
       dplyr::mutate(priPrecipBulkLoUnc=priPrecipBulk-priPrecipExpUncert,
                     priPrecipBulkUpUnc=priPrecipBulk+priPrecipExpUncert)
-
+    
     # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
     ptp$priPrecipFinalQF[ptp$priPrecipFinalQF<=1] <- 0
     ptp$priPrecipFinalQF[ptp$priPrecipFinalQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)/2
@@ -252,14 +252,14 @@ get.cont.Q.NEON.API <-function(site.id,
                        secPrecipSciRvwQF=base::sum(secPrecipSciRvwQF,na.rm = T)) %>%
       dplyr::mutate(secPrecipBulkLoUnc=secPrecipBulk-secPrecipExpUncert,
                     secPrecipBulkUpUnc=secPrecipBulk+secPrecipExpUncert)
-
-
+    
+    
     # Mutate the QF fields for plotting - QF will only be plotted if >20% records in mean are flagged
     ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF<=1] <- 0
     ptp$secPrecipSciRvwQF[ptp$secPrecipSciRvwQF>=2] <- base::max(continuousDischarge_sum$meanURemnUnc,na.rm = T)
     isPrimaryPtp <- FALSE
   }
-
+  
   # Filtering ptp date to match continuousDischarge_sum date
   ptp$date <- base::as.character(ptp$date)
   ptp <- ptp%>%
@@ -269,7 +269,7 @@ get.cont.Q.NEON.API <-function(site.id,
                                   isPrimaryPtp)
   base::names(precipitationSite) <- c("gaugeID",
                                       "isPrimaryPtp")
-
+  
   # Add historic median Q to the summary table
   histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VC.rds","rb"))
   histMedQ <- histMedQ%>%
@@ -285,7 +285,7 @@ get.cont.Q.NEON.API <-function(site.id,
                                   maxYear)
   base::names(histMedQYearRange) <- c("minYear",
                                       "maxYear")
-
+  
   # 3x median
   if(include.q.stats){
     # Remove SRQF data
@@ -314,18 +314,18 @@ get.cont.Q.NEON.API <-function(site.id,
   }else{
     dischargeStats <- NA
   }
-
+  
   # Make an output list
   continuousDischarge_list <- base::list(continuousDischarge_sum,
                                          curveIDs,
                                          histMedQYearRange,
                                          dischargeStats,
-										                     precipitationSite)
+                                         precipitationSite)
   base::names(continuousDischarge_list) <- c("continuousDischarge_sum",
                                              "curveIDs",
                                              "histMedQYearRange",
                                              "dischargeStats",
-      									                     "precipitationSite")
-
+                                             "precipitationSite")
+  
   return(continuousDischarge_list)
 }

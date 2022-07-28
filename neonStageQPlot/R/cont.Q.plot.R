@@ -54,8 +54,8 @@ cont.Q.plot <-function(site.id,
                        plot.sci.rvw.QF=F,
                        # plot.precip.final.QF=F,
                        # plot.precip.sci.rvw.QF=F,
-					             plot.q.stats=F){
-
+                       plot.q.stats=F){
+  
   if(base::missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
   }
@@ -68,7 +68,7 @@ cont.Q.plot <-function(site.id,
   if(base::missing(input.list)){
     stop('must provide input.list for plotting continuous discharge')
   }
-
+  
   # Get data
   continuousDischarge_sum <- input.list$continuousDischarge_sum%>%
     dplyr::filter(!is.na(meanQ))
@@ -76,24 +76,24 @@ cont.Q.plot <-function(site.id,
   precipSiteID <- input.list$precipitationSite$gaugeID
   histMedQMinYear <- input.list$histMedQYearRange$minYear
   histMedQMaxYear <- input.list$histMedQYearRange$maxYear
-
+  
   #3x internal dataGet#
   if(plot.q.stats){
     medQ <- base::as.numeric(input.list$dischargeStats$medQ)
     twentyFiveQ <- base::as.numeric(input.list$dischargeStats$twentyFiveQ)
     seventyFiveQ <- base::as.numeric(input.list$dischargeStats$seventyFiveQ)
   }
-
+  
   #axis units
   y1Units <- "(liters per second)"
   y2Units <- "(meter)"
   y3Units <- "(milimeter)"
-
+  
   #SI to imperial
   ##needs to be above plotly call so axis are created correctly
   if(plot.imp.unit){
     continuousDischarge_sum <- continuousDischarge_sum %>%
-
+      
       #Discharge
       dplyr::mutate(histMedQ = measurements::conv_unit(histMedQ,"l_per_sec","ft3_per_sec")) %>%
       dplyr::mutate(meanURemnUnc = measurements::conv_unit(meanURemnUnc,"l_per_sec","ft3_per_sec")) %>%
@@ -102,39 +102,41 @@ cont.Q.plot <-function(site.id,
       dplyr::mutate(meanLParaUnc = measurements::conv_unit(meanLParaUnc,"l_per_sec","ft3_per_sec")) %>%
       dplyr::mutate(meanQ = measurements::conv_unit(meanQ,"l_per_sec","ft3_per_sec")) %>%
       dplyr::mutate(streamDischarge = measurements::conv_unit(streamDischarge,"l_per_sec","ft3_per_sec")) %>%
-
+      dplyr::mutate(dischargeFinalQFSciRvw = measurements::conv_unit(dischargeFinalQFSciRvw,"l_per_sec","ft3_per_sec")) %>%
+      
+      
       #Stage
       dplyr::mutate(meanUHUnc = measurements::conv_unit(meanUHUnc,"m","ft")) %>%
       dplyr::mutate(meanLHUnc = measurements::conv_unit(meanLHUnc,"m","ft")) %>%
       dplyr::mutate(meanH = measurements::conv_unit(meanH,"m","ft")) %>%
       dplyr::mutate(gaugeHeight = measurements::conv_unit(gaugeHeight,"m","ft")) %>%
       dplyr::mutate(gauge_Height = measurements::conv_unit(gauge_Height,"m","ft"))
-
-      #Precipitation
-      if(isPrimaryPtp){
-        continuousDischarge_sum <- continuousDischarge_sum %>%
-          dplyr::mutate(priPrecipBulkLoUnc = measurements::conv_unit(priPrecipBulkLoUnc,"mm","inch")) %>%
-          dplyr::mutate(priPrecipBulkUpUnc = measurements::conv_unit(priPrecipBulkUpUnc,"mm","inch")) %>%
-          dplyr::mutate(priPrecipBulk = measurements::conv_unit(priPrecipBulk,"mm","inch"))
-      }else{
-        continuousDischarge_sum <- continuousDischarge_sum %>%
-          dplyr::mutate(secPrecipBulkLoUnc = measurements::conv_unit(secPrecipBulkLoUnc,"mm","inch")) %>%
-          dplyr::mutate(secPrecipBulkUpUnc = measurements::conv_unit(secPrecipBulkUpUnc,"mm","inch")) %>%
-          dplyr::mutate(secPrecipBulk = measurements::conv_unit(secPrecipBulk,"mm","inch"))
-      }
-
-      #3x internal#
-      if(plot.q.stats){
-        medQ <- measurements::conv_unit(medQ,"l_per_sec","ft3_per_sec")
-        twentyFiveQ <- measurements::conv_unit(twentyFiveQ,"l_per_sec","ft3_per_sec")
-        seventyFiveQ <- measurements::conv_unit(seventyFiveQ,"l_per_sec","ft3_per_sec")
+    
+    #Precipitation
+    if(isPrimaryPtp){
+      continuousDischarge_sum <- continuousDischarge_sum %>%
+        dplyr::mutate(priPrecipBulkLoUnc = measurements::conv_unit(priPrecipBulkLoUnc,"mm","inch")) %>%
+        dplyr::mutate(priPrecipBulkUpUnc = measurements::conv_unit(priPrecipBulkUpUnc,"mm","inch")) %>%
+        dplyr::mutate(priPrecipBulk = measurements::conv_unit(priPrecipBulk,"mm","inch"))
+    }else{
+      continuousDischarge_sum <- continuousDischarge_sum %>%
+        dplyr::mutate(secPrecipBulkLoUnc = measurements::conv_unit(secPrecipBulkLoUnc,"mm","inch")) %>%
+        dplyr::mutate(secPrecipBulkUpUnc = measurements::conv_unit(secPrecipBulkUpUnc,"mm","inch")) %>%
+        dplyr::mutate(secPrecipBulk = measurements::conv_unit(secPrecipBulk,"mm","inch"))
     }
-
+    
+    #3x internal#
+    if(plot.q.stats){
+      medQ <- measurements::conv_unit(medQ,"l_per_sec","ft3_per_sec")
+      twentyFiveQ <- measurements::conv_unit(twentyFiveQ,"l_per_sec","ft3_per_sec")
+      seventyFiveQ <- measurements::conv_unit(seventyFiveQ,"l_per_sec","ft3_per_sec")
+    }
+    
     y1Units <- "(Cubic Feet per second)"
     y2Units <- "(Feet)"
     y3Units <- "(Inches)"
   }
-
+  
   #y-axis
   y1 <- base::list(side='left',
                    automargin=T,
@@ -143,7 +145,7 @@ cont.Q.plot <-function(site.id,
                    titlefont=base::list(size=18),
                    showgrid=F,
                    zeroline=F)
-
+  
   y2 <- base::list(side='right',
                    overlaying="y",
                    automargin=T,
@@ -152,7 +154,7 @@ cont.Q.plot <-function(site.id,
                    titlefont=base::list(size=18,color = '#CC79A7'),
                    showgrid=F,
                    zeroline=F)
-
+  
   y3 <- base::list(side='right',
                    overlaying="y",
                    automargin=T,
@@ -163,7 +165,7 @@ cont.Q.plot <-function(site.id,
                    zeroline=F,
                    anchor="free",
                    position=0.98)
-
+  
   # Build plot layout
   method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
     plotly::layout(
@@ -197,17 +199,17 @@ cont.Q.plot <-function(site.id,
                                                                    titlefont=base::list(size=18),
                                                                    showgrid=F,
                                                                    zeroline=F))))))))
-
-
+  
+  
   #dark mode styling
   dischargeColor <- "black"
   if(mode.dark){
     method <- method %>%
       plotly::layout(paper_bgcolor="#222",plot_bgcolor='#222',
-      font = base::list(color = 'white'))
+                     font = base::list(color = 'white'))
     dischargeColor <- "white"
   }
-
+  
   # Add Quality flags
   # if(plot.final.QF){
   #   method <- method %>%
@@ -228,32 +230,32 @@ cont.Q.plot <-function(site.id,
   #   method <- method %>%
   #     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipSciRvwQF,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'gray')
   # }
-
+  
   # Add base plot
   method <- method %>%
-
+    
     # Q Uncertainty
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='line',line=base::list(color='#D55E00'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group1',visible = "legendonly")%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#D55E00',hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group1',visible = "legendonly")%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='line',line=base::list(color='#E69F00'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group2',visible = "legendonly")%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#E69F00',hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group2',visible = "legendonly")%>%
-
+    
     # H Uncertainty
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=base::list(color='#56B4E9'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",yaxis='y2',showlegend=F,legendgroup='group3',visible = "legendonly")%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#56B4E9',hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",yaxis='y2',showlegend=T,legendgroup='group3',visible = "legendonly")%>%
-
+    
     # H and Q Series
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = base::list(color = dischargeColor),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group4')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = base::list(color = dischargeColor),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",yaxis='y1',legendgroup='group4')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = base::list(color = '#CC79A7'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",yaxis='y2',showlegend=T,legendgroup='group5')%>%
-
+    
     # Empirical H and Q
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = base::list(color = '#009E73',size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group6')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=F,legendgroup='group7')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group7')%>%
-
+    
     #Historical Med Q
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~histMedQ, name=stringr::str_c("Historic Median\nDischarge: ","\n",base::min(histMedQMinYear),"-",base::max(histMedQMaxYear)),type='scatter',mode='lines',line = base::list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group8',visible = "legendonly")
-
+  
   #Precipitation Data
   #plots whichever data is available using isPrimaryPtp bool
   if(isPrimaryPtp){
@@ -267,21 +269,21 @@ cont.Q.plot <-function(site.id,
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulkUpUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#431A74',hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",showlegend=T,legendgroup='group9',visible = "legendonly") %>%
       plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulk,name=stringr::str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = base::list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x} <br> Value: %{y}",legendgroup='group10',visible = "legendonly")
   }
-
+  
   # Add the internal parameters
   if(plot.q.stats){
     method <- method%>%
       plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~medQ,yend=~medQ,line=base::list(color='grey',dash='dash'),name="3x Median\nDischarge",showlegend=T,legendgroup='group11',visible = "legendonly")%>%
       plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~twentyFiveQ,yend=~twentyFiveQ,line=base::list(color=dischargeColor,dash='dash'),name="25-75%\nischarge",showlegend=F,legendgroup='group12',visible = "legendonly")%>%
       plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~seventyFiveQ,yend=~seventyFiveQ,line=base::list(color=dischargeColor,dash='dash'),name="25-75%\nDischarge",showlegend=T,legendgroup='group12',visible = "legendonly")
-
+    
     if(!plot.imp.unit){
       method <- method%>%
-       plotly::layout(
-         title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," L/s<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 0)," - ",base::round(seventyFiveQ,digits = 0)," L/s<b>"),
-                    xanchor="left",
-                    xref="paper",
-                    x=0.02))
+        plotly::layout(
+          title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," L/s<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 0)," - ",base::round(seventyFiveQ,digits = 0)," L/s<b>"),
+                     xanchor="left",
+                     xref="paper",
+                     x=0.02))
     }else{
       method <- method%>%
         plotly::layout(
@@ -291,6 +293,6 @@ cont.Q.plot <-function(site.id,
                      x=0.02))
     }
   }
-
+  
   return(method)
 }
