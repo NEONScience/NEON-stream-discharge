@@ -98,35 +98,33 @@ cont.Q.plot <-function(site.id,
   ##needs to be above plotly call so axis are created correctly
   if(plot.imp.unit){
     continuousDischarge_sum <- continuousDischarge_sum %>%
-      
-      #Discharge
-      dplyr::mutate(histMedQ = histMedQ*convLPStoCFS) %>%
-      dplyr::mutate(meanURemnUnc = meanURemnUnc*convLPStoCFS) %>%
-      dplyr::mutate(meanLRemnUnc = meanLRemnUnc*convLPStoCFS) %>%
-      dplyr::mutate(meanUParaUnc = meanUParaUnc*convLPStoCFS) %>%
-      dplyr::mutate(meanLParaUnc = meanLParaUnc*convLPStoCFS) %>%
-      dplyr::mutate(meanQ = meanQ*convLPStoCFS) %>%
-      dplyr::mutate(streamDischarge = streamDischarge*convLPStoCFS) %>%
-      dplyr::mutate(dischargeFinalQFSciRvw = dischargeFinalQFSciRvw*convLPStoCFS) %>%
-
-      #Stage
-      dplyr::mutate(meanUHUnc = meanUHUnc*convMtoFt) %>%
-      dplyr::mutate(meanLHUnc = meanLHUnc*convMtoFt) %>%
-      dplyr::mutate(meanH = meanH*convMtoFt) %>%
-      dplyr::mutate(gaugeHeight = gaugeHeight*convMtoFt) %>%
-      dplyr::mutate(gauge_Height = gauge_Height*convMtoFt) %>%
+      dplyr::mutate(#Discharge
+                    histMedQ = histMedQ*convLPStoCFS,
+                    meanURemnUnc = meanURemnUnc*convLPStoCFS,
+                    meanLRemnUnc = meanLRemnUnc*convLPStoCFS,
+                    meanUParaUnc = meanUParaUnc*convLPStoCFS,
+                    meanLParaUnc = meanLParaUnc*convLPStoCFS,
+                    meanQ = meanQ*convLPStoCFS,
+                    streamDischarge = streamDischarge*convLPStoCFS,
+                    dischargeFinalQFSciRvw = dischargeFinalQFSciRvw*convLPStoCFS,
+                    #Stage
+                    meanUHUnc = meanUHUnc*convMtoFt,
+                    meanLHUnc = meanLHUnc*convMtoFt,
+                    meanH = meanH*convMtoFt,
+                    gaugeHeight = gaugeHeight*convMtoFt,
+                    gauge_Height = gauge_Height*convMtoFt)
 
     #Precipitation
     if(isPrimaryPtp){
       continuousDischarge_sum <- continuousDischarge_sum %>%
-        dplyr::mutate(priPrecipBulkLoUnc = priPrecipBulkLoUnc*convMMtoIN) %>%
-        dplyr::mutate(priPrecipBulkUpUnc = priPrecipBulkUpUnc*convMMtoIN) %>%
-        dplyr::mutate(priPrecipBulk = priPrecipBulk*convMMtoIN)
+        dplyr::mutate(priPrecipBulkLoUnc = priPrecipBulkLoUnc*convMMtoIN,
+                      priPrecipBulkUpUnc = priPrecipBulkUpUnc*convMMtoIN,
+                      priPrecipBulk = priPrecipBulk*convMMtoIN)
     }else{
       continuousDischarge_sum <- continuousDischarge_sum %>%
-        dplyr::mutate(secPrecipBulkLoUnc = secPrecipBulkLoUnc*convMMtoIN) %>%
-        dplyr::mutate(secPrecipBulkUpUnc = secPrecipBulkUpUnc*convMMtoIN) %>%
-        dplyr::mutate(secPrecipBulk = secPrecipBulk*convMMtoIN)
+        dplyr::mutate(secPrecipBulkLoUnc = secPrecipBulkLoUnc*convMMtoIN,
+                      secPrecipBulkUpUnc = secPrecipBulkUpUnc*convMMtoIN,
+                      secPrecipBulk = secPrecipBulk*convMMtoIN)
     }
     
     #3x internal
