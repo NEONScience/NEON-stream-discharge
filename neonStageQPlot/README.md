@@ -34,7 +34,7 @@ outside the openFlow app.
 The **neonStageQPlot** package is only available for install from
 Github. To install the package:
 
-`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/shinyApp/neonStageQPlot", dependencies = TRUE, force = TRUE)`
+`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)`
 
 ## App Dependencies
 
@@ -44,19 +44,6 @@ Portal](https://data.neonscience.org/home) using the
 Users must have the neonUtilities (available in
 [CRAN](https://cran.r-project.org/web/packages/neonUtilities/index.html))
 package installed to run the app.
-
-The shiny app uses the
-[stageQCurve](https://github.com/NEONScience/NEON-stream-discharge/tree/master/L4Discharge/stageQCurve)
-package. The stageQCurve package is not available in CRAN and must be
-installed directly from Github:
-
-`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", dependencies = TRUE, force = TRUE)`
-
-To install the stageQCurve package, you may also need to install the
-[geoNEON](https://github.com/NEONScience/NEON-geolocation/tree/master/geoNEON)
-package that must also be installed directly from GutHub:
-
-`devtools::install_github(repo = "NEONScience/NEON-geolocation/geoNEON", dependencies = TRUE, force = TRUE)`
 
 ## Functions
 

@@ -28,13 +28,11 @@ The `neonStageQPlot` package was developed to work in conjunction with the [open
 
 The **neonStageQPlot** package is only available for install from Github. To install the package:
 
-`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/shinyApp/neonStageQPlot", dependencies = TRUE, force = TRUE)`
+`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)`
 
 ## App Dependencies
 
 The shiny app downloads published data from the [NEON Data Portal](https://data.neonscience.org/home) using the [neonUtilities](https://github.com/NEONScience/NEON-utilities) package. Users must have the neonUtilities (available in [CRAN](https://cran.r-project.org/web/packages/neonUtilities/index.html)) package installed to run the app.
-
-The shiny app uses the [stageQCurve](https://github.com/NEONScience/NEON-stream-discharge/tree/master/L4Discharge/stageQCurve) package. The stageQCurve package is not available in CRAN and must be installed directly from Github:
 
 ## Functions
 

@@ -60,7 +60,7 @@ installed directly from Github:
     right and wait for the app to install dependencies from GitHub then
     the app will launch.
 
-## Other Content in the shinyApp Folder
+## Other Content in the shiny-openFlow Folder
 
 -   .Rmd file `about.Rmd` contains a user guide for the openFlow app
     that describes the inputs, outputs, and features of the app. This
