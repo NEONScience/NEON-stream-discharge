@@ -40,6 +40,8 @@
 # changelog and author contributions / copyrights
 #   Zachary L. Nickerson (2022-07-25)
 #     original creation
+#   Zachary L. Nickerson (2022-08-09)
+#     removed dependency on measurements
 ##############################################################################################
 base::options(stringsAsFactors = F)
 utils::globalVariables(c('histMedQ','meanURemnUnc','meanLRemnUnc','meanUParaUnc','meanLParaUnc','meanQ','streamDischarge','meanUHUnc','meanLHUnc','meanH','gaugeHeight','gauge_Height','priPrecipBulkLoUnc','priPrecipBulkUpUnc','priPrecipBulk','secPrecipBulkLoUnc','secPrecipBulkUpUnc','secPrecipBulk'))
@@ -88,6 +90,9 @@ cont.Q.plot <-function(site.id,
   y1Units <- "(liters per second)"
   y2Units <- "(meter)"
   y3Units <- "(milimeter)"
+  convLPStoCFS <- 0.035314
+  convMtoFt <- 3.28084
+  convMMtoIN <- 0.0393701
   
   #SI to imperial
   ##needs to be above plotly call so axis are created correctly
@@ -95,41 +100,40 @@ cont.Q.plot <-function(site.id,
     continuousDischarge_sum <- continuousDischarge_sum %>%
       
       #Discharge
-      dplyr::mutate(histMedQ = measurements::conv_unit(histMedQ,"l_per_sec","ft3_per_sec")) %>%
-      dplyr::mutate(meanURemnUnc = measurements::conv_unit(meanURemnUnc,"l_per_sec","ft3_per_sec")) %>%
-      dplyr::mutate(meanLRemnUnc = measurements::conv_unit(meanLRemnUnc,"l_per_sec","ft3_per_sec")) %>%
-      dplyr::mutate(meanUParaUnc = measurements::conv_unit(meanUParaUnc,"l_per_sec","ft3_per_sec")) %>%
-      dplyr::mutate(meanLParaUnc = measurements::conv_unit(meanLParaUnc,"l_per_sec","ft3_per_sec")) %>%
-      dplyr::mutate(meanQ = measurements::conv_unit(meanQ,"l_per_sec","ft3_per_sec")) %>%
-      dplyr::mutate(streamDischarge = measurements::conv_unit(streamDischarge,"l_per_sec","ft3_per_sec")) %>%
-      dplyr::mutate(dischargeFinalQFSciRvw = measurements::conv_unit(dischargeFinalQFSciRvw,"l_per_sec","ft3_per_sec")) %>%
-      
-      
+      dplyr::mutate(histMedQ = histMedQ*convLPStoCFS) %>%
+      dplyr::mutate(meanURemnUnc = meanURemnUnc*convLPStoCFS) %>%
+      dplyr::mutate(meanLRemnUnc = meanLRemnUnc*convLPStoCFS) %>%
+      dplyr::mutate(meanUParaUnc = meanUParaUnc*convLPStoCFS) %>%
+      dplyr::mutate(meanLParaUnc = meanLParaUnc*convLPStoCFS) %>%
+      dplyr::mutate(meanQ = meanQ*convLPStoCFS) %>%
+      dplyr::mutate(streamDischarge = streamDischarge*convLPStoCFS) %>%
+      dplyr::mutate(dischargeFinalQFSciRvw = dischargeFinalQFSciRvw*convLPStoCFS) %>%
+
       #Stage
-      dplyr::mutate(meanUHUnc = measurements::conv_unit(meanUHUnc,"m","ft")) %>%
-      dplyr::mutate(meanLHUnc = measurements::conv_unit(meanLHUnc,"m","ft")) %>%
-      dplyr::mutate(meanH = measurements::conv_unit(meanH,"m","ft")) %>%
-      dplyr::mutate(gaugeHeight = measurements::conv_unit(gaugeHeight,"m","ft")) %>%
-      dplyr::mutate(gauge_Height = measurements::conv_unit(gauge_Height,"m","ft"))
-    
+      dplyr::mutate(meanUHUnc = meanUHUnc*convMtoFt) %>%
+      dplyr::mutate(meanLHUnc = meanLHUnc*convMtoFt) %>%
+      dplyr::mutate(meanH = meanH*convMtoFt) %>%
+      dplyr::mutate(gaugeHeight = gaugeHeight*convMtoFt) %>%
+      dplyr::mutate(gauge_Height = gauge_Height*convMtoFt) %>%
+
     #Precipitation
     if(isPrimaryPtp){
       continuousDischarge_sum <- continuousDischarge_sum %>%
-        dplyr::mutate(priPrecipBulkLoUnc = measurements::conv_unit(priPrecipBulkLoUnc,"mm","inch")) %>%
-        dplyr::mutate(priPrecipBulkUpUnc = measurements::conv_unit(priPrecipBulkUpUnc,"mm","inch")) %>%
-        dplyr::mutate(priPrecipBulk = measurements::conv_unit(priPrecipBulk,"mm","inch"))
+        dplyr::mutate(priPrecipBulkLoUnc = priPrecipBulkLoUnc*convMMtoIN) %>%
+        dplyr::mutate(priPrecipBulkUpUnc = priPrecipBulkUpUnc*convMMtoIN) %>%
+        dplyr::mutate(priPrecipBulk = priPrecipBulk*convMMtoIN)
     }else{
       continuousDischarge_sum <- continuousDischarge_sum %>%
-        dplyr::mutate(secPrecipBulkLoUnc = measurements::conv_unit(secPrecipBulkLoUnc,"mm","inch")) %>%
-        dplyr::mutate(secPrecipBulkUpUnc = measurements::conv_unit(secPrecipBulkUpUnc,"mm","inch")) %>%
-        dplyr::mutate(secPrecipBulk = measurements::conv_unit(secPrecipBulk,"mm","inch"))
+        dplyr::mutate(secPrecipBulkLoUnc = secPrecipBulkLoUnc*convMMtoIN) %>%
+        dplyr::mutate(secPrecipBulkUpUnc = secPrecipBulkUpUnc*convMMtoIN) %>%
+        dplyr::mutate(secPrecipBulk = secPrecipBulk*convMMtoIN)
     }
     
-    #3x internal#
+    #3x internal
     if(plot.q.stats){
-      medQ <- measurements::conv_unit(medQ,"l_per_sec","ft3_per_sec")
-      twentyFiveQ <- measurements::conv_unit(twentyFiveQ,"l_per_sec","ft3_per_sec")
-      seventyFiveQ <- measurements::conv_unit(seventyFiveQ,"l_per_sec","ft3_per_sec")
+      medQ <- medQ*convLPStoCFS
+      twentyFiveQ <- twentyFiveQ*convLPStoCFS
+      seventyFiveQ <- seventyFiveQ*convLPStoCFS
     }
     
     y1Units <- "(Cubic Feet per second)"

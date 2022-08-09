@@ -36,6 +36,8 @@
 # changelog and author contributions / copyrights
 #   Zachary L. Nickerson (2022-07-25)
 #     original creation
+#   Zachary L. Nickerson (2022-08-09)
+#     removed dependency on measurements
 ##############################################################################################
 base::options(stringsAsFactors = F)
 utils::globalVariables(c("curveID","Hgrid","maxPostQ","pramUTop","pramUBottom","totalUTop","totalUBottom","H","uH","bH","bHindx","Q","uQ","bQ","bQindx"))
@@ -89,16 +91,20 @@ RC.plot <-function(site.id,
       #axis units
       x1Units <- "(meter)"
       y1Units <- "(liters per second)"
+      convLPStoCFS <- 0.035314
+      convMtoFt <- 3.28084
 
       if(plot.imp.unit){
         rcData_curveID <- rcData_curveID %>%
-          dplyr::mutate(totalUTop = measurements::conv_unit(totalUTop,"l_per_sec","ft3_per_sec")) %>%
-          dplyr::mutate(totalUBottom = measurements::conv_unit(totalUBottom,"l_per_sec","ft3_per_sec")) %>%
-          dplyr::mutate(pramUTop = measurements::conv_unit(pramUTop,"l_per_sec","ft3_per_sec")) %>%
-          dplyr::mutate(pramUBottom = measurements::conv_unit(pramUBottom,"l_per_sec","ft3_per_sec")) %>%
-          dplyr::mutate(maxPostQ = measurements::conv_unit(maxPostQ,"l_per_sec","ft3_per_sec"))
+          dplyr::mutate(Hgrid = Hgrid*convMtoFt,
+                        totalUTop = totalUTop*convLPStoCFS,
+                        totalUBottom = totalUBottom*convLPStoCFS,
+                        pramUTop = pramUTop*convLPStoCFS,
+                        pramUBottom = pramUBottom*convLPStoCFS,
+                        maxPostQ = maxPostQ*convLPStoCFS)
         rcGaugings_curveID <- rcGaugings_curveID %>%
-          dplyr::mutate(Q = measurements::conv_unit(Q,"l_per_sec","ft3_per_sec"))
+          dplyr::mutate(H = H*convMtoFt,
+                        Q = Q*convLPStoCFS)
 
         x1Units <- "(Feet)"
         y1Units <- "(Cubic Feet per second)"

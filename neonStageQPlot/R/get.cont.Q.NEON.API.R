@@ -43,6 +43,8 @@
 # changelog and author contributions / copyrights
 #   Zachary L. Nickerson (2022-07-25)
 #     original creation
+#   Zachary L. Nickerson (2022-08-09)
+#     removed dependency on stageQCurve
 ##############################################################################################
 base::options(stringsAsFactors = F)
 utils::globalVariables(c('gaugeEventID','gaugeHeight','streamDischarge','regressionID','gauge_Height','maxpostDischarge','equivalentStage','stageUnc','withRemnUncQUpper2Std','withRemnUncQLower2Std','withParaUncQUpper2Std','withParaUncQLower2Std','dischargeFinalQF','dischargeFinalQFSciRvw','meanH','meanHUnc','usgsDischarge','withRegressionUncQUpper2Std','withRegressionUncQLower2Std','priPrecipBulk','priPrecipExpUncert','priPrecipFinalQF','secPrecipBulk','secPrecipExpUncert','secPrecipSciRvwQF','siteID'))
@@ -64,8 +66,31 @@ get.cont.Q.NEON.API <-function(site.id,
   }
   
   # Rating curve data queries need to span an entire water year to ensure we are getting all the appropriate data
-  searchIntervalStartDate <- base::as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = start.date)$startDate)
-  searchIntervalEndDate <- base::as.character(stageQCurve::def.calc.WY.strt.end.date(searchIntervalStartDate = end.date)$endDate)
+  def.calc.WY.strt.end.date <- function(searchIntervalStartDate){
+    Oct <- "10"
+    Sept <- "09"
+    first <- "01"
+    thirtieth <- "30"
+    startYear <- base::substr(searchIntervalStartDate, 1, 4)
+    
+    diffOctFirst <- base::difftime(searchIntervalStartDate,
+                                   base::as.POSIXct(base::paste(startYear, Oct, first, sep = "-"), tz = "UTC"),
+                                   units = "days")
+    if(diffOctFirst > 0){
+      octWY <- base::as.POSIXct(base::paste(startYear, Oct, first, sep = "-"), tz = "UTC")
+    }else if(diffOctFirst < 0){
+      octWY <- base::as.POSIXct(base::paste((base::as.numeric(startYear)-1), Oct, first, sep = "-"), tz = "UTC")
+    }else{
+      octWY <- searchIntervalStartDate
+    }
+    
+    octWY <- base::as.numeric(substr(octWY, 1, 4))
+    startDate <- base::as.POSIXct(base::paste(octWY, Oct, first, sep = "-"), tz = "UTC")
+    endDate <- base::as.POSIXct(base::paste((octWY+1), Sept, thirtieth, sep = "-"), tz = "UTC")
+    return(base::list("startDate"=startDate,"endDate"=endDate))
+  }
+  searchIntervalStartDate <- base::as.character(def.calc.WY.strt.end.date(searchIntervalStartDate = start.date)$startDate)
+  searchIntervalEndDate <- base::as.character(def.calc.WY.strt.end.date(searchIntervalStartDate = end.date)$endDate)
   
   # Set site variables (special considerations for TOOK)
   if (stringr::str_detect(site.id,"TOOK")) {

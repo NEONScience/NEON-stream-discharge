@@ -36,12 +36,6 @@ The shiny app downloads published data from the [NEON Data Portal](https://data.
 
 The shiny app uses the [stageQCurve](https://github.com/NEONScience/NEON-stream-discharge/tree/master/L4Discharge/stageQCurve) package. The stageQCurve package is not available in CRAN and must be installed directly from Github:
 
-`devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", dependencies = TRUE, force = TRUE)`
-
-To install the stageQCurve package, you may also need to install the [geoNEON](https://github.com/NEONScience/NEON-geolocation/tree/master/geoNEON) package that must also be installed directly from GutHub:
-
-`devtools::install_github(repo = "NEONScience/NEON-geolocation/geoNEON", dependencies = TRUE, force = TRUE)`
-
 ## Functions
 
 `get.cont.Q.NEON.API` - Downloads NEON continuous discharge and precipitation data from the NEON API, smooths the data to a 20 minute temporal resoltion, and outputs a data frame that contains the summarized data.

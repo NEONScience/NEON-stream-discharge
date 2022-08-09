@@ -48,16 +48,9 @@ library(tidyr)
 library(htmlwidgets)
 library(httr)
 library(bslib)
-library(measurements)
 library(shinyalert)
 library(devtools)
 library(markdown)
-if(!require(stageQCurve)){
-  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/L4Discharge/stageQCurve", dependencies = TRUE, force = TRUE)
-  library(stageQCurve)
-}else{
-  library(stageQCurve)
-}
 if(!require(neonStageQplot)){
   devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
   library(neonStageQplot)
@@ -71,7 +64,7 @@ if(!require(neonStageQplot)){
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
-  include.q.stats <- F # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+  include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
   constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
 
   light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
