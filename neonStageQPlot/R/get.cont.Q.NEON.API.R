@@ -238,6 +238,7 @@ get.cont.Q.NEON.API <-function(site.id,
                        meanUParaUnc=base::mean(withRegressionUncQUpper2Std,na.rm = T),
                        meanLParaUnc=base::mean(withRegressionUncQLower2Std,na.rm = T),
                        dischargeFinalQF=NA,
+                       dischargeFinalQFSciRvw=NA,
                        streamDischarge=NA,
                        gaugeHeight=NA,
                        gauge_Height=NA)
