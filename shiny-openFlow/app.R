@@ -30,6 +30,8 @@
 #     major updates include plotting NEON precipitation data, rendering NEON PhenoCam images 
 #     via a click event, download buttons for plots and images, aesthetic updates to color 
 #     paletes, axes, and app themes, and an 'About the App' tab.
+#   Zachary L. Nickerson (2022-08-09)
+#     remove package dependencies 'stageQCurve' and 'measurements'
 ##############################################################################################
 # # Source packages and set options
 options(stringsAsFactors = F)
