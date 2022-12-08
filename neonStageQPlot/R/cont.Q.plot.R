@@ -50,6 +50,7 @@ cont.Q.plot <-function(site.id,
                        start.date,
                        end.date,
                        input.list,
+                       lookup.table,
                        plot.imp.unit=F,
                        mode.dark=F,
                        # plot.final.QF=F,
@@ -57,7 +58,7 @@ cont.Q.plot <-function(site.id,
                        # plot.precip.final.QF=F,
                        # plot.precip.sci.rvw.QF=F,
                        plot.q.stats=F){
-  
+
   if(base::missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
   }
@@ -71,20 +72,55 @@ cont.Q.plot <-function(site.id,
     stop('must provide input.list for plotting continuous discharge')
   }
   
-  # Get data
-  continuousDischarge_sum <- input.list$continuousDischarge_sum%>%
-    dplyr::filter(!is.na(meanQ))
-  isPrimaryPtp <- input.list$precipitationSite$isPrimaryPtp
-  precipSiteID <- input.list$precipitationSite$gaugeID
-  histMedQMinYear <- input.list$histMedQYearRange$minYear
-  histMedQMaxYear <- input.list$histMedQYearRange$maxYear
+  # Read in the lookup table and get constants
   
-  #3x internal dataGet#
+  # Q Stats
+  site.id=siteID
+  ptpSiteID <- lookup.table$ptpSite[lookup.table$siteID==siteID]
   if(plot.q.stats){
-    medQ <- base::as.numeric(input.list$dischargeStats$medQ)
-    twentyFiveQ <- base::as.numeric(input.list$dischargeStats$twentyFiveQ)
-    seventyFiveQ <- base::as.numeric(input.list$dischargeStats$seventyFiveQ)
+    medQ <- lookup.table$threeXMedQ[lookup.table$siteID==siteID]
+    medQUnc <- lookup.table$threeXMedQUnc[lookup.table$siteID==siteID]
   }
+
+  # Subset continuous discharge data for plotting
+  continuousDischarge_sum <- input.list$csd_continuousDischarge_allYears%>%
+    dplyr::filter(siteID==site.id
+                  &date>=start.date
+                  &date<base::as.Date(end.date)+1)
+  
+  # Subset gauge~pressure relationship data for plotting
+  sdrc_gaugePressureRelationship <- input.list$sdrc_gaugePressureRelationship_allYears%>%
+    dplyr::filter(siteID==site.id
+                  &date>=start.date
+                  &date<base::as.Date(end.date)+1)
+  
+  # Subset gauge~discharge pair data for plotting
+  sdrc_gaugeDischargeMeas <- input.list$sdrc_gaugeDischargeMeas_allYears%>%
+    dplyr::filter(siteID==site.id
+                  &date>=start.date
+                  &date<base::as.Date(end.date)+1)
+  
+  # Subset precipitation data for plotting
+  ptp <- input.list$ptp_allYears%>%
+    dplyr::filter(siteID==ptpSiteID
+                  &endDateTime>=start.date
+                  &endDateTime<base::as.Date(end.date)+1)
+  
+  # Pull in historic median Q from GCS
+  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_WY2020_VC.rds","rb"))
+  histMedQ <- histMedQ%>%
+    dplyr::filter(siteID==site.id)
+  continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
+  continuousDischarge_sum$histMedQ <- NA
+  for(i in 1:base::nrow(continuousDischarge_sum)){
+    if(continuousDischarge_sum$monthDay[i]%in%histMedQ$monthDay){
+      continuousDischarge_sum$histMedQ[i] <- histMedQ$medianQ[histMedQ$monthDay==continuousDischarge_sum$monthDay[i]]
+    }else{
+      continuousDischarge_sum$histMedQ[i] <- NA
+    }
+  }
+  minYear <- base::unique(histMedQ$minYear)
+  maxYear <- base::unique(histMedQ$maxYear)
   
   #axis units
   y1Units <- "(liters per second)"
@@ -97,43 +133,35 @@ cont.Q.plot <-function(site.id,
   #SI to imperial
   ##needs to be above plotly call so axis are created correctly
   if(plot.imp.unit){
+    # Discharge and Gauge
     continuousDischarge_sum <- continuousDischarge_sum %>%
-      dplyr::mutate(#Discharge
-                    histMedQ = histMedQ*convLPStoCFS,
-                    meanURemnUnc = meanURemnUnc*convLPStoCFS,
+      dplyr::mutate(meanURemnUnc = meanURemnUnc*convLPStoCFS,
                     meanLRemnUnc = meanLRemnUnc*convLPStoCFS,
                     meanUParaUnc = meanUParaUnc*convLPStoCFS,
                     meanLParaUnc = meanLParaUnc*convLPStoCFS,
                     meanQ = meanQ*convLPStoCFS,
-                    streamDischarge = streamDischarge*convLPStoCFS,
                     dischargeFinalQFSciRvw = dischargeFinalQFSciRvw*convLPStoCFS,
-                    #Stage
                     meanUHUnc = meanUHUnc*convMtoFt,
                     meanLHUnc = meanLHUnc*convMtoFt,
                     meanH = meanH*convMtoFt,
-                    gaugeHeight = gaugeHeight*convMtoFt,
-                    gauge_Height = gauge_Height*convMtoFt)
+                    histMedQ = histMedQ*convLPStoCFS)
+    sdrc_gaugePressureRelationship <- sdrc_gaugePressureRelationship%>%
+      dplyr::mutate(gauge_Height = gauge_Height*convMtoFt)
+    sdrc_gaugeDischargeMeas <- sdrc_gaugeDischargeMeas%>%
+      dplyr::mutate(streamDischarge = streamDischarge*convLPStoCFS,
+                    gaugeHeight = gaugeHeight*convMtoFt)
+    
+    # Precipitation
+    ptp <- ptp%>%
+      dplyr::mutate(precipBulk = precipBulk*convMMtoIN,
+                    precipExpUncert = precipExpUncert*convMMtoIN,
+                    precipBulkLoUnc = precipBulkLoUnc*convMMtoIN,
+                    precipBulkUpUnc = precipBulkUpUnc*convMMtoIN)
+    
+    # Constants
+    medQ = medQ*convLPStoCFS
+    medQUnc = medQUnc*convLPStoCFS
 
-    #Precipitation
-    if(isPrimaryPtp){
-      continuousDischarge_sum <- continuousDischarge_sum %>%
-        dplyr::mutate(priPrecipBulkLoUnc = priPrecipBulkLoUnc*convMMtoIN,
-                      priPrecipBulkUpUnc = priPrecipBulkUpUnc*convMMtoIN,
-                      priPrecipBulk = priPrecipBulk*convMMtoIN)
-    }else{
-      continuousDischarge_sum <- continuousDischarge_sum %>%
-        dplyr::mutate(secPrecipBulkLoUnc = secPrecipBulkLoUnc*convMMtoIN,
-                      secPrecipBulkUpUnc = secPrecipBulkUpUnc*convMMtoIN,
-                      secPrecipBulk = secPrecipBulk*convMMtoIN)
-    }
-    
-    #3x internal
-    if(plot.q.stats){
-      medQ <- medQ*convLPStoCFS
-      twentyFiveQ <- twentyFiveQ*convLPStoCFS
-      seventyFiveQ <- seventyFiveQ*convLPStoCFS
-    }
-    
     y1Units <- "(Cubic Feet per second)"
     y2Units <- "(Feet)"
     y3Units <- "(Inches)"
@@ -219,7 +247,7 @@ cont.Q.plot <-function(site.id,
   # }
   if(plot.sci.rvw.QF){
     method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
+      plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~dischargeFinalQFSciRvw,type='scatter',mode='none',fill = 'tozeroy',hoverinfo="none", showlegend= F, fillcolor = 'lightgray')
   }
   # #wraps precip flag data to prevent plotting when data does not exist
   # if(isPrimaryPtp & plot.precip.final.QF){
@@ -237,59 +265,50 @@ cont.Q.plot <-function(site.id,
   method <- method %>%
     
     # Q Uncertainty
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='line',line=base::list(color='#D55E00'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group1',visible = "legendonly")%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#D55E00',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group1',visible = "legendonly")%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='line',line=base::list(color='#E69F00'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group2',visible = "legendonly")%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#E69F00',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group2',visible = "legendonly")%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanURemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='line',line=base::list(color='#D55E00'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group1',visible = "legendonly")%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLRemnUnc,name="Discharge\nRemnant\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#D55E00',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group1',visible = "legendonly")%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='line',line=base::list(color='#E69F00'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group2',visible = "legendonly")%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLParaUnc,name="Discharge\nParametric\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#E69F00',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group2',visible = "legendonly")%>%
     
     # H Uncertainty
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=base::list(color='#56B4E9'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y2',showlegend=F,legendgroup='group3',visible = "legendonly")%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#56B4E9',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y2',showlegend=T,legendgroup='group3',visible = "legendonly")%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanUHUnc,name="Stage\nUncertainty",type='scatter',mode='line',line=base::list(color='#56B4E9'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y2',showlegend=F,legendgroup='group3',visible = "legendonly")%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanLHUnc,name="Stage\nUncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#56B4E9',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y2',showlegend=T,legendgroup='group3',visible = "legendonly")%>%
     
     # H and Q Series
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = base::list(color = dischargeColor),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y1',legendgroup='group4')%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = base::list(color = '#CC79A7'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y2',showlegend=T,legendgroup='group5')%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanQ, name="Continuous\nDischarge",type='scatter',mode='lines',line = base::list(color = dischargeColor),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y1',legendgroup='group4')%>%
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~meanH, name="Continuous\nStage",type='scatter',mode='lines',line = base::list(color = '#CC79A7'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",yaxis='y2',showlegend=T,legendgroup='group5')%>%
     
     # Empirical H and Q
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = base::list(color = '#009E73',size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group6')%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group7')%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group7')%>%
+    plotly::add_trace(data=sdrc_gaugeDischargeMeas,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = base::list(color = '#009E73',size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group6')%>%
+    plotly::add_trace(data=sdrc_gaugeDischargeMeas,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group7')%>%
+    plotly::add_trace(data=sdrc_gaugePressureRelationship,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group7')%>%
     
     #Historical Med Q
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~histMedQ, name=stringr::str_c("Historic Median\nDischarge: ","\n",base::min(histMedQMinYear),"-",base::max(histMedQMaxYear)),type='scatter',mode='lines',line = base::list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group8',visible = "legendonly")
+    plotly::add_trace(data=continuousDischarge_sum,x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~histMedQ, name=stringr::str_c("Historic Median\nDischarge: ","\n",minYear,"-",maxYear),type='scatter',mode='lines',line = base::list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group8',visible = "legendonly")
   
   #Precipitation Data
   #plots whichever data is available using isPrimaryPtp bool
-  if(isPrimaryPtp){
-    method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulkLoUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='line',line=base::list(color='#431A74'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group9',visible = "legendonly")%>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulkUpUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#431A74',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group9',visible = "legendonly") %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulk,name=stringr::str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = base::list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group10',visible = "legendonly")
-  }else{
-    method <- method %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulkLoUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='line',line=base::list(color='#431A74'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group9',visible = "legendonly")%>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulkUpUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#431A74',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group9',visible = "legendonly") %>%
-      plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulk,name=stringr::str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = base::list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group10',visible = "legendonly")
-  }
-  
+  method <- method %>%
+    plotly::add_trace(data=ptp,x=~base::as.POSIXct(endDateTime,format="%Y-%m-%d %H:%M:%S"),y=~precipBulkLoUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='line',line=base::list(color='#431A74'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group9',visible = "legendonly")%>%
+    plotly::add_trace(data=ptp,x=~base::as.POSIXct(endDateTime,format="%Y-%m-%d %H:%M:%S"),y=~precipBulkUpUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#431A74',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group9',visible = "legendonly") %>%
+    plotly::add_trace(data=ptp,x=~base::as.POSIXct(endDateTime,format="%Y-%m-%d %H:%M:%S"),y=~precipBulk,name=stringr::str_c("Continuous\nPrecipitation\nSite: ",ptpSiteID),yaxis = "y3",type='scatter',mode='lines',line = base::list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group10',visible = "legendonly")
+
   # Add the internal parameters
   if(plot.q.stats){
     method <- method%>%
-      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~medQ,yend=~medQ,line=base::list(color='grey',dash='dash'),name="3x Median\nDischarge",showlegend=T,legendgroup='group11',visible = "legendonly",hoverinfo="none")%>%
-      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~twentyFiveQ,yend=~twentyFiveQ,line=base::list(color=dischargeColor,dash='dash'),name="25-75%\nischarge",showlegend=F,legendgroup='group12',visible = "legendonly",hoverinfo="none")%>%
-      plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~seventyFiveQ,yend=~seventyFiveQ,line=base::list(color=dischargeColor,dash='dash'),name="25-75%\nDischarge",showlegend=T,legendgroup='group12',visible = "legendonly",hoverinfo="none")
-    
+      plotly::add_segments(x=~base::min(base::as.POSIXct(continuousDischarge_sum$date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(continuousDischarge_sum$date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~medQ+medQUnc,yend=~medQ+medQUnc,line=base::list(color='grey',dash='dash'),name="3x Median Discharge\nPlus Uncertainty",showlegend=T,legendgroup='group11',visible = "legendonly",hovertemplate=paste0("Value: ",medQ+medQUnc))
+
     if(!plot.imp.unit){
       method <- method%>%
         plotly::layout(
-          title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," L/s<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 0)," - ",base::round(seventyFiveQ,digits = 0)," L/s<b>"),
+          title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," +/- ",base::round(medQUnc,digits = 1)," L/s"),
                      xanchor="left",
                      xref="paper",
                      x=0.02))
     }else{
       method <- method%>%
         plotly::layout(
-          title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," cfs<br>25-75% Discharge: ",base::round(twentyFiveQ,digits = 0)," - ",base::round(seventyFiveQ,digits = 0)," cfs<b>"),
+          title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," +/- ",base::round(medQUnc,digits = 1)," ft^3/s"),
                      xanchor="left",
                      xref="paper",
                      x=0.02))
