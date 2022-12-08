@@ -18,6 +18,7 @@
 #' user [string]
 #' @param input.list Required: List containing the data used in plotting; this list should be
 #' the outputs from neonStageQPlot::get.cont.Q.NEON.API [list]
+#' @param lookup.table Required: Data frame site-level metadata and constants [dataframe]
 #' @param plot.imp.unit Defaults to FALSE: Idicator of plotting data in metric or imperial
 #' units [boolean]
 #' @param plot.sci.rvw.QF Dafults to FALSE: Indicator of plotting the finalDischargeQFSciRvw
