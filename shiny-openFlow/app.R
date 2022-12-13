@@ -63,7 +63,7 @@ if(!require(neonStageQplot)){
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   #Global Vars
-  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
+  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/ZN_pullAllAuto/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
   include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
@@ -132,6 +132,13 @@ if(!require(neonStageQplot)){
     shiny::observe(session$setCurrentTheme(
       if (base::isTRUE(input$dark_mode)) dark else light
     ))
+    
+    # # Set date variables for app running (special consideration for TOOK)
+    # siteID <<- shiny::reactive(input$siteId)
+    # domainID <<- shiny::reactive(input$domainId)
+    # startDate <- shiny::reactive(base::format(input$dateRange[1]))
+    # endDate <- shiny::reactive(base::format(input$dateRange[2]))
+    # apiToken <- shiny::reactive(input$apiToken)
     
     #phenoImage observe
     #displays phenocam image when point is clicked on graph
@@ -210,18 +217,12 @@ if(!require(neonStageQplot)){
       output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
     })
     
+    dates <- eventReactive(input$submit, {
+      input$dateRange
+    })
+    
     # Download data, create summary table, and save output
     getPackage <- shiny::eventReactive(input$submit,{
-      
-      # # Manually set input variables for local testing - comment out when running app
-      # input <- base::list()
-      # input$siteId <- "TOOK_inflow"
-      # input$domainId <- "D18"
-      # input$dateRange[[1]] <- "2022-06-01"
-      # input$dateRange[[2]] <- "2022-06-30"
-      # input$apiToken <- NA
-      # output <- base::list()
-      # include.q.stats <-  F
       
       metaD <-  productList%>%
         dplyr::filter(siteID == input$siteId)%>%
@@ -247,11 +248,17 @@ if(!require(neonStageQplot)){
       output$siteInfo <- shiny::renderUI({tagList("Site: ",base::gsub("\\_inflow|\\_outflow","",input$siteId), url, "for site description",sep="\n")})
 
       # Set date variables for app running (special consideration for TOOK)
+      dateRange <- dates()
       siteID <<- input$siteId
       domainID <<- input$domainId
-      startDate <- base::format(input$dateRange[1])
-      endDate <- base::format(input$dateRange[2])
+      startDate <- dateRange[[1]]
+      endDate <- dateRange[[2]]
       apiToken <- input$apiToken
+      # siteID <<- "LEWI"
+      # domainID <<- "D02"
+      # startDate <- "2022-10-01"
+      # endDate <- "2022-10-31"
+      # apiToken <- ""
       
       # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
       if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
@@ -261,23 +268,61 @@ if(!require(neonStageQplot)){
       
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
-
-        shiny::incProgress(amount = 0.50,
-                           message = "Pulling data from neonUtilities",
-
+        
+        # Pull NEON data from the cloud
+        shiny::incProgress(amount = 0.01,
+                           message = "Retreiving NEON data from the cloud",
+                           
                            detail = NULL,
                            session = shiny::getDefaultReactiveDomain())
         base::Sys.sleep(0.25)
-
-        # Download and process NEON data
-        continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
-                                                                        start.date = startDate,
-                                                                        end.date = endDate,
-                                                                        api.token = apiToken,
-                                                                        include.q.stats = include.q.stats)
-
+        continuousDischarge_list <- base::readRDS("C:/Users/nickerson/Box/L4-Discharge-Development-And-Testing/outputList.rds")
+        
+        # Wrangle continuous discharge data
+        shiny::incProgress(amount = 0.2,
+                           message = "Wrangling continuous discharge data",
+                           
+                           detail = NULL,
+                           session = shiny::getDefaultReactiveDomain())
+        base::Sys.sleep(0.25)
+        continuousDischarge_list$csd_continuousDischarge_allYears <- continuousDischarge_list$csd_continuousDischarge_allYears[continuousDischarge_list$csd_continuousDischarge_allYears$siteID==siteID
+                                                                                                                               &continuousDischarge_list$csd_continuousDischarge_allYears$date>=startDate
+                                                                                                                               &continuousDischarge_list$csd_continuousDischarge_allYears$date<base::as.Date(endDate)+1,]
+        if(base::nrow(continuousDischarge_list$csd_continuousDischarge_allYears)==0){
+          stop("There is no continuous discharge data published for this time range. Please modify selected dates.")
+        }
+        
+        # Wrangle discrete discharge data
+        shiny::incProgress(amount = 0.4,
+                           message = "Wrangling discrete discharge data",
+                           
+                           detail = NULL,
+                           session = shiny::getDefaultReactiveDomain())
+        base::Sys.sleep(0.25)
+        continuousDischarge_list$sdrc_gaugePressureRelationship_allYears <- continuousDischarge_list$sdrc_gaugePressureRelationship_allYears[continuousDischarge_list$sdrc_gaugePressureRelationship_allYears$siteID==siteID
+                                                                                                                                             &continuousDischarge_list$sdrc_gaugePressureRelationship_allYears$date>=startDate
+                                                                                                                                             &continuousDischarge_list$sdrc_gaugePressureRelationship_allYears$date<base::as.Date(endDate)+1,]
+        continuousDischarge_list$sdrc_gaugeDischargeMeas_allYears <- continuousDischarge_list$sdrc_gaugeDischargeMeas_allYears[continuousDischarge_list$sdrc_gaugeDischargeMeas_allYears$siteID==siteID
+                                                                                                                               &continuousDischarge_list$sdrc_gaugeDischargeMeas_allYears$date>=startDate
+                                                                                                                               &continuousDischarge_list$sdrc_gaugeDischargeMeas_allYears$date<base::as.Date(endDate)+1,]
+        
+        # Wrangle precipitation data
+        shiny::incProgress(amount = 0.6,
+                           message = "Wrangling precipitation data",
+                           
+                           detail = NULL,
+                           session = shiny::getDefaultReactiveDomain())
+        base::Sys.sleep(0.25)
+        continuousDischarge_list$ptp_allYears <- continuousDischarge_list$ptp_allYears[continuousDischarge_list$ptp_allYears$siteID==siteID
+                                                                                       &continuousDischarge_list$ptp_allYears$endDateTime>=startDate
+                                                                                       &continuousDischarge_list$ptp_allYears$endDateTime<base::as.Date(endDate)+1,]
+        
+        
+        # Wrangle rating curve data
+        
+        
+        
       })#end of withProgress
-      
 
     },ignoreInit = T)# End getPackage
 
@@ -292,31 +337,16 @@ if(!require(neonStageQplot)){
 
     # Plotting continuous discharge with uncertainty
     output$plot1 <- plotly::renderPlotly({
-
+      
       # Unpack the data frame from getPackage
       continuousDischarge_list <- getPackage()
 
       # Format QF inputs
-      # if(input$qctrFlag == TRUE){
-      #   finalQfInput <- T
-      # }else{
-      #   finalQfInput <- F
-      # }
       if(input$qctrFlagScRv == TRUE){
         sciRvwQfInput <- T
       }else{
         sciRvwQfInput <- F
       }
-      # if(input$precipQctrFlag == TRUE){
-      #   precipQctrFlag <- T
-      # }else{
-      #   precipQctrFlag <- F
-      # }
-      # if(input$precipQctrFlagScRv == TRUE){
-      #   precipQctrFlagScRv <- T
-      # }else{
-      #   precipQctrFlagScRv <- F
-      # }
       if(input$dark_mode == TRUE){
         darkModeInput <- T
       }else{
@@ -329,17 +359,27 @@ if(!require(neonStageQplot)){
       }
 
       # Plot continuous discharge and store in output
+      dateRange <- dates()
       plots$plot.cont.Q <- neonStageQplot::cont.Q.plot(site.id = input$siteId,
-                                                       start.date = input$dateRange[[1]],
-                                                       end.date = input$dateRange[[2]],
+                                                       start.date = dateRange[[1]],
+                                                       end.date = dateRange[[2]],
                                                        input.list = continuousDischarge_list,
+                                                       lookup.table = productList,
                                                        plot.imp.unit = impUnitInput,
                                                        mode.dark = darkModeInput,
-                                                       # plot.final.QF = finalQfInput,
                                                        plot.sci.rvw.QF = sciRvwQfInput,
-                                                       # plot.precip.final.QF = precipQctrFlag,
-                                                       # plot.precip.sci.rvw.QF = precipQctrFlagScRv,                                          
-            											                     plot.q.stats = include.q.stats)
+                                                       plot.q.stats = include.q.stats)
+      # plots$plot.cont.Q <- neonStageQplot::cont.Q.plot(
+        # site.id = siteID
+        # start.date = startDate
+        # end.date = endDate
+        # input.list = continuousDischarge_list
+        # lookup.table = productList
+        # plot.imp.unit = F
+        # mode.dark = F
+        # plot.sci.rvw.QF = F
+        # plot.q.stats = T
+        # )
     })# End plot1
 
     # Plotting rating curve(s) with uncertainty
@@ -361,9 +401,11 @@ if(!require(neonStageQplot)){
       }
       
       # Plot rating curve(s) and store in outputs
+      dateRange <- dates()
+      stop("appfail1")
       plots$plot.RC <- neonStageQplot::RC.plot(site.id = input$siteId,
-                                               start.date = input$dateRange[[1]],
-                                               end.date = input$dateRange[[2]],
+                                               start.date = dateRange[[1]],
+                                               end.date = dateRange[[2]],
                                                input.list = continuousDischarge_list,
                                                plot.imp.unit = impUnitInput,
                                                mode.dark = darkModeInput)

@@ -15,6 +15,8 @@ user [string]}
 \item{input.list}{Required: List containing the data used in plotting; this list should be
 the outputs from neonStageQPlot::get.cont.Q.NEON.API [list]}
 
+\item{lookup.table}{Required: Data frame site-level metadata and constants [dataframe]}
+
 \item{plot.imp.unit}{Defaults to FALSE: Idicator of plotting data in metric or imperial
 units [boolean]}
 
