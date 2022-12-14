@@ -31,11 +31,14 @@ run the BaM executable in a Docker container that should allow the R
 scripts and executable to run regradless of operating system as long as
 the user has Docker (<https://www.docker.com/>) installed.
 
-The /shinyApp/ folder contains the R package, **neonStageQPlot**. When
-run, the function will launch a shiny app that downloads Continuous
-discharge (NEON.DP4.00130.001) and Stage-discharge rating curves
-(NEON.DP4.00133.001) data products from the NEON Data Portal, and plots
-the data in an interactive HTML format.
+The /shiny-openFlow/ folder contains the openFlow shiny application,
+which allows users to plot and interact with NEON hydrology data
+products.
+
+The **neonStageQPlot** package contains function that allow the openFlow
+app to run. The functions can also be used independently of the shiny
+app to download and plot NEON hydrology data, and generate URLs in order
+to render PhenoCam images in R.
 
 <!-- ****** Acknowledgements ****** -->
 
