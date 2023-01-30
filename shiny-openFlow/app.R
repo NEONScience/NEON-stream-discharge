@@ -63,7 +63,7 @@ if(!require(neonStageQplot)){
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   #Global Vars
-  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
+  productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/ZN_internalAppUpdates/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
   include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
@@ -215,13 +215,13 @@ if(!require(neonStageQplot)){
       
       # # Manually set input variables for local testing - comment out when running app
       # input <- base::list()
-      # input$siteId <- "TOOK_inflow"
-      # input$domainId <- "D18"
-      # input$dateRange[[1]] <- "2022-06-01"
-      # input$dateRange[[2]] <- "2022-06-30"
+      # input$siteId <- "MCRA"
+      # input$domainId <- "D11"
+      # input$dateRange[[1]] <- "2022-08-01"
+      # input$dateRange[[2]] <- "2022-08-30"
       # input$apiToken <- NA
       # output <- base::list()
-      # include.q.stats <-  F
+      # include.q.stats <-  T
       
       metaD <-  productList%>%
         dplyr::filter(siteID == input$siteId)%>%
@@ -327,7 +327,7 @@ if(!require(neonStageQplot)){
       }else{
         impUnitInput <- F
       }
-
+      
       # Plot continuous discharge and store in output
       plots$plot.cont.Q <- neonStageQplot::cont.Q.plot(site.id = input$siteId,
                                                        start.date = input$dateRange[[1]],
