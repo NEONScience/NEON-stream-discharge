@@ -278,7 +278,7 @@ cont.Q.plot <-function(site.id,
   
   # Add the internal parameters
   if(plot.q.stats){
-    if(!base::is.na(medQ)){
+    if(!base::is.na(medQPlusUnc)){
       method <- method%>%
         plotly::add_segments(x=~base::min(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),xend=~base::max(base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),na.rm = T),y=~medQPlusUnc,yend=~medQPlusUnc,line=base::list(color='grey',dash='dash'),name="3x Median\nDischarge\n+ Uncertainty",showlegend=T,legendgroup='group11',visible = "legendonly",hoverinfo="none")
       
@@ -303,7 +303,9 @@ cont.Q.plot <-function(site.id,
         statMessage <- base::paste0('Due to issues with data completeness/validity, no discharge stats are currently calculated for this site.<br>For comparable data, view the <a href="',
                                     paste0("https://waterdata.usgs.gov/monitoring-location/",base::gsub("ID","",input.list$dischargeStats$usgsProxy),"/"),
                                     '">USGS station (ID: ',base::gsub("ID","",input.list$dischargeStats$usgsProxy),
-                                    ')</a> closest in proximity to this site.')
+                                    ')</a> closest in proximity to this site.<br>Use <b>',
+                                    medQ,
+                                    ' cfs </b> as 3x Median USGS Discharge.')
       }else{
         statMessage <- 'Due to issues with data completeness/validity, no discharge stats are currently calculated for this site.<br>'
       }
