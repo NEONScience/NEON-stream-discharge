@@ -42,6 +42,8 @@
 #     original creation
 #   Zachary L. Nickerson (2022-08-09)
 #     removed dependency on measurements
+#   Zachary L. Nickerson (2023-02-13)
+#     updates to include 3x median discharge
 ##############################################################################################
 base::options(stringsAsFactors = F)
 utils::globalVariables(c('histMedQ','meanURemnUnc','meanLRemnUnc','meanUParaUnc','meanLParaUnc','meanQ','streamDischarge','meanUHUnc','meanLHUnc','meanH','gaugeHeight','gauge_Height','priPrecipBulkLoUnc','priPrecipBulkUpUnc','priPrecipBulk','secPrecipBulkLoUnc','secPrecipBulkUpUnc','secPrecipBulk'))

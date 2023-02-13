@@ -45,6 +45,8 @@
 #     original creation
 #   Zachary L. Nickerson (2022-08-09)
 #     removed dependency on stageQCurve
+#   Zachary L. Nickerson (2023-02-13)
+#     updates to include 3x median discharge
 ##############################################################################################
 base::options(stringsAsFactors = F)
 utils::globalVariables(c('gaugeEventID','gaugeHeight','streamDischarge','regressionID','gauge_Height','maxpostDischarge','equivalentStage','stageUnc','withRemnUncQUpper2Std','withRemnUncQLower2Std','withParaUncQUpper2Std','withParaUncQLower2Std','dischargeFinalQF','dischargeFinalQFSciRvw','meanH','meanHUnc','usgsDischarge','withRegressionUncQUpper2Std','withRegressionUncQLower2Std','priPrecipBulk','priPrecipExpUncert','priPrecipFinalQF','secPrecipBulk','secPrecipExpUncert','secPrecipSciRvwQF','siteID','threeXMedQ','threeXMedQPlusUnc','threeXMedQUnc','usgsProxy','monthDay'))
