@@ -68,7 +68,7 @@ RC.plot <-function(site.id,
   curveIDs <- input.list[[2]]
 
   if(base::all(!base::is.na(curveIDs))){
-    rcPlotData <- base::readRDS(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/ZN_internalAppUpdates/shiny-openFlow/rcPlottingData.rds","rb"))
+    rcPlotData <- base::readRDS(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/rcPlottingData.rds","rb"))
     rcData <- rcPlotData$rcData%>%
       dplyr::filter(curveID%in%curveIDs)
     rcGaugings <- rcPlotData$rcGaugings%>%

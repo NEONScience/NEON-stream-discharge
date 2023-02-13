@@ -322,7 +322,7 @@ get.cont.Q.NEON.API <-function(site.id,
   
   # 3x median
   if(include.q.stats){
-    productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/ZN_internalAppUpdates/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
+    productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
     dischargeStats <- productList%>%
       dplyr::filter(siteID==site.id)%>%
       dplyr::select(threeXMedQ,threeXMedQPlusUnc,threeXMedQUnc,usgsProxy)
