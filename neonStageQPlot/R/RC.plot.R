@@ -66,19 +66,11 @@ RC.plot <-function(site.id,
   curveIDs <- input.list[[2]]
 
   if(base::all(!base::is.na(curveIDs))){
-    # Get the data for plotting
-    # utils::download.file(
-    #   "https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/master/shinyApp/rcPlottingData.rds",
-    #   "rcPlottingData.rds",
-    #   method = "curl"
-    # )
-    # rcPlotData <- base::readRDS("rcPlottingData.rds")
-    rcPlotData <- base::readRDS(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/rcPlottingData.rds","rb"))
+    rcPlotData <- base::readRDS(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/ZN_internalAppUpdates/shiny-openFlow/rcPlottingData.rds","rb"))
     rcData <- rcPlotData$rcData%>%
       dplyr::filter(curveID%in%curveIDs)
     rcGaugings <- rcPlotData$rcGaugings%>%
       dplyr::filter(curveID%in%curveIDs)
-    base::rm("rcPlottingData.rds")
 
     # Add each rating curve based on the vector of unique rating curve IDs
     for(i in 1:base::length(base::unique(rcData$curveID))){
@@ -110,55 +102,57 @@ RC.plot <-function(site.id,
         y1Units <- "(Cubic Feet per second)"
       }
 
-    # Build plot layout
-    rcPlot <- plotly::plot_ly(data=rcData)%>%
-      plotly::layout(
-        xaxis=base::list(tick=14,
-                         automargin=T,
-                         title=stringr::str_c("Stage ", x1Units),
-                         tickfont=base::list(size=16),
-                         titlefont=base::list(size=18)),
-        yaxis=base::list(automargin=T,
-                         title=stringr::str_c("Discharge ", y1Units),
-                         # range=c(0,base::max(rcData$totalUBottom)*1.05),
-                         tickfont=base::list(size=16),
-                         titlefont=base::list(size=18),
-                         showgrid=T,
-                         zeroline=T),
-        legend=base::list(x=-0.2,y=0.87,
-                          font=base::list(size=14)),
-        updatemenus=base::list(
-          base::list(
-            type='buttons',
-            showactive=FALSE,
-            buttons=base::list(
-              base::list(label='Scale Discharge\n- Linear -',
-                         method='relayout',
-                         args=base::list(base::list(yaxis=base::list(type='linear',
-                                                                     title=stringr::str_c("Discharge ", y1Units),
-                                                                     # range=c(0,base::max(rcData$totalUBottom)*1.05),
-                                                                     tickfont=base::list(size=16),
-                                                                     titlefont=base::list(size=18),
-                                                                     showgrid=T,
-                                                                     zeroline=T)))),
-              base::list(label='Scale Discharge\n- Log -',
-                         method='relayout',
-                         args=base::list(base::list(yaxis=base::list(type='log',
-                                                                     title=stringr::str_c("Discharge ",y1Units," - log"),
-                                                                     # range=c(0,base::log10(base::max(rcData$totalUBottom)*1.05)),
-                                                                     tickfont=base::list(size=16),
-                                                                     titlefont=base::list(size=18),
-                                                                     showgrid=T,
-                                                                     zeroline=T))))))))
+      if(i==1){
+        # Build plot layout
+        rcPlot <- plotly::plot_ly(data=rcData)%>%
+          plotly::layout(
+            xaxis=base::list(tick=14,
+                             automargin=T,
+                             title=stringr::str_c("Stage ", x1Units),
+                             tickfont=base::list(size=16),
+                             titlefont=base::list(size=18)),
+            yaxis=base::list(automargin=T,
+                             title=stringr::str_c("Discharge ", y1Units),
+                             # range=c(0,base::max(rcData$totalUBottom)*1.05),
+                             tickfont=base::list(size=16),
+                             titlefont=base::list(size=18),
+                             showgrid=T,
+                             zeroline=T),
+            legend=base::list(x=-0.2,y=0.87,
+                              font=base::list(size=14)),
+            updatemenus=base::list(
+              base::list(
+                type='buttons',
+                showactive=FALSE,
+                buttons=base::list(
+                  base::list(label='Scale Discharge\n- Linear -',
+                             method='relayout',
+                             args=base::list(base::list(yaxis=base::list(type='linear',
+                                                                         title=stringr::str_c("Discharge ", y1Units),
+                                                                         # range=c(0,base::max(rcData$totalUBottom)*1.05),
+                                                                         tickfont=base::list(size=16),
+                                                                         titlefont=base::list(size=18),
+                                                                         showgrid=T,
+                                                                         zeroline=T)))),
+                  base::list(label='Scale Discharge\n- Log -',
+                             method='relayout',
+                             args=base::list(base::list(yaxis=base::list(type='log',
+                                                                         title=stringr::str_c("Discharge ",y1Units," - log"),
+                                                                         # range=c(0,base::log10(base::max(rcData$totalUBottom)*1.05)),
+                                                                         tickfont=base::list(size=16),
+                                                                         titlefont=base::list(size=18),
+                                                                         showgrid=T,
+                                                                         zeroline=T))))))))
+      }
 
-    #dark mode styling
-    ratingColor <- "black"
-    if(mode.dark){
-      rcPlot <- rcPlot%>%
-        plotly::layout(paper_bgcolor="#222",plot_bgcolor='#222',
-                       font = base::list(color = 'white'))
-      ratingColor <- "white"
-    }
+      #dark mode styling
+      ratingColor <- "black"
+      if(mode.dark){
+        rcPlot <- rcPlot%>%
+          plotly::layout(paper_bgcolor="#222",plot_bgcolor='#222',
+                         font = base::list(color = 'white'))
+        ratingColor <- "white"
+      }
 
       rcPlot <- rcPlot%>%
         # Total Uncertainty
