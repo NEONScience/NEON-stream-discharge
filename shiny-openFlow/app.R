@@ -68,7 +68,8 @@ if(!require(neonStageQplot)){
   domainID <- NULL
   include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
   constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
-
+  readmeFile <- "about_internal.Rmd"
+  
   light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
   dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
   # Develop the User Interface
@@ -86,7 +87,7 @@ if(!require(neonStageQplot)){
                                          shiny::br(),
                                          shiny::fluidRow(shiny::dateRangeInput("dateRange","Date range:",
                                                                                startview="month",
-                                                                               min="2016-01-01",
+                                                                               min="2010-01-01",
                                                                                start=lubridate::floor_date(base::Sys.Date()-14,"month")-base::months(1),
                                                                                end=lubridate::floor_date(base::Sys.Date()-14,"month")-1,
                                                                                format="yyyy-mm-dd"),
@@ -116,7 +117,7 @@ if(!require(neonStageQplot)){
                                                                             shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
                                                                                                          color = "#00ADD7")),
                                                             shiny::tabPanel("About the App",
-                                                                            shiny::includeMarkdown("about.Rmd"))))#end of second col
+                                                                            shiny::includeMarkdown(readmeFile))))#end of second col
                            )#end of fluid row
     ) # end of ui and fluidPage
 

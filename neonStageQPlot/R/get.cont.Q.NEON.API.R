@@ -47,7 +47,7 @@
 #     removed dependency on stageQCurve
 ##############################################################################################
 base::options(stringsAsFactors = F)
-utils::globalVariables(c('gaugeEventID','gaugeHeight','streamDischarge','regressionID','gauge_Height','maxpostDischarge','equivalentStage','stageUnc','withRemnUncQUpper2Std','withRemnUncQLower2Std','withParaUncQUpper2Std','withParaUncQLower2Std','dischargeFinalQF','dischargeFinalQFSciRvw','meanH','meanHUnc','usgsDischarge','withRegressionUncQUpper2Std','withRegressionUncQLower2Std','priPrecipBulk','priPrecipExpUncert','priPrecipFinalQF','secPrecipBulk','secPrecipExpUncert','secPrecipSciRvwQF','siteID','threeXMedQ','threeXMedQPlusUnc','threeXMedQUnc','usgsProxy'))
+utils::globalVariables(c('gaugeEventID','gaugeHeight','streamDischarge','regressionID','gauge_Height','maxpostDischarge','equivalentStage','stageUnc','withRemnUncQUpper2Std','withRemnUncQLower2Std','withParaUncQUpper2Std','withParaUncQLower2Std','dischargeFinalQF','dischargeFinalQFSciRvw','meanH','meanHUnc','usgsDischarge','withRegressionUncQUpper2Std','withRegressionUncQLower2Std','priPrecipBulk','priPrecipExpUncert','priPrecipFinalQF','secPrecipBulk','secPrecipExpUncert','secPrecipSciRvwQF','siteID','threeXMedQ','threeXMedQPlusUnc','threeXMedQUnc','usgsProxy','monthDay'))
 
 get.cont.Q.NEON.API <-function(site.id,
                                start.date,
@@ -304,8 +304,12 @@ get.cont.Q.NEON.API <-function(site.id,
     dplyr::filter(siteID==site.id)
   continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
   continuousDischarge_sum$histMedQ <- NA
+  histMedQ <- histMedQ%>%
+    dplyr::filter(monthDay%in%continuousDischarge_sum$monthDay)
   for(i in 1:base::nrow(continuousDischarge_sum)){
-    continuousDischarge_sum$histMedQ[i] <- histMedQ$medianQ[histMedQ$monthDay==continuousDischarge_sum$monthDay[i]]
+    if(continuousDischarge_sum$monthDay[i]%in%histMedQ$monthDay){
+      continuousDischarge_sum$histMedQ[i] <- histMedQ$medianQ[histMedQ$monthDay==continuousDischarge_sum$monthDay[i]]
+    }
   }
   minYear <- base::unique(histMedQ$minYear)
   maxYear <- base::unique(histMedQ$maxYear)
