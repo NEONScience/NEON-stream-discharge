@@ -119,7 +119,7 @@ dischargePointsXS1$ID<-c(1:length(dischargePointsXS1$name))
 dischargePointsXS1 <- dischargePointsXS1[order(dischargePointsXS1$DistanceAdj),]
 
 #Sets plot2 settings.  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(0,12))
+xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-1,9))
 yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
@@ -127,31 +127,6 @@ font<-list(size=12,color='black')
 plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
   add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
   layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
-
-#####################################################################################################################################################
-#Adjusts the cross section elevations so lowest point is equal to 0.00 meter mark of staff gauge
-#####################################################################################################################################################
-#Determines the lowest elevation of the discharge cross-section
-dischargeXSmin<-min(dischargePointsXS1$H)
-
-#Determines elevation of 0.00 meter mark of staff gage
-staffGaugeZero=staffGaugeElevation-staffGaugeMeterMark
-
-#Determines the offset between the lowest elevation and gauge height 
-ElevOff<-dischargeXSmin-staffGaugeZero
-
-#Adjusts the cross section elevations by the offset and rounds to 2 decimals
-dischargePointsXS1$gaugeHeight<-dischargePointsXS1$gaugeHeight - ElevOff
-dischargePointsXS1$gaugeHeight<-round(dischargePointsXS1$gaugeHeight,digits=2)
-
-#Replots the adjusted cross section  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(0,12))
-yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
-font<-list(size=12,color='black')
-plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
-  add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
-  layout(title = siteID, xaxis=xAxisTitle2, yaxis=yAxisTitle2)
-#####################################################################################################################################################
 
 ##### Now create the actual controls to upload... #####
 
