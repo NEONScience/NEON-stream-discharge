@@ -2,7 +2,6 @@ NEON Stream Discharge Repo
 ================
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <!-- ****** Description ****** -->
 
 This repository is for code related to the NEON discharge data products:
@@ -32,12 +31,20 @@ run the BaM executable in a Docker container that should allow the R
 scripts and executable to run regradless of operating system as long as
 the user has Docker (<https://www.docker.com/>) installed.
 
+The /shiny-openFlow/ folder contains the openFlow shiny application,
+which allows users to plot and interact with NEON hydrology data
+products.
+
+The **neonStageQPlot** package contains function that allow the openFlow
+app to run. The functions can also be used independently of the shiny
+app to download and plot NEON hydrology data, and generate URLs in order
+to render PhenoCam images in R.
+
 <!-- ****** Acknowledgements ****** -->
 
 ## Credits & Acknowledgements
 
 <!-- HTML tags to produce image, resize, add hyperlink. -->
-
 <!-- ONLY WORKS WITH HTML or GITHUB documents -->
 
 <a href="http://www.neonscience.org/">

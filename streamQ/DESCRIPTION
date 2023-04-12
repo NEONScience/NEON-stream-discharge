@@ -6,10 +6,9 @@ Description: Contains functions to format data and calculate stream discharge in
 	(lps). For slug injections the area under the curve of a conductivity timeseries and injectate
 	mass are used as imputs. For constant rate injections the plateau concentration and background
 	tracer concentration are used as inputs.
-Depends: R (>= 3.3.2),neonUtilities
+Depends: R (>= 3.3.2)
 Imports: pracma
-Remotes: NEONScience/NEON-utilities/neonUtilities
 License: AGPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

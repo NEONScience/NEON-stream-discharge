@@ -8,8 +8,6 @@
 #' This function will likely only work well for the NEON conductivity logger data.
 
 #' @importFrom pracma trapz
-#' @importFrom neonUtilities stackByTable
-#' @importFrom utils read.csv
 #' @importFrom grDevices dev.new
 #' @importFrom grDevices dev.off
 #' @importFrom graphics identify
@@ -23,11 +21,8 @@
 #' @param inputFile Name of the data fram containing the information needed to calculate 
 #' discharge from a slug tracer injection. If the headers are named: "slugMass" and 
 #' "slugPourTime" the slugMass and slugPourTime paramaters don't need to be defined. 
-#' Otherwise, the names of the columns need to be input for the function to work.
-#' @param slugMass Mass of the tracer injectate [g]
-#' @param slugVol Volume of the tracer injectate [L]
-#' @param dataDir User identifies the directory that contains the zipped data
-#' @param site User identifies the site(s), defaults to "all" [string]
+#' Otherwise, the names of the columns need to be input for the function to work. [dataframe]
+#' @param conductivityData Conductivity timeseries data for bouts in the inputFile [dataframe]
 
 #' @return This function returns stream discharge [lps] appended as an additional column 
 #' to the input data frame along with a quality flag (slugQF) where 1 means that a peak 
@@ -51,14 +46,13 @@
 #     original creation
 #   Kaelin M. Cawley (2017-05-08)
 #     added additional functionality for getting data from the NEON data API
+#   Kaelin M. Cawley (2021-09-12)
+#     removed dependence on NEONUtilities, requires users to already have a dataframe
 ##############################################################################################
 #This code is for calculating salt-based discharge for a slug
 def.calc.Q.slug <- function(
   inputFile,
-  slugMass = inputFile$slugTracerMass,
-  slugVol = inputFile$carboyVolume,
-  dataDir = paste0(getwd(),"/NEON_discharge-stream-saltbased.zip"),
-  site = "all"
+  conductivityData
 ) {
   
   ##### Constants #####
@@ -74,50 +68,6 @@ def.calc.Q.slug <- function(
   #pkNum = 4 #Nummber of point that must be increasing/decreasing for peak slope
   #pCond = 1 #Percent of the final baseline
   #condDiff = 25 #Minimum difference between the peak and baseline conductivity
-  
-  ##### Calculations #####
-  dpID <- "DP1.20193.001"
-  folder <- FALSE
-  if(dataDir == "API"){
-    filepath <- paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep="")
-  }else{
-    filepath <- dataDir
-  }
-  
-  #Stack field and external lab data if needed
-  if(!dir.exists(paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/"))&&
-     file.exists(filepath)){
-    #For when data is coming in from the API
-    dpID <- "DP1.20193.001"
-    #Pull files from the API to stack
-    if(dataDir == "API"){
-      folder <- FALSE
-      dataFromAPI <- zipsByProduct(dpID,site,package="expanded",check.size=TRUE)
-      filepath <- paste(getwd(), "/filesToStack", substr(dpID, 5, 9), sep="")
-      folder <- TRUE
-      API <- TRUE
-    }else{
-      filepath = dataDir
-    }
-    stackByTable(dpID=dpID,filepath=filepath,folder=folder)
-    filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
-  }else if(dir.exists(paste(gsub("\\.zip","",filepath), "/stackedFiles", sep = "/"))){
-    filepath <- paste(gsub("\\.zip","",filepath), "stackedFiles", sep = "/")
-  }
-  
-  if(dir.exists(filepath)&&
-     any(grepl("conductivityFieldData",list.files(filepath)))){
-    #Read in stacked logger data
-    #Allows for using the reaeration tables in addition to the salt-based discharge tables
-    allFiles <- list.files(filepath)
-    loggerFile <- allFiles[grepl("conductivityFieldData", allFiles)]
-    loggerData <- read.csv(
-      paste(filepath,loggerFile,sep = "/"), 
-      stringsAsFactors = F)
-  }else{
-    print("Error, stacked files could not be read in for logger conductivity data")
-    return(NULL)
-  }
 
   #A little confusing to have this in different places
   #Made one equation below in the loop
@@ -128,16 +78,16 @@ def.calc.Q.slug <- function(
   # slugCond <- slugMass * NaClCond * cuSmS * 1/cgmg
 
   inputFile$Q.slug <- NA
-  inputFile$slugQF <- NA
-  for(i in seq(along = inputFile$siteID)){
-    currEventID <- inputFile$eventID[i]
-    if(is.na(inputFile$injectionType[i]) ||
-       inputFile$injectionType[i] == "NaCl" ||
-       nrow(loggerData[loggerData$hoboSampleID == inputFile$hoboSampleID[i],]) == 0){
+  for(currFile in unique(inputFile$hoboSampleID)){
+
+    stationLoggerData <- conductivityData[conductivityData$hoboSampleID == currFile,]
+    stationLoggerData <- stationLoggerData[order(stationLoggerData$measurementNumber),]
+    
+    if(is.na(inputFile$injectionType[inputFile$hoboSampleID == currFile]) ||
+       inputFile$injectionType[inputFile$hoboSampleID == currFile] == "NaCl" ||
+       nrow(stationLoggerData) == 0){
       next
     }
-    stationLoggerData <- loggerData[loggerData$hoboSampleID == inputFile$hoboSampleID[i],]
-    stationLoggerData <- stationLoggerData[order(stationLoggerData$measurementNumber),]
     
     #If low range isn't collected use the full range
     ifelse(all(is.na(stationLoggerData$lowRangeSpCondNonlinear)),
@@ -157,7 +107,7 @@ def.calc.Q.slug <- function(
            lwd = 2, 
            pch = 19,
            cex = 2)
-    title(main = paste0("Click green dot (upper lefthand) if the peak/plateau is identifiable. \nClick red dot (upper righthand) if not identifiable.\n",currEventID))
+    title(main = paste0("Click green dot (upper lefthand) if the peak/plateau is identifiable. \nClick red dot (upper righthand) if not identifiable.\n",currFile))
     badPlotBox <- identify(x = c(length(condData)*.1,length(condData)*.9),
                            y = c(max(condData,na.rm = T)*.8,max(condData,na.rm = T)*.8), 
                            n = 1, 
@@ -170,13 +120,13 @@ def.calc.Q.slug <- function(
       #If things look good, move on
       invisible(dev.new(noRStudioGD = TRUE))
       plot(stationLoggerData$measurementNumber, condData, xlab = "Measurement Number", ylab = "Specific Conductance")
-      title(main = paste0("At least 5 baseline points left of peak should be included in selection. \nThis is about the width of the '+' cursor on most screens.\n",stationLoggerData$hoboSampleID[i]))
+      title(main = paste0("At least 5 baseline points left of peak should be included in selection. \nThis is about the width of the '+' cursor on most screens.\n",unique(stationLoggerData$hoboSampleID)))
       ans <- identify(stationLoggerData$measurementNumber, n = 2, condData, pos = F, tolerance = 0.25)
       Sys.sleep(1)
       invisible(dev.off())
       condData <- condData[min(ans):max(ans)]
     }else{
-      return(NULL)
+      next
     }
     
 
@@ -262,10 +212,10 @@ def.calc.Q.slug <- function(
     # }
     
     #Background correct the logger data
-    condData <- condData - mean(condData[1:5])
+    condData <- condData - base::mean(condData[1:5])
     
     #Calculate the area under the conductivity time series
-    areaResponse <- trapz(1:length(condData), condData)
+    areaResponse <- pracma::trapz(1:length(condData), condData)
     
     #Convert from integration over measurement number to time
     areaResponse <- areaResponse*10 #Each measurement is 10 seconds apart
@@ -273,7 +223,7 @@ def.calc.Q.slug <- function(
     #Calculate discharge according to equation 4 of Sappa et al., Validation of 
     #salt dilution method for discharge measurements in the upper valley of aniene river (central italy)
     #inputFile$Q.slug[i] <- slugCond[i] * slugVol[i]/ areaResponse
-    inputFile$Q.slug[i] <- slugMass[i]*cgmg/(NaClmw/NaClCond*cgmg*1/cuSmS*areaResponse)
+    inputFile$Q.slug[inputFile$hoboSampleID == currFile] <- inputFile$slugTracerMass[inputFile$hoboSampleID == currFile]*cgmg/(NaClmw/NaClCond*cgmg*1/cuSmS*areaResponse)
     
   }
   
