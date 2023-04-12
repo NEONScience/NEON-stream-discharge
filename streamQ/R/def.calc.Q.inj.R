@@ -6,7 +6,7 @@
 
 #' @description This function calculates discharge from a constant rate salt tracer injection.
 
-#' @param inputFile Name of the data fram containing the information needed to calculate stream discharge from a constant-rate injection. If the headers are named: "injRate", "injConc", "backgroundConc", and "plateauConc", no other inputs are required. Otherwise, the names of the columns need to be input for the function to work.
+#' @param inputFile Name of the data frame containing the information needed to calculate stream discharge from a constant-rate injection. If the headers are named: "injRate", "injConc", "backgroundConc", and "plateauConc", no other inputs are required. Otherwise, the names of the columns need to be input for the function to work.
 #' @param injRate Flow rate of tracer injection [mL/min]
 #' @param injConc Concentration of the tracer injectate [mg/L]
 #' @param backgroundConc Background concentration of the tracer in the stream [mg/L]

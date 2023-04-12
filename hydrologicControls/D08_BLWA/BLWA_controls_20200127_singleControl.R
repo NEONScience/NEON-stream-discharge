@@ -31,24 +31,27 @@ library(plotly)
 siteID <- "BLWA"
 domainID <- "D08"
 streamMorphoDPID <- "DP4.00131.001"
-filepath <- "N:/Science/AQU/Controls/D08_BLWA_20200127_singleControl"
+filepath <- "N:/Science/AQU/Controls/D08_BLWA_20200127"
 URIpath <- paste(filepath,"filesToStack00131","stackedFiles",sep = "/")
 
 # #Download data from CERT using restR
-L0pull_site <- restR::get.os.l0.by.namedLocation(
-  pullType = "startDate",
-  stack = "cert",
-  tab = 'DP0.00131.001:geo_AISsiteSurveyResultsFile_in',
-  minDate = '2012-01-01',
-  maxDate = '2020-08-03',
-  namedLocationName = 'BLWA')
-download.file(L0pull_site$rawDataFilePath,L0pull_site$rawDataFileName,mode="wb")
-unzip(paste0("~/",L0pull_site$rawDataFileName),exdir="~")
-surveyPtsDF <- read.table("~/D08_BLWA_surveyPts_20200127.csv",
-                          sep = ",",
-                          header = T,
-                          stringsAsFactors = F,
-                          encoding = "UTF-8")
+# L0pull_site <- restR::get.os.l0.by.namedLocation(
+#   pullType = "startDate",
+#   stack = "cert",
+#   tab = 'DP0.00131.001:geo_AISsiteSurveyResultsFile_in',
+#   minDate = '2019-01-01',
+#   maxDate = '2021-01-01',
+#   namedLocationName = 'BLWA')
+# download.file(L0pull_site$rawDataFilePath,L0pull_site$rawDataFileName,mode="wb")
+# unzip(paste0("~/",L0pull_site$rawDataFileName),exdir="~")
+# surveyPtsDF <- read.table("~/D08_BLWA_surveyPts_20200127.csv",
+#                           sep = ",",
+#                           header = T,
+#                           stringsAsFactors = F,
+#                           encoding = "UTF-8")
+
+# Read from loacl csv
+surveyPtsDF <- read.csv(file="D08_BLWA_surveyPts_20200127.csv")
 
 
 #The end date of the geomorphology survey (YYYYMMDD)
@@ -78,19 +81,22 @@ plot_ly(data=dischargePointsXS1,x=~E, y=~N, name='Easting vs Northing', type='sc
 dischargeXS1NorthStart<-dischargePointsXS1$N[dischargePointsXS1$name=="LFPLN_11"]
 dischargeXS1EastStart<-dischargePointsXS1$E[dischargePointsXS1$name=="LFPLN_11"]
 
-# Manually adds weir and channel points from ADCP data
-leftChannel<-data.frame("LCHANNEL",83.4,171.3,90.5,"Transect")
-names(leftChannel)<-c("name","N","E","H","mapCode")
-leftWeir<-data.frame("LWEIR",83.4,171.3,90.4,"Transect")
+# Manually adds channel points
+leftWeir<-data.frame("L_height_of_zero_flow",83.4,171.3,96.8,"Transect")
 names(leftWeir)<-c("name","N","E","H","mapCode")
-rightWeir<-data.frame("RWEIR",27.7,47.65,90.4,"Transect")
+leftChannel<-data.frame("L_channel_bottom",83.4,171.3,90.4,"Transect")
+names(leftChannel)<-c("name","N","E","H","mapCode")
+rightWeir<-data.frame("R_height_of_zero_flow",27.7,47.65,96.8,"Transect")
 names(rightWeir)<-c("name","N","E","H","mapCode")
-channelMid<-data.frame("CMID",54,107,90.4,"Transect")
-names(channelMid)<-c("name","N","E","H","mapCode")
-dischargePointsXS1<-rbind(dischargePointsXS1,leftChannel)
+rightChannel<-data.frame("R_channel_bottom",27.7,47.65,90.4,"Transect")
+names(rightChannel)<-c("name","N","E","H","mapCode")
+rightFloodplain<-data.frame("R_floodplain",-20,-90,99,"Transect")
+names(rightFloodplain)<-c("name","N","E","H","mapCode")
 dischargePointsXS1<-rbind(dischargePointsXS1,leftWeir)
+dischargePointsXS1<-rbind(dischargePointsXS1,leftChannel)
+dischargePointsXS1<-rbind(dischargePointsXS1,rightChannel)
 dischargePointsXS1<-rbind(dischargePointsXS1,rightWeir)
-dischargePointsXS1<-rbind(dischargePointsXS1,channelMid)
+dischargePointsXS1<-rbind(dischargePointsXS1,rightFloodplain)
 
 #RePlot the cross section by easting and northing data with channel added
 plot_ly(data=dischargePointsXS1,x=~E, y=~N, name='Easting vs Northing', type='scatter', mode='markers', text=~name)%>%
@@ -138,7 +144,7 @@ dischargePointsXS1$ID<-c(1:length(dischargePointsXS1$name))
 dischargePointsXS1 <- dischargePointsXS1[order(dischargePointsXS1$DistanceAdj),]
 
 #Sets plot2 settings.  
-xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-5,200))
+xAxisTitle2<-list(title="Distance (m)",zeroline=FALSE, range=c(-5,350))
 yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
 
@@ -150,7 +156,7 @@ plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance v
 ##### Now create the actual controls to upload... #####
 
 #First, the addition or replacement when controls are activated table "geo_controlInfo_in"
-numControls <- 1
+numControls <- 3
 geo_controlInfo_in_names <- c("locationID","startDate","endDate","controlNumber","segmentNumber","controlActivationState")
 geo_controlInfo_in <- data.frame(matrix(nrow = numControls*numControls, ncol = length(geo_controlInfo_in_names)))
 names(geo_controlInfo_in) <- geo_controlInfo_in_names
@@ -168,7 +174,14 @@ geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber>geo_c
 
 #Setting control activation states that are user defined.
 #Is control #1 still active when control #2 is activated? 1 = Yes
-#geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==2] <- 0
+geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==2] <- 0
+
+#Is control #1 still active when control #3 is activated? 0 = No
+geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==1&geo_controlInfo_in$segmentNumber==3] <- 0
+
+#Is control #2 still active when control #3 is activated? 0 = No
+geo_controlInfo_in$controlActivationState[geo_controlInfo_in$controlNumber==2&geo_controlInfo_in$segmentNumber==3] <- 1
+
 
 #Second, create entries for "geo_controlType_in" table for control parameters
 geo_controlType_in_names <- c("locationID",
@@ -203,12 +216,25 @@ geo_controlType_in$endDate <- surveyActiveDate
 geo_controlType_in$controlNumber <- 1:numControls
 
 #Entries for Control #1
-geo_controlType_in$hydraulicControlType[1] <- "Rectangular Channel"
-geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "LWEIR"]
-geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "RWEIR"]
+geo_controlType_in$hydraulicControlType[1] <- "Rectangular Weir"
+geo_controlType_in$controlLeft[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "L_height_of_zero_flow"]
+geo_controlType_in$controlRight[1] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "R_height_of_zero_flow"]
 geo_controlType_in$rectangularWidth[1] <- geo_controlType_in$controlRight[1]-geo_controlType_in$controlLeft[1]
-geo_controlType_in$rectangularWidthUnc[1] <- 150 #Higher than normal because used ADCP data
+geo_controlType_in$rectangularWidthUnc[1] <- 20 #Higher than normal because used ADCP data
 
+#Entries for Control #2
+geo_controlType_in$hydraulicControlType[2] <- "Rectangular Channel"
+geo_controlType_in$controlLeft[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "L_height_of_zero_flow"]
+geo_controlType_in$controlRight[2] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "R_height_of_zero_flow"]
+geo_controlType_in$rectangularWidth[2] <- geo_controlType_in$controlRight[2]-geo_controlType_in$controlLeft[2]
+geo_controlType_in$rectangularWidthUnc[2] <- 20 #Higher than normal because used ADCP data
+
+#Entries for Control #3
+geo_controlType_in$hydraulicControlType[3] <- "Rectangular Channel"
+geo_controlType_in$controlLeft[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "R_height_of_zero_flow"]
+geo_controlType_in$controlRight[3] <- dischargePointsXS1$DistanceAdj[dischargePointsXS1$name == "R_floodplain"]
+geo_controlType_in$rectangularWidth[3] <- geo_controlType_in$controlRight[3]-geo_controlType_in$controlLeft[3]
+geo_controlType_in$rectangularWidthUnc[3] <- 10 #Higher than normal because used ADCP data
 
 #Slope calculations
 waterEdge<-surveyPtsDF[(surveyPtsDF$name=="US_REW_1"|surveyPtsDF$name=="US_REW_2"),]
@@ -216,14 +242,22 @@ waterEdge<-surveyPtsDF[(surveyPtsDF$name=="US_REW_1"|surveyPtsDF$name=="US_REW_2
 rise <- waterEdge[1,4]-waterEdge[2,4]
 run <- sqrt(((waterEdge[1,2]-waterEdge[2,2])^2)+((waterEdge[1,3]-waterEdge[2,3])^2))
 
-geo_controlType_in$channelSlope[1] <- rise/run
-geo_controlType_in$channelSlopeUnc[1] <- 0.001
+geo_controlType_in$channelSlope[2] <- rise/run
+geo_controlType_in$channelSlopeUnc[2] <- 0.001
+geo_controlType_in$channelSlope[3] <- rise/run
+geo_controlType_in$channelSlopeUnc[3] <- 0.001
 
 #chosen to represent stream conditions with higher roughness above bankfull
-geo_controlType_in$manningCoefficient[1] <- 0.05
-geo_controlType_in$manningCoefficientUnc[1] <- 0.025
-geo_controlType_in$stricklerCoefficient[1] <- 1/geo_controlType_in$manningCoefficient[1]
-geo_controlType_in$stricklerCoefficientUnc[1] <- geo_controlType_in$stricklerCoefficient[1]*(geo_controlType_in$manningCoefficientUnc[1]/geo_controlType_in$manningCoefficient[1])
+geo_controlType_in$manningCoefficient[2] <- 0.05
+geo_controlType_in$manningCoefficientUnc[2] <- 0.0375
+geo_controlType_in$stricklerCoefficient[2] <- 1/geo_controlType_in$manningCoefficient[2]
+geo_controlType_in$stricklerCoefficientUnc[2] <- geo_controlType_in$stricklerCoefficient[2]*(geo_controlType_in$manningCoefficientUnc[2]/geo_controlType_in$manningCoefficient[2])
+
+geo_controlType_in$manningCoefficient[3] <- 0.1
+geo_controlType_in$manningCoefficientUnc[3] <- 0.075
+geo_controlType_in$stricklerCoefficient[3] <- 1/geo_controlType_in$manningCoefficient[3]
+geo_controlType_in$stricklerCoefficientUnc[3] <- geo_controlType_in$stricklerCoefficient[3]*(geo_controlType_in$manningCoefficientUnc[3]/geo_controlType_in$manningCoefficient[3])
+
 
 #Third,  use equations to populate "geo_priorParameters_in" table
 geo_priorParameters_in <- data.frame(matrix(nrow = numControls, ncol = 10))
@@ -239,8 +273,14 @@ names(geo_priorParameters_in) <- c("locationID",
                                    "priorActivationStageUnc")
 
 #Manually enter activation stages for controls
-geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "LCHANNEL"]
-geo_priorParameters_in$priorActivationStageUnc[1] <- 5 
+geo_priorParameters_in$priorActivationStage[1] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "L_channel_bottom"]
+geo_priorParameters_in$priorActivationStageUnc[1] <- 1 
+
+geo_priorParameters_in$priorActivationStage[2] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "L_height_of_zero_flow"]
+geo_priorParameters_in$priorActivationStageUnc[2] <- 0.5 
+
+geo_priorParameters_in$priorActivationStage[3] <- dischargePointsXS1$gaugeHeight[dischargePointsXS1$name == "R_floodplain"]
+geo_priorParameters_in$priorActivationStageUnc[3] <- 2 
 
 
 geo_priorParameters_in$locationID <- siteID

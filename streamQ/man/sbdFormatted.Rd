@@ -4,7 +4,8 @@
 \name{sbdFormatted}
 \alias{sbdFormatted}
 \title{Formatted salt-based discharge data.}
-\format{A data frame with 30 rows and 18 variables:
+\format{
+A data frame with 30 rows and 18 variables:
 \describe{
   \item{siteID}{site of water sample collection, string}
   \item{namedLocation}{location of water sample collection, string}
@@ -24,7 +25,8 @@
   \item{injConcCalcQF}{QF indicating that the injectate salt concentration was not available and could not be calculated}
   \item{plateauCond}{specific conductance at plateau, microsiemensPerCentimeter}
   ...
-}}
+}
+}
 \source{
 \url{http://data.neoninc.org/home/}
 }
