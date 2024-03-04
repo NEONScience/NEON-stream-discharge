@@ -75,13 +75,13 @@ if(!require(neonStageQplot)){
     apiToken <- Sys.getenv('NEON_TOKEN')
     readmeFile <- 'about_internal.Rmd'
     include.q.stats <- TRUE
-    constrain.dates <- FALSE
+    # constrain.dates <- FALSE
   }else{
     #external 
     #don't set apiToken here as input$apiToken doesn't exist yet - see in server
     readmeFile <- 'about.Rmd'
     include.q.stats <- FALSE
-    constrain.dates <- TRUE
+    # constrain.dates <- TRUE
   }
 
   # include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
@@ -275,13 +275,13 @@ if(!require(neonStageQplot)){
         #external app - use api token from user
         apiToken <- input$apiToken
       }
-
       
-      # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
-      if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
-        shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
-        stop("Requested time period must be no more than 90 days")
-      }
+      # ZN 2024-03-04 - should not need this anymore after containerization and deployment to GCS
+      # # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
+      # if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
+      #   shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
+      #   stop("Requested time period must be no more than 90 days")
+      # }
       
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
