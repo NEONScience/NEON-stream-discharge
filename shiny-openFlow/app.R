@@ -60,6 +60,7 @@ if(!require(neonStageQplot)){
   library(neonStageQplot)
 }
 
+  #global ----  
 
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
@@ -91,8 +92,9 @@ if(!require(neonStageQplot)){
   light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
   dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
 
-  # Develop the User Interface
-  ui <- shiny::fluidPage(theme = bslib::bs_theme(version = 4),
+  # User Interface ----
+  ui <- shiny::fluidPage(title = 'openFlow',
+                         theme = bslib::bs_theme(version = 4),
                          style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
                          shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "app-logo.png",width = 300,height = 150)), 
@@ -141,7 +143,7 @@ if(!require(neonStageQplot)){
     ) # end of ui and fluidPage
 
 
-  #server function
+  #server function ----
   server <- function(session, input, output) {
 
     # Select site ID based on the domain ID chosen
