@@ -152,6 +152,8 @@ Plotting in the openFlow app is done using the [_plotly_ R package](https://cran
 
 ## Change Log
 
+2024-03-04: Updated multiple data sources through NEON data release RELEASE-2024
+
 2022-08-09: Remove package dependencies 'stageQCurve' and 'measurements'
 
 2022-07-25: Major updates include plotting NEON precipitation data, rendering NEON PhenoCam images via a click event, download buttons for plots and images, aesthetic updates to color paletes, axes, and app themes, and an 'About the App' tab.
