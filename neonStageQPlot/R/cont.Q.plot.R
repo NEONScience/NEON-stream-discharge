@@ -44,6 +44,8 @@
 #     removed dependency on measurements
 #   Zachary L. Nickerson (2023-02-13)
 #     updates to include 3x median discharge
+#   Zachary L. Nickerson (2023-02-13)
+#     updates to add clarity to the identification and interpretation of 3x median discharge
 ##############################################################################################
 base::options(stringsAsFactors = F)
 utils::globalVariables(c('histMedQ','meanURemnUnc','meanLRemnUnc','meanUParaUnc','meanLParaUnc','meanQ','streamDischarge','meanUHUnc','meanLHUnc','meanH','gaugeHeight','gauge_Height','priPrecipBulkLoUnc','priPrecipBulkUpUnc','priPrecipBulk','secPrecipBulkLoUnc','secPrecipBulkUpUnc','secPrecipBulk'))
@@ -287,14 +289,14 @@ cont.Q.plot <-function(site.id,
       if(!plot.imp.unit){
         method <- method%>%
           plotly::layout(
-            title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," +/- ",base::round(medQUnc,digits = 1)," L/s"),
+            title=list(text=base::paste0("<br><b>3x Median Discharge (w/ Uncertainty) = ",base::round(medQ,digits = 0)," + ",base::round(medQUnc,digits = 1)," = ",medQPlusUnc," L/s"),
                        xanchor="left",
                        xref="paper",
                        x=0.02))
       }else{
         method <- method%>%
           plotly::layout(
-            title=list(text=base::paste0("<br><b>3x Median Discharge = ",base::round(medQ,digits = 0)," +/- ",base::round(medQUnc,digits = 1)," cfs"),
+            title=list(text=base::paste0("<br><b>3x Median Discharge (w/ Uncertainty) = ",base::round(medQ,digits = 0)," + ",base::round(medQUnc,digits = 1)," = ",medQPlusUnc," cfs<br>Corresponds to the horizontal dashed line in the plotting field plotted on the primary y-axis (left-hand; Discharge)."),
                        xanchor="left",
                        xref="paper",
                        x=0.02))

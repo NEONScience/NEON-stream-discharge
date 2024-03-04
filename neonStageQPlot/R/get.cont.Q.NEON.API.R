@@ -47,6 +47,8 @@
 #     removed dependency on stageQCurve
 #   Zachary L. Nickerson (2023-02-13)
 #     updates to include 3x median discharge
+#   Zachary L. Nickerson (2023-02-13)
+#     updates to neonUtilities functions and RELEASE-2024 lookup table values
 ##############################################################################################
 base::options(stringsAsFactors = F)
 utils::globalVariables(c('gaugeEventID','gaugeHeight','streamDischarge','regressionID','gauge_Height','maxpostDischarge','equivalentStage','stageUnc','withRemnUncQUpper2Std','withRemnUncQLower2Std','withParaUncQUpper2Std','withParaUncQLower2Std','dischargeFinalQF','dischargeFinalQFSciRvw','meanH','meanHUnc','usgsDischarge','withRegressionUncQUpper2Std','withRegressionUncQLower2Std','priPrecipBulk','priPrecipExpUncert','priPrecipFinalQF','secPrecipBulk','secPrecipExpUncert','secPrecipSciRvwQF','siteID','threeXMedQ','threeXMedQPlusUnc','threeXMedQUnc','usgsProxy','monthDay'))
@@ -109,6 +111,7 @@ get.cont.Q.NEON.API <-function(site.id,
     site = site,
     startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
     enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
+    include.provisional = T,
     token = api.token)
   
   #precipitation data from the NEON API
@@ -119,6 +122,7 @@ get.cont.Q.NEON.API <-function(site.id,
     site = site,
     startdate = base::format(base::as.POSIXct(start.date),"%Y-%m"),
     enddate = base::format(base::as.POSIXct(end.date),"%Y-%m"),
+    include.provisional = T,
     token = api.token),silent = T)
   
   # Get rating curve data from the NEON API
@@ -129,6 +133,7 @@ get.cont.Q.NEON.API <-function(site.id,
       check.size = F,
       site = site,
       tabl = "sdrc_gaugeDischargeMeas",
+      include.provisional = T,
       token = api.token)
     
     # Format gauge-discharge measurement data
@@ -301,7 +306,7 @@ get.cont.Q.NEON.API <-function(site.id,
                                       "isPrimaryPtp")
   
   # Add historic median Q to the summary table
-  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_RELEASE-2023_VA.rds","rb"))
+  histMedQ <- base::readRDS(base::url("https://storage.neonscience.org/neon-geobath-files/NEON_MEDIAN_Q_SHINY_APP_THROUGH_RELEASE-2024_VA.rds","rb"))
   histMedQ <- histMedQ[[site]]%>%
     dplyr::filter(siteID==site.id)
   continuousDischarge_sum$monthDay <- base::gsub("[0-9]{4}\\-","",continuousDischarge_sum$date)
