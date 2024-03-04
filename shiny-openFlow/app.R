@@ -60,18 +60,37 @@ if(!require(neonStageQplot)){
   library(neonStageQplot)
 }
 
+
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   #Global Vars
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
-  include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
-  constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
-  readmeFile <- "about_internal.Rmd"
+  
+  #change settings depending on HOST - internal app vs external app
+  HOST <- Sys.getenv('HOST')
+  message(paste('HOST =',HOST))
+  if(grepl('internal',HOST)){
+    apiToken <- Sys.getenv('NEON_TOKEN')
+    readmeFile <- 'about_internal.Rmd'
+    include.q.stats <- TRUE
+    constrain.dates <- FALSE
+  }else{
+    #external 
+    #don't set apiToken here as input$apiToken doesn't exist yet - see in server
+    readmeFile <- 'about.Rmd'
+    include.q.stats <- FALSE
+    constrain.dates <- TRUE
+  }
+
+  # include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+  # constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
+  # readmeFile <- "about_internal.Rmd"
   
   light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
   dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
+
   # Develop the User Interface
   ui <- shiny::fluidPage(theme = bslib::bs_theme(version = 4),
                          style = "padding:25px;",
@@ -252,7 +271,11 @@ if(!require(neonStageQplot)){
       domainID <<- input$domainId
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
-      apiToken <- input$apiToken
+      if(!grepl('internal', HOST)){
+        #external app - use api token from user
+        apiToken <- input$apiToken
+      }
+
       
       # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
       if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
