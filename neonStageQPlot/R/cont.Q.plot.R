@@ -289,14 +289,14 @@ cont.Q.plot <-function(site.id,
       if(!plot.imp.unit){
         method <- method%>%
           plotly::layout(
-            title=list(text=base::paste0("<br><b>3x Median Discharge (w/ Uncertainty) = ",base::round(medQ,digits = 0)," + ",base::round(medQUnc,digits = 1)," = ",medQPlusUnc," L/s"),
+            title=list(text=base::paste0("<br><b>3x Median Discharge (w/ Uncertainty) = ",base::round(medQ,digits = 0)," + ",base::round(medQUnc,digits = 1)," = ",base::round(medQPlusUnc,digits = 0)," L/s<br>Corresponds to the dashed line plotted on the primary y-axis (left-hand; Discharge)."),
                        xanchor="left",
                        xref="paper",
                        x=0.02))
       }else{
         method <- method%>%
           plotly::layout(
-            title=list(text=base::paste0("<br><b>3x Median Discharge (w/ Uncertainty) = ",base::round(medQ,digits = 0)," + ",base::round(medQUnc,digits = 1)," = ",medQPlusUnc," cfs<br>Corresponds to the horizontal dashed line in the plotting field plotted on the primary y-axis (left-hand; Discharge)."),
+            title=list(text=base::paste0("<br><b>3x Median Discharge (w/ Uncertainty) = ",base::round(medQ,digits = 0)," + ",base::round(medQUnc,digits = 1)," = ",base::round(medQPlusUnc,digits = 0)," cfs<br>Corresponds to the dashed line plotted on the primary y-axis (left-hand; Discharge)."),
                        xanchor="left",
                        xref="paper",
                        x=0.02))
@@ -308,7 +308,7 @@ cont.Q.plot <-function(site.id,
                                     paste0("https://waterdata.usgs.gov/monitoring-location/",base::gsub("ID","",input.list$dischargeStats$usgsProxy),"/"),
                                     '">USGS station (ID: ',base::gsub("ID","",input.list$dischargeStats$usgsProxy),
                                     ')</a> closest in proximity to this site.<br>Use <b>',
-                                    medQ,
+                                    base::round(medQ,digits = 2),
                                     ' cfs </b> as 3x Median USGS Discharge.')
       }else{
         statMessage <- 'Due to issues with data completeness/validity, no discharge stats are currently calculated for this site.<br>'
