@@ -60,20 +60,41 @@ if(!require(neonStageQplot)){
   library(neonStageQplot)
 }
 
+  #global ----  
+
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
   #Global Vars
   productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
   siteID <- NULL
   domainID <- NULL
-  include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
-  constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
-  readmeFile <- "about_internal.Rmd"
+  
+  #change settings depending on HOST - internal app vs external app
+  HOST <- Sys.getenv('HOST')
+  message(paste('HOST =',HOST))
+  if(grepl('internal',HOST)){
+    apiToken <- Sys.getenv('NEON_TOKEN')
+    readmeFile <- 'about_internal.Rmd'
+    include.q.stats <- TRUE
+    # constrain.dates <- FALSE
+  }else{
+    #external 
+    #don't set apiToken here as input$apiToken doesn't exist yet - see in server
+    readmeFile <- 'about.Rmd'
+    include.q.stats <- FALSE
+    # constrain.dates <- TRUE
+  }
+
+  # include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+  # constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
+  # readmeFile <- "about_internal.Rmd"
   
   light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
   dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
-  # Develop the User Interface
-  ui <- shiny::fluidPage(theme = bslib::bs_theme(version = 4),
+
+  # User Interface ----
+  ui <- shiny::fluidPage(title = 'openFlow',
+                         theme = bslib::bs_theme(version = 4),
                          style = "padding:25px;",
                          tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
                          shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "app-logo.png",width = 300,height = 150)), 
@@ -122,7 +143,7 @@ if(!require(neonStageQplot)){
     ) # end of ui and fluidPage
 
 
-  #server function
+  #server function ----
   server <- function(session, input, output) {
 
     # Select site ID based on the domain ID chosen
@@ -252,13 +273,17 @@ if(!require(neonStageQplot)){
       domainID <<- input$domainId
       startDate <- base::format(input$dateRange[1])
       endDate <- base::format(input$dateRange[2])
-      apiToken <- input$apiToken
-      
-      # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
-      if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
-        shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
-        stop("Requested time period must be no more than 90 days")
+      if(!grepl('internal', HOST)){
+        #external app - use api token from user
+        apiToken <- input$apiToken
       }
+      
+      # ZN 2024-03-04 - should not need this anymore after containerization and deployment to GCS
+      # # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
+      # if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
+      #   shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
+      #   stop("Requested time period must be no more than 90 days")
+      # }
       
       #progress bar for data downloads
       shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {

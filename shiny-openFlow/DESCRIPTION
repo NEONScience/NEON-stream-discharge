@@ -1,0 +1,50 @@
+Package: shiny-openFlow
+Title: openFlow - NEON Hydrology Data Visualization App
+Version: 1.0.0
+Authors@R: c(
+  person("James", "Ross", 
+		email = "ross.james94@gmail.com",
+		role = c("aut", "cre")
+		),
+  person("Divine", "Aseaku",
+		email = "divineaseaku@gmail.com",
+		role = c("aut", "cre")
+		),
+  person("Zachary", "Nickerson",
+		role = c("aut", "cre"),
+		email = "nickerson@battelleecology.org"
+		)
+	)
+Description: This application allows you view and interact with select hydrologic data across the National Ecological Observatory Network (NEON)
+License: Private
+URL: https://github.com/NEONScience/NEON-stream-discharge/shiny-openFlow
+BugReports: https://github.com/NEONScience/NEON-stream-discharge/issues
+Imports:
+  shinyjs,
+  plotly,  
+  DT,
+  shinycssloaders,
+  shinyWidgets,
+  neonUtilities,
+  shinyalert,
+  markdown,
+  neonStageQplot
+Remotes:
+  NEONScience/NEON-stream-discharge/neonStageQPlot
+AlreadyInstalled:
+  lubridate,
+  stringr,
+  dplyr,
+  readr,
+  tidyr,
+  httr,
+  htmlwidgets,
+  bslib,
+  devtools,
+  shiny
+ 
+  
+
+
+
+  
