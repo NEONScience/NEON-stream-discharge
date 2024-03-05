@@ -60,7 +60,7 @@ if(!require(neonStageQplot)){
   library(neonStageQplot)
 }
 
-  #global ----  
+  #global ----
 
   # Read in reference table from Github
   # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
