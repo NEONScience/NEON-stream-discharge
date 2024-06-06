@@ -17,6 +17,7 @@ library(bslib)
 library(shinyalert)
 library(devtools)
 library(markdown)
+library(shinydashboard)
 if(!require(neonStageQplot)){
   devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
   library(neonStageQplot)

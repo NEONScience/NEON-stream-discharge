@@ -1,5 +1,5 @@
-
-=======
+###Ui in shinydashboard structure 
+##MViggiano
 ui<- dashboardPage(
     skin= "green",
     #theme = bslib::bs_theme(version = 4),
@@ -82,4 +82,4 @@ ui<- dashboardPage(
 
 #### end of ui and fluidPage
 
->>>>>>> Stashed changes:shiny-openFlow/R/ui.R
+
