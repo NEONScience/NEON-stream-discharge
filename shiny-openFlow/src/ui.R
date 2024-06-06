@@ -1,10 +1,10 @@
 # User Interface ----
-ui <- shiny::fluidPage(title = 'openFlow',
+ui <- shiny::shinyUI(shiny::fluidPage(title = 'openFlow',
                        theme = bslib::bs_theme(version = 4),
                        style = "padding:25px;",
                        tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),#####modal scaling
-                       shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "app-logo.png",width = 300,height = 150)), 
-                                                         shiny::column(2, img(src = "logo-NEON-NSF.png",width = 200,height = 75)))),# End of title panel
+                       shiny::titlePanel(shiny::fluidRow(shiny::column(10, img(src = "./www/app-logo.png",width = 300,height = 150)), 
+                                                         shiny::column(2, img(src = "./www/logo-NEON-NSF.png",width = 200,height = 75)))),# End of title panel
                        shiny::fluidRow(shiny::column(2,
                                                      shiny::fluidRow(shiny::selectInput("domainId","Domain ID",productList$domain)),
                                                      shiny::fluidRow(shiny::uiOutput("domainInfo")),
@@ -47,3 +47,4 @@ ui <- shiny::fluidPage(title = 'openFlow',
                                                                                         shiny::includeMarkdown(readmeFile))))#end of second col
                        )#end of fluid row
 ) # end of ui and fluidPage
+)# end of shiny

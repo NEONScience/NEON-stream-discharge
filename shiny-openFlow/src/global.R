@@ -1,3 +1,29 @@
+options(stringsAsFactors = F)
+
+library(shiny)
+library(plotly)
+library(neonUtilities)
+library(DT)
+library(shinyWidgets)
+library(shinycssloaders)
+library(lubridate)
+library(stringr)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(htmlwidgets)
+library(httr)
+library(bslib)
+library(shinyalert)
+library(devtools)
+library(markdown)
+if(!require(neonStageQplot)){
+  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
+  library(neonStageQplot)
+}else{
+  library(neonStageQplot)
+}
+
 #global ----
 
 # Read in reference table from Github
@@ -18,7 +44,7 @@ if(grepl('internal',HOST)){
 }else{
   #external 
   #don't set apiToken here as input$apiToken doesn't exist yet - see in server
-  readmeFile <- 'about.Rmd'
+  readmeFile <- '../about.Rmd'
   include.q.stats <- FALSE
   # constrain.dates <- TRUE
 }
@@ -29,3 +55,5 @@ if(grepl('internal',HOST)){
 
 light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
 dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
+
+shiny::shinyApp(ui = ui, server = server)

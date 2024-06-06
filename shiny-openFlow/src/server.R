@@ -1,5 +1,5 @@
 #server function ----
-server <- function(session, input, output) {
+server <- shiny::shinyServer(function(session, input, output) {
   
   # Select site ID based on the domain ID chosen
   shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
@@ -283,3 +283,4 @@ server <- function(session, input, output) {
   }
   
 }#end of server
+)#end of shiny
