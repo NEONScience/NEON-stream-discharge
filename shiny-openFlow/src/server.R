@@ -1,6 +1,6 @@
 #server function ----
-server <- shiny::shinyServer(function(session, input, output) {
-  
+server <- shinyServer(function(input, output, session) {     ###**removed the shiny::shinyServer from previous commit by JB
+
   # Select site ID based on the domain ID chosen
   shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
   shiny::updateSelectInput(session,"siteId",choices = unique(x))})
@@ -284,3 +284,5 @@ server <- shiny::shinyServer(function(session, input, output) {
   
 }#end of server
 )#end of shiny
+# Run the app ----
+##shiny::shinyApp(ui = ui, server = server)  ###MV added this according to previous commit
