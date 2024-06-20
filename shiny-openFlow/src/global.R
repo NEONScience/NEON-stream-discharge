@@ -1,6 +1,7 @@
 options(stringsAsFactors = F)
 
 library(shiny)
+library(shinyjs)
 library(plotly)
 library(neonUtilities)
 library(DT)
@@ -24,8 +25,34 @@ if(!require(neonStageQplot)){
 }else{
   library(neonStageQplot)
 }
+if(!require(geoNEON)) {
+  devtools::install_github("NEONScience/NEON-geolocation/geoNEON")  
+  library(geoNEON)
+  } else{
+  library(geoNEON)
+}
 
 #global ----
+
+# Set the working directory to the current files location
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# Gather list of function files to be sourced
+file_sources <- list.files(
+  file.path('functions'),
+  pattern = "*.R$",
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+# Source gathered files into global environment
+file_sources <-
+  base::tryCatch(
+    invisible(sapply(file_sources, source, .GlobalEnv)),
+    error = function(e) {
+      base::stop()
+    }
+  )
 
 # Read in reference table from Github
 # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
@@ -57,4 +84,4 @@ if(grepl('internal',HOST)){
 light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
 dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
 
-shiny::shinyApp(ui = ui, server = server)
+#shiny::shinyApp(ui = ui, server = server)

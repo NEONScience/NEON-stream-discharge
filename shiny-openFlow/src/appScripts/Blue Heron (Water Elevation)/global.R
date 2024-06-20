@@ -72,7 +72,7 @@ waterPressure_calc <- function(calValCP0,calValCP1, calValCP2, trollPressure)
 #water depth function, calculates water depth from water pressure, density, and gravity
 waterDepth_calc <- function(waterPressure)
 {
-  waterDepth <- round(1000*(waterPressure/(waterDensity*gravity)),4)
+  waterDepth <- round(1000*(waterPressure/(999*9.81)),4) # 9.81 is gravity and 999 is the water density
   return(waterDepth)
 }
 

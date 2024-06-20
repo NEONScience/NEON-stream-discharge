@@ -1,14 +1,14 @@
 #server function ----
-server <- shinyServer(function(input, output, session) {     ###**removed the shiny::shinyServer from previous commit by JB
-
+server <- function(input, output, session) {     ###**removed the shiny::shinyServer from previous commit by JB
+  
   # Select site ID based on the domain ID chosen
   shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
   shiny::updateSelectInput(session,"siteId",choices = unique(x))})
   
   #handles light and dark mode switch
-  shiny::observe(session$setCurrentTheme(
-    if (base::isTRUE(input$dark_mode)) dark else light
-  ))
+  # shiny::observe(session$setCurrentTheme(
+  #   if (base::isTRUE(input$dark_mode)) dark else light
+  # ))
   
   #phenoImage observe
   #displays phenocam image when point is clicked on graph
@@ -282,7 +282,47 @@ server <- shinyServer(function(input, output, session) {     ###**removed the sh
     return(downloadParam)
   }
   
+  #####################################################################################################
+  #                           Beginnging of Blue Heron framework                                      #
+  #####################################################################################################
+  #Observe changes in water type selected
+  observeEvent(input$waterType,{ 
+    if(input$waterType == "GW")
+    {
+      #Updates the location values to match GWW
+      updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = 301:308)
+      shinyjs::show("wellDepth")
+      shinyjs::show("cableLength")
+      
+      shinyjs::hide("trollType")
+    } else {
+      #Updates the location values to match SW
+      updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = c(101,102,110,131,132))
+      shinyjs::show("trollType")
+      shinyjs::hide("wellDepth")
+      shinyjs::hide("cableLength")
+    }
+  }) #End observeEvent for waterType
+  
+  #Observe the choice whether L0 data is being used or not
+  observeEvent(input$L0Choice, {
+    
+    #simple if else toggles a textInput that allows a single pressure reading to inputed
+    if(input$L0Choice == "Yes")
+    {
+      shinyjs::hide("singlePressure")
+    }else{
+      shinyjs::show("singlePressure")
+    }
+  })
+  
+  observeEvent(input$BH_run, {
+    BlueHeron(input, output, session)
+  })
+  # Select site ID based on the domain ID chosen
+  shiny::observe({x <- productList$siteID[productList$domain == input$BH_domain]
+  shiny::updateSelectInput(session,"BH_site",choices = unique(x))})
+  
 }#end of server
-)#end of shiny
 # Run the app ----
-##shiny::shinyApp(ui = ui, server = server)  ###MV added this according to previous commit
+#shiny::shinyApp(ui = ui, server = server)  ###MV added this according to previous commit
