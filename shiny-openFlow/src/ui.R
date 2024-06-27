@@ -34,6 +34,7 @@ body <- shinydashboard::dashboardBody(
      
      #Tab Item for Open flow inputs
      shinydashboard::tabItem(tabName= "OpenFlow",
+<<<<<<< HEAD
               #tags$img(src = "app-logo.png",width = 300,height = 150),
               shiny::fluidRow(shiny::column(2,
                                           shiny::selectInput("domainId","Domain ID",productList$domain)),
@@ -76,9 +77,61 @@ body <- shinydashboard::dashboardBody(
                                                                          color = "#00ADD7")),
                                 )#end of second column
                 ),#end of fluid row for open flow
+=======
+                             tags$img(src = "app-logo.png",width = 300,height = 150),
+                             shiny::column(width= 4, 
+                                           shiny::fluidRow(
+                                             shinydashboard::box(width =6,
+                                                                 shiny::selectInput("domainId","Domain ID",productList$domain),
+                                                                 shiny::fluidRow(shiny::uiOutput("domainInfo")),
+                                                                 shiny::br(),
+                                                                 shiny::fluidRow(
+                                                                   shiny::selectInput("siteId","Select Site ID",NULL)),
+                                                                 shiny::fluidRow(shiny::uiOutput("siteInfo")),
+                                                                 shiny::br(),
+                                                                 shiny::fluidRow(
+                                                                   shiny::dateRangeInput("dateRange","Date range:",
+                                                                                        startview="month",
+                                                                                        min="2010-01-01",
+                                                                                        start=lubridate::floor_date(base::Sys.Date()-14,"month")-base::months(1),
+                                                                                        end=lubridate::floor_date(base::Sys.Date()-14,"month")-1, format="yyyy-mm-dd"),
+                                                                   shiny::textInput("apiToken", "NEON API Token (Optional)")),
+                                                                 shiny::br(),
+                                                                 shiny::fluidRow(
+                                                                   shiny::actionButton(inputId="submit","Submit")),
+                                                                 shiny::br(),
+                                                                 shiny::fluidRow(# shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
+                                                                   shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
+                                                                   shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
+                                                                   shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
+                                                                   shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
+                                                                   shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
+                                                                 shiny::hr(),
+                                                                 shiny::fluidRow(shiny::conditionalPanel(#checks that one of the graphs has been loaded
+                                                                   condition = "output.plot1 != null || output.plot2 != null",
+                                                                   shiny::downloadButton("downloadPlotly", "Download Graph"))),
+                                                                 shiny::br(),
+                                                                 shiny::fluidRow(shiny::textOutput("title"),
+                                                                                 DT::dataTableOutput("table"))))
+                                           ),#end of first col
+              
+                                        shiny::column(width =8,
+                                                      shiny::fluidRow(
+                                                        shiny::tabsetPanel(type = "tabs",id = "selectedTab",
+                                                        shiny::tabPanel("Continuous Discharge",
+                                                                        shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
+                                                        shiny::tabPanel("Rating Curve(s)",
+                                                                        shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),color = "#00ADD7")),
+                                                        shiny::tabPanel("About the App",
+                                                                        shiny::includeMarkdown(readmeFile)))
+                                                        )#end of second column
+                                                      )
+                             ),#end of fluid row for open flow
+>>>>>>> 486406dd34a7a1145861e13cf57d645a3a5ad6e0
   
      #Tab Item for Blue Heron
       shinydashboard::tabItem(tabName= "waterlevel",
+     shinydashboard::tabItem(tabName= "waterlevel",
                                #img(src= #"Blue Heron-logo.png", width = 300,height = 150) #needs a comma whenadding Lucas app
                                shiny::fluidRow(
                                  shiny::column(4,
