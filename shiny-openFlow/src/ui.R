@@ -12,7 +12,9 @@ header <- shinydashboard::dashboardHeader(title = "Open Flow")
   #Sidebar menu                
 sidebar <- dashboardSidebar(160,
                           shinydashboard::sidebarMenu(
+                                            shinydashboard::menuItem("About the App", tabName = "AbouttheApp", icon = icon("info-circle")),
                                             shinydashboard::menuItem("Time series viewer", tabName = "OpenFlow", icon = icon("sitemap")),
+                                            shinydashboard::menuItem("Cross section viewer", tabName = "CrossSection", icon = icon("pizza-slice")), #This does not exist yet, JB working on it
                                             shinydashboard::menuItem( "Blue Heron", tabName = "waterlevel", icon=icon("hourglass-half"))
                                             )
                            )
@@ -22,6 +24,14 @@ sidebar <- dashboardSidebar(160,
 body <- shinydashboard::dashboardBody(
   useShinyjs(),
    shinydashboard::tabItems(
+     
+     #Tab Item for About the App
+     shinydashboard::tabItem(tabName= "AbouttheApp",
+              #tags$img(src = "app-logo.png",width = 300,height = 150),
+              shiny::fluidRow(
+                                shiny::includeMarkdown('../README.md'))
+                ),#end of fluid row for about the app
+     
      #Tab Item for Open flow inputs
      shinydashboard::tabItem(tabName= "OpenFlow",
               #tags$img(src = "app-logo.png",width = 300,height = 150),
@@ -64,8 +74,6 @@ body <- shinydashboard::dashboardBody(
                                         shiny::tabPanel("Rating Curve(s)",
                                                       shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
                                                                          color = "#00ADD7")),
-                                        shiny::tabPanel("About the App",
-                                                      shiny::includeMarkdown(readmeFile)))
                                 )#end of second column
                 ),#end of fluid row for open flow
   
