@@ -1,4 +1,4 @@
-
+ui <- shinydashboard::dashboardPage(
     #skin= "green",
     #theme = bslib::bs_theme(),
 header <- shinydashboard::dashboardHeader(title = "Open Flow")
@@ -28,9 +28,8 @@ body <- shinydashboard::dashboardBody(
      #Tab Item for About the App
      shinydashboard::tabItem(tabName= "AbouttheApp",
               #tags$img(src = "app-logo.png",width = 300,height = 150),
-              shiny::fluidRow(
-                                shiny::includeMarkdown('../README.md'))
-                ),#end of fluid row for about the app
+              shiny::fluidRow(shiny::includeMarkdown('../README.md'))
+              ),#end of fluid row for about the app
      
      #Tab Item for Open flow inputs
      shinydashboard::tabItem(tabName= "OpenFlow",
@@ -73,7 +72,7 @@ body <- shinydashboard::dashboardBody(
                                                       shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
                                         shiny::tabPanel("Rating Curve(s)",
                                                       shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
-                                                                         color = "#00ADD7")),
+                                                                         color = "#00ADD7"))
                                 )#end of second column
                 ),#end of fluid row for open flow
   
@@ -148,7 +147,7 @@ body <- shinydashboard::dashboardBody(
   )
 )
  
-ui <- shinydashboard::dashboardPage(header, sidebar, body)
+# ui <- shinydashboard::dashboardPage(header, sidebar, body)
  
 
 #### end of ui and fluidPage
