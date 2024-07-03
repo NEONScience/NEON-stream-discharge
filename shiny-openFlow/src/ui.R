@@ -1,6 +1,7 @@
 
-#skin= "green",
-#theme = bslib::bs_theme(),
+    #skin= "green",
+    #theme = bslib::bs_theme(),
+
 header <- shinydashboard::dashboardHeader(title = "Open Flow")
                                           #tags$head(type= "text/css"),
                                           #tags$img(src = "logo-NEON-NSF.png",width = 200,height = 75))
@@ -145,6 +146,7 @@ body <- shinydashboard::dashboardBody(
                                                                       plotlyOutput("waterColumnHeightPlot"),
                                                                       textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}"))
                                                             )
+
                                                           )
                                             )
                                             
@@ -154,7 +156,11 @@ body <- shinydashboard::dashboardBody(
   )
 )
 
+
 ui <- shinydashboard::dashboardPage(header, sidebar, body)
+
+
+ 
 
 
 #### end of ui and fluidPage
