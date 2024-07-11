@@ -10,7 +10,7 @@ waterPressure_calc <- function(calValCP0,calValCP1, calValCP2, trollPressure)
 #water depth function, calculates water depth from water pressure, density, and gravity
 waterDepth_calc <- function(waterPressure)
 {
-  waterDepth <- round(1000*(waterPressure/(999*9.81)),4) # 9.81 is gravity and 999 is the water density
+  waterDepth <- round(1000*(waterPressure/(999*9.81)),4) # 9.81 is gravity and 999 is the water density. This also converts kPA to PA.
   return(waterDepth)
 }
 
@@ -23,7 +23,7 @@ waterColumnHeight_calc <- function(waterDepth, wellDepth, cableLength)
 }
 
 
-BlueHeron <- function(input, output, session)
+BlueHeron <- function(input, output, session, realTimeSingleInput = NULL, realTimeSeriesInput = NULL)
 {
   shinyjs::show("LB")
   tryCatch({
@@ -44,15 +44,15 @@ BlueHeron <- function(input, output, session)
     }
     
     #Site and domain inputs 
-    site <- input$site
-    domain <- input$domain
+    site <- input$BH_site
+    domain <- input$BH_domain
     
     #update to a date range that you know the troll in question was installed (small date range is better for not returning multiple cal files)
-    startDate<-input$dateRange[1]
-    endDate<-input$dateRange[2]
+    startDate <- input$BH_dateRange[1]
+    endDate <- input$BH_dateRange[2]
     
     #Sets the HOR for the location of interest (surface water locations are 101,102,131,132,110 and groundwater locations are 301-308 for wells 1-8)
-    HOR<-as.character(input$HOR)
+    HOR <<- as.character(input$HOR)
     
     #Compiles DP Ids
     if(DPname=='GW_cond'){
@@ -81,20 +81,22 @@ BlueHeron <- function(input, output, session)
     # Troubleshooting information, commented out unless needed
     # domain = "D07"
     # site = "WALK"
-    # HOR = "301"
+    # HOR = "101"
     # startDate = "2023-01-01"
     # endDate = "2023-01-28"
+    # DPnum<-"DP0.20016.001.01379"
+    # VER<-"100"
     # End troubleshooting information
+    DPID = paste("NEON",domain,site,DPnum,HOR,VER,"000",sep=".")
     
     #Pulls calibration information
     calibrations<-grabCalibrations(CDSURL = "http://den-prodcdsllb-1.ci.neoninternal.org/cdsWebApp/",
                                    startDate = startDate,
                                    endDate = endDate,
-                                   DPID = paste("NEON",domain,site,DPnum,HOR,VER,"000",sep="."),
+                                   DPID = DPID,
                                    session,
                                    input,
                                    output)
-    
     #STEP 2: Grab sensor elevation data
     
     #Get site history for all named locations. I have not included any elevation information at this time. It could be added.
@@ -110,18 +112,25 @@ BlueHeron <- function(input, output, session)
     TrollLocations<-locations %>%
       select('namedLocation','locationDescription','domainID','siteID','elevation','zOffset')
     
+    
     if(input$L0Choice == "Yes")
     {
       shinyjs::hide("singleWaterColumnHeight")
       shinyjs::hide("singlePressureOutput")
       #Grab L0 data from local .csv download of L0 data
-      trollL0Data <- read.csv("tempBHData/Data.csv") #source L0 data directly instead of this way. Temporarily filled with example data until then.
-      
+      if(is.null(realTimeSeriesInput))
+      {
+        #Query L0 data
+        trollL0Data <<- processWaterData(input, output, session, DPID = DPID, startDate = startDate, endDate = endDate)
+      } else {
+        trollL0Data <- read.csv("tempBHData/Data.csv")
+      }
+
       #grabs the relevant calibration information from the downloaded calibrations data
       calibration_info <- as.data.frame(rbind(calibrations$value[1:3]))
       colnames(calibration_info) <- c("calValCP0","calValCP1","calValCP2")
       #combine the trollPressure, Dates, and calibrations information into one DF
-      waterElevationDF <- as.data.frame(cbind(as.character(trollL0Data[,2]), as.numeric(trollL0Data[,3]), as.numeric(rep(calibration_info$calValCP0)), as.numeric(rep(calibration_info$calValCP1)), as.numeric(rep(calibration_info$calValCP2)), rep(waterDensity), rep(gravity)))
+      waterElevationDF <- as.data.frame(cbind(as.character(trollL0Data[,2]), as.numeric(trollL0Data[,3]), as.numeric(rep(calibration_info$calValCP0)), as.numeric(rep(calibration_info$calValCP1)), as.numeric(rep(calibration_info$calValCP2)), rep(999), rep(9.81)))
       colnames(waterElevationDF) <- c("Date","trollPressure", "calValCP0","calValCP1","calValCP2", "waterDensity", "Gravity")
       
       #For some reason when combining even as.numeric the variables below come out as character columns. Re-applying the command seems to work.
@@ -137,6 +146,16 @@ BlueHeron <- function(input, output, session)
       #Add water pressure and depth to DF
       waterElevationDF <- cbind(waterElevationDF,waterPressure,waterDepth)
       
+      #adjust for elevation offset
+      # TrollLocations <- TrollLocations[order(TrollLocations$endDate)]
+      # TrollLocations$refElevPlusZ <- TrollLocations$elevation + TrollLocations$zOffset
+      # for(i in 1:length(TrollLocations$endDate))
+      # {
+      #   locStart <- TrollLocations$startDate[i]
+      #   locEnd <- TrollLocations$endDate[i]
+      #   dataToApplyOffset <- 
+      # }
+      # 
       
       output$waterElevation <- renderPlotly({
         waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~waterDepth, type = 'scatter', mode = 'lines') %>% layout(xaxis= list(title = "Date",autotick = T,nticks = 25, tickmode = "auto"), yaxis = list(title = 'water depth above sensor'))
@@ -162,7 +181,7 @@ BlueHeron <- function(input, output, session)
       #grabs the relevant calibration information from the downloaded calibrations data
       calibration_info <- as.data.frame(rbind(calibrations$value[1:3]))
       colnames(calibration_info) <- c("calValCP0","calValCP1","calValCP2")
-      waterElevationDF <- as.data.frame(cbind(as.numeric(input$singlePressure), as.numeric(rep(calibration_info$calValCP0)), as.numeric(rep(calibration_info$calValCP1)), as.numeric(rep(calibration_info$calValCP2)), rep(waterDensity), rep(gravity)))
+      waterElevationDF <- as.data.frame(cbind(as.numeric(input$singlePressure), as.numeric(rep(calibration_info$calValCP0)), as.numeric(rep(calibration_info$calValCP1)), as.numeric(rep(calibration_info$calValCP2)), rep(999), rep(9.81)))
       colnames(waterElevationDF) <- c("trollPressure", "calValCP0","calValCP1","calValCP2", "waterDensity", "Gravity")
       waterPressure <- waterPressure_calc(calValCP0 = waterElevationDF$calValCP0, calValCP1 = waterElevationDF$calValCP1,calValCP2 = waterElevationDF$calValCP2, trollPressure = waterElevationDF$trollPressure)
       waterDepth <- waterDepth_calc(waterPressure)

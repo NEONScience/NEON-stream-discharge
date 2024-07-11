@@ -1,7 +1,7 @@
 ui <- shinydashboard::dashboardPage(
     #skin= "green",
     #theme = bslib::bs_theme(),
-header <- shinydashboard::dashboardHeader(title = "Open Flow")
+header <- shinydashboard::dashboardHeader(title = "Open Flow"),
     ####******images and logos not shown yet *****###
     #tags$head(type= "text/css"),
     # tags$img(src = "logo-NEON-NSF.png",width = 200,height = 75)
@@ -10,14 +10,14 @@ header <- shinydashboard::dashboardHeader(title = "Open Flow")
  # End of page header
 
   #Sidebar menu                
-sidebar <- dashboardSidebar(160,
+sidebar <- dashboardSidebar(
                           shinydashboard::sidebarMenu(
                                             shinydashboard::menuItem("About the App", tabName = "AbouttheApp", icon = icon("info-circle")),
                                             shinydashboard::menuItem("Time series viewer", tabName = "OpenFlow", icon = icon("sitemap")),
                                             shinydashboard::menuItem("Cross section viewer", tabName = "CrossSection", icon = icon("pizza-slice")), #This does not exist yet, JB working on it
                                             shinydashboard::menuItem( "Blue Heron", tabName = "waterlevel", icon=icon("hourglass-half"))
                                             )
-                           )
+                           ),
  
   
  #Body of each menu item
@@ -35,7 +35,7 @@ body <- shinydashboard::dashboardBody(
      shinydashboard::tabItem(tabName= "OpenFlow",
               #tags$img(src = "app-logo.png",width = 300,height = 150),
               shiny::fluidRow(shiny::column(2,
-                                          shiny::selectInput("domainId","Domain ID",productList$domain)),
+                                          shiny::selectInput("domainId","Domain ID",productList$domain),
                                           shiny::fluidRow(shiny::uiOutput("domainInfo")),
                                           shiny::br(),
                                             shiny::fluidRow(
@@ -73,8 +73,10 @@ body <- shinydashboard::dashboardBody(
                                         shiny::tabPanel("Rating Curve(s)",
                                                       shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),
                                                                          color = "#00ADD7"))
-                                )#end of second column
-                ),#end of fluid row for open flow
+                                )
+                        )#end of second column
+                )#end of fluid row for open flow,
+     ),
   
      #Tab Item for Blue Heron
       shinydashboard::tabItem(tabName= "waterlevel",
@@ -99,7 +101,7 @@ body <- shinydashboard::dashboardBody(
                                           h5("Leave blank if the water column height is not wanted"),
                                           numericInput(input = "cableLength", label = "Enter the Troll cable length (Optional)", value = NULL),
                                           h5("Leave blank if the water column height is not wanted"),
-                                          dateRangeInput(inputId = "dateRange", label = "Select date range of pressure reading(s)", start = NULL, end = NULL),
+                                          dateRangeInput(inputId = "BH_dateRange", label = "Select date range of pressure reading(s)", start = NULL, end = NULL),
                                           #Input for selecting whether L0 data is used for the graph or not
                                           selectizeInput(input = "L0Choice", label = "Using L0 data?", choices = c("Yes", "No")),
                                           h5("If using L0 data, place the file Data.csv that was downloaded in the data/ folder"),
@@ -107,7 +109,8 @@ body <- shinydashboard::dashboardBody(
                                           textInput(inputId = "singlePressure", label = "Insert single pressure reading here", value = ""),
                                           #Load bar to show progress of gathering spatial data associated with the TROLL
                                           div(id = "LB",progressBar(id = "spatialDataLB", value = 0, title = "Initializing data load")),  ##******need to update this value input option in order to work*****##
-                                          actionButton(inputId = "BH_run", label = "Run")),
+                                          actionButton(inputId = "BH_run", label = "Run"))
+                                      ),
                                    shiny::column(6,
                                     #Provide general information about the app
                                     tabsetPanel(
@@ -141,10 +144,11 @@ body <- shinydashboard::dashboardBody(
                                               )
                                         )
                                
-                                    )
+                                    
           )
       ) 
   )
+)
 )
  
 # ui <- shinydashboard::dashboardPage(header, sidebar, body)
