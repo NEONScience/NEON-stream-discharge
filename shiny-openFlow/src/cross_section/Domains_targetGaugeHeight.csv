@@ -1,0 +1,27 @@
+﻿Domain,Site,Target Gauge Height (m),Target Gauge Height + 10% (m),Target Gauge Height – 30% (m),Typical High Flow Period
+D01,HOPB,0.77,0.85,0.54,March-September
+D02,LEWI,0.5,0.55,0.3,May-September
+D02,POSE,0.5,0.55,0.35,March-September
+D04,CUPE,0.5,0.55,0.35,June-November
+D04,GUIL,1.5,1.65,1.05,June-November
+D06,KING,1,1.1,0.7,April-September
+D06,MCDI,1.1,1.21,0.77,April-September
+D07,LECO,0.9,0.99,0.63,October-July
+D07,WALK,0.48,0.53,0.34,December-April
+D08,MAYF,0.9,0.99,0.63,December-May
+D10,ARIK,0.45,0.5,0.32,January-June
+D11,BLUE,1,1.1,0.7,January-August
+D11,PRIN,0.8,0.88,0.56,March-May
+D12,BLDE,1,1.1,0.7,April-June
+D13,COMO,0.77,0.85,0.54,April-June
+D13,WLOU,0.43,0.47,0.3,April-June
+D14,SYCA,0.85,0.93,0.6,February-April
+D15,REDB,0.59,0.65,0.41,April-June
+D16,MART,0.9,0.99,0.63,October-May
+D16,MCRA,0.79,0.87,0.55,October-May
+D17,BIGC,0.89,0.98,0.62,December-June
+D17,TECR,0.52,0.57,0.36,March-July
+D18,OKSR,1.19,1.31,0.83,May-June
+D18,TKIN,1,1.1,0.7,May-June
+D18,TKOT,0.4,0.44,0.28,May-June
+D19,CARI,0.74,0.81,0.52,May-June

@@ -1,4 +1,5 @@
-
+#Xs Section branch
+######Maria Viggiano###
     #skin= "green",
     #theme = bslib::bs_theme(),
 
@@ -42,7 +43,7 @@ body <- shinydashboard::dashboardBody(
     #Tab Item for Open flow 
     shinydashboard::tabItem(tabName= "OpenFlow",  #tags$img(src = "app-logo.png",width = 300,height = 150),
                             shiny::fluidRow(
-                              shiny::column(4,
+                              shiny::column(5,
                                             shinydashboard::box(
                                               shiny::selectInput("domainId","Domain ID",productList$domain),
                                               shiny::fluidRow(shiny::uiOutput("domainInfo")),
@@ -82,6 +83,33 @@ body <- shinydashboard::dashboardBody(
                                           )#end of second column
                           )
       ),#end of fluid row for open flow
+    
+    #Tab Item for cross section menu
+    shinydashboard::tabItem(tabName ="CrossSection",
+                            shiny::fluidRow(
+                              shiny::column(5,
+                                            shinydashboard::box(
+                                              shiny::selectsizeInput("domainId","Domain ID",productList$domain), ######******need to work on server for reactive to siteID*****###
+                                              shiny::fluidRow(shiny::uiOutput("domainInfo")),
+                                              shiny::br(),
+                                              shiny::fluidRow(shiny::selectsizeInput("siteId","Select Site ID",NULL)),
+                                              shiny::fluidRow(shiny::uiOutput("siteInfo")),
+                                              shiny::br(),
+                                              shiny::actionButton(inputId="submit","Submit", width = "auto")
+                                              )
+                                            ),
+                              
+                              shiny::column(6,
+                                            shinydashboard::box(
+                                              title= "DSC Cross-section",
+                                              div(id= "Discharge Cross-Section", (h3("Site's Latest Cross section target flow"))),
+                                              plotlyOutput(outputId="xsdsc", width= "auto", height= "auto")##last edit on 7/14
+                                                       
+                                            )
+                              )
+                            )
+                          ),
+                        
  
   
     #Tab Item for Blue Heron
