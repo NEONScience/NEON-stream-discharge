@@ -130,11 +130,11 @@ BlueHeron <- function(input, output, session, realTimeSingleInput = NULL, realTi
       calibration_info <- as.data.frame(rbind(calibrations$value[1:3]))
       colnames(calibration_info) <- c("calValCP0","calValCP1","calValCP2")
       #combine the trollPressure, Dates, and calibrations information into one DF
-      waterElevationDF <- as.data.frame(cbind(as.character(trollL0Data[,2]), as.numeric(trollL0Data[,3]), as.numeric(rep(calibration_info$calValCP0)), as.numeric(rep(calibration_info$calValCP1)), as.numeric(rep(calibration_info$calValCP2)), rep(999), rep(9.81)))
+      waterElevationDF <- as.data.frame(cbind(as.character(trollL0Data$startDate), as.numeric(trollL0Data$numberValue), as.numeric(rep(calibration_info$calValCP0)), as.numeric(rep(calibration_info$calValCP1)), as.numeric(rep(calibration_info$calValCP2)), rep(999), rep(9.81)))
       colnames(waterElevationDF) <- c("Date","trollPressure", "calValCP0","calValCP1","calValCP2", "waterDensity", "Gravity")
       
       #For some reason when combining even as.numeric the variables below come out as character columns. Re-applying the command seems to work.
-      waterElevationDF$trollPressure <- as.numeric(trollL0Data[,3])
+      waterElevationDF$trollPressure <- as.numeric(trollL0Data$numberValue)
       waterElevationDF$calValCP0 <- as.numeric(waterElevationDF$calValCP0)
       waterElevationDF$calValCP1 <- as.numeric(waterElevationDF$calValCP1)
       waterElevationDF$calValCP2 <- as.numeric(waterElevationDF$calValCP2)
