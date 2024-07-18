@@ -101,16 +101,16 @@ BlueHeron <- function(input, output, session, realTimeSingleInput = NULL, realTi
     
     #Get site history for all named locations. I have not included any elevation information at this time. It could be added.
     updateProgressBar(session = session, id = "spatialDataLB", value = 35, title = "Gathering spatial data")
-    locations <- getLocBySite(site, type = "all", history = F)
+    locations <- getLocBySite(site, type = "all", history = T)
     updateProgressBar(session = session, id = "spatialDataLB", value = 75, title = "Finished gathering spatial data")
     locations_troll<-locations[grepl("Water Level",locations$locationDescription),]
     locations_wells<-locations[grepl("Groundwater Well ",locations$locationDescription),]
     locations<-rbind(locations_troll,locations_wells)
-    locations<-locations[!grepl("Not Used",locations$locationDescription),]
+    #locations<-locations[!grepl("Not Used",locations$locationDescription),]
     
     #No information is used from this to calculate water depth. Elevated water depth and other elevation information could be added if needed or wanted.
-    TrollLocations<-locations %>%
-      select('namedLocation','locationDescription','domainID','siteID','elevation','zOffset')
+    TrollLocations<<-locations %>%
+      select('namedLocation','locationDescription', 'locationStartDate', 'locationEndDate','domainID','siteID','elevation','zOffset')
     
     
     if(input$L0Choice == "Yes")
@@ -144,18 +144,29 @@ BlueHeron <- function(input, output, session, realTimeSingleInput = NULL, realTi
       #Calculate water depth 
       waterDepth <- waterDepth_calc(waterPressure)
       #Add water pressure and depth to DF
-      waterElevationDF <- cbind(waterElevationDF,waterPressure,waterDepth)
+      waterElevationDF <<- cbind(waterElevationDF,waterPressure,waterDepth)
       
       #adjust for elevation offset
-      # TrollLocations <- TrollLocations[order(TrollLocations$endDate)]
-      # TrollLocations$refElevPlusZ <- TrollLocations$elevation + TrollLocations$zOffset
-      # for(i in 1:length(TrollLocations$endDate))
-      # {
-      #   locStart <- TrollLocations$startDate[i]
-      #   locEnd <- TrollLocations$endDate[i]
-      #   dataToApplyOffset <- 
-      # }
-      # 
+      TrollLocations <- TrollLocations[order(TrollLocations$locationEndDate)]
+      TrollLocations$refElevPlusZ <- TrollLocations$elevation + TrollLocations$zOffset
+      for(i in 1:length(TrollLocations$locationEndDate))
+      {
+        locStart <- TrollLocations$locationStartDate[i]
+        locEnd <- TrollLocations$locationEndDate[i]
+        dataToApplyOffset <- waterElevationDF$waterDepth[waterElevationDF$Date>=locStart&
+                                                           waterElevationDF$Date<locEnd]
+        if(i==1)
+        {
+          locOffset <- 0
+          waterElevationDF$waterDepth[waterElevationDF$Date>=locStart&
+                                        waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(locOffset)
+        } else {
+          locOffset <- TrollLocations$refElevPlusZ[i] - TrollLocations$refElevPlusZ[1]
+          waterElevationDF$waterDepth[waterElevationDF$Date>=locStart&
+                                                             waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(locOffset)
+        }
+      }
+
       
       output$waterElevation <- renderPlotly({
         waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~waterDepth, type = 'scatter', mode = 'lines') %>% layout(xaxis= list(title = "Date",autotick = T,nticks = 25, tickmode = "auto"), yaxis = list(title = 'water depth above sensor'))
