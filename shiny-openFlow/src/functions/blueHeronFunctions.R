@@ -121,7 +121,7 @@ BlueHeron <- function(input, output, session, realTimeSingleInput = NULL, realTi
       if(is.null(realTimeSeriesInput))
       {
         #Query L0 data
-        trollL0Data <<- processWaterData(input, output, session, DPID = DPID, startDate = startDate, endDate = endDate)
+        trollL0Data <- processWaterData(input, output, session, DPID = DPID, startDate = startDate, endDate = endDate)
       } else {
         trollL0Data <- read.csv("tempBHData/Data.csv")
       }
@@ -144,7 +144,7 @@ BlueHeron <- function(input, output, session, realTimeSingleInput = NULL, realTi
       #Calculate water depth 
       waterDepth <- waterDepth_calc(waterPressure)
       #Add water pressure and depth to DF
-      waterElevationDF <<- cbind(waterElevationDF,waterPressure,waterDepth)
+      waterElevationDF <- cbind(waterElevationDF,waterPressure,waterDepth)
       
       #adjust for elevation offset
       TrollLocations <- TrollLocations[order(TrollLocations$locationEndDate)]
@@ -166,7 +166,19 @@ BlueHeron <- function(input, output, session, realTimeSingleInput = NULL, realTi
                                                              waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(locOffset)
         }
       }
-
+      
+      #Add regression ID to the L0 pressure data
+      waterElevationDF$regressionID <- NA
+      for (i in 1:nrow(regressionData)) {
+        waterElevationDF$regressionID[waterElevationDF$Date>=regressionData$regressionStartDate[i]&waterElevationDF$Date<=regressionData$regressionEndDate[i]] <- regressionData$regressionID[i]
+      }
+      waterElevationDF$regressionID[is.na(waterElevationDF$regressionID)&waterElevationDF$Date>max(regressionData$regressionEndDate)] <- regressionData$regressionID[regressionData$regressionEndDate==max(regressionData$regressionEndDate)]
+      
+      # Calculate stage
+      waterElevationDF$calculatedStage <- NA
+      for (i in 1:nrow(regressionData)) {
+        waterElevationDF$calculatedStage[waterElevationDF$regressionID==regressionData$regressionID[i]] <- (waterElevationDF$waterColumnHeight[waterElevationDF$regressionID==regressionData$regressionID[i]]*regressionData$regressionSlope[i])+regressionData$regressionIntercept[i]
+      }
       
       output$waterElevation <- renderPlotly({
         waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~waterDepth, type = 'scatter', mode = 'lines') %>% layout(xaxis= list(title = "Date",autotick = T,nticks = 25, tickmode = "auto"), yaxis = list(title = 'water depth above sensor'))

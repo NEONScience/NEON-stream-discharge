@@ -60,6 +60,9 @@ file_sources <-
 productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
 siteID <- NULL
 domainID <- NULL
+osPubDateFormat <- "%Y-%m-%dT%H:%MZ"
+
+
 
 #change settings depending on HOST - internal app vs external app
 HOST <- Sys.getenv('HOST')
