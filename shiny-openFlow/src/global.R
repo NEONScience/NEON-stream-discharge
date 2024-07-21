@@ -61,6 +61,10 @@ productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEON
 siteID <- NULL
 domainID <- NULL
 
+#read reference Domain target table from GitHub
+Target_df<- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge-NCC189/xs-item/shiny-openFlow/src/cross_section/Domains_targetGaugeHeight.csv"))
+
+
 #change settings depending on HOST - internal app vs external app
 HOST <- Sys.getenv('HOST')
 message(paste('HOST =',HOST))
