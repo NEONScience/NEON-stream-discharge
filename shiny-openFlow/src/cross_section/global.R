@@ -1,0 +1,100 @@
+### Project Info ####
+#*********************************************#
+# Project: cross section menu item            #
+# FS Contact: mviggiano@battelleecology.org   #
+# SCI Contact: znickerson@battelleecology.org #
+#*********************************************#
+options(stringsAsFactors = F)
+
+library(shiny)
+library(shinyjs)
+library(plotly)
+library(neonUtilities)
+library(DT)
+library(shinyWidgets)
+library(shinycssloaders)
+library(lubridate)
+library(stringr)
+library(dplyr)
+library(readr)
+library(tidyr)
+library(htmlwidgets)
+library(httr)
+library(bslib)
+library(shinyalert)
+library(devtools)
+library(markdown)
+library(shinydashboard)
+if(!require(neonStageQplot)){
+  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
+  library(neonStageQplot)
+}else{
+  library(neonStageQplot)
+}
+if(!require(geoNEON)) {
+  devtools::install_github("NEONScience/NEON-geolocation/geoNEON")  
+  library(geoNEON)
+} else{
+  library(geoNEON)
+}
+
+#global ----
+
+# Set the working directory to the current files location
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# Gather list of function files to be sourced
+file_sources <- list.files(
+  file.path('functions'),
+  pattern = "*.R$",
+  full.names = TRUE,
+  ignore.case = TRUE
+)
+
+# Source gathered files into global environment
+file_sources <-
+  base::tryCatch(
+    invisible(sapply(file_sources, source, .GlobalEnv)),
+    error = function(e) {
+      base::stop()
+    }
+  )
+
+# Read in reference table from Github
+# setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
+#Global Vars
+productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
+siteID <- NULL
+domainID <- NULL
+
+#read reference Domain target table from GitHub
+Target_df<- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge-NCC189/xs-item/shiny-openFlow/src/cross_section/Domains_targetGaugeHeight.csv"))
+filter_target <- reactiveVal(NULL)
+target2<- as.data.frame(cbind("No Domain Selected", "No Site Selected", "0", "0", "0", "No data"))
+colnames(target2)<- names(Target_df)
+Target_df<- rbind(target2, Target_df)
+
+#change settings depending on HOST - internal app vs external app
+HOST <- Sys.getenv('HOST')
+message(paste('HOST =',HOST))
+if(grepl('internal',HOST)){
+  apiToken <- Sys.getenv('NEON_TOKEN')
+  readmeFile <- 'about_internal.Rmd'
+  include.q.stats <- TRUE
+  # constrain.dates <- FALSE
+}else{
+  #external 
+  #don't set apiToken here as input$apiToken doesn't exist yet - see in server
+  readmeFile <- '../about.Rmd'
+  include.q.stats <- FALSE
+  # constrain.dates <- TRUE
+}
+
+# include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
+# constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
+# readmeFile <- "about_internal.Rmd"
+
+light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
+dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
+
+#shiny::shinyApp(ui = ui, server = server)

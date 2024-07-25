@@ -1,11 +1,16 @@
-#Xs Section branch
-######Maria Viggiano###
-    #skin= "green",
-    #theme = bslib::bs_theme(),
+### Project Info ####
+#*********************************************#
+# Project: cross section menu item            #
+# FS Contact: mviggiano@battelleecology.org   #
+# SCI Contact: znickerson@battelleecology.org #
+#*********************************************#
+
+#skin= "green",
+#theme = bslib::bs_theme(),
 
 header <- shinydashboard::dashboardHeader(title = "Open Flow")
-                                          #tags$head(type= "text/css"),
-                                          #tags$img(src = "logo-NEON-NSF.png",width = 200,height = 75))
+#tags$head(type= "text/css"),
+#tags$img(src = "logo-NEON-NSF.png",width = 200,height = 75))
 ####******images and logos not shown yet *****###
 
 
@@ -31,8 +36,8 @@ body <- shinydashboard::dashboardBody(
       " .custom-box { border: 2px solid #007bff; 
       padding: 10px; margin-bottom: 20px; box-shadow: 2px 2px 10px #888888; 
       } .custom-input { width: 100%; margin-bottom: 10px; } ")) ),
-    tags$head(tags$style(HTML(
-      ".small-box {height: 90px}"))),
+  tags$head(tags$style(HTML(
+    ".small-box {height: 90px}"))),
   useShinyjs(),
   shinydashboard::tabItems(
     
@@ -58,7 +63,7 @@ body <- shinydashboard::dashboardBody(
                                                                                     min="2010-01-01",
                                                                                     start=lubridate::floor_date(base::Sys.Date()-14,"month")-base::months(1),
                                                                                     end=lubridate::floor_date(base::Sys.Date()-14,"month")-1, format="yyyy-mm-dd"),
-                                              shiny::textInput("apiToken", "NEON API Token (Optional)")),
+                                                              shiny::textInput("apiToken", "NEON API Token (Optional)")),
                                               shiny::br(),
                                               shiny::fluidRow(shiny::actionButton(inputId="submit","Submit")),
                                               shiny::br(),
@@ -73,73 +78,71 @@ body <- shinydashboard::dashboardBody(
                                               shiny::br(),
                                               shiny::fluidRow(shiny::textOutput("title"),DT::dataTableOutput("table"))
                                             )
-                                          ),#close dashboard box
-                                          shiny::column(7,
-                                                      shiny::tabsetPanel(type = "tabs",id = "selectedTab",
-                                                                       shiny::tabPanel("Continuous Discharge",
-                                                                                       shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
-                                                                       shiny::tabPanel("Rating Curve(s)",
-                                                                                       shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),color = "#00ADD7"))
+                              ),#close dashboard box
+                              shiny::column(7,
+                                            shiny::tabsetPanel(type = "tabs",id = "selectedTab",
+                                                               shiny::tabPanel("Continuous Discharge",
+                                                                               shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
+                                                               shiny::tabPanel("Rating Curve(s)",
+                                                                               shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px"),color = "#00ADD7"))
                                             )#end of tabset panels for cont DSC and rating curve
-                                          
-                                          )#end of second column
-                          )
-      ),#end of fluid row for open flow
+                                            
+                              )#end of second column
+                            )
+    ),#end of fluid row for open flow
     
     #Tab Item for cross section menu
     shinydashboard::tabItem(tabName ="CrossSection",
                             #first row with inputs and output DT for domain target flow
                             shiny::fluidRow(
-                                shinydashboard::box(
+                              shinydashboard::box(
                                 width=2,
-                                shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$Domain),
+                                shiny::selectInput(input= "XS_Domain", label= "choose Domain",  choices = Target_df$Domain, selected = "No Domain Selected"),
                                 #shiny::fluidRow(shiny::uiOutput("domainInfo")),
                                 shiny::br(),
-                                shiny::fluidRow(shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, width="auto")),
+                                shiny::fluidRow(shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, selected= "No Site Selected"))
                                 #shiny::fluidRow(shiny::uiOutput("siteInfo")),
-                                shiny::br(),
-                                shiny::actionButton(input="XS_submit",label ="Submit", width = "auto")
-                                ),
+                                #shiny::br(),
+                                #shiny::actionButton(input="XS_submit",label ="Submit", width = "auto")
+                              ),
                               
-                           
-                            # Summary of Domain target datatable per site selected
-                            shinydashboard::box(
-                              width= 10,
-                              title= "Domain Target Information",
-                              solidHeader= TRUE,
-                              status= "primary",
-                              h4("Domain Target information"),
-                              #Valuebox for the each of result for target gauge height and high flow period
+                              
+                              # Summary of Domain target datatable per site selected
+                              shinydashboard::box(
+                                width= 10,
+                                title= "Domain Target Information",
+                                solidHeader= TRUE,
+                                status= "primary",
+                                #Valuebox for the each of result for target gauge height and high flow period
                                 #bslib::layout_columns()
-                                fluidRow(column(10),
-                                         h3(valueBoxOutput("TargetHeight",width=5 )),
-                                         h3(valueBoxOutput("TargetHeight10", width =5))),
-                                fluidRow(column(10),
-                                         h3(valueBoxOutput("TargetHeight30", width =5)),
-                                         h3(valueBoxOutput("TypicalHighFlowPeriod", width =5)))
-                                )
+                                #h4("Selected Site target Flow Details:"),
+                                h3(uiOutput("TargetGaugeHeights"))
+                                # column(6,h3(textOutput("TargetGaugeHeight10"))),
+                                # column(6,h3(textOutput("TargetGaugeHeight30"))),
+                                # column(6,h3(textOutput("TypicalHighFlowPeriod")))
+                              )
                             ), 
                             
-                        
+                            
                             #second row with Graphs for cross section and rating curve
-                              shiny::fluidRow(
+                            shiny::fluidRow(
                               shinydashboard::box(
                                 title= "DSC Cross-section",
                                 width= 6,
-                                div(id= "Discharge Cross-Section", (h2("Site's Latest Cross section target flow"))),
+                                div(id= "Discharge Cross-Section", (h3("Site's Latest Cross section target flow"))),
                                 plotlyOutput(outputId="xsdsc", width= "auto", height= "auto")##last edit on 7/18
-                                                       
-                                            ),
+                                
+                              ),
                               shinydashboard::box(
                                 title= "Rating Curve",
                                 width= 6,
-                                div(id= "Rating Curve",(h2("Site's Current Rating Curve"))),
+                                div(id= "Rating Curve",(h3("Site's Current Rating Curve"))),
                                 plotlyOutput(outputId="curve", width= "auto", height= "auto")
                               )
                             )
-                          ),
-                          
-                    
+    ),
+    
+    
     #Tab Item for Blue Heron
     shinydashboard::tabItem(tabName= "waterlevel",
                             #img(src= #"Blue Heron-logo.png", width = 300,height = 150) #needs a comma whenadding Lucas app
@@ -202,7 +205,7 @@ body <- shinydashboard::dashboardBody(
                                                                       plotlyOutput("waterColumnHeightPlot"),
                                                                       textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}"))
                                                             )
-
+                                                            
                                                           )
                                             )
                                             
@@ -216,7 +219,7 @@ body <- shinydashboard::dashboardBody(
 ui <- shinydashboard::dashboardPage(header, sidebar, body)
 
 
- 
+
 
 
 #### end of ui and fluidPage
