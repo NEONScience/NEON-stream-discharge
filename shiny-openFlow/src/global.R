@@ -19,17 +19,14 @@ library(shinyalert)
 library(devtools)
 library(markdown)
 library(shinydashboard)
+library(XML)
+
+
 if(!require(neonStageQplot)){
   devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
   library(neonStageQplot)
 }else{
   library(neonStageQplot)
-}
-if(!require(geoNEON)) {
-  devtools::install_github("NEONScience/NEON-geolocation/geoNEON")  
-  library(geoNEON)
-  } else{
-  library(geoNEON)
 }
 
 #global ----
@@ -61,8 +58,9 @@ productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEON
 siteID <- NULL
 domainID <- NULL
 osPubDateFormat <- "%Y-%m-%dT%H:%MZ"
-
-
+waterDensity <- 999
+gravity <- 9.80665
+convKPatoPa <- 1000
 
 #change settings depending on HOST - internal app vs external app
 HOST <- Sys.getenv('HOST')

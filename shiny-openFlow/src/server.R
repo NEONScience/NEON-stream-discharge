@@ -1,6 +1,7 @@
 #server function ----
 server <- function(input, output, session) {     ###**removed the shiny::shinyServer from previous commit by JB
-  
+  shinyjs::hide("Title_CWE")
+
   # Select site ID based on the domain ID chosen
   shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
   shiny::updateSelectInput(session,"siteId",choices = unique(x))})
@@ -283,8 +284,17 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
   }
   
   #####################################################################################################
-  #                           Beginnging of Blue Heron framework                                      #
+  #                           Beginning of Blue Heron framework                                      #
   #####################################################################################################
+  
+  observe({
+    if(!is.null(input$L0File))
+    {
+      shinyjs::hide(id = "BH_dateRange")
+    } else {
+      shinyjs::show(id = "BH_dateRange")
+    }
+  })
   #Observe changes in water type selected
   observeEvent(input$waterType,{ 
     if(input$waterType == "GW")
@@ -293,12 +303,13 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = 301:308)
       shinyjs::show("wellDepth")
       shinyjs::show("cableLength")
-      
+      shinyjs::show("optionalGWWMessage")
       shinyjs::hide("trollType")
     } else {
       #Updates the location values to match SW
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = c(101,102,110,131,132))
       shinyjs::show("trollType")
+      shinyjs::hide("optionalGWWMessage")
       shinyjs::hide("wellDepth")
       shinyjs::hide("cableLength")
     }
@@ -311,12 +322,19 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     if(input$L0Choice == "Yes")
     {
       shinyjs::hide("singlePressure")
+      shinyjs::show("L0File")
+      shinyjs::show("L0FileMessage")
     }else{
       shinyjs::show("singlePressure")
+      shinyjs::hide("L0File")
+      shinyjs::hide("L0FileMessage")
     }
   })
   
   observeEvent(input$BH_run, {
+    shinyjs::show("gaugeHeightLoadBar")
+    updateTabsetPanel(session, "calculatedStageTimeSeries", selected = "gaugeHeight")
+
     BlueHeron(input, output, session)
   })
   # Select site ID based on the domain ID chosen

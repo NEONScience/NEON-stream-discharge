@@ -15,7 +15,7 @@ sidebar <- dashboardSidebar(
                                             shinydashboard::menuItem("About the App", tabName = "AbouttheApp", icon = icon("info-circle")),
                                             shinydashboard::menuItem("Time series viewer", tabName = "OpenFlow", icon = icon("sitemap")),
                                             shinydashboard::menuItem("Cross section viewer", tabName = "CrossSection", icon = icon("pizza-slice")), #This does not exist yet, JB working on it
-                                            shinydashboard::menuItem( "Blue Heron", tabName = "waterlevel", icon=icon("hourglass-half"))
+                                            shinydashboard::menuItem( "Calculated Gauge Height", tabName = "gaugeHeight", icon=icon("water"))
                                             )
                            ),
  
@@ -79,11 +79,11 @@ body <- shinydashboard::dashboardBody(
      ),
   
      #Tab Item for Blue Heron
-      shinydashboard::tabItem(tabName= "waterlevel",
+      shinydashboard::tabItem(tabName= "gaugeHeight",
                                #img(src= #"Blue Heron-logo.png", width = 300,height = 150) #needs a comma whenadding Lucas app
                                shiny::fluidRow(
-                                 shiny::column(4,
-                                      shinydashboard::box(
+                                 shiny::column(3,
+                                      shinydashboard::box( width = 12, 
                                           #Input for selecting domain
                                           selectizeInput(input = "BH_domain", label = "Choose a domain", choices = productList$domain),##replaced the choices from unique(domainSite_info$field_domain_id
                                           #Input for selecting site based off the domain selected
@@ -98,47 +98,31 @@ body <- shinydashboard::dashboardBody(
                                           #Input for selecting a date range at which the TROLL was likely installed
                                           #Optional inputs for water column height
                                           numericInput(input = "wellDepth", label = "Enter the wells depth (Optional)", value = NULL),
-                                          h5("Leave blank if the water column height is not wanted"),
                                           numericInput(input = "cableLength", label = "Enter the Troll cable length (Optional)", value = NULL),
-                                          h5("Leave blank if the water column height is not wanted"),
-                                          dateRangeInput(inputId = "BH_dateRange", label = "Select date range of pressure reading(s)", start = NULL, end = NULL),
+                                          div(id = "optionalGWWMessage", h5("Leave well depth and cable length blank if the calculated stage is not wanted")),
+                                          dateRangeInput(inputId = "BH_dateRange", label = "Select date range of pressure reading(s)", start = Sys.Date()-2, end = Sys.Date()-1, max = Sys.Date()-1),
                                           #Input for selecting whether L0 data is used for the graph or not
                                           selectizeInput(input = "L0Choice", label = "Using L0 data?", choices = c("Yes", "No")),
-                                          h5("If using L0 data, place the file Data.csv that was downloaded in the data/ folder"),
+                                          fileInput(inputId = "L0File", label = "Upload L0 file (Optional)"),
+                                          div(id = "L0FileMessage", h5("Optionally upload a file with L0 data. It will use the uploaded file rather than retrieving L0 data.")),
                                           #Text input for whenever L0Choice is set to "No", this is used for instant water depth readings
                                           textInput(inputId = "singlePressure", label = "Insert single pressure reading here", value = ""),
                                           #Load bar to show progress of gathering spatial data associated with the TROLL
-                                          div(id = "LB",progressBar(id = "spatialDataLB", value = 0, title = "Initializing data load")),  ##******need to update this value input option in order to work*****##
-                                          actionButton(inputId = "BH_run", label = "Run"))
+                                          actionButton(inputId = "BH_run", label = "Run")
+                                        )
                                       ),
-                                   shiny::column(6,
+                                   shiny::column(7,
                                     #Provide general information about the app
-                                    tabsetPanel(
+                                    tabsetPanel( id = "calculatedStageTimeSeries",
                                       tabPanel( title = "About",
-                                          div(id = "Intro",
-                                            h3("About the Blue Heron Application"),
-                                            p("This application provides an conversion of water pressure to water elevation with provided L0 data or at a single instance for both ground water and surface water."),
-                                            br(),
-                                            h3("How to use this application:"),
-                                            p("1. Choose a domain and site.",br(),
-                                              "2. Choose the water type; GW (ground water) or SW (surface water).",br(),
-                                              "3. Choose a location. This is site dependent.",br(),
-                                              "4. Select the date range for the pressure readings.",br(),
-                                              "5. Select if L0 data is used or not."),
-                                            br(),
-                                            h3("Important Notes:"),
-                                            p("1. If the user selects ", strong("L0 data")," as yes, the Data.csv that the user retrieves from L0 needs to be placed in Water_Elevation/data/. Otherwise it will generate an error.", br(), 
-                                              "2. When GW is selected as the water type the app will generate two input boxes for the wells depth and troll cable length, ", strong(" both must be filled in "),", otherwise they must remain ", strong("blank."),br(),
-                                              "3. Be sure to select the correct", strong("date range"), ", this will determine the calibration information retrieved and impacts the conversion.")
-                                                          )
+                                                includeHTML("introMaterials/staffGaugeIntroText.html"),
+                                                img(src = "./introMaterials/L0TabVis.jpg",width = 800 ,height = 300)
                                                       ),
-                                            tabPanel( title = "Water Elevation",       
+                                            tabPanel( title = "Calculated Stage Height",       
                                                       #Shows plotly output of water depth with time series
-                                                      div(id = "Title_CWE",(h3("Calculated Water Elevation"))),
-                                                      plotlyOutput("waterElevation"),
-                                                      textOutput("singlePressureOutput"), tags$head(tags$style("#singlePressureOutput{font-size: 20px;}")),
-                                                      div(id = "Title_WCH",(h3("Calculated Water Column Height"))),
-                                                      plotlyOutput("waterColumnHeightPlot"),
+                                                      div(id = "Title_CWE",(h3("Calculated Stage Height"))),
+                                                      div(id = "LB",progressBar(id = "GaugeHeightLoadBar", value = 0, title = "Waiting for run button click...")),  ##******need to update this value input option in order to work*****##
+                                                      plotlyOutput("calculatedStagePlot"),
                                                       textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}"))
                                                       )
                                               )
