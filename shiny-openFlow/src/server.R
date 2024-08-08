@@ -285,62 +285,75 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
   #####################################################################################################
   #                           Beginnging of Cross Section framework                                   #
   #####################################################################################################
+  
   # Select site ID based on the domain ID chosen
-  # shiny::observe({
-  #    x <- productList$siteID[productList$domain == input$XS_Domain]
-  #  shiny::updateSelectInput(session,"XS_site",choices = unique(x))
-  # })
-  ##populate the selected Input choices
-  updateSelectInput(session, "XS_site", choices = Target_df$Site)
-  # filter_Target<- Target_df %>%
-  #                 filter(Site==input$XS_site)
   shiny::observe({
     x<-Target_df$Site[Target_df$Domain==input$XS_Domain]
     shiny::updateSelectInput(session, "XS_site", choices= unique(x))
-  
-  })
+    
+  })  
   #change datatable column names
   colnames(Target_df)<- c(
     "Domain",
     "Site",
-    "TotalGaugeHeight",
-    "TotalGaugeHeight10",
-    "TotalGaugeHeight30",
+    "TargetGaugeHeight",
+    "TargetGaugeHeight10",
+    "TargetGaugeHeight30",
     "TypicalHighFlowPeriod"
   )
   
-  #create dataframe for the domain target table from KBA
-
-   observe({
-     req(input$XS_site)
-     selected_row<- Target_df[Target_df$Site==input$XS_site, ]
-     
-     output$TargetHeight<- renderValueBox({
-      valueBox(
-        selected_row$TotalGaugeHeight, 
-        "Total Gauge Height (m)",
-        color= "green")
-     })
-     output$TargetHeight10<- renderValueBox({
-       valueBox(
-         selected_row$TotalGaugeHeight10,
-         subtitle= "Total Gauge Height + 10% (m)",
-         color= "orange")
-     })
-     output$TargetHeight30<- renderValueBox({
-       valueBox(
-         selected_row$TotalGaugeHeight30,
-         subtitle= "Total Gauge Height + 10% (m)",
-         color= "purple")
-     })
-     output$TypicalHighFlowPeriod<- renderValueBox({
-       valueBox(
-         selected_row$TypicalHighFlowPeriod,
-         subtitle= "Typical High Flow Period",
-         color="blue")
-     })
+  
+  # observe({
+  #   req(input$XS_site)
+  #   filter_target<- Target_df[Target_df$Site==input$XS_site, ]
+  
+  
+  #Observe row selection and display details
+  observe({
+    if(input$XS_site!= "No Site Selected")
+    {
+      
+      filter_target<- Target_df %>%
+        filter(Site==input$XS_site)
+      
+      
+      
+      if (nrow(filter_target) > 0) {
+        output$TargetGaugeHeights <- renderUI({
+          fluidRow(
+            column(6,
+                   tags$div(
+                     tags$h2("Target Gauge Height (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight,"</b>"))),
+                     tags$h2("Target Gauge Height - 10% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight10,"<b>"))))),
+            column(6,
+                   tags$div( 
+                     tags$h2("Target Gauge Height - 30% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight30, "<b>"))),
+                     tags$h2("Typical High Flow Period:", HTML(paste0("<b>",filter_target$TypicalHighFlowPeriod, "</b>")))))
+          ) 
+        })
         
+        
+      } else {
+        output$TargetGaugeHeights <- renderUI({
+          tags$h3("Data not available")
+        })
+      }
+    } else {
+      output$TargetGaugeHeights <- renderUI({
+        tags$h3("Please Select a Domain and Site to see Gauge Height Information")
+      })
+    }
+    
   })
+  
+  
+  
+  # # Render the text outputs based on the reactive values
+  # output$TargetGaugeHeight <- renderText({filter_target$TargetGaugeHeight})
+  # output$TargetGaugeHeight10 <- renderText({filter_target$TargetGaugeHeight10 })
+  # output$TargetGaugeHeight30 <- renderText({filter_target$TargetGaugeHeight30 })
+  # output$TypicalHighFlowPeriod <- renderText({filter_target$TypicalHighFlowPeriod })
+ 
   #####################################################################################################
   #                           Beginnging of Blue Heron framework                                      #
   #####################################################################################################

@@ -61,8 +61,13 @@ productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEON
 siteID <- NULL
 domainID <- NULL
 
+###Used to pull inputs and outputs for cross section tab
 #read reference Domain target table from GitHub
 Target_df<- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge-NCC189/xs-item/shiny-openFlow/src/cross_section/Domains_targetGaugeHeight.csv"))
+filter_target <- reactiveVal(NULL)
+target2<- as.data.frame(cbind("No Domain Selected", "No Site Selected", "0", "0", "0", "No data"))
+colnames(target2)<- names(Target_df)
+Target_df<- rbind(target2, Target_df)
 
 
 #change settings depending on HOST - internal app vs external app

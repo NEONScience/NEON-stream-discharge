@@ -90,56 +90,51 @@ body <- shinydashboard::dashboardBody(
     shinydashboard::tabItem(tabName ="CrossSection",
                             #first row with inputs and output DT for domain target flow
                             shiny::fluidRow(
-                                shinydashboard::box(
+                              shinydashboard::box(
                                 width=2,
-                                shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$Domain),
+                                shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$Domain, selected = "No Domain Selected"),
                                 #shiny::fluidRow(shiny::uiOutput("domainInfo")),
                                 shiny::br(),
-                                shiny::fluidRow(shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, width="auto")),
+                                shiny::fluidRow(shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, selected= "No Site Selected")),
                                 #shiny::fluidRow(shiny::uiOutput("siteInfo")),
                                 shiny::br(),
-                                shiny::actionButton(input="XS_submit",label ="Submit", width = "auto")
-                                ),
-                              
-                           
-                            # Summary of Domain target datatable per site selected
-                            shinydashboard::box(
-                              width= 10,
-                              title= "Domain Target Information",
-                              solidHeader= TRUE,
-                              status= "primary",
-                              h4("Domain Target information"),
-                              #Valuebox for the each of result for target gauge height and high flow period
+                                shiny::fluidRow(shiny::actionButton(input="ShowPlot",label ="Show Plots")) #render plotly to show plots for site
+                              ),
+                                 
+                              # Summary of Domain target datatable per site selected
+                              shinydashboard::box(
+                                width= 10,
+                                title= "Domain Target Information",
+                                solidHeader= TRUE,
+                                status= "primary",
+                                #Valuebox for the each of result for target gauge height and high flow period
                                 #bslib::layout_columns()
-                                fluidRow(column(10),
-                                         h3(valueBoxOutput("TargetHeight",width=5 )),
-                                         h3(valueBoxOutput("TargetHeight10", width =5))),
-                                fluidRow(column(10),
-                                         h3(valueBoxOutput("TargetHeight30", width =5)),
-                                         h3(valueBoxOutput("TypicalHighFlowPeriod", width =5)))
-                                )
-                            ), 
+                                #h4("Selected Site target Flow Details:"),
+                                h3(uiOutput("TargetGaugeHeights"))
                             
-                        
+                            )
+                          ),
+                     
+                            
+                            
                             #second row with Graphs for cross section and rating curve
-                              shiny::fluidRow(
+                            shiny::fluidRow(
                               shinydashboard::box(
                                 title= "DSC Cross-section",
                                 width= 6,
-                                div(id= "Discharge Cross-Section", (h2("Site's Latest Cross section target flow"))),
+                                div(id= "Discharge Cross-Section", (h3("Site's Latest Cross section target flow"))),
                                 plotlyOutput(outputId="xsdsc", width= "auto", height= "auto")##last edit on 7/18
-                                                       
-                                            ),
+                                
+                              ),
                               shinydashboard::box(
                                 title= "Rating Curve",
                                 width= 6,
-                                div(id= "Rating Curve",(h2("Site's Current Rating Curve"))),
+                                div(id= "Rating Curve",(h3("Site's Current Rating Curve"))),
                                 plotlyOutput(outputId="curve", width= "auto", height= "auto")
                               )
                             )
-                          ),
-                          
-                    
+    ),
+    
     #Tab Item for Blue Heron
     shinydashboard::tabItem(tabName= "waterlevel",
                             #img(src= #"Blue Heron-logo.png", width = 300,height = 150) #needs a comma whenadding Lucas app
