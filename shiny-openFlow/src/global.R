@@ -57,26 +57,28 @@ file_sources <-
 ##***Bola addition to connect to the openFlow database***##
 
 # Connect to openflow database
-con<-DBI::dbConnect(
-  RPostgres::Postgres(),
-  dbname = 'openflow',
-  host = 'nonprod-commondb.gcp.neoninternal.org',
-  port = '5432',
-  user = 'shiny_openflow_rw',
-  password = Sys.getenv('DB_TOKEN')
-)
+# con<-DBI::dbConnect(
+#   RPostgres::Postgres(),
+#   dbname = 'openflow',
+#   host = 'nonprod-commondb.gcp.neoninternal.org',
+#   port = '5432',
+#   user = 'shiny_openflow_rw',
+#   password = Sys.getenv('DB_TOKEN')
+# )
 
 # Read in reference table from Github
 # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
 #Global Vars
 productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
-productList <- DBI::dbReadTable(con,"sitelist") #line added from Bola's app
+# productList <- DBI::dbReadTable(con,"sitelist") #line added from Bola's app
 siteID <- NULL
 domainID <- NULL
 osPubDateFormat <- "%Y-%m-%dT%H:%MZ"
 waterDensity <- 999
 gravity <- 9.80665
 convKPatoPa <- 1000
+well_depth_file <- read.csv("data/gw_well_depths.csv", sep = ",") 
+
 
 #change settings depending on HOST - internal app vs external app
 HOST <- Sys.getenv('HOST')

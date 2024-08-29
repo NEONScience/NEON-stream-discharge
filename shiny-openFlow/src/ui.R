@@ -81,13 +81,14 @@ body <- shinydashboard::dashboardBody(
      #Tab Item for Blue Heron
       shinydashboard::tabItem(tabName= "gaugeHeight",
                                #img(src= #"Blue Heron-logo.png", width = 300,height = 150) #needs a comma whenadding Lucas app
+                              #rtdv is shorthand for real-time-data-viewer 
                                shiny::fluidRow(
                                  shiny::column(3,
                                       shinydashboard::box( width = 12, 
                                           #Input for selecting domain
-                                          selectizeInput(input = "BH_domain", label = "Choose a domain", choices = productList$domain),##replaced the choices from unique(domainSite_info$field_domain_id
+                                          selectizeInput(input = "rtdvDomain", label = "Choose a domain", choices = productList$domain),##replaced the choices from unique(domainSite_info$field_domain_id
                                           #Input for selecting site based off the domain selected
-                                          selectizeInput(input = "BH_site", label = "Choose a site", choices = NULL),
+                                          selectizeInput(input = "rtdvSite", label = "Choose a site", choices = NULL),
                                           #Input for selecting the type of water GW = Groundwater and SW = Surfacewater
                                           selectInput(input = "waterType", label = "Choose GW or SW", choices = c("GW","SW")),
                                           h5("GW is for groundwater and SW is for surface water"),
@@ -95,30 +96,25 @@ body <- shinydashboard::dashboardBody(
                                           selectInput(input = "trollType", label = "What kind of Troll is it?", choices = c("AquaTroll","LevelTroll")),
                                           #Input for selecting HOR location, techs will likely know which theirs is
                                           selectInput(input = "HOR", label = "Choose Location", choices = NULL),
-                                          #Input for selecting a date range at which the TROLL was likely installed
-                                          #Optional inputs for water column height
-                                          numericInput(input = "wellDepth", label = "Enter the wells depth (Optional)", value = NULL),
-                                          numericInput(input = "cableLength", label = "Enter the Troll cable length (Optional)", value = NULL),
-                                          div(id = "optionalGWWMessage", h5("Leave well depth and cable length blank if the calculated stage is not wanted")),
-                                          dateRangeInput(inputId = "BH_dateRange", label = "Select date range of pressure reading(s)", start = Sys.Date()-2, end = Sys.Date()-1, max = Sys.Date()-1),
+                                          #Input for selecting a date range of the data desired
+                                          dateRangeInput(inputId = "rtdvDaterange", label = "Select date range of pressure reading(s)", start = Sys.Date()-2, end = Sys.Date()-1, max = Sys.Date()-1),
                                           #Input for selecting whether L0 data is used for the graph or not
-                                          selectizeInput(input = "L0Choice", label = "Using L0 data?", choices = c("Yes", "No")),
-                                          fileInput(inputId = "L0File", label = "Upload L0 file (Optional)"),
-                                          div(id = "L0FileMessage", h5("Optionally upload a file with L0 data. It will use the uploaded file rather than retrieving L0 data.")),
-                                          #Text input for whenever L0Choice is set to "No", this is used for instant water depth readings
+                                          selectizeInput(input = "dataSource", label = "Where is the data coming from?", choices = c("L0 Data Query", "Grafana CSV File", "Instant Pressure Reading")),
+                                          fileInput(inputId = "grafanaFile", label = "Upload the Grafana .csv file (Under Maintenance DONT USE)"),
+                                          #Text input for whenever dataSource input is set to not query L0 data
                                           textInput(inputId = "singlePressure", label = "Insert single pressure reading here", value = ""),
                                           #Load bar to show progress of gathering spatial data associated with the TROLL
-                                          actionButton(inputId = "BH_run", label = "Run")
+                                          actionButton(inputId = "rtdvRun", label = "Run")
                                         )
                                       ),
                                    shiny::column(7,
                                     #Provide general information about the app
                                     tabsetPanel( id = "calculatedStageTimeSeries",
                                       tabPanel( title = "About",
-                                                includeHTML("introMaterials/staffGaugeIntroText.html"),
-                                                img(src = "./introMaterials/L0TabVis.jpg",width = 800 ,height = 300)
+                                                includeHTML("introMaterials/staffGaugeIntroText.html")
                                                       ),
-                                            tabPanel( title = "Calculated Stage Height",       
+                                            tabPanel( id = "CG_timeSeries",
+                                                      title = "Calculated Stage Height",       
                                                       #Shows plotly output of water depth with time series
                                                       div(id = "Title_CWE",(h3("Calculated Stage Height"))),
                                                       div(id = "LB",progressBar(id = "GaugeHeightLoadBar", value = 0, title = "Waiting for run button click...")),  ##******need to update this value input option in order to work*****##

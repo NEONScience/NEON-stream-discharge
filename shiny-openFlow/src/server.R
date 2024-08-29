@@ -289,29 +289,20 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
   }
   
   #####################################################################################################
-  #                           Beginning of Blue Heron framework                                      #
+  #                           Beginning of the real time data viewer framework                        #
   #####################################################################################################
   
-  observe({
-    if(!is.null(input$L0File))
-    {
-      shinyjs::hide(id = "BH_dateRange")
-    } else {
-      shinyjs::show(id = "BH_dateRange")
-    }
-  })
-  #Observe changes in water type selected
+  #Observe changes in water type selected GW = ground water and SW = surface water
   observeEvent(input$waterType,{ 
     if(input$waterType == "GW")
     {
-      #Updates the location values to match GWW
+      #Updates the location values to match GWW locations. 301 represents GWW1 for example.
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = 301:308)
       shinyjs::show("wellDepth")
       shinyjs::show("cableLength")
       shinyjs::show("optionalGWWMessage")
-      shinyjs::hide("trollType")
     } else {
-      #Updates the location values to match SW
+      #Updates the location values to match SW locations. 101 represents S1, 131 is also S1 but the selection is site dependent whether its a standalone troll or not.
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = c(101,102,110,131,132))
       shinyjs::show("trollType")
       shinyjs::hide("optionalGWWMessage")
@@ -320,31 +311,33 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     }
   }) #End observeEvent for waterType
   
-  #Observe the choice whether L0 data is being used or not
-  observeEvent(input$L0Choice, {
+  #Observe the what data source is
+  observeEvent(input$dataSource, {
     
     #simple if else toggles a textInput that allows a single pressure reading to inputed
-    if(input$L0Choice == "Yes")
+    if(input$dataSource == "L0 Data Query")
     {
       shinyjs::hide("singlePressure")
-      shinyjs::show("L0File")
-      shinyjs::show("L0FileMessage")
-    }else{
+      shinyjs::hide("grafanaFile")
+    }else if(input$dataSource == "Grafana CSV File"){
+      shinyjs::hide("singlePressure")
+      shinyjs::show("grafanaFile")
+    } else if(input$dataSource == "Instant Pressure Reading")
+    {
       shinyjs::show("singlePressure")
-      shinyjs::hide("L0File")
-      shinyjs::hide("L0FileMessage")
+      shinyjs::hide("grafanaFile")
     }
-  })
+  }) #end observeEvent for the type of data selection from input$dataSource
   
-  observeEvent(input$BH_run, {
-    shinyjs::show("gaugeHeightLoadBar")
-    updateTabsetPanel(session, "calculatedStageTimeSeries", selected = "gaugeHeight")
+  observeEvent(input$rtdvRun, {
+    shinyjs::show("GaugeHeightLoadBar")
+    updateTabsetPanel(session, "calculatedStageTimeSeries", selected = "CG_timeSeries")
 
-    BlueHeron(input, output, session)
+    realTimeDataViewer(input, output, session)
   })
   # Select site ID based on the domain ID chosen
-  shiny::observe({x <- productList$siteID[productList$domain == input$BH_domain]
-  shiny::updateSelectInput(session,"BH_site",choices = unique(x))})
+  shiny::observe({x <- productList$siteID[productList$domain == input$rtdvDomain]
+  shiny::updateSelectInput(session,"rtdvSite",choices = unique(x))})
   
 }#end of server
 # Run the app ----

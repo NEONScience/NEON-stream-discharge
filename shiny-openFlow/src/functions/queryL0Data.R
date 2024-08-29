@@ -1,15 +1,13 @@
 L0DataQuery <- function(input, output, session, DPID, startDate = NULL, endDate = NULL)
 {
-  BH_loadBar$percent <- 15
-  BH_loadBar$title <- paste0("Starting query for ", DPID)
   stack = "prod"
   if(is.null(startDate) || is.null(endDate))
   {
     startDate = paste0("20",format(Sys.time()-86400, "%y-%m-%dT%H:%M:%S.000Z"))
     endDate = paste0("20",format(Sys.time(), "%y-%m-%dT%H:%M:%S.000Z"))
   } else {
-    startDate = paste0("20",format(startDate, "%y-%m-%dT00:00:00.000Z"))
-    endDate = paste0("20",format(endDate, "%y-%m-%dT00:00:00.000Z"))
+    startDate = paste0("20",format(startDate, "%y-%m-%dT%H:%M:%S.000Z"))
+    endDate = paste0("20",format(endDate, "%y-%m-%dT%H:%M:%S.000Z"))
   }
   meas = DPID
   # startDate = "2024-07-29"
@@ -41,7 +39,7 @@ L0DataQuery <- function(input, output, session, DPID, startDate = NULL, endDate 
     stop(paste("Data GET failed with status code ", req$status_code, ". Check formatting of your inputs.", sep = ""))
   }
   
-  if(input$L0Choice == "Yes")
+  if(input$dataSource == "L0 Data Query")
   {
     for(i in meas)
     {
@@ -59,7 +57,5 @@ L0DataQuery <- function(input, output, session, DPID, startDate = NULL, endDate 
     dataOut <- locID
   }
   
-  BH_loadBar$percent <- 25
-  BH_loadBar$title <- paste0("Finished querying and parsing ", DPID)
   return(dataOut)
 }
