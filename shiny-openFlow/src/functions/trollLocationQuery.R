@@ -15,8 +15,6 @@ TLOC <- function(input, output, session, site, startDate, endDate, waterElevatio
     updateProgressBar(session = session, id = "GaugeHeightLoadBar", value = 0, title = paste0("Location data could not be retreived for ", waterElevationDF$namedLocation[1]))
     stop()
   }else{
-    BH_loadBar$percent <- 35
-    BH_loadBar$title <- paste0("Location retrieved for ", waterElevationDF$namedLocation[1])
     updateProgressBar(session = session, id = "GaugeHeightLoadBar", value = 35, title = paste0("Location retrieved for ", waterElevationDF$namedLocation[1]))
     
   }
@@ -107,11 +105,26 @@ TLOC <- function(input, output, session, site, startDate, endDate, waterElevatio
   #adjust for elevation offset
   # trollLocationsBeforeOffset <<- trollLocations
   # trollLocations <- trollLocationsBeforeOffset
-  trollLocations <- trollLocations %>%
-    mutate(refElevPlusZ = elevation + zOffset) %>%
-    mutate(zRefOffset = append(0, refElevPlusZ[2:length(refElevPlusZ)] - refElevPlusZ[1]))
-
-  # startDate <- "2024-07-30"
+  
+  if(input$waterType == "GW")
+  {
+    well_depth_file_CFGLOC <- well_depth_file %>% filter(cfgloc == waterElevationDF$namedLocation[1])
+    trollLocations <- trollLocations %>%
+      mutate(refElevPlusZ = elevation + zOffset) %>%
+      mutate(zRefOffset = append(0, refElevPlusZ[2:length(refElevPlusZ)] - refElevPlusZ[1])) %>%
+      mutate(bottomOfWell = elevation-as.numeric(well_depth_file_CFGLOC$well_depth)) %>%
+      mutate(distanceToAdd = refElevPlusZ-bottomOfWell)
+    # distanceToAdd <<- trollLocations$distanceToAdd
+    
+  }
+  else {
+      trollLocations <- trollLocations %>%
+        mutate(refElevPlusZ = elevation + zOffset) %>%
+        mutate(zRefOffset = append(0, refElevPlusZ[2:length(refElevPlusZ)] - refElevPlusZ[1]))      
+    }
+    #I will need to come back to this later and make it better
+    
+    # startDate <- "2024-07-30"
   # endDate <- "2024-08-01"
   if(nrow(trollLocations[startDate <= trollLocations$startDate & trollLocations$endDate >= endDate,]) == 0)
   {
@@ -128,9 +141,15 @@ TLOC <- function(input, output, session, site, startDate, endDate, waterElevatio
     locEnd <- trollLocations$endDate[i]
     dataToApplyOffset <- waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
                                                               waterElevationDF$Date<locEnd]
-    
-    waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
-                                         waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$zRefOffset)
+    if(input$waterType == "GW")
+    {
+      waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
+                                           waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$distanceToAdd)+as.numeric(trollLocations$zRefOffset)
+    } else {
+      waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
+                                           waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$zRefOffset)
+    }
+
   }
 
   updateProgressBar(session = session, id = "GaugeHeightLoadBar", value = 60, title = "Finished querying location data and applying zOffset")
