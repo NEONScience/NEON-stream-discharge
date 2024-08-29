@@ -20,14 +20,16 @@ library(devtools)
 library(markdown)
 library(shinydashboard)
 library(XML)
+library(DBI)  #library added from Bola's app updates
+library(RPostgres) #library added from Bola's app updates
 
 
-if(!require(neonStageQplot)){
-  devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
-  library(neonStageQplot)
-}else{
-  library(neonStageQplot)
-}
+# if(!require(neonStageQplot)){
+#   devtools::install_github(repo = "NEONScience/NEON-stream-discharge/neonStageQPlot", dependencies = TRUE, force = TRUE)
+#   library(neonStageQplot)
+# }else{
+#   library(neonStageQplot)
+# }
 
 #global ----
 
@@ -51,10 +53,23 @@ file_sources <-
     }
   )
 
+##***Bola addition to connect to the openFlow database***##
+
+# Connect to openflow database
+con<-DBI::dbConnect(
+  RPostgres::Postgres(),
+  dbname = 'openflow',
+  host = 'nonprod-commondb.gcp.neoninternal.org',
+  port = '5432',
+  user = 'shiny_openflow_rw',
+  password = Sys.getenv('DB_TOKEN')
+)
+
 # Read in reference table from Github
 # setwd("~/Github/NEON-stream-discharge/L4Discharge/AOSApp") # Code for testing locally - comment out when running app
 #Global Vars
 productList <- readr::read_csv(base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge/main/shiny-openFlow/aqu_dischargeDomainSiteList.csv"))
+productList <- DBI::dbReadTable(con,"sitelist") #line added from Bola's app
 siteID <- NULL
 domainID <- NULL
 osPubDateFormat <- "%Y-%m-%dT%H:%MZ"
