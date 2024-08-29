@@ -1,6 +1,8 @@
-ui <- shinydashboard::dashboardPage(
+#Xs Section branch
+######Maria Viggiano###
     #skin= "green",
     #theme = bslib::bs_theme(),
+
 header <- shinydashboard::dashboardHeader(title = "Open Flow"),
     ####******images and logos not shown yet *****###
     #tags$head(type= "text/css"),
@@ -21,8 +23,17 @@ sidebar <- dashboardSidebar(
  
   
  #Body of each menu item
+
 body <- shinydashboard::dashboardBody(
+  tags$head(
+    tags$style(HTML(
+      " .custom-box { border: 2px solid #007bff; 
+      padding: 10px; margin-bottom: 20px; box-shadow: 2px 2px 10px #888888; 
+      } .custom-input { width: 100%; margin-bottom: 10px; } ")) ),
+    tags$head(tags$style(HTML(
+      ".small-box {height: 90px}"))),
   useShinyjs(),
+
    shinydashboard::tabItems(
      
      #Tab Item for About the App
@@ -77,7 +88,54 @@ body <- shinydashboard::dashboardBody(
                         )#end of second column
                 )#end of fluid row for open flow,
      ),
-  
+	 
+	#Tab Item for cross section menu
+    shinydashboard::tabItem(tabName ="CrossSection",
+                            #first row with inputs and output DT for domain target flow
+                            shiny::fluidRow(
+                              shinydashboard::box(
+                                width=2,
+                                shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$Domain, selected = "No Domain Selected"),
+                                #shiny::fluidRow(shiny::uiOutput("domainInfo")),
+                                shiny::br(),
+                                shiny::fluidRow(shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, selected= "No Site Selected")),
+                                #shiny::fluidRow(shiny::uiOutput("siteInfo")),
+                                shiny::br(),
+                                shiny::fluidRow(shiny::actionButton(input="ShowPlot",label ="Show Plots")) #render plotly to show plots for site
+                              ),
+                                 
+                              # Summary of Domain target datatable per site selected
+                              shinydashboard::box(
+                                width= 10,
+                                title= "Domain Target Information",
+                                solidHeader= TRUE,
+                                status= "primary",
+                                #Valuebox for the each of result for target gauge height and high flow period
+                                #bslib::layout_columns()
+                                #h4("Selected Site target Flow Details:"),
+                                h3(uiOutput("TargetGaugeHeights"))
+                            
+                            )
+                          ),
+                                               
+                            
+                            #second row with Graphs for cross section and rating curve
+                            shiny::fluidRow(
+                              shinydashboard::box(
+                                title= "DSC Cross-section",
+                                width= 6,
+                                div(id= "Discharge Cross-Section", (h3("Site's Latest Cross section target flow"))),
+                                plotlyOutput(outputId="xsdsc", width= "auto", height= "auto")##last edit on 7/18
+                                
+                              ),
+                              shinydashboard::box(
+                                title= "Rating Curve",
+                                width= 6,
+                                div(id= "Rating Curve",(h3("Site's Current Rating Curve"))),
+                                plotlyOutput(outputId="curve", width= "auto", height= "auto")
+                              )
+                            )
+    ),
      #Tab Item for Blue Heron
       shinydashboard::tabItem(tabName= "gaugeHeight",
                                #img(src= #"Blue Heron-logo.png", width = 300,height = 150) #needs a comma whenadding Lucas app
@@ -129,11 +187,11 @@ body <- shinydashboard::dashboardBody(
       ) 
   )
 )
-)
- 
-# ui <- shinydashboard::dashboardPage(header, sidebar, body)
- 
+
+   
+    
+  
+
 
 #### end of ui and fluidPage
-
 
