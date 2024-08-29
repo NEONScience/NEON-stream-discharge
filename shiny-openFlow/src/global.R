@@ -33,6 +33,7 @@ library(RPostgres) #library added from Bola's app updates
 
 #global ----
 
+
 # Set the working directory to the current files location
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -97,7 +98,7 @@ if(grepl('internal',HOST)){
 # constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
 # readmeFile <- "about_internal.Rmd"
 
-light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
-dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
+# light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
+# dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
 
 #shiny::shinyApp(ui = ui, server = server)

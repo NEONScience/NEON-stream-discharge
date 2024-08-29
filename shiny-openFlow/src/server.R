@@ -7,9 +7,9 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
   shiny::updateSelectInput(session,"siteId",choices = unique(x))})
   
   #handles light and dark mode switch
-  shiny::observe(session$setCurrentTheme(
-    if (base::isTRUE(input$dark_mode)) dark else light
-  ))
+  # shiny::observe(session$setCurrentTheme(
+  #   if (base::isTRUE(input$dark_mode)) dark else light
+  # ))
   
   #phenoImage observe
   #displays phenocam image when point is clicked on graph
