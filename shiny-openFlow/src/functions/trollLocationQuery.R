@@ -112,8 +112,7 @@ TLOC <- function(input, output, session, site, startDate, endDate, waterElevatio
     trollLocations <- trollLocations %>%
       mutate(refElevPlusZ = elevation + zOffset) %>%
       mutate(zRefOffset = append(0, refElevPlusZ[2:length(refElevPlusZ)] - refElevPlusZ[1])) %>%
-      mutate(bottomOfWell = elevation-as.numeric(well_depth_file_CFGLOC$well_depth)) %>%
-      mutate(distanceToAdd = refElevPlusZ-bottomOfWell)
+      mutate(distanceToAdd = well_depth_file_CFGLOC$well_depth-well_depth_file_CFGLOC$cable_length)
     # distanceToAdd <<- trollLocations$distanceToAdd
     
   }
@@ -141,10 +140,12 @@ TLOC <- function(input, output, session, site, startDate, endDate, waterElevatio
     locEnd <- trollLocations$endDate[i]
     dataToApplyOffset <- waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
                                                               waterElevationDF$Date<locEnd]
+    
     if(input$waterType == "GW")
     {
       waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
-                                           waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$distanceToAdd)+as.numeric(trollLocations$zRefOffset)
+                                           waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$distanceToAdd)
+      print(dataToApplyOffset+as.numeric(trollLocations$distanceToAdd))
     } else {
       waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
                                            waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$zRefOffset)

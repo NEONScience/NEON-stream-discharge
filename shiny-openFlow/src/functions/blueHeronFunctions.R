@@ -157,8 +157,6 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
           }) #End of waterElevation output
         }
         else {
-          #waterElevationDF <- waterElevationDF %>% 
-           # mutate(waterColumnHeight = waterColumnHeight+distanceToAdd)
           output$calculatedStagePlot <- renderPlotly({
             waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~waterColumnHeight, type = 'scatter', mode = 'lines', fill = 'tozeroy') %>% 
               layout(xaxis= list(title = "Date",autotick = T,nticks = 25, tickmode = "auto"), yaxis = list(title = 'Water column height (m)'))
@@ -205,12 +203,30 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
       shinyjs::show("singleWaterColumnHeight")
       shinyjs::show("Title_CWE")
       
+      
+      #Sourced code from RC.plot.R
+      startDateFormat <- format(as.POSIXct(startDate),"%Y-%m-%d 00:00:00")
+      endDateFormat <- format(as.POSIXct(endDate)+86400,"%Y-%m-%d 00:00:00")
+      dbquery <- sprintf("SELECT * FROM contqsum WHERE \"siteID\" = '%s' AND \"date\" > timestamp '%s' AND \"date\" < timestamp '%s'",input$rtdvSite,startDateFormat,endDateFormat)
+      contqsum <- DBI::dbSendQuery(con,dbquery)
+      contqsum <- DBI::dbFetch(contqsum)
+      curveIDs <- unique(contqsum$curveID)
+      
+      if(base::all(!base::is.na(curveIDs))){
+        dbquery <- sprintf("SELECT * FROM rcdata WHERE \"curveID\" IN ('%s')",paste0(curveIDs,collapse = "', '"))
+        rcdata <- DBI::dbSendQuery(con,dbquery)
+        rcData <- DBI::dbFetch(rcdata)
+        rcData_siteFiltered <-  max(unique(rcData$curveID[grepl(input$rtdvSite,rcData$curveID)]))
+        waterElevationDF <- waterElevationDF %>% mutate(estimatedDischarge = rcData_siteFiltered$MaxPostQ[which.min(abs(rcData_siteFiltered-waterElevationDF$waterColumnHeight))])
+        
+        DischargePlotly <- plotly::plot_ly(data = waterElevationDF$estimatedDischarge)
+        output$rtdvDischargePlotly <- renderPlotly(DischargePlotly)
+      }
+      
+      
+      
+      
     } #End of ifelse statement
     updateProgressBar(session = session, id = "GaugeHeightLoadBar", value = 100, title = paste0("Finished applying relevant data to L0 pressure data for: ",input$site))
     shinyjs::hide("GaugeHeightLoadBar")
-
-  # }, error = function(err) {
-  #   updateProgressBar(session = session, id = "gaugeHeightLoadBar", value = 0, title = paste0("There was an error for: ", DPID, ", please double check that the inputs are correct"))
-  #   return()
-  # })
 }

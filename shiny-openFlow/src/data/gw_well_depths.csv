@@ -1,175 +1,174 @@
-domain_id,site_name,HOR,name,description,cfgloc,well_depth
-D10,ARIK,301,ARIK.AOS.groundwater.well.001,Arikaree River Groundwater Well 001,CFGLOC101239,9.44
-D10,ARIK,302,ARIK.AOS.groundwater.well.002,Arikaree River Groundwater Well 002,CFGLOC101240,9.56
-D10,ARIK,303,ARIK.AOS.groundwater.well.003,Arikaree River Groundwater Well 003,CFGLOC101241,9.54
-D10,ARIK,304,ARIK.AOS.groundwater.well.004,Arikaree River Groundwater Well 004,CFGLOC101242,9.12
-D10,ARIK,305,ARIK.AOS.groundwater.well.005,Arikaree River Groundwater Well 005,CFGLOC101243,9.7
-D10,ARIK,306,ARIK.AOS.groundwater.well.006,Arikaree River Groundwater Well 006,CFGLOC101244,9.7
-D03,BARC,301,BARC.AOS.groundwater.well.001,Barco Lake Groundwater Well 001,CFGLOC101039,12.27
-D03,BARC,302,BARC.AOS.groundwater.well.002,Barco Lake Groundwater Well 002,CFGLOC101040,11.59
-D03,BARC,303,BARC.AOS.groundwater.well.003,Barco Lake Groundwater Well 003,CFGLOC101041,10.7
-D03,BARC,304,BARC.AOS.groundwater.well.004,Barco Lake Groundwater Well 004,CFGLOC101042,10.19
-D03,BARC,305,BARC.AOS.groundwater.well.005,Barco Lake Groundwater Well 005,CFGLOC101043,11.58
-D03,BARC,306,BARC.AOS.groundwater.well.006,Barco Lake Groundwater Well 006,CFGLOC101044,9.24
-D03,BARC,307,BARC.AOS.groundwater.well.007,Barco Lake Groundwater Well 007,CFGLOC101045,13.05
-D03,BARC,308,BARC.AOS.groundwater.well.008,Barco Lake Groundwater Well 008,CFGLOC101046,13.3
-D17,BIGC,301,BIGC.AOS.groundwater.well.001,Upper Big Creek Groundwater Well 001,CFGLOC112943,5.46
-D17,BIGC,302,BIGC.AOS.groundwater.well.002,Upper Big Creek Groundwater Well 002,CFGLOC112944,6.55
-D17,BIGC,303,BIGC.AOS.groundwater.well.003,Upper Big Creek Groundwater Well 003,CFGLOC112945,8.15
-D17,BIGC,304,BIGC.AOS.groundwater.well.004,Upper Big Creek Groundwater Well 004,CFGLOC112946,4.13
-D17,BIGC,304,BIGC.AOS.groundwater.well.005,Upper Big Creek Groundwater Well 005,CFGLOC112947,4.355
-D17,BIGC,305,BIGC.AOS.groundwater.well.006,Upper Big Creek Groundwater Well 006,CFGLOC112948,5.7
-D12,BLDE,301,BLDE.AOS.groundwater.well.001,Blacktail Deer Creek Groundwater Well 001,CFGLOC103823,2.16
-D12,BLDE,302,BLDE.AOS.groundwater.well.002,Blacktail Deer Creek Groundwater Well 002,CFGLOC103825,2.57
-D12,BLDE,303,BLDE.AOS.groundwater.well.003,Blacktail Deer Creek Groundwater Well 003,CFGLOC103827,2.33
-D12,BLDE,304,BLDE.AOS.groundwater.well.004,Blacktail Deer Creek Groundwater Well 004,CFGLOC103829,2.81
-D12,BLDE,305,BLDE.AOS.groundwater.well.005,Blacktail Deer Creek Groundwater Well 005,CFGLOC103831,2.05
-D12,BLDE,306,BLDE.AOS.groundwater.well.006,Blacktail Deer Creek Groundwater Well 006,CFGLOC103833,2.24
-D12,BLDE,307,BLDE.AOS.groundwater.well.007,Blacktail Deer Creek Groundwater Well 007,CFGLOC103835,2.26
-D12,BLDE,308,BLDE.AOS.groundwater.well.008,Blacktail Deer Creek Groundwater Well 008,CFGLOC103837,2.29
-D11,BLUE,301,BLUE.AOS.groundwater.well.001,Blue River Groundwater Well 001,CFGLOC103859,10.16
-D11,BLUE,302,BLUE.AOS.groundwater.well.002,Blue River Groundwater Well 002,CFGLOC103861,5.53
-D11,BLUE,303,BLUE.AOS.groundwater.well.003,Blue River Groundwater Well 003,CFGLOC103863,4.3
-D11,BLUE,304,BLUE.AOS.groundwater.well.004,Blue River Groundwater Well 004,CFGLOC103865,5.04
-D11,BLUE,305,BLUE.AOS.groundwater.well.005,Blue River Groundwater Well 005,CFGLOC103867,5.47
-D11,BLUE,306,BLUE.AOS.groundwater.well.006,Blue River Groundwater Well 006,CFGLOC103869,6.95
-D11,BLUE,307,BLUE.AOS.groundwater.well.007,Blue River Groundwater Well 007,CFGLOC103871,4.7
-D11,BLUE,308,BLUE.AOS.groundwater.well.008,Blue River Groundwater Well 008,CFGLOC103873,5.48
-D08,BLWA,301,BLWA.AOS.groundwater.well.001,Black Warrior River Groundwater Well 001,CFGLOC112581,12.95
-D08,BLWA,302,BLWA.AOS.groundwater.well.002,Black Warrior River Groundwater Well 002,CFGLOC112582,13.19
-D08,BLWA,303,BLWA.AOS.groundwater.well.003,Black Warrior River Groundwater Well 003,CFGLOC112583,12.22
-D13,COMO,301,COMO.AOS.groundwater.well.001,Como Creek Groundwater Well 001,CFGLOC101546,2.53
-D13,COMO,302,COMO.AOS.groundwater.well.002,Como Creek Groundwater Well 002,CFGLOC101547,2.27
-D13,COMO,303,COMO.AOS.groundwater.well.003,Como Creek Groundwater Well 003,CFGLOC101548,1.86
-D13,COMO,304,COMO.AOS.groundwater.well.004,Como Creek Groundwater Well 004,CFGLOC101549,2.71
-D05,CRAM,301,CRAM.AOS.groundwater.well.001,Crampton Lake Groundwater Well 001,CFGLOC101421,9.21
-D05,CRAM,302,CRAM.AOS.groundwater.well.002,Crampton Lake Groundwater Well 002,CFGLOC101422,3.89
-D05,CRAM,303,CRAM.AOS.groundwater.well.003,Crampton Lake Groundwater Well 003,CFGLOC101423,6.24
-D05,CRAM,304,CRAM.AOS.groundwater.well.004,Crampton Lake Groundwater Well 004,CFGLOC101424,3.76
-D05,CRAM,305,CRAM.AOS.groundwater.well.005,Crampton Lake Groundwater Well 005,CFGLOC101425,12.29
-D05,CRAM,306,CRAM.AOS.groundwater.well.006,Crampton Lake Groundwater Well 006,CFGLOC101426,12.3
-D05,CRAM,307,CRAM.AOS.groundwater.well.007,Crampton Lake Groundwater Well 007,CFGLOC101427,4.57
-D05,CRAM,308,CRAM.AOS.groundwater.well.008,Crampton Lake Groundwater Well 008,CFGLOC101428,6.2
-D03,FLNT,301,FLNT.AOS.groundwater.well.001,Flint River Groundwater Well 001,CFGLOC112540,11.49
-D03,FLNT,302,FLNT.AOS.groundwater.well.002,Flint River Groundwater Well 002,CFGLOC112541,13.04
-D03,FLNT,303,FLNT.AOS.groundwater.well.003,Flint River Groundwater Well 003,CFGLOC112542,11.54
-D03,FLNT,304,FLNT.AOS.groundwater.well.004,Flint River Groundwater Well 004,CFGLOC112543,11.53
-D03,FLNT,305,FLNT.AOS.groundwater.well.005,Flint River Groundwater Well 005,CFGLOC112544,11.56
-D03,FLNT,306,FLNT.AOS.groundwater.well.006,Flint River Groundwater Well 006,CFGLOC112545,13.07
-D03,FLNT,307,FLNT.AOS.groundwater.well.007,Flint River Groundwater Well 007,CFGLOC112546,13.11
-D04,GUIL,301,GUIL.AOS.groundwater.well.001,Rio Yahuecas Groundwater Well 001,CFGLOC101328,12.96
-D04,GUIL,302,GUIL.AOS.groundwater.well.002,Rio Yahuecas Groundwater Well 002,CFGLOC101329,9.82
-D04,GUIL,303,GUIL.AOS.groundwater.well.003,Rio Yahuecas Groundwater Well 003,CFGLOC101330,7.18
-D04,GUIL,304,GUIL.AOS.groundwater.well.004,Rio Yahuecas Groundwater Well 004,CFGLOC101331,6.37
-D04,GUIL,305,GUIL.AOS.groundwater.well.005,Rio Yahuecas Groundwater Well 005,CFGLOC101332,8.62
-D04,GUIL,306,GUIL.AOS.groundwater.well.006,Rio Yahuecas Groundwater Well 006,CFGLOC101333,8.3
-D01,HOPB,301,HOPB.AOS.groundwater.well.001,Hop Brook Groundwater Well 001,CFGLOC103897,2.34
-D01,HOPB,302,HOPB.AOS.groundwater.well.002,Hop Brook Groundwater Well 002,CFGLOC103899,2.24
-D01,HOPB,303,HOPB.AOS.groundwater.well.003,Hop Brook Groundwater Well 003,CFGLOC103901,2.19
-D01,HOPB,304,HOPB.AOS.groundwater.well.004,Hop Brook Groundwater Well 004,CFGLOC103903,1.93
-D06,KING,301,KING.AOS.groundwater.well.001,Kings Creek Groundwater Well 001,CFGLOC101496,9.74
-D06,KING,302,KING.AOS.groundwater.well.002,Kings Creek Groundwater Well 002,CFGLOC101497,6.62
-D06,KING,303,KING.AOS.groundwater.well.003,Kings Creek Groundwater Well 003,CFGLOC101498,8.5
-D06,KING,304,KING.AOS.groundwater.well.004,Kings Creek Groundwater Well 004,CFGLOC101499,8.45
-D06,KING,305,KING.AOS.groundwater.well.005,Kings Creek Groundwater Well 005,CFGLOC101500,7.17
-D06,KING,306,KING.AOS.groundwater.well.006,Kings Creek Groundwater Well 006,CFGLOC101501,9.065
-D06,KING,307,KING.AOS.groundwater.well.007,Kings Creek Groundwater Well 007,CFGLOC101502,8.56
-D06,KING,308,KING.AOS.groundwater.well.008,Kings Creek Groundwater Well 008,CFGLOC101503,8.395
-D02,LEWI,301,LEWI.AOS.groundwater.well.001,Lewis Run Groundwater Well 001,CFGLOC103933,5.5
-D02,LEWI,302,LEWI.AOS.groundwater.well.002,Lewis Run Groundwater Well 002,CFGLOC103935,5.37
-D02,LEWI,303,LEWI.AOS.groundwater.well.003,Lewis Run Groundwater Well 003,CFGLOC103937,5.37
-D02,LEWI,304,LEWI.AOS.groundwater.well.004,Lewis Run Groundwater Well 004,CFGLOC103939,5.6
-D02,LEWI,305,LEWI.AOS.groundwater.well.005,Lewis Run Groundwater Well 005,CFGLOC103941,6.81
-D02,LEWI,306,LEWI.AOS.groundwater.well.006,Lewis Run Groundwater Well 006,CFGLOC103943,6.88
-D02,LEWI,307,LEWI.AOS.groundwater.well.007,Lewis Run Groundwater Well 007,CFGLOC103945,5.38
-D02,LEWI,308,LEWI.AOS.groundwater.well.008,Lewis Run Groundwater Well 008,CFGLOC103947,5.38
-D05,LIRO,301,LIRO.AOS.groundwater.well.001,Little Rock Lake Groundwater Well 001,CFGLOC112165,14.58
-D05,LIRO,302,LIRO.AOS.groundwater.well.002,Little Rock Lake Groundwater Well 002,CFGLOC112166,10.18
-D05,LIRO,303,LIRO.AOS.groundwater.well.003,Little Rock Lake Groundwater Well 003,CFGLOC112167,8.675
-D05,LIRO,304,LIRO.AOS.groundwater.well.004,Little Rock Lake Groundwater Well 004,CFGLOC112168,10.04
-D05,LIRO,305,LIRO.AOS.groundwater.well.005,Little Rock Lake Groundwater Well 005,CFGLOC112169,6.98
-D05,LIRO,306,LIRO.AOS.groundwater.well.006,Little Rock Lake Groundwater Well 006,CFGLOC112170,11.545
-D05,LIRO,307,LIRO.AOS.groundwater.well.007,Little Rock Lake Groundwater Well 007,CFGLOC112171,11.75
-D16,MART,301,MART.AOS.groundwater.well.001,Martha Creek Groundwater Well 001,CFGLOC103969,2.565
-D16,MART,302,MART.AOS.groundwater.well.002,Martha Creek Groundwater Well 002,CFGLOC103971,2.49
-D16,MART,303,MART.AOS.groundwater.well.003,Martha Creek Groundwater Well 003,CFGLOC103973,2.785
-D16,MART,304,MART.AOS.groundwater.well.004,Martha Creek Groundwater Well 004,CFGLOC103975,2.47
-D16,MART,305,MART.AOS.groundwater.well.005,Martha Creek Groundwater Well 005,CFGLOC103977,2.53
-D16,MART,306,MART.AOS.groundwater.well.006,Martha Creek Groundwater Well 006,CFGLOC103979,2.595
-D08,MAYF,301,MAYF.AOS.groundwater.well.001,Mayfield Creek Groundwater Well 001,CFGLOC101446,3.62
-D08,MAYF,302,MAYF.AOS.groundwater.well.002,Mayfield Creek Groundwater Well 002,CFGLOC101447,3.75
-D08,MAYF,303,MAYF.AOS.groundwater.well.003,Mayfield Creek Groundwater Well 003,CFGLOC101448,4.45
-D08,MAYF,304,MAYF.AOS.groundwater.well.004,Mayfield Creek Groundwater Well 004,CFGLOC101449,4
-D08,MAYF,305,MAYF.AOS.groundwater.well.005,Mayfield Creek Groundwater Well 005,CFGLOC101450,4
-D08,MAYF,306,MAYF.AOS.groundwater.well.006,Mayfield Creek Groundwater Well 006,CFGLOC101451,4.27
-D08,MAYF,307,MAYF.AOS.groundwater.well.007,Mayfield Creek Groundwater Well 007,CFGLOC101452,4.39
-D08,MAYF,308,MAYF.AOS.groundwater.well.008,Mayfield Creek Groundwater Well 008,CFGLOC101453,4.2
-D06,MCDI,301,MCDI.AOS.groundwater.well.001,McDiffett Creek Groundwater Well 001,CFGLOC104005,8.18
-D06,MCDI,302,MCDI.AOS.groundwater.well.002,McDiffett Creek Groundwater Well 002,CFGLOC104007,9.95
-D06,MCDI,303,MCDI.AOS.groundwater.well.003,McDiffett Creek Groundwater Well 003,CFGLOC104009,10.08
-D06,MCDI,304,MCDI.AOS.groundwater.well.004,McDiffett Creek Groundwater Well 004,CFGLOC104011,8.09
-D06,MCDI,305,MCDI.AOS.groundwater.well.005,McDiffett Creek Groundwater Well 005,CFGLOC104013,7.02
-D06,MCDI,306,MCDI.AOS.groundwater.well.006,McDiffett Creek Groundwater Well 006,CFGLOC104015,8.115
-D06,MCDI,307,MCDI.AOS.groundwater.well.007,McDiffett Creek Groundwater Well 007,CFGLOC104017,6.56
-D06,MCDI,308,MCDI.AOS.groundwater.well.008,McDiffett Creek Groundwater Well 008,CFGLOC104019,7.1
-D02,POSE,301,POSE.AOS.groundwater.well.001,Posey Creek Groundwater Well 001,CFGLOC101261,3.03
-D02,POSE,302,POSE.AOS.groundwater.well.002,Posey Creek Groundwater Well 002,CFGLOC101262,3.02
-D02,POSE,303,POSE.AOS.groundwater.well.003,Posey Creek Groundwater Well 003,CFGLOC101263,4.21
-D02,POSE,304,POSE.AOS.groundwater.well.004,Posey Creek Groundwater Well 004,CFGLOC101264,2.98
-D02,POSE,305,POSE.AOS.groundwater.well.005,Posey Creek Groundwater Well 005,CFGLOC101265,2.97
-D02,POSE,306,POSE.AOS.groundwater.well.006,Posey Creek Groundwater Well 006,CFGLOC101266,4.4
-D02,POSE,307,POSE.AOS.groundwater.well.007,Posey Creek Groundwater Well 007,CFGLOC101267,3.41
-D02,POSE,308,POSE.AOS.groundwater.well.008,Posey Creek Groundwater Well 008,CFGLOC101268,3.13
-D11,PRIN,301,PRIN.AOS.groundwater.well.001,Pringle Creek Groundwater Well 001,CFGLOC104078,8.2
-D11,PRIN,302,PRIN.AOS.groundwater.well.002,Pringle Creek Groundwater Well 002,CFGLOC104080,6.19
-D11,PRIN,303,PRIN.AOS.groundwater.well.003,Pringle Creek Groundwater Well 003,CFGLOC104082,8.73
-D11,PRIN,304,PRIN.AOS.groundwater.well.004,Pringle Creek Groundwater Well 004,CFGLOC104084,6.6
-D11,PRIN,305,PRIN.AOS.groundwater.well.005,Pringle Creek Groundwater Well 005,CFGLOC104086,4.98
-D11,PRIN,306,PRIN.AOS.groundwater.well.006,Pringle Creek Groundwater Well 006,CFGLOC104088,8.62
-D09,PRLA,301,PRLA.AOS.groundwater.well.001,Prairie Lake Groundwater Well 001,CFGLOC101052,10.135
-D09,PRLA,302,PRLA.AOS.groundwater.well.002,Prairie Lake Groundwater Well 002,CFGLOC101053,10.225
-D09,PRLA,303,PRLA.AOS.groundwater.well.003,Prairie Lake Groundwater Well 003,CFGLOC101054,10.51
-D09,PRLA,304,PRLA.AOS.groundwater.well.004,Prairie Lake Groundwater Well 004,CFGLOC101055,7.79
-D09,PRLA,305,PRLA.AOS.groundwater.well.005,Prairie Lake Groundwater Well 005,CFGLOC101056,12.29
-D09,PRLA,306,PRLA.AOS.groundwater.well.006,Prairie Lake Groundwater Well 006,CFGLOC101057,10.73
-D09,PRLA,307,PRLA.AOS.groundwater.well.007,Prairie Lake Groundwater Well 007,CFGLOC101058,15.81
-D09,PRLA,308,PRLA.AOS.groundwater.well.008,Prairie Lake Groundwater Well 008,CFGLOC101059,7.63
-D09,PRPO,301,PRPO.AOS.groundwater.well.001,Prairie Pothole Groundwater Well 001,CFGLOC101026,7.182
-D09,PRPO,302,PRPO.AOS.groundwater.well.002,Prairie Pothole Groundwater Well 002,CFGLOC101027,8.104
-D09,PRPO,303,PRPO.AOS.groundwater.well.003,Prairie Pothole Groundwater Well 003,CFGLOC101028,9.44
-D09,PRPO,304,PRPO.AOS.groundwater.well.004,Prairie Pothole Groundwater Well 004,CFGLOC101029,6.862
-D09,PRPO,305,PRPO.AOS.groundwater.well.005,Prairie Pothole Groundwater Well 005,CFGLOC101030,7.56
-D09,PRPO,306,PRPO.AOS.groundwater.well.006,Prairie Pothole Groundwater Well 006,CFGLOC101031,7.682
-D09,PRPO,307,PRPO.AOS.groundwater.well.007,Prairie Pothole Groundwater Well 007,CFGLOC101032,8.184
-D09,PRPO,308,PRPO.AOS.groundwater.well.008,Prairie Pothole Groundwater Well 008,CFGLOC101033,6.33
-D15,REDB,301,REDB.AOS.groundwater.well.001,Red Butte Creek Groundwater Well 001,CFGLOC101382,4.562
-D15,REDB,302,REDB.AOS.groundwater.well.002,Red Butte Creek Groundwater Well 002,CFGLOC101383,4.635
-D15,REDB,303,REDB.AOS.groundwater.well.003,Red Butte Creek Groundwater Well 003,CFGLOC101384,4.534
-D15,REDB,304,REDB.AOS.groundwater.well.004,Red Butte Creek Groundwater Well 004,CFGLOC101385,4.325
-D15,REDB,305,REDB.AOS.groundwater.well.005,Red Butte Creek Groundwater Well 005,CFGLOC101386,4.401
-D03,SUGG,301,SUGG.AOS.groundwater.well.001,Suggs Lake Groundwater Well 001,CFGLOC101065,14.69
-D03,SUGG,302,SUGG.AOS.groundwater.well.002,Suggs Lake Groundwater Well 002,CFGLOC101066,14.78
-D03,SUGG,303,SUGG.AOS.groundwater.well.003,Suggs Lake Groundwater Well 003,CFGLOC101067,13.13
-D03,SUGG,304,SUGG.AOS.groundwater.well.004,Suggs Lake Groundwater Well 004,CFGLOC101068,14.73
-D03,SUGG,305,SUGG.AOS.groundwater.well.005,Suggs Lake Groundwater Well 005,CFGLOC101069,14.86
-D03,SUGG,306,SUGG.AOS.groundwater.well.006,Suggs Lake Groundwater Well 006,CFGLOC101070,11.02
-D03,SUGG,307,SUGG.AOS.groundwater.well.007,Suggs Lake Groundwater Well 007,CFGLOC101071,17.64
-D03,SUGG,308,SUGG.AOS.groundwater.well.008,Suggs Lake Groundwater Well 008,CFGLOC101072,13
-D14,SYCA,301,SYCA.AOS.groundwater.well.001,Sycamore Creek Groundwater Well 001,CFGLOC112558,6.8
-D14,SYCA,302,SYCA.AOS.groundwater.well.002,Sycamore Creek Groundwater Well 002,CFGLOC112559,6.72
-D14,SYCA,303,SYCA.AOS.groundwater.well.003,Sycamore Creek Groundwater Well 003,CFGLOC112560,6.1
-D14,SYCA,304,SYCA.AOS.groundwater.well.004,Sycamore Creek Groundwater Well 004,CFGLOC112561,6.17
-D08,TOMB,301,TOMB.AOS.groundwater.well.001,Tombigbee River Groundwater Well 001,CFGLOC112620,16.69
-D08,TOMB,302,TOMB.AOS.groundwater.well.002,Tombigbee River Groundwater Well 002,CFGLOC112621,16.1
-D08,TOMB,303,TOMB.AOS.groundwater.well.003,Tombigbee River Groundwater Well 003,CFGLOC112622,16.22
-D07,WALK,301,WALK.AOS.groundwater.well.001,Walker Branch Groundwater Well 001,CFGLOC101521,4.28
-D07,WALK,302,WALK.AOS.groundwater.well.002,Walker Branch Groundwater Well 002,CFGLOC101522,2.33
-D07,WALK,303,WALK.AOS.groundwater.well.003,Walker Branch Groundwater Well 003,CFGLOC101523,4.54
-D13,WLOU,301,WLOU.AOS.groundwater.well.001,West St Louis Creek Groundwater Well 001,CFGLOC104116,2.16
-D13,WLOU,302,WLOU.AOS.groundwater.well.002,West St Louis Creek Groundwater Well 002,CFGLOC104118,2.37
-D13,WLOU,303,WLOU.AOS.groundwater.well.003,West St Louis Creek Groundwater Well 003,CFGLOC104120,2.67
-D13,WLOU,304,WLOU.AOS.groundwater.well.004,West St Louis Creek Groundwater Well 004,CFGLOC104122,2.98
-D13,WLOU,305,WLOU.AOS.groundwater.well.005,West St Louis Creek Groundwater Well 005,CFGLOC104124,2.35
-D13,WLOU,306,WLOU.AOS.groundwater.well.006,West St Louis Creek Groundwater Well 006,CFGLOC104126,2.12
-D13,WLOU,307,WLOU.AOS.groundwater.well.007,West St Louis Creek Groundwater Well 007,CFGLOC104128,2.36
-D13,WLOU,308,WLOU.AOS.groundwater.well.008,West St Louis Creek Groundwater Well 008,CFGLOC104130,2.8
+domain_id,site_name,HOR,name,description,cfgloc,well_depth,cable_length
+D01,HOPB,301,HOPB.AOS.groundwater.well.001,Hop Brook Groundwater Well 001,CFGLOC103897,2.34,2.14
+D01,HOPB,302,HOPB.AOS.groundwater.well.002,Hop Brook Groundwater Well 002,CFGLOC103899,2.24,2.017
+D01,HOPB,303,HOPB.AOS.groundwater.well.003,Hop Brook Groundwater Well 003,CFGLOC103901,2.19,1.97
+D01,HOPB,304,HOPB.AOS.groundwater.well.004,Hop Brook Groundwater Well 004,CFGLOC103903,1.93,1.7
+D02,LEWI,301,LEWI.AOS.groundwater.well.001,Lewis Run Groundwater Well 001,CFGLOC103933,5.5,5
+D02,LEWI,302,LEWI.AOS.groundwater.well.002,Lewis Run Groundwater Well 002,CFGLOC103935,5.37,4.87
+D02,LEWI,303,LEWI.AOS.groundwater.well.003,Lewis Run Groundwater Well 003,CFGLOC103937,5.37,4.87
+D02,LEWI,304,LEWI.AOS.groundwater.well.004,Lewis Run Groundwater Well 004,CFGLOC103939,5.6,5.1
+D02,LEWI,305,LEWI.AOS.groundwater.well.005,Lewis Run Groundwater Well 005,CFGLOC103941,6.81,6.17
+D02,LEWI,306,LEWI.AOS.groundwater.well.006,Lewis Run Groundwater Well 006,CFGLOC103943,6.88,6.23
+D02,LEWI,307,LEWI.AOS.groundwater.well.007,Lewis Run Groundwater Well 007,CFGLOC103945,5.38,4.88
+D02,LEWI,308,LEWI.AOS.groundwater.well.008,Lewis Run Groundwater Well 008,CFGLOC103947,5.38,4.8
+D02,POSE,301,POSE.AOS.groundwater.well.001,Posey Creek Groundwater Well 001,CFGLOC101261,3.03,2.829
+D02,POSE,302,POSE.AOS.groundwater.well.002,Posey Creek Groundwater Well 002,CFGLOC101262,3.02,2.852
+D02,POSE,303,POSE.AOS.groundwater.well.003,Posey Creek Groundwater Well 003,CFGLOC101263,4.21,3.71
+D02,POSE,304,POSE.AOS.groundwater.well.004,Posey Creek Groundwater Well 004,CFGLOC101264,2.98,2.78
+D02,POSE,305,POSE.AOS.groundwater.well.005,Posey Creek Groundwater Well 005,CFGLOC101265,2.97,2.77
+D02,POSE,306,POSE.AOS.groundwater.well.006,Posey Creek Groundwater Well 006,CFGLOC101266,4.4,2.64
+D02,POSE,307,POSE.AOS.groundwater.well.007,Posey Creek Groundwater Well 007,CFGLOC101267,3.41,2.91
+D02,POSE,308,POSE.AOS.groundwater.well.008,Posey Creek Groundwater Well 008,CFGLOC101268,3.13,2.63
+D03,BARC,301,BARC.AOS.groundwater.well.001,Barco Lake Groundwater Well 001,CFGLOC101039,12.27,11.975
+D03,BARC,302,BARC.AOS.groundwater.well.002,Barco Lake Groundwater Well 002,CFGLOC101040,11.59,11.1
+D03,BARC,303,BARC.AOS.groundwater.well.003,Barco Lake Groundwater Well 003,CFGLOC101041,10.7,9.57
+D03,BARC,304,BARC.AOS.groundwater.well.004,Barco Lake Groundwater Well 004,CFGLOC101042,10.19,9.68
+D03,BARC,305,BARC.AOS.groundwater.well.005,Barco Lake Groundwater Well 005,CFGLOC101043,11.58,11.083
+D03,BARC,306,BARC.AOS.groundwater.well.006,Barco Lake Groundwater Well 006,CFGLOC101044,9.24,11.118
+D03,BARC,307,BARC.AOS.groundwater.well.007,Barco Lake Groundwater Well 007,CFGLOC101045,13.05,11.721
+D03,BARC,308,BARC.AOS.groundwater.well.008,Barco Lake Groundwater Well 008,CFGLOC101046,13.3,12.841
+D03,FLNT,301,FLNT.AOS.groundwater.well.001,Flint River Groundwater Well 001,CFGLOC112540,11.49,9.88
+D03,FLNT,302,FLNT.AOS.groundwater.well.002,Flint River Groundwater Well 002,CFGLOC112541,13.04,12.05
+D03,FLNT,303,FLNT.AOS.groundwater.well.003,Flint River Groundwater Well 003,CFGLOC112542,11.54,9.425
+D03,FLNT,304,FLNT.AOS.groundwater.well.004,Flint River Groundwater Well 004,CFGLOC112543,11.53,9.45
+D03,FLNT,305,FLNT.AOS.groundwater.well.005,Flint River Groundwater Well 005,CFGLOC112544,11.56,9.35
+D03,FLNT,306,FLNT.AOS.groundwater.well.006,Flint River Groundwater Well 006,CFGLOC112545,13.07,10.94
+D03,FLNT,307,FLNT.AOS.groundwater.well.007,Flint River Groundwater Well 007,CFGLOC112546,13.11,11.3
+D03,SUGG,301,SUGG.AOS.groundwater.well.001,Suggs Lake Groundwater Well 001,CFGLOC101065,14.69,14.18
+D03,SUGG,302,SUGG.AOS.groundwater.well.002,Suggs Lake Groundwater Well 002,CFGLOC101066,14.78,14.28
+D03,SUGG,303,SUGG.AOS.groundwater.well.003,Suggs Lake Groundwater Well 003,CFGLOC101067,13.13,12.653
+D03,SUGG,304,SUGG.AOS.groundwater.well.004,Suggs Lake Groundwater Well 004,CFGLOC101068,14.73,14.459
+D03,SUGG,305,SUGG.AOS.groundwater.well.005,Suggs Lake Groundwater Well 005,CFGLOC101069,14.86,14.702
+D03,SUGG,306,SUGG.AOS.groundwater.well.006,Suggs Lake Groundwater Well 006,CFGLOC101070,11.02,10.698
+D03,SUGG,307,SUGG.AOS.groundwater.well.007,Suggs Lake Groundwater Well 007,CFGLOC101071,17.64,17.462
+D03,SUGG,308,SUGG.AOS.groundwater.well.008,Suggs Lake Groundwater Well 008,CFGLOC101072,13,12.511
+D04,GUIL,301,GUIL.AOS.groundwater.well.001,Rio Yahuecas Groundwater Well 001,CFGLOC101328,12.96,12.11
+D04,GUIL,302,GUIL.AOS.groundwater.well.002,Rio Yahuecas Groundwater Well 002,CFGLOC101329,9.82,9.12
+D04,GUIL,303,GUIL.AOS.groundwater.well.003,Rio Yahuecas Groundwater Well 003,CFGLOC101330,7.18,6.59
+D04,GUIL,304,GUIL.AOS.groundwater.well.004,Rio Yahuecas Groundwater Well 004,CFGLOC101331,6.37,5.765
+D04,GUIL,305,GUIL.AOS.groundwater.well.005,Rio Yahuecas Groundwater Well 005,CFGLOC101332,8.62,8.267
+D04,GUIL,306,GUIL.AOS.groundwater.well.006,Rio Yahuecas Groundwater Well 006,CFGLOC101333,8.3,7.775
+D05,CRAM,301,CRAM.AOS.groundwater.well.001,Crampton Lake Groundwater Well 001,CFGLOC101421,9.21,8.71
+D05,CRAM,302,CRAM.AOS.groundwater.well.002,Crampton Lake Groundwater Well 002,CFGLOC101422,3.89,3.5
+D05,CRAM,303,CRAM.AOS.groundwater.well.003,Crampton Lake Groundwater Well 003,CFGLOC101423,6.24,6.04
+D05,CRAM,304,CRAM.AOS.groundwater.well.004,Crampton Lake Groundwater Well 004,CFGLOC101424,3.76,3.56
+D05,CRAM,305,CRAM.AOS.groundwater.well.005,Crampton Lake Groundwater Well 005,CFGLOC101425,12.29,11.79
+D05,CRAM,306,CRAM.AOS.groundwater.well.006,Crampton Lake Groundwater Well 006,CFGLOC101426,12.3,11.8
+D05,CRAM,307,CRAM.AOS.groundwater.well.007,Crampton Lake Groundwater Well 007,CFGLOC101427,4.57,4.07
+D05,CRAM,308,CRAM.AOS.groundwater.well.008,Crampton Lake Groundwater Well 008,CFGLOC101428,6.2,5.7
+D05,LIRO,301,LIRO.AOS.groundwater.well.001,Little Rock Lake Groundwater Well 001,CFGLOC112165,14.58,14.08
+D05,LIRO,302,LIRO.AOS.groundwater.well.002,Little Rock Lake Groundwater Well 002,CFGLOC112166,10.18,9.6
+D05,LIRO,303,LIRO.AOS.groundwater.well.003,Little Rock Lake Groundwater Well 003,CFGLOC112167,8.675,8.18
+D05,LIRO,304,LIRO.AOS.groundwater.well.004,Little Rock Lake Groundwater Well 004,CFGLOC112168,10.04,9.54
+D05,LIRO,305,LIRO.AOS.groundwater.well.005,Little Rock Lake Groundwater Well 005,CFGLOC112169,6.98,6.48
+D05,LIRO,306,LIRO.AOS.groundwater.well.006,Little Rock Lake Groundwater Well 006,CFGLOC112170,11.545,11.02
+D05,LIRO,307,LIRO.AOS.groundwater.well.007,Little Rock Lake Groundwater Well 007,CFGLOC112171,11.75,10.95
+D06,KING,301,KING.AOS.groundwater.well.001,Kings Creek Groundwater Well 001,CFGLOC101496,9.74,9.2
+D06,KING,302,KING.AOS.groundwater.well.002,Kings Creek Groundwater Well 002,CFGLOC101497,6.62,6.12
+D06,KING,303,KING.AOS.groundwater.well.003,Kings Creek Groundwater Well 003,CFGLOC101498,8.5,7.95
+D06,KING,304,KING.AOS.groundwater.well.004,Kings Creek Groundwater Well 004,CFGLOC101499,8.45,8.36
+D06,KING,305,KING.AOS.groundwater.well.005,Kings Creek Groundwater Well 005,CFGLOC101500,7.17,6.63
+D06,KING,306,KING.AOS.groundwater.well.006,Kings Creek Groundwater Well 006,CFGLOC101501,9.065,8.57
+D06,KING,307,KING.AOS.groundwater.well.007,Kings Creek Groundwater Well 007,CFGLOC101502,8.56,8.06
+D06,KING,308,KING.AOS.groundwater.well.008,Kings Creek Groundwater Well 008,CFGLOC101503,8.395,7.86
+D06,MCDI,301,MCDI.AOS.groundwater.well.001,McDiffett Creek Groundwater Well 001,CFGLOC104005,8.18,6.32
+D06,MCDI,302,MCDI.AOS.groundwater.well.002,McDiffett Creek Groundwater Well 002,CFGLOC104007,9.95,9.18
+D06,MCDI,303,MCDI.AOS.groundwater.well.003,McDiffett Creek Groundwater Well 003,CFGLOC104009,10.08,9.29
+D06,MCDI,304,MCDI.AOS.groundwater.well.004,McDiffett Creek Groundwater Well 004,CFGLOC104011,8.09,6.02
+D06,MCDI,305,MCDI.AOS.groundwater.well.005,McDiffett Creek Groundwater Well 005,CFGLOC104013,7.02,6.12
+D06,MCDI,306,MCDI.AOS.groundwater.well.006,McDiffett Creek Groundwater Well 006,CFGLOC104015,8.115,7.31
+D06,MCDI,307,MCDI.AOS.groundwater.well.007,McDiffett Creek Groundwater Well 007,CFGLOC104017,6.56,6.01
+D06,MCDI,308,MCDI.AOS.groundwater.well.008,McDiffett Creek Groundwater Well 008,CFGLOC104019,7.1,6.56
+D07,WALK,301,WALK.AOS.groundwater.well.001,Walker Branch Groundwater Well 001,CFGLOC101521,4.28,3.71
+D07,WALK,302,WALK.AOS.groundwater.well.002,Walker Branch Groundwater Well 002,CFGLOC101522,2.33,2.08
+D07,WALK,303,WALK.AOS.groundwater.well.003,Walker Branch Groundwater Well 003,CFGLOC101523,4.54,3.99
+D08,BLWA,301,BLWA.AOS.groundwater.well.001,Black Warrior River Groundwater Well 001,CFGLOC112581,12.95,12.43
+D08,BLWA,302,BLWA.AOS.groundwater.well.002,Black Warrior River Groundwater Well 002,CFGLOC112582,13.19,12.69
+D08,BLWA,303,BLWA.AOS.groundwater.well.003,Black Warrior River Groundwater Well 003,CFGLOC112583,12.22,12.95
+D08,MAYF,301,MAYF.AOS.groundwater.well.001,Mayfield Creek Groundwater Well 001,CFGLOC101446,3.62,3.09
+D08,MAYF,302,MAYF.AOS.groundwater.well.002,Mayfield Creek Groundwater Well 002,CFGLOC101447,3.75,3.21
+D08,MAYF,303,MAYF.AOS.groundwater.well.003,Mayfield Creek Groundwater Well 003,CFGLOC101448,4.45,3.91
+D08,MAYF,304,MAYF.AOS.groundwater.well.004,Mayfield Creek Groundwater Well 004,CFGLOC101449,4,3.47
+D08,MAYF,305,MAYF.AOS.groundwater.well.005,Mayfield Creek Groundwater Well 005,CFGLOC101450,4,3.45
+D08,MAYF,306,MAYF.AOS.groundwater.well.006,Mayfield Creek Groundwater Well 006,CFGLOC101451,4.27,3.71
+D08,MAYF,307,MAYF.AOS.groundwater.well.007,Mayfield Creek Groundwater Well 007,CFGLOC101452,4.39,3.86
+D08,MAYF,308,MAYF.AOS.groundwater.well.008,Mayfield Creek Groundwater Well 008,CFGLOC101453,4.2,3.64
+D08,TOMB,301,TOMB.AOS.groundwater.well.001,Tombigbee River Groundwater Well 001,CFGLOC112620,16.69,16.19
+D08,TOMB,302,TOMB.AOS.groundwater.well.002,Tombigbee River Groundwater Well 002,CFGLOC112621,16.1,15.6
+D08,TOMB,303,TOMB.AOS.groundwater.well.003,Tombigbee River Groundwater Well 003,CFGLOC112622,16.22,15.72
+D09,PRLA,301,PRLA.AOS.groundwater.well.001,Prairie Lake Groundwater Well 001,CFGLOC101052,10.135,9.635
+D09,PRLA,302,PRLA.AOS.groundwater.well.002,Prairie Lake Groundwater Well 002,CFGLOC101053,10.225,9.725
+D09,PRLA,303,PRLA.AOS.groundwater.well.003,Prairie Lake Groundwater Well 003,CFGLOC101054,10.51,10.005
+D09,PRLA,304,PRLA.AOS.groundwater.well.004,Prairie Lake Groundwater Well 004,CFGLOC101055,7.79,7.285
+D09,PRLA,305,PRLA.AOS.groundwater.well.005,Prairie Lake Groundwater Well 005,CFGLOC101056,12.29,11.793
+D09,PRLA,306,PRLA.AOS.groundwater.well.006,Prairie Lake Groundwater Well 006,CFGLOC101057,10.73,10.23
+D09,PRLA,307,PRLA.AOS.groundwater.well.007,Prairie Lake Groundwater Well 007,CFGLOC101058,15.81,15.31
+D09,PRLA,308,PRLA.AOS.groundwater.well.008,Prairie Lake Groundwater Well 008,CFGLOC101059,7.63,7.132
+D09,PRPO,301,PRPO.AOS.groundwater.well.001,Prairie Pothole Groundwater Well 001,CFGLOC101026,7.182,6.682
+D09,PRPO,302,PRPO.AOS.groundwater.well.002,Prairie Pothole Groundwater Well 002,CFGLOC101027,8.104,7.604
+D09,PRPO,303,PRPO.AOS.groundwater.well.003,Prairie Pothole Groundwater Well 003,CFGLOC101028,9.44,8.94
+D09,PRPO,304,PRPO.AOS.groundwater.well.004,Prairie Pothole Groundwater Well 004,CFGLOC101029,6.862,6.363
+D09,PRPO,305,PRPO.AOS.groundwater.well.005,Prairie Pothole Groundwater Well 005,CFGLOC101030,7.56,7.065
+D09,PRPO,306,PRPO.AOS.groundwater.well.006,Prairie Pothole Groundwater Well 006,CFGLOC101031,7.682,7.182
+D09,PRPO,307,PRPO.AOS.groundwater.well.007,Prairie Pothole Groundwater Well 007,CFGLOC101032,8.184,7.684
+D09,PRPO,308,PRPO.AOS.groundwater.well.008,Prairie Pothole Groundwater Well 008,CFGLOC101033,6.33,5.835
+D10,ARIK,301,ARIK.AOS.groundwater.well.001,Arikaree River Groundwater Well 001,CFGLOC101239,9.44,8.56
+D10,ARIK,302,ARIK.AOS.groundwater.well.002,Arikaree River Groundwater Well 002,CFGLOC101240,9.56,8.86
+D10,ARIK,303,ARIK.AOS.groundwater.well.003,Arikaree River Groundwater Well 003,CFGLOC101241,9.54,8.92
+D10,ARIK,304,ARIK.AOS.groundwater.well.004,Arikaree River Groundwater Well 004,CFGLOC101242,9.12,8.43
+D10,ARIK,305,ARIK.AOS.groundwater.well.005,Arikaree River Groundwater Well 005,CFGLOC101243,9.7,8.82
+D10,ARIK,306,ARIK.AOS.groundwater.well.006,Arikaree River Groundwater Well 006,CFGLOC101244,9.7,8.35
+D11,BLUE,302,BLUE.AOS.groundwater.well.002,Blue River Groundwater Well 002,CFGLOC103861,5.53,5.06
+D11,BLUE,303,BLUE.AOS.groundwater.well.003,Blue River Groundwater Well 003,CFGLOC103863,4.3,3.8
+D11,BLUE,304,BLUE.AOS.groundwater.well.004,Blue River Groundwater Well 004,CFGLOC103865,5.04,4.54
+D11,BLUE,305,BLUE.AOS.groundwater.well.005,Blue River Groundwater Well 005,CFGLOC103867,5.47,5.02
+D11,BLUE,306,BLUE.AOS.groundwater.well.006,Blue River Groundwater Well 006,CFGLOC103869,6.95,6.43
+D11,BLUE,307,BLUE.AOS.groundwater.well.007,Blue River Groundwater Well 007,CFGLOC103871,4.7,4.17
+D11,BLUE,308,BLUE.AOS.groundwater.well.008,Blue River Groundwater Well 008,CFGLOC103873,5.48,5
+D11,PRIN,301,PRIN.AOS.groundwater.well.001,Pringle Creek Groundwater Well 001,CFGLOC104078,8.2,7.7
+D11,PRIN,302,PRIN.AOS.groundwater.well.002,Pringle Creek Groundwater Well 002,CFGLOC104080,6.19,5.7
+D11,PRIN,303,PRIN.AOS.groundwater.well.003,Pringle Creek Groundwater Well 003,CFGLOC104082,8.73,8.23
+D11,PRIN,304,PRIN.AOS.groundwater.well.004,Pringle Creek Groundwater Well 004,CFGLOC104084,6.6,6.1
+D11,PRIN,305,PRIN.AOS.groundwater.well.005,Pringle Creek Groundwater Well 005,CFGLOC104086,4.98,4.88
+D11,PRIN,306,PRIN.AOS.groundwater.well.006,Pringle Creek Groundwater Well 006,CFGLOC104088,8.62,7.83
+D12,BLDE,301,BLDE.AOS.groundwater.well.001,Blacktail Deer Creek Groundwater Well 001,CFGLOC103823,2.16,2.09
+D12,BLDE,302,BLDE.AOS.groundwater.well.002,Blacktail Deer Creek Groundwater Well 002,CFGLOC103825,2.57,2.52
+D12,BLDE,303,BLDE.AOS.groundwater.well.003,Blacktail Deer Creek Groundwater Well 003,CFGLOC103827,2.33,2.39
+D12,BLDE,304,BLDE.AOS.groundwater.well.004,Blacktail Deer Creek Groundwater Well 004,CFGLOC103829,2.81,2.73
+D12,BLDE,305,BLDE.AOS.groundwater.well.005,Blacktail Deer Creek Groundwater Well 005,CFGLOC103831,2.05,1.99
+D12,BLDE,306,BLDE.AOS.groundwater.well.006,Blacktail Deer Creek Groundwater Well 006,CFGLOC103833,2.24,2.19
+D12,BLDE,307,BLDE.AOS.groundwater.well.007,Blacktail Deer Creek Groundwater Well 007,CFGLOC103835,2.26,2.23
+D12,BLDE,308,BLDE.AOS.groundwater.well.008,Blacktail Deer Creek Groundwater Well 008,CFGLOC103837,2.29,2.24
+D13,COMO,301,COMO.AOS.groundwater.well.001,Como Creek Groundwater Well 001,CFGLOC101546,2.53,2.26
+D13,COMO,302,COMO.AOS.groundwater.well.002,Como Creek Groundwater Well 002,CFGLOC101547,2.27,2.07
+D13,COMO,303,COMO.AOS.groundwater.well.003,Como Creek Groundwater Well 003,CFGLOC101548,1.86,1.613
+D13,COMO,304,COMO.AOS.groundwater.well.004,Como Creek Groundwater Well 004,CFGLOC101549,2.71,2.49
+D13,WLOU,301,WLOU.AOS.groundwater.well.001,West St Louis Creek Groundwater Well 001,CFGLOC104116,2.16,1.96
+D13,WLOU,302,WLOU.AOS.groundwater.well.002,West St Louis Creek Groundwater Well 002,CFGLOC104118,2.37,2.17
+D13,WLOU,303,WLOU.AOS.groundwater.well.003,West St Louis Creek Groundwater Well 003,CFGLOC104120,2.67,2.47
+D13,WLOU,304,WLOU.AOS.groundwater.well.004,West St Louis Creek Groundwater Well 004,CFGLOC104122,2.98,2.78
+D13,WLOU,305,WLOU.AOS.groundwater.well.005,West St Louis Creek Groundwater Well 005,CFGLOC104124,2.35,2.15
+D13,WLOU,306,WLOU.AOS.groundwater.well.006,West St Louis Creek Groundwater Well 006,CFGLOC104126,2.12,1.92
+D13,WLOU,307,WLOU.AOS.groundwater.well.007,West St Louis Creek Groundwater Well 007,CFGLOC104128,2.36,2.16
+D13,WLOU,308,WLOU.AOS.groundwater.well.008,West St Louis Creek Groundwater Well 008,CFGLOC104130,2.8,2.6
+D14,SYCA,301,SYCA.AOS.groundwater.well.001,Sycamore Creek Groundwater Well 001,CFGLOC112558,6.8,6.2
+D14,SYCA,302,SYCA.AOS.groundwater.well.002,Sycamore Creek Groundwater Well 002,CFGLOC112559,6.72,6.258
+D14,SYCA,303,SYCA.AOS.groundwater.well.003,Sycamore Creek Groundwater Well 003,CFGLOC112560,6.1,5.59
+D14,SYCA,304,SYCA.AOS.groundwater.well.004,Sycamore Creek Groundwater Well 004,CFGLOC112561,6.17,6.307
+D15,REDB,301,REDB.AOS.groundwater.well.001,Red Butte Creek Groundwater Well 001,CFGLOC101382,4.562,4.06
+D15,REDB,302,REDB.AOS.groundwater.well.002,Red Butte Creek Groundwater Well 002,CFGLOC101383,4.635,4.14
+D15,REDB,303,REDB.AOS.groundwater.well.003,Red Butte Creek Groundwater Well 003,CFGLOC101384,4.534,4.035
+D15,REDB,304,REDB.AOS.groundwater.well.004,Red Butte Creek Groundwater Well 004,CFGLOC101385,4.325,4.22
+D15,REDB,305,REDB.AOS.groundwater.well.005,Red Butte Creek Groundwater Well 005,CFGLOC101386,4.401,4.3
+D16,MART,301,MART.AOS.groundwater.well.001,Martha Creek Groundwater Well 001,CFGLOC103969,2.565,2.356
+D16,MART,302,MART.AOS.groundwater.well.002,Martha Creek Groundwater Well 002,CFGLOC103971,2.49,2.368
+D16,MART,303,MART.AOS.groundwater.well.003,Martha Creek Groundwater Well 003,CFGLOC103973,2.785,2.572
+D16,MART,304,MART.AOS.groundwater.well.004,Martha Creek Groundwater Well 004,CFGLOC103975,2.47,2.415
+D16,MART,305,MART.AOS.groundwater.well.005,Martha Creek Groundwater Well 005,CFGLOC103977,2.53,2.33
+D16,MART,306,MART.AOS.groundwater.well.006,Martha Creek Groundwater Well 006,CFGLOC103979,2.595,2.382
+D17,BIGC,301,BIGC.AOS.groundwater.well.001,Upper Big Creek Groundwater Well 001,CFGLOC112943,5.46,4.96
+D17,BIGC,302,BIGC.AOS.groundwater.well.002,Upper Big Creek Groundwater Well 002,CFGLOC112944,6.55,6.02
+D17,BIGC,303,BIGC.AOS.groundwater.well.003,Upper Big Creek Groundwater Well 003,CFGLOC112945,8.15,7.66
+D17,BIGC,304,BIGC.AOS.groundwater.well.004,Upper Big Creek Groundwater Well 004,CFGLOC112946,4.13,3.63
+D17,BIGC,304,BIGC.AOS.groundwater.well.005,Upper Big Creek Groundwater Well 005,CFGLOC112947,4.355,3.86
+D17,BIGC,305,BIGC.AOS.groundwater.well.006,Upper Big Creek Groundwater Well 006,CFGLOC112948,5.7,5.2

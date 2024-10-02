@@ -298,16 +298,9 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     {
       #Updates the location values to match GWW locations. 301 represents GWW1 for example.
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = 301:308)
-      shinyjs::show("wellDepth")
-      shinyjs::show("cableLength")
-      shinyjs::show("optionalGWWMessage")
     } else {
       #Updates the location values to match SW locations. 101 represents S1, 131 is also S1 but the selection is site dependent whether its a standalone troll or not.
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = c(101,102,110,131,132))
-      shinyjs::show("trollType")
-      shinyjs::hide("optionalGWWMessage")
-      shinyjs::hide("wellDepth")
-      shinyjs::hide("cableLength")
     }
   }) #End observeEvent for waterType
   
@@ -332,7 +325,6 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
   observeEvent(input$rtdvRun, {
     shinyjs::show("GaugeHeightLoadBar")
     updateTabsetPanel(session, "calculatedStageTimeSeries", selected = "CG_timeSeries")
-
     realTimeDataViewer(input, output, session)
   })
   # Select site ID based on the domain ID chosen
