@@ -119,8 +119,9 @@ body <- shinydashboard::dashboardBody(
                                                       div(id = "Title_CWE",(h3("Calculated Stage Height"))),
                                                       div(id = "LB",progressBar(id = "GaugeHeightLoadBar", value = 0, title = "Waiting for run button click...")),  ##******need to update this value input option in order to work*****##
                                                       plotlyOutput("calculatedStagePlot"),
-                                                      textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}")), 
-                                                      plotlyOutput("rtdvDischargePlotly")
+                                                      plotlyOutput("rtdvDischargePlotly"),
+                                                      textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}"))
+                                                      
                                                       )
                                               )
                                         )
