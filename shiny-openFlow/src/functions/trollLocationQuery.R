@@ -145,7 +145,6 @@ TLOC <- function(input, output, session, site, startDate, endDate, waterElevatio
     {
       waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
                                            waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$distanceToAdd)
-      print(dataToApplyOffset+as.numeric(trollLocations$distanceToAdd))
     } else {
       waterElevationDF$waterColumnHeight[waterElevationDF$Date>=locStart&
                                            waterElevationDF$Date<locEnd] <- dataToApplyOffset+as.numeric(trollLocations$zRefOffset)

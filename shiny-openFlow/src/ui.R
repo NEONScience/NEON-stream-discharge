@@ -100,7 +100,7 @@ body <- shinydashboard::dashboardBody(
                                           dateRangeInput(inputId = "rtdvDaterange", label = "Select date range of pressure reading(s)", start = Sys.Date()-2, end = Sys.Date()-1, max = Sys.Date()-1),
                                           #Input for selecting whether L0 data is used for the graph or not
                                           selectizeInput(input = "dataSource", label = "Where is the data coming from?", choices = c("L0 Data Query", "Grafana CSV File", "Instant Pressure Reading")),
-                                          fileInput(inputId = "grafanaFile", label = "Upload the Grafana .csv file (Under Maintenance DONT USE)"),
+                                          fileInput(inputId = "grafanaFile", label = "Upload the Grafana .csv file"),
                                           #Text input for whenever dataSource input is set to not query L0 data
                                           textInput(inputId = "singlePressure", label = "Insert single pressure reading here", value = ""),
                                           #Load bar to show progress of gathering spatial data associated with the TROLL
@@ -114,13 +114,18 @@ body <- shinydashboard::dashboardBody(
                                                 includeHTML("introMaterials/staffGaugeIntroText.html")
                                                       ),
                                             tabPanel( id = "CG_timeSeries",
-                                                      title = "Calculated Stage Height",       
+                                                      title = "Calculated Heights",
                                                       #Shows plotly output of water depth with time series
-                                                      div(id = "Title_CWE",(h3("Calculated Stage Height"))),
-                                                      div(id = "LB",progressBar(id = "GaugeHeightLoadBar", value = 0, title = "Waiting for run button click...")),  ##******need to update this value input option in order to work*****##
-                                                      plotlyOutput("calculatedStagePlot"),
-                                                      plotlyOutput("rtdvDischargePlotly"),
-                                                      textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}"))
+                                                      div(id = "Title_CWE",(h3("Calculated Water Elevation"))),
+                                                      div(id = "Title_CSH",(h3("Calculated Stage Height"))),
+                                                      # plotlyOutput("calculatedStagePlot"),
+                                                      plotlyOutput("rtdvStageDischargePlotly"),
+                                                      div( id = "singleOutputBox",
+                                                           box( width = 10,
+                                                             textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}")),
+                                                             textOutput("EstimatedDischarge"), tags$head(tags$style("#EstimatedDischarge{font-size: 20px;}"))
+                                                           )
+                                                           )
                                                       
                                                       )
                                               )

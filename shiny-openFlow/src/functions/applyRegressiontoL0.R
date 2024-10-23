@@ -7,7 +7,7 @@ applyRegtoL0 <- function(regressionData = regressionData, L0PressureData = water
   updateProgressBar(session = session, id = "GaugeHeightLoadBar", value = 80, title = "Applying regression to water column height")
   regressionData <- regressionData %>% filter(regressionData$siteID == site)
   #FIX
-  regressionData_dateFiltered <- regressionData[startDate <= regressionData$regressionStartDate & regressionData$regressionEndDate >= endDate,]
+  regressionData_dateFiltered <<- regressionData[startDate <= regressionData$regressionStartDate & regressionData$regressionEndDate >= endDate,]
   
   #Set data types for regression data
   regressionData$regressionStartDate <- as.POSIXct(regressionData$regressionStartDate, tz = "UTC", format = "%Y-%m-%dT%H:%M:%S")
@@ -53,6 +53,5 @@ applyRegtoL0 <- function(regressionData = regressionData, L0PressureData = water
     L0PressureData$systematicUnc <- NA
   }
   updateProgressBar(session = session, id = "GaugeHeightLoadBar", value = 95, title = "Finished applying regression to water column height")
-  
   return(L0PressureData)
 }
