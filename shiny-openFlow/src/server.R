@@ -352,7 +352,27 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     
   })
   
+##plotting DSCXS for CUPE
+  #Reactive expression that triggers Show Plot button when clicked
+  xs_plot<-eventReactive(input$ShowPlot,{
+    dischargePlot
+  #   dischargePlot <- CUPE_XS.plot%>%
+  #     #add_trace(y= c1Gauge,name = 'Control 1 Gauge Height',mode='lines',line = list(width = 3, dash='dash')) %>%
+  #     #add_trace(y= c2Gauge,name = 'Control 2 Gauge Height',mode='lines',line = list(width = 3, dash='dash')) %>%
+  #     add_trace(y= baseFlowGauge,name = 'Baseflow Gauge Height',text = baseFlowGauge,mode='lines',line = list(width = 3, dash='dash')) %>%
+  #     add_trace(y= bankfullGauge,name = 'Bankfull Gauge Height',text = bankfullGauge,mode='lines',line = list(width = 3, dash='dash')) %>%
+  #     add_trace(y= peakStage,name = 'Peak Stage',text = bankfullGauge,mode='lines',line = list(width = 3, dash='dash')))
+  # for(i in 1:nrow(buckets10)){
+  #   (dischargePlot <- dischargePlot%>%
+  #      add_trace(y= c(buckets_10per[i]),name = paste0('10% Bin ',i),mode='lines',line = list(width = 1, dash='dash',color='black')))
+  # }
+  })
+#Render the plot output
+  output$xsdsc<- renderPlotly({
+    xs_plot()
   
+})
+ 
   
   # # Render the text outputs based on the reactive values
   # output$TargetGaugeHeight <- renderText({filter_target$TargetGaugeHeight})

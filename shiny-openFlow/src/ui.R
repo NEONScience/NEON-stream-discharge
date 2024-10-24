@@ -2,7 +2,7 @@
 ######Maria Viggiano###
     #skin= "green",
     #theme = bslib::bs_theme(),
-
+ui<- shinydashboard::dashboardPage(
 header <- shinydashboard::dashboardHeader(title = "Open Flow"),
     ####******images and logos not shown yet *****###
     #tags$head(type= "text/css"),
@@ -101,7 +101,11 @@ body <- shinydashboard::dashboardBody(
                                 shiny::fluidRow(shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, selected= "No Site Selected")),
                                 #shiny::fluidRow(shiny::uiOutput("siteInfo")),
                                 shiny::br(),
-                                shiny::fluidRow(shiny::actionButton(input="ShowPlot",label ="Show Plots")) #render plotly to show plots for site
+                                shiny::fluidRow(
+                                shiny::actionButton(input="ShowPlot",label ="Show Plots"),
+                                )
+                                  #render plotly to show plots for site
+                                
                               ),
                                  
                               # Summary of Domain target datatable per site selected
@@ -124,7 +128,8 @@ body <- shinydashboard::dashboardBody(
                               shinydashboard::box(
                                 title= "DSC Cross-section",
                                 width= 6,
-                                div(id= "Discharge Cross-Section", (h3("Site's Latest Cross section target flow"))),
+                                div(id= "Discharge Cross-Section", 
+                                    (h6("Site's Latest Cross section target flow"))),
                                 plotlyOutput(outputId="xsdsc", width= "auto", height= "auto")##last edit on 7/18
                                 
                               ),
@@ -186,6 +191,7 @@ body <- shinydashboard::dashboardBody(
           )
       ) 
   )
+)
 )
 
    

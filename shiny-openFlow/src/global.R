@@ -105,6 +105,15 @@ if(grepl('internal',HOST)){
   # constrain.dates <- TRUE
 }
 
+#Set DSCXS directory
+XSDir<- "shiny-openFlow/src/data"
+
+
+###eventually would be ideal to have all sites' DSCXS in one single df
+#CUPEXS raw file
+CUPEXS<- readr::read_csv((base::url("https://raw.githubusercontent.com/NEONScience/NEON-stream-discharge-NCC189/refs/heads/main/shiny-openFlow/src/data/D04_CUPE_surveyPts_20210408.csv")))
+CUPE_dsc_pts_xs<-readr::read_csv("C:/Users/mviggiano/Documents/Github/NEON-stream-discharge-NCC189/shiny-openFlow/src/data/D04_CUPE_Transect_DSC.csv")
+
 # include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
 # constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
 # readmeFile <- "about_internal.Rmd"

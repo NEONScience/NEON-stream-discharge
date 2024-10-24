@@ -129,7 +129,8 @@ yAxisTitle2<-list(title="Gauge Height  (m)",zeroline=FALSE)
 font<-list(size=12,color='black')
  
 #Plot the cross section by distance and gauge height.  
-(Q_XS <- plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', mode='markers+lines', text=~name)%>%
+(Q_XS <- plot_ly(data=dischargePointsXS1,x=~DistanceAdj, y=~gaugeHeight, name='Distance vs. Gauge Height', type='scatter', 
+                 mode='markers+lines', text=~name)%>%
   add_trace(data=dsc1BankfullCalls,x=~DistanceAdj,y=~gaugeHeight,name='Bankfull Field Calls',type='scatter',mode='markers',text=~name,marker=list(size=10,line=list(color='black',width=.5)))%>%
   #add_trace(y= 0,name = 'Gauge Height = 0.00m',mode='lines',line = list(color = 'red', width = 2, dash='dash')) %>%
   layout(title = paste(siteID,"_",surveyDate1,sep=""), xaxis=xAxisTitle2, yaxis=yAxisTitle2))
