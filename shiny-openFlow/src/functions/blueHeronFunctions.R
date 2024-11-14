@@ -135,7 +135,7 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
                             SELECT MAX(\"curveID\")
                             FROM rcdata WHERE \"curveID\" LIKE ", "'%",input$rtdvSite,"%')")
         rcdata <- DBI::dbSendQuery(con,dbquery)
-        rcData <<- DBI::dbFetch(rcdata)
+        rcData <- DBI::dbFetch(rcdata)
         
         if(input$dataSource == "L0 Data Query")
         {
@@ -144,7 +144,7 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
           trollL0Data <- xmlToDataFrame(L0TrollInformation$L0Data)
           trollL0Data <- trollL0Data[-1,]
           trollNamedLocation <- as.data.frame(L0TrollInformation$namedLocation)
-          trollNamedLocation <<- trollNamedLocation
+          trollNamedLocation <- trollNamedLocation
           waterElevationDF <- as.data.frame(cbind(as.character(trollL0Data$startDate), as.numeric(trollL0Data$numberValue), as.character(trollNamedLocation$name), as.numeric(rep(calibration_info$calValCP0)), as.numeric(rep(calibration_info$calValCP1)), as.numeric(rep(calibration_info$calValCP2)), rep(waterDensity), rep(gravity)))
           
         } else if(input$dataSource == "Grafana CSV File"){ # Use Grafana CSV for kPa pressure readings
@@ -162,7 +162,10 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
         
         #combine the trollPressure, Dates, and calibrations information into one DF
         colnames(waterElevationDF) <- c("Date","trollPressure", "namedLocation", "calValCP0","calValCP1","calValCP2", "waterDensity", "Gravity")
-        
+        if(input$dataSource == "L0 Data Query") {          
+          waterElevationDF$Date <- as.POSIXct(gsub("\\.[0-9]{3}Z$","",waterElevationDF$Date),tz="UTC",format="%Y-%m-%dT%H:%M:%S",origin="1970-01-01")
+          }
+        waterElevationDF <- waterElevationDF[order(waterElevationDF$Date),]
         #For some reason when combining even as.numeric the variables below come out as character columns. Re-applying the command seems to work.
         waterElevationDF$trollPressure <- as.numeric(trollL0Data$numberValue)
         waterElevationDF$calValCP0 <- as.numeric(waterElevationDF$calValCP0)
@@ -178,10 +181,9 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
         
         waterElevationDF <- TLOC(input, output, session, site, startDate, endDate, waterElevationDF)
         
-        
+        shinyjs::show("rtdvStageDischargePlotly")
         if(input$waterType == "SW")
         {
-          shinyjs::show("rtdvStageDischargePlotly")
           shinyjs::show("Title_CSH")
           shinyjs::hide("Title_CWE")
           regressionData <- formatReg(input, output, session)
@@ -197,13 +199,20 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
               waterElevationDF$uncertaintyUp[i] <- pramUTop
               waterElevationDF$uncertaintyBottom[i] <- pramUBottom
             }
-            
+            # waterElevationDFTEST <<- waterElevationDF
+
+            DischargePlotly <- plot_ly(waterElevationDF)
+            DischargePlotly <- DischargePlotly %>% 
+              plotly::add_trace(x=~Date,y=~as.numeric(uncertaintyUp),name="Discharge Bottom Uncertainty",type='scatter',mode='line',line=base::list(color='#00FFFF'))%>%
+              plotly::add_trace(x=~Date,y=~as.numeric(uncertaintyBottom),name="Discharge Upper Uncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#00FFFF') %>% 
+              plotly::add_trace(x=~Date,y=~as.numeric(estimatedDischarge),name="Estimated Discharge",type='scatter',mode='lines',line=list(color="black")) %>% 
+              layout(yaxis = list(title = "Estimated Discharge (lps)"))
             # waterElevationDF <<- waterElevationDF
-            DischargePlotly <- plot_ly(waterElevationDF, x = ~Date, y = ~estimatedDischarge, type = 'scatter', mode = 'lines', name = "Estimated Discharge (lps)", line = list(shape = "spline", color = "transparent")) %>%
-              add_trace(y = ~uncertaintyUp, type = 'scatter', mode = 'lines', fill = 'tonexty', fillcolor='rgb(87, 98, 148)', name = 'Lower Discharge Uncertainty (lps)', line = list(shape = "spline", color = "transparent")) %>% 
-              add_trace(y = ~uncertaintyBottom, type = 'scatter', mode = 'lines', fill = 'tonexty', fillcolor='rgba(1, 255, 204, 0.2)', name = 'Upper Discharge Uncertainty (lps)', line = list(shape = "spline", color = "transparent"))  %>% 
-            layout(xaxis= list(title = "Date",autotick = T, tickmode = "auto", showline = FALSE, showticklabels = TRUE), yaxis = list(title = 'Estimated Discharge (lps)'), line = list(shape = "spline"))
-            
+            # DischargePlotly <- plot_ly(waterElevationDF, x = ~Date, y = ~estimatedDischarge, type = 'scatter', mode = 'lines', name = "Estimated Discharge (lps)", line = list(shape = "spline", color = "transparent")) %>%
+            #   add_trace(y = ~uncertaintyUp, type = 'scatter', mode = 'lines', fill = 'tonexty', fillcolor='rgb(87, 98, 148)', name = 'Lower Discharge Uncertainty (lps)', line = list(shape = "spline", color = "transparent")) %>% 
+            #   add_trace(y = ~uncertaintyBottom, type = 'scatter', mode = 'lines', fill = 'tonexty', fillcolor='rgba(1, 255, 204, 0.2)', name = 'Upper Discharge Uncertainty (lps)', line = list(shape = "spline", color = "transparent"))  %>% 
+            # layout(xaxis= list(title = "Date",autotick = T, tickmode = "auto", showline = FALSE, showticklabels = TRUE), yaxis = list(title = 'Estimated Discharge (lps)'), line = list(shape = "spline"))
+            # 
             output$rtdvStageDischargePlotly <- renderPlotly(
               subplot(waterElevationPlot, DischargePlotly, nrows = 2, titleY = TRUE, shareX = TRUE, margin = .01) %>% layout(title = paste("Guage Height and Discharge for",input$rtdvSite), showlegend = FALSE, width = 1000, height = 600)
             )
@@ -212,7 +221,7 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
             shinyjs::hide("Title_CSH")
             shinyjs::show("Title_CWE")
               output$rtdvStageDischargePlotly <- renderPlotly(
-                waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~waterColumnHeight, type = 'scatter', mode = 'lines', fill = 'tozeroy', name = 'Water column height (m)') %>% 
+                waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~waterColumnHeight, type = 'scatter', mode = 'lines',fill = 'tozeroy', name = 'Water column height (m)') %>% 
                   layout(xaxis= list(title = "Date",autotick = T,nticks = 25, tickmode = "auto"), yaxis = list(title = 'Water column height (m)'))
               )
               }
@@ -220,6 +229,8 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
         shinyjs::show("calculatedStagePlot")
       } else{ # Single input pressure from user on else
         shinyjs::show("singleOutputBox")
+        shinyjs::hide("rtdvStageDischargePlotly")
+        
         #shinyjs::show("EstimatedDischarge")        
         # Queries L0 data if it is chosen in the dataSource input
         dbquery <- paste0("SELECT * FROM rcdata WHERE \"curveID\"  = (
@@ -227,7 +238,6 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
                             FROM rcdata WHERE \"curveID\" LIKE ", "'%",input$rtdvSite,"%')")
         rcdata <- DBI::dbSendQuery(con,dbquery)
         rcData <- DBI::dbFetch(rcdata)
-        shinyjs::hide("rtdvStageDischargePlotly")
         trollNamedLocation <- L0DataQuery(input, output, session, DPID = DPID, startDate = startDate, endDate = endDate)
         
         #combine the trollPressure, Dates, and calibrations information into one DF
@@ -249,7 +259,9 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
         waterElevationDF <- TLOC(input, output, session, site, startDate, endDate, waterElevationDF)
         if(input$waterType == "SW")
         {
-          
+          shinyjs::show("EstimatedDischarge")
+          shinyjs::show("Title_CSH")
+          shinyjs::hide("Title_CWE")
           regressionData <- formatReg(input, output, session)
           waterElevationDF <- applyRegtoL0(regressionData = regressionData, L0PressureData = waterElevationDF, site = site, startDate = startDate, endDate = endDate, session)
           for(i in 1:nrow(waterElevationDF))
@@ -261,11 +273,8 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
             waterElevationDF$uncertaintyUp[i] <- pramUTop
             waterElevationDF$uncertaintyBottom[i] <- pramUBottom
           }
-          shinyjs::show("EstimatedDischarge")
-          shinyjs::show("Title_CSH")
-          shinyjs::hide("Title_CWE")
           output$singleWaterColumnHeight <- renderText({paste0("Calculated stage height: ",round(waterElevationDF$calculatedStage[1],3),"m")})
-          output$EstimatedDischarge <- renderText({paste0("Estimated Discharge: ",round(waterElevationDF$estimatedDischarge[1],3),"lps with an uncertainty range of (",round(waterElevationDF$uncertaintyUp[1],3),"lps - ", ,round(waterElevationDF$uncertaintyBottom[1],3), "lps)")})
+          output$EstimatedDischarge <- renderText({paste0("Estimated Discharge: ",round(waterElevationDF$estimatedDischarge[1],3),"lps")})
           
         } else {
           shinyjs::hide("EstimatedDischarge")
@@ -279,8 +288,7 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
   
         
         shinyjs::show("singleWaterColumnHeight")
-        shinyjs::show("Title_CWE")
-        
+
       } #End of ifelse statement
       #Sourced code from RC.plot.R
       
