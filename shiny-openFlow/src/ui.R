@@ -125,7 +125,7 @@ body <- shinydashboard::dashboardBody(
                                                       #   plotlyOutput("ratingCurvePlotly"),
                                                       #   plotlyOutput("waterHeightInteractive")
                                                       # ),
-                                                      bscols(widths = c(12, 4, NA),
+                                                      bscols(widths = c(12, 12,12),
                                                              div(plotlyOutput("rtdvStageDischargePlotly"), style = css(width="100%", height="300px")),
                                                              div(plotlyOutput("ratingCurvePlotly"), style = css(width="100%", height="300px")),
                                                              div(plotlyOutput("waterHeightInteractive"), style = css(width="100%", height="300px"))
