@@ -295,6 +295,17 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     shinyjs::hide("rtdvStageDischargePlotly")
   })
   
+  # hoveredPoint <- reactive({
+  #   event_data("plotly_hover", source = "hover_source")
+  # })
+  
+  observeEvent(event_data("plotly_hover", source = "hover_source"),{
+    output$hover_info <- renderPrint({
+      event_data("plotly_hover", source = "hover_source")
+    })
+    
+  })
+  
   #Observe changes in water type selected GW = ground water and SW = surface water
   observeEvent(input$waterType,{ 
     if(input$waterType == "GW")
@@ -334,7 +345,8 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
       ))
     shinyjs::show("GaugeHeightLoadBar")
     updateTabsetPanel(session, "calculatedStageTimeSeries", selected = "CG_timeSeries")
-    realTimeDataViewer(input, output, session)
+    dscSurvey <<- realTimeDataViewer(input, output, session)
+    
     removeModal()
   })
   # Select site ID based on the domain ID chosen

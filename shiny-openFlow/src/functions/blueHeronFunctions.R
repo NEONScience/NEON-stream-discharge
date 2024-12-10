@@ -188,8 +188,8 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
           shinyjs::hide("Title_CWE")
           regressionData <- formatReg(input, output, session)
           waterElevationDF <- applyRegtoL0(regressionData = regressionData, L0PressureData = waterElevationDF, site = site, startDate = startDate, endDate = endDate, session) 
-            waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~calculatedStage, type = 'scatter', mode = 'lines', fill = 'tozeroy', name = 'Water column height (m)') %>% 
-              layout(xaxis= list(title = "Date",autotick = T,nticks = 25, tickmode = "auto"), yaxis = list(title = 'Calculated stage height (m)'))
+            
+
             for(i in 1:nrow(waterElevationDF))
             {
               estimatedDischarge = rcData$maxPostQ[which(abs(rcData$Hgrid-waterElevationDF$calculatedStage[i])==min(abs(rcData$Hgrid-waterElevationDF$calculatedStage[i])))]
@@ -199,34 +199,81 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
               waterElevationDF$uncertaintyUp[i] <- pramUTop
               waterElevationDF$uncertaintyBottom[i] <- pramUBottom
             }
-            # waterElevationDFTEST <<- waterElevationDF
+            waterElevationDF <- waterElevationDF %>% 
+              mutate(Date_15min = floor_date(Date, "15 minutes")) %>% 
+              group_by(Date_15min) %>% 
+              summarise(uncertaintyUp_15min = mean(uncertaintyUp, na.rm = TRUE),
+                        uncertaintyBottom_15min = mean(uncertaintyBottom, na.rm = TRUE),
+                        estimatedDischarge_15min = mean(estimatedDischarge, na.rm = TRUE))
+            waterElevationDF <<- waterElevationDF
+            
+            sd_discharge <- SharedData$new(waterElevationDF, group = "waterElevation")
 
-            DischargePlotly <- plot_ly(waterElevationDF)
-            DischargePlotly <- DischargePlotly %>% 
-              plotly::add_trace(x=~Date,y=~as.numeric(uncertaintyUp),name="Discharge Bottom Uncertainty",type='scatter',mode='line',line=base::list(color='#00FFFF'))%>%
-              plotly::add_trace(x=~Date,y=~as.numeric(uncertaintyBottom),name="Discharge Upper Uncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#00FFFF') %>% 
-              plotly::add_trace(x=~Date,y=~as.numeric(estimatedDischarge),name="Estimated Discharge",type='scatter',mode='lines',line=list(color="black")) %>% 
-              layout(yaxis = list(title = "Estimated Discharge (lps)"))
-            # waterElevationDF <<- waterElevationDF
-            # DischargePlotly <- plot_ly(waterElevationDF, x = ~Date, y = ~estimatedDischarge, type = 'scatter', mode = 'lines', name = "Estimated Discharge (lps)", line = list(shape = "spline", color = "transparent")) %>%
-            #   add_trace(y = ~uncertaintyUp, type = 'scatter', mode = 'lines', fill = 'tonexty', fillcolor='rgb(87, 98, 148)', name = 'Lower Discharge Uncertainty (lps)', line = list(shape = "spline", color = "transparent")) %>% 
-            #   add_trace(y = ~uncertaintyBottom, type = 'scatter', mode = 'lines', fill = 'tonexty', fillcolor='rgba(1, 255, 204, 0.2)', name = 'Upper Discharge Uncertainty (lps)', line = list(shape = "spline", color = "transparent"))  %>% 
-            # layout(xaxis= list(title = "Date",autotick = T, tickmode = "auto", showline = FALSE, showticklabels = TRUE), yaxis = list(title = 'Estimated Discharge (lps)'), line = list(shape = "spline"))
-            # 
+            DischargePlotly <- plot_ly(sd_discharge, source = "hover_source")
+            DischargePlotly <- DischargePlotly %>%
+              plotly::add_trace(x=~Date_15min,y=~as.numeric(uncertaintyUp_15min),name="Discharge Bottom Uncertainty",type='scatter',mode='line',line=base::list(color='#E69F00'))%>%
+              plotly::add_trace(x=~Date_15min,y=~as.numeric(uncertaintyBottom_15min),name="Discharge Upper Uncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#E69F00') %>%
+              plotly::add_trace(x=~Date_15min,y=~as.numeric(estimatedDischarge_15min),name="Estimated Discharge",type='scatter',mode='lines',line=list(color="#009E73")) %>%
+              #plotly::add_trace(x=~Date,y=~as.numeric(calculatedStage),name="Estimated Gauge",type='scatter',mode='lines',line=list(color="#F0E442"), yaxis = "y2") %>%
+              layout(yaxis = list(title = "Estimated Discharge (lps)"), hovermode = "x unified", title = paste("Discharge for",input$rtdvSite," (15min avg)"))
+
             output$rtdvStageDischargePlotly <- renderPlotly(
-              subplot(waterElevationPlot, DischargePlotly, nrows = 2, titleY = TRUE, shareX = TRUE, margin = .01) %>% layout(title = paste("Guage Height and Discharge for",input$rtdvSite), showlegend = FALSE, width = 1000, height = 600)
+              DischargePlotly
             )
+            
+            # import rating curve graph
+            rcPlot <- RC.plot(site, startDate, endDate)
+            output$ratingCurvePlotly <- renderPlotly(rcPlot)
+            
+            # interactive gauge height by scrolling on on any of the two paired graphs 
+             dscSurvey <- read_csv("data/D04_GUIL_surveyPts_20200312.csv") %>% filter(mapCode == "Transect_DSC") %>% arrange(E)
+             output$waterHeightInteractive <- renderPlotly({
+               rowTest <- nrow(dscSurvey)
+               hover <- event_data("plotly_hover", source = "hover_source")
+               if(is.null(hover))
+               {
+                 if(exists("hover_point_pre"))
+                 {
+                   plot_ly(dscSurvey) %>%
+                     add_lines(x = c(0, rowTest), y = as.numeric(hovered_point_pre+min(dscSurvey$H)),name="Estimated Gauge",type='scatter',mode='lines+maarkers',fill = 'tonexty',fillcolor='lightblue') %>%
+                     add_trace(y = ~H, type = 'scatter', mode = 'lines+markers', fill = 'tozeroy', fillcolor = 'brown', name = "DSC Transect", text = ~name, hoverinfo = "text+y") %>%
+                     layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)))
+            
+                 } else {
+                   plot_ly(dscSurvey) %>%
+                     add_lines(x = c(0, rowTest), y = as.numeric(0.5+min(dscSurvey$H)),name="Estimated Gauge",type='scatter',mode='lines',fill = 'tonexty',fillcolor='lightblue') %>%
+                     add_trace(y = ~H, type = 'scatter', mode = 'lines+markers', fill = 'tozeroy', fillcolor = 'brown', name = "DSC Transect", text = ~name, hoverinfo = "text+y") %>%
+                     layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)))
+                 }
+            
+               } else {
+                 hovered_point <- hover$y[1]
+                 hovered_point_pre <<- hovered_point
+                 # print(hovered_point)
+                 plot_ly(dscSurvey) %>%
+                   add_lines(x = c(0, rowTest), y = as.numeric(hovered_point+min(dscSurvey$H)),name="Estimated Gauge",type='scatter',mode='lines+maarkers',fill = 'tonexty',fillcolor='lightblue') %>%
+                   add_trace(y = ~H, type = 'scatter', mode = 'lines+markers', fill = 'tozeroy', fillcolor = 'brown', name = "DSC Transect", text = ~name, hoverinfo = "text+y") %>%
+                   layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)))
+            
+               }
+
+
+             })
+            
           }
           else {
             shinyjs::hide("Title_CSH")
             shinyjs::show("Title_CWE")
+            sd_discharge <- SharedData$new(waterElevationDF, group = "waterElevation")
+            
               output$rtdvStageDischargePlotly <- renderPlotly(
-                waterElevationPlot <- plot_ly(waterElevationDF, x = ~Date, y = ~waterColumnHeight, type = 'scatter', mode = 'lines',fill = 'tozeroy', name = 'Water column height (m)') %>% 
+                waterElevationPlot <- plot_ly(sd_discharge, x = ~Date, y = ~waterColumnHeight, type = 'scatter', mode = 'lines',fill = 'tozeroy', name = 'Water column height (m)') %>% 
                   layout(xaxis= list(title = "Date",autotick = T,nticks = 25, tickmode = "auto"), yaxis = list(title = 'Water column height (m)'))
               )
               }
         shinyjs::hide("singleOutputBox")
         shinyjs::show("calculatedStagePlot")
+        return(dscSurvey)
       } else{ # Single input pressure from user on else
         shinyjs::show("singleOutputBox")
         shinyjs::hide("rtdvStageDischargePlotly")

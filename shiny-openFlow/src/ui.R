@@ -119,7 +119,18 @@ body <- shinydashboard::dashboardBody(
                                                       div(id = "Title_CWE",(h3("Calculated Water Elevation"))),
                                                       div(id = "Title_CSH",(h3("Calculated Stage Height"))),
                                                       # plotlyOutput("calculatedStagePlot"),
-                                                      plotlyOutput("rtdvStageDischargePlotly"),
+                                                      
+                                                      # plotlyOutput("rtdvStageDischargePlotly"),
+                                                      # bscols(
+                                                      #   plotlyOutput("ratingCurvePlotly"),
+                                                      #   plotlyOutput("waterHeightInteractive")
+                                                      # ),
+                                                      bscols(widths = c(12, 4, NA),
+                                                             div(plotlyOutput("rtdvStageDischargePlotly"), style = css(width="100%", height="300px")),
+                                                             div(plotlyOutput("ratingCurvePlotly"), style = css(width="100%", height="300px")),
+                                                             div(plotlyOutput("waterHeightInteractive"), style = css(width="100%", height="300px"))
+                                                      ),
+                                                      verbatimTextOutput("hover_info"),
                                                       div( id = "singleOutputBox",
                                                            box( width = 10,
                                                              textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}")),

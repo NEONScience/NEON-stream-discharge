@@ -22,6 +22,7 @@ library(shinydashboard)
 library(XML)
 library(DBI)  #library added from Bola's app updates
 library(RPostgres) #library added from Bola's app updates
+library(crosstalk)
 
 
 # if(!require(neonStageQplot)){
@@ -32,7 +33,7 @@ library(RPostgres) #library added from Bola's app updates
 # }
 
 #global ----
-
+pass <- 0
 
 # Set the working directory to the current files location
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
