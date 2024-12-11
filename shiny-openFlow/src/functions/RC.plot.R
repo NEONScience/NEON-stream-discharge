@@ -45,7 +45,6 @@ utils::globalVariables(c("curveID","Hgrid","maxPostQ","pramUTop","pramUBottom","
 RC.plot <-function(site.id,
                    start.date,
                    end.date,
-                   # input.list,
                    plot.imp.unit=F,
                    mode.dark=F
                    ){
@@ -59,9 +58,6 @@ RC.plot <-function(site.id,
   if(base::missing(end.date)){
     stop('must provide end.date for plotting continuous discharge')
   }
-  # if(base::missing(input.list)){
-  #   stop('must provide input.list for plotting continuous discharge')
-  # }
 
   # Connect to openflow database
   con<-DBI::dbConnect(
@@ -74,21 +70,35 @@ RC.plot <-function(site.id,
   )
   
   # Get data
+  start.date="2017-10-01"
+  end.date="2024-10-01"
+  site.id <- "HOPB"
   startDateFormat <- format(as.POSIXct(start.date),"%Y-%m-%d 00:00:00")
   endDateFormat <- format(as.POSIXct(end.date)+86400,"%Y-%m-%d 00:00:00")
   dbquery <- sprintf("SELECT * FROM contqsum WHERE \"siteID\" = '%s' AND \"date\" > timestamp '%s' AND \"date\" < timestamp '%s'",site.id,startDateFormat,endDateFormat)
   contqsum <- DBI::dbSendQuery(con,dbquery)
   contqsum <- DBI::dbFetch(contqsum)
   curveIDs <- unique(contqsum$curveID)
+  # DB query
+  dbquery <- sprintf("SELECT * FROM rcdata")
+  rcdata <- DBI::dbSendQuery(con,dbquery)
+  rcData <- DBI::dbFetch(rcdata)
+  dbquery <- sprintf("SELECT * FROM rcgaugings")
+  rcgaugings <- DBI::dbSendQuery(con,dbquery)
+  rcGaugings <- DBI::dbFetch(rcgaugings)
+  # Subset to curves
+  if(any(!is.na(curveIDs))){
+    curveIDs <- curveIDs[!is.na(curveIDs)]
+    rcData <- rcData[rcData$curveID%in%curveIDs,]
+    rcGaugings <- rcGaugings[rcGaugings$curveID%in%curveIDs,]
+  }else{
+    curveIDs <- max(unique(rcData$curveID[grepl(site.id,rcData$curveID)]))
+    rcData <- rcData[rcData$curveID%in%curveIDs,]
+    rcGaugings <- rcGaugings[rcGaugings$curveID%in%curveIDs,]
+  }
+  
 
   if(base::all(!base::is.na(curveIDs))){
-    dbquery <- sprintf("SELECT * FROM rcdata WHERE \"curveID\" IN ('%s')",paste0(curveIDs,collapse = "', '"))
-    rcdata <- DBI::dbSendQuery(con,dbquery)
-    rcData <- DBI::dbFetch(rcdata)
-    dbquery <- sprintf("SELECT * FROM rcgaugings WHERE \"curveID\" IN ('%s')",paste0(curveIDs,collapse = "', '"))
-    rcgaugings <- DBI::dbSendQuery(con,dbquery)
-    rcGaugings <- DBI::dbFetch(rcgaugings)
-    
     # Add each rating curve based on the vector of unique rating curve IDs
     for(i in 1:base::length(base::unique(rcData$curveID))){
       currentCurveID <- base::unique(rcData$curveID)[i]

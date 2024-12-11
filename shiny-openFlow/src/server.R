@@ -88,19 +88,11 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
   })
   
-  # Download data, create summary table, and save output
-  getPackage <- shiny::eventReactive(input$submit,{
-    
-    # # Manually set input variables for local testing - comment out when running app
-    # input <- base::list()
-    # input$siteId <- "MCRA"
-    # input$domainId <- "D11"
-    # input$dateRange[[1]] <- "2022-08-01"
-    # input$dateRange[[2]] <- "2022-08-30"
-    # input$apiToken <- NA
-    # output <- base::list()
-    # include.q.stats <-  T
-    
+  plots <- shiny::reactiveValues()
+  whichTab <- shiny::reactiveValues()
+  
+  # Generate metadata table
+  shiny::observeEvent(input$submit,{
     metaD <-  productList%>%
       dplyr::filter(siteID == input$siteId)%>%
       dplyr::select(upstreamWatershedAreaKM2,reachSlopePercent,averageBankfullWidthM,d50ParticleSizeMM)%>%
@@ -124,137 +116,60 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
     output$siteInfo <- shiny::renderUI({tagList("Site: ",base::gsub("\\_inflow|\\_outflow","",input$siteId), url, "for site description",sep="\n")})
     
-    # Set date variables for app running (special consideration for TOOK)
-    siteID <<- input$siteId
-    domainID <<- input$domainId
-    startDate <- base::format(input$dateRange[1])
-    endDate <- base::format(input$dateRange[2])
-    if(!grepl('internal', HOST)){
-      #external app - use api token from user
-      apiToken <- input$apiToken
-    }
+    # Plotting continuous discharge with uncertainty
+    output$plot1 <- plotly::renderPlotly({
+      if(input$qctrFlagScRv == TRUE){
+        sciRvwQfInput <- T
+      }else{
+        sciRvwQfInput <- F
+      }
+      if(input$dark_mode == TRUE){
+        darkModeInput <- T
+      }else{
+        darkModeInput <- F
+      }
+      if(input$impUnitFlag == TRUE){
+        impUnitInput <- T
+      }else{
+        impUnitInput <- F
+      }
+      # Plot continuous discharge and store in output
+      plots$plot.cont.Q <- cont.Q.plot(site.id = input$siteId,
+                                       start.date = input$dateRange[[1]],
+                                       end.date = input$dateRange[[2]],
+                                       plot.imp.unit = impUnitInput,
+                                       mode.dark = darkModeInput,
+                                       plot.sci.rvw.QF = sciRvwQfInput,
+                                       plot.q.stats = include.q.stats)
+    })# End plot1
     
-    # ZN 2024-03-04 - should not need this anymore after containerization and deployment to GCS
-    # # Code to stop the function if the app is on the external server and a user has selected a date range > 90 days
-    # if(constrain.dates&base::difftime(endDate,startDate,units="days")>90){
-    #   shinyalert::shinyalert("Sorry! We are still in development...","At this time, the app cannot support downloads > 90 days. Please select a smaller date range.",type="error")
-    #   stop("Requested time period must be no more than 90 days")
-    # }
-    
-    #progress bar for data downloads
-    # shiny::withProgress(message = 'Submit',detail = '', min = 0, max = 1 ,value = 0, {
-    #   
-    #   shiny::incProgress(amount = 0.50,
-    #                      message = "Pulling data from neonUtilities",
-    #                      
-    #                      detail = NULL,
-    #                      session = shiny::getDefaultReactiveDomain())
-    #   base::Sys.sleep(0.25)
-    #   
-    #   # Download and process NEON data
-    #   continuousDischarge_list <- neonStageQplot::get.cont.Q.NEON.API(site.id = siteID,
-    #                                                                   start.date = startDate,
-    #                                                                   end.date = endDate,
-    #                                                                   api.token = apiToken,
-    #                                                                   include.q.stats = include.q.stats)
-    #   
-    # })#end of withProgress 
-    ##**removed lines from 144 through 161 by Bola's updates**###
-    
-    
-  },ignoreInit = T)# End getPackage
-  
-  
-  plots <- shiny::reactiveValues()
-  whichTab <- shiny::reactiveValues()
-  
+    # Plotting rating curve(s) with uncertainty
+    output$plot2 <- plotly::renderPlotly({
+      #format flags
+      if(input$dark_mode == TRUE){
+        darkModeInput <- T
+      }else{
+        darkModeInput <- F
+      }
+      if(input$impUnitFlag == TRUE){
+        impUnitInput <- T
+      }else{
+        impUnitInput <- F
+      }
+      
+      # Plot rating curve(s) and store in outputs
+      plots$plot.RC <- RC.plot(site.id = input$siteId,
+                               start.date = input$dateRange[[1]],
+                               end.date = input$dateRange[[2]],
+                               plot.imp.unit = impUnitInput,
+                               mode.dark = darkModeInput)
+    })# End plot2
+  },ignoreInit = T)# End observeEvent
+
   #download the correct graph according to tab
   shiny::observeEvent(input$selectedTab, {
     whichTab$currentTab = input$selectedTab
   })
-  
-  shiny::observeEvent(input$submit,{
-    print(Sys.time())
-  
-    # Plotting continuous discharge with uncertainty
-    output$plot1 <- plotly::renderPlotly({
-    
-      # Unpack the data frame from getPackage
-      #continuousDischarge_list <- getPackage() ##**removed from Bola's updates**#
-    
-      # Format QF inputs
-      # if(input$qctrFlag == TRUE){
-      #   finalQfInput <- T
-      # }else{
-      #   finalQfInput <- F
-      # }
-    if(input$qctrFlagScRv == TRUE){
-      sciRvwQfInput <- T
-    }else{
-      sciRvwQfInput <- F
-    }
-    # if(input$precipQctrFlag == TRUE){
-    #   precipQctrFlag <- T
-    # }else{
-    #   precipQctrFlag <- F
-    # }
-    # if(input$precipQctrFlagScRv == TRUE){
-    #   precipQctrFlagScRv <- T
-    # }else{
-    #   precipQctrFlagScRv <- F
-    # }
-    if(input$dark_mode == TRUE){
-      darkModeInput <- T
-    }else{
-      darkModeInput <- F
-    }
-    if(input$impUnitFlag == TRUE){
-      impUnitInput <- T
-    }else{
-      impUnitInput <- F
-    }
-    
-    # Plot continuous discharge and store in output
-    plots$plot.cont.Q <- cont.Q.plot(site.id = input$siteId,
-                                     start.date = input$dateRange[[1]],
-                                     end.date = input$dateRange[[2]],
-                                     #input.list = continuousDischarge_list,  ##removed from Bola app##
-                                     plot.imp.unit = impUnitInput,
-                                     mode.dark = darkModeInput,
-                                     # plot.final.QF = finalQfInput,
-                                     plot.sci.rvw.QF = sciRvwQfInput,
-                                     # plot.precip.final.QF = precipQctrFlag,
-                                     # plot.precip.sci.rvw.QF = precipQctrFlagScRv,                                          
-                                     plot.q.stats = include.q.stats)
-  })# End plot1
-  
-  # Plotting rating curve(s) with uncertainty
-  output$plot2 <- plotly::renderPlotly({
-    
-    # Unpack the list of curve IDs from getPackage
-    #continuousDischarge_list <- getPackage()
-    
-    #format flags
-    if(input$dark_mode == TRUE){
-      darkModeInput <- T
-    }else{
-      darkModeInput <- F
-    }
-    if(input$impUnitFlag == TRUE){
-      impUnitInput <- T
-    }else{
-      impUnitInput <- F
-    }
-    
-    # Plot rating curve(s) and store in outputs
-    plots$plot.RC <- RC.plot(site.id = input$siteId,
-                             start.date = input$dateRange[[1]],
-                             end.date = input$dateRange[[2]],
-                             #input.list = continuousDischarge_list,  ##removed from Bola app##
-                             plot.imp.unit = impUnitInput,
-                             mode.dark = darkModeInput)
-  })# End plot2
-  })# End observeEvent  
   
   #download handler for plotly download functionality
   output$downloadPlotly <- shiny::downloadHandler(
