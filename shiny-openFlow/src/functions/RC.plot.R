@@ -40,8 +40,6 @@
 #     updates to include 3x median discharge
 ##############################################################################################
 base::options(stringsAsFactors = F)
-utils::globalVariables(c("curveID","Hgrid","maxPostQ","pramUTop","pramUBottom","totalUTop","totalUBottom","H","uH","bH","bHindx","Q","uQ","bQ","bQindx"))
-
 RC.plot <-function(site.id,
                    start.date,
                    end.date,
@@ -70,9 +68,6 @@ RC.plot <-function(site.id,
   )
   
   # Get data
-  start.date="2017-10-01"
-  end.date="2024-10-01"
-  site.id <- "HOPB"
   startDateFormat <- format(as.POSIXct(start.date),"%Y-%m-%d 00:00:00")
   endDateFormat <- format(as.POSIXct(end.date)+86400,"%Y-%m-%d 00:00:00")
   dbquery <- sprintf("SELECT * FROM contqsum WHERE \"siteID\" = '%s' AND \"date\" > timestamp '%s' AND \"date\" < timestamp '%s'",site.id,startDateFormat,endDateFormat)

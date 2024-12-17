@@ -30,8 +30,8 @@ body <- shinydashboard::dashboardBody(
       " .custom-box { border: 2px solid #007bff; 
       padding: 10px; margin-bottom: 20px; box-shadow: 2px 2px 10px #888888; 
       } .custom-input { width: 100%; margin-bottom: 10px; } ")) ),
-    tags$head(tags$style(HTML(
-      ".small-box {height: 90px}"))),
+  tags$head(tags$style(HTML(".small-box {height: 90px}"))),
+  tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),
   useShinyjs(),
 
    shinydashboard::tabItems(
@@ -57,8 +57,7 @@ body <- shinydashboard::dashboardBody(
                                                      startview="month",
                                                       min="2010-01-01",
                                                       start=lubridate::floor_date(base::Sys.Date()-14,"month")-base::months(1),
-                                                      end=lubridate::floor_date(base::Sys.Date()-14,"month")-1, format="yyyy-mm-dd"),
-                                                                  shiny::textInput("apiToken", "NEON API Token (Optional)")),
+                                                      end=lubridate::floor_date(base::Sys.Date()-14,"month")-1, format="yyyy-mm-dd")),
                                                       shiny::br(),
                                                         shiny::fluidRow(
                                                         shiny::actionButton(inputId="submit","Submit")),

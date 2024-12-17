@@ -46,8 +46,6 @@
 #     updates to add clarity to the identification and interpretation of 3x median discharge
 ##############################################################################################
 base::options(stringsAsFactors = F)
-utils::globalVariables(c('histMedQ','meanURemnUnc','meanLRemnUnc','meanUParaUnc','meanLParaUnc','meanQ','streamDischarge','meanUHUnc','meanLHUnc','meanH','gaugeHeight','priPrecipBulkLoUnc','priPrecipBulkUpUnc','priPrecipBulk','secPrecipBulkLoUnc','secPrecipBulkUpUnc','secPrecipBulk'))
-
 cont.Q.plot <-function(site.id,
                        start.date,
                        end.date,
@@ -103,6 +101,8 @@ cont.Q.plot <-function(site.id,
   histMedQMaxYear <- unique(contqsum$maxYear)
   continuousDischarge_sum <- contqsum
   continuousDischarge_sum <- continuousDischarge_sum[order(continuousDischarge_sum$date),]
+  continuousDischarge_sum$dischargeFinalQFSciRvw <- as.numeric(continuousDischarge_sum$dischargeFinalQFSciRvw)
+  continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw>0] <- max(continuousDischarge_sum$meanQ,na.rm = T)
   
   #3x internal dataGet#
   if(plot.q.stats){
@@ -125,19 +125,18 @@ cont.Q.plot <-function(site.id,
   if(plot.imp.unit){
     continuousDischarge_sum <- continuousDischarge_sum %>%
       dplyr::mutate(#Discharge
-                    histMedQ = histMedQ*convLPStoCFS,
                     meanURemnUnc = meanURemnUnc*convLPStoCFS,
                     meanLRemnUnc = meanLRemnUnc*convLPStoCFS,
                     meanUParaUnc = meanUParaUnc*convLPStoCFS,
                     meanLParaUnc = meanLParaUnc*convLPStoCFS,
                     meanQ = meanQ*convLPStoCFS,
                     streamDischarge = streamDischarge*convLPStoCFS,
-                    dischargeFinalQFSciRvw = dischargeFinalQFSciRvw*convLPStoCFS,
                     #Stage
                     meanUHUnc = meanUHUnc*convMtoFt,
                     meanLHUnc = meanLHUnc*convMtoFt,
                     meanH = meanH*convMtoFt,
                     gaugeHeight = gaugeHeight*convMtoFt)
+    histmedq$medianQ <- histmedq$medianQ*convLPStoCFS
 
     #Precipitation
     if(!base::is.null(isPrimaryPtp)){
@@ -196,7 +195,7 @@ cont.Q.plot <-function(site.id,
                    position=0.98)
   
   # Build plot layout
-  method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
+  method <- plotly::plot_ly(data=continuousDischarge_sum)%>%
     plotly::layout(
       yaxis = y1, yaxis2 = y2, yaxis3 = y3,
       xaxis=base::list(domain=c(0,.9),
@@ -205,7 +204,8 @@ cont.Q.plot <-function(site.id,
                        title="Date",
                        tickfont=base::list(size=16),
                        titlefont=base::list(size=18)),
-      legend=base::list(x=-0.2,y=0.87,
+      legend=base::list(orientation = "h",
+                        y=-0.15,
                         font=base::list(size=14)),
       updatemenus=base::list(
         base::list(
@@ -341,5 +341,37 @@ cont.Q.plot <-function(site.id,
                      x=0.02))
     }
   }
-  return(method)
+  
+  # releaseTerm <- unique(continuousDischarge_sum$csd_release)[!unique(continuousDischarge_sum$csd_release)%in%c("PROVISIONAL","UNPUBLISHED")]
+  # category_colors <- list("PROVISIONAL" = "orange",
+  #                         "UNPUBLISHED" = "red")
+  # if(length(releaseTerm)>0){
+  #   category_colors[[releaseTerm]] <- "green"
+  # }
+  category <- plotly::plot_ly(data=continuousDischarge_sum)%>%
+    plotly::add_trace(
+      x = ~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),
+      y = ~1,
+      name = ~paste0("DP4.00130.001 Pub<br>Status: ",csd_release),
+      type = 'bar',
+      showlegend = TRUE,
+      hoverinfo = 'none')%>%
+    layout(yaxis = list(title = "", showticklabels = FALSE))
+  combined_plot <- subplot(method, category, 
+                           nrows = 2, heights = c(0.95,0.05), 
+                           shareX = TRUE, titleX = TRUE)%>%
+    plotly::layout(
+      yaxis = y1, yaxis2 = y2, yaxis3 = y3,
+      xaxis=base::list(domain=c(0,.9),
+                       tick=14,
+                       automargin=T,
+                       title="Date",
+                       tickfont=base::list(size=16),
+                       titlefont=base::list(size=18)))%>%
+    plotly::event_register("plotly_click")
+
+  
+  
+  
+  return(combined_plot)
 }

@@ -1,21 +1,54 @@
-#server function ----
-server <- function(input, output, session) {     ###**removed the shiny::shinyServer from previous commit by JB
+##############################################################################################
+#' @title 
+
+#' @author
+#' Zachary Nickerson \email{nickerson@battelleecology.org} \cr
+
+#' @description 
+
+#' @return 
+
+# changelog and author contributions / copyrights
+#   Zachary Nickerson (YYYY - MM - DD)
+#     original creation
+##############################################################################################
+server <- function(input, output, session) {
+  
+  # SETTING AND FORMATTING FOR ENTIRE APP -- BEGIN ####
+  
+  #__Hide title ####
   shinyjs::hide("Title_CWE")
 
-  # Select site ID based on the domain ID chosen
-  shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
-  shiny::updateSelectInput(session,"siteId",choices = unique(x))})
-  
-  #handles light and dark mode switch
+  #__Light/Dark Mode Switch (not functional) ####
   # shiny::observe(session$setCurrentTheme(
   #   if (base::isTRUE(input$dark_mode)) dark else light
   # ))
   
-  #phenoImage observe
-  #displays phenocam image when point is clicked on graph
-  #pulls image closest to selected date
+  # SETTING AND FORMATTING FOR ENTIRE APP -- END ####
+
+  # TAB: TIMESERIES VIEWER -- BEGIN #####
+
+  #__Set reactives ####
+  plots <- shiny::reactiveValues()
+  whichTab <- shiny::reactiveValues()
+
+  #__Select site ID based on the domain ID chosen ####
+  shiny::observe({x <- productList$siteID[productList$domain == input$domainId]
+  shiny::updateSelectInput(session,"siteId",choices = unique(x))})
+  
+  #__Create site description output based on selected site ####
+  shiny::observeEvent(input$siteId,{
+    siteURL <- base::gsub("\\_inflow|\\_outflow","",base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId)))
+    domainURL <- base::paste0("https://www.neonscience.org/field-sites/about-field-sites")
+    siteLink <- a("Click here", href=siteURL,target="_blank")
+    domainLink <- a("Click here", href=domainURL,target="_blank")
+    output$siteInfo <- shiny::renderUI({tagList("Site: ",base::gsub("\\_inflow|\\_outflow","",input$siteId), siteLink, "for site description",sep="\n")})
+    output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
+  })
+
+  #__Click event to render PhenoCam image ####
   shiny::observe({
-    new_clickEvent <- plotly::event_data(event = "plotly_click", source = "phenoDate")
+    new_clickEvent <- plotly::event_data(event = "plotly_click")
     
     if (!base::is.null(new_clickEvent)) {
       #formats date & time for phenocamGet
@@ -23,8 +56,8 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
       dateTime <- base::paste0(dateTime,":00Z")
       #returns url for phenocam image
       phenoURL <- pheno.GET(dp.id="DP1.20002",
-                            site.id=siteID,
-                            domain.id=domainID,
+                            site.id=input$siteId,
+                            domain.id=input$domainId,
                             date.time=dateTime)
       #formats date & time for bad request modal
       usrDateTime <- dateTime
@@ -33,7 +66,7 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
       
       tookInfo <- ""
       #took handling
-      if(siteID == "TOOK_inflow" || siteID == "TOOK_outflow"){
+      if(input$siteId == "TOOK_inflow" || input$siteId == "TOOK_outflow"){
         tookInfo <- "Note: The phenocam image is NOT located at the inlet or outlet.
            The phenocam shows the main lake."
       }
@@ -52,23 +85,14 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
       else{
         shiny::showModal(shiny::modalDialog(
           title = "Phenocam Image",
-          "No phenocam image available at ",siteID," for Date/Time",usrDateTime,
+          "No phenocam image available at ",input$siteId," for Date/Time",usrDateTime,
           size = "s",
           easyClose = TRUE))
       }
     }
-  })
+  })# End observe
   
-  output$downloadPheno <- shiny::downloadHandler(
-    filename = function() {
-      base::paste0("NEON.",domainID,".",siteID,".","DP1.20002","_",phenoInfo$dateTime,".jpg")
-    },
-    content = function(file) {
-      utils::download.file(phenoInfo$URL,file,mode='wb')
-    }
-  )
-  
-  #gets phenocam info for download handler
+  #__Get phenocam info for download handler ####
   phenoInfo <- NULL
   createPhenoInfo <- function(phenoURL,usrDateTime){
     usrDateTime <- stringr::str_replace(usrDateTime, " ","_")
@@ -78,21 +102,20 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
     return(phenoInfo)
   }
   
-  shiny::observeEvent(input$siteId,{
-    # Create site description output
-    siteURL <- base::gsub("\\_inflow|\\_outflow","",base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId)))
-    domainURL <- base::paste0("https://www.neonscience.org/field-sites/about-field-sites")
-    siteLink <- a("Click here", href=siteURL,target="_blank")
-    domainLink <- a("Click here", href=domainURL,target="_blank")
-    output$siteInfo <- shiny::renderUI({tagList("Site: ",base::gsub("\\_inflow|\\_outflow","",input$siteId), siteLink, "for site description",sep="\n")})
-    output$domainInfo <- shiny::renderUI({tagList("Domain: ", domainLink, "for domain map and info",sep="\n")})
-  })
-  
-  plots <- shiny::reactiveValues()
-  whichTab <- shiny::reactiveValues()
-  
-  # Generate metadata table
+  #__Download handler for downloading PhenoCam image ####
+  output$downloadPheno <- shiny::downloadHandler(
+    filename = function() {
+      base::paste0("NEON.",input$domainId,".",input$siteId,".","DP1.20002","_",phenoInfo$dateTime,".jpg")
+    },
+    content = function(file) {
+      utils::download.file(phenoInfo$URL,file,mode='wb')
+    }
+  )# End downloadHandler
+
+  #__Observe event to generate outputs ####
   shiny::observeEvent(input$submit,{
+    
+    #__Generate metadata table ####
     metaD <-  productList%>%
       dplyr::filter(siteID == input$siteId)%>%
       dplyr::select(upstreamWatershedAreaKM2,reachSlopePercent,averageBankfullWidthM,d50ParticleSizeMM)%>%
@@ -104,19 +127,12 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
       tidyr::pivot_longer(c("Upstream watershed area (km^2)","Reach slope (%)","Mean bankfull width (m)","D50 particle size (mm)"),
                           names_to = "MetaData",
                           values_to = "Values")
-    
     # Enter header for metadata table
     output$title <- shiny::renderText("Metadata Table")
-    
     # Create metadata table output
     output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
     
-    # Create site description output
-    siteURL <- base::gsub("\\_inflow|\\_outflow","",base::paste0("https://www.neonscience.org/field-sites/",base::tolower(input$siteId)))
-    url <- a("Click here", href=siteURL,target="_blank",style="text-decoration: none; hover:{font-size:150%;}")
-    output$siteInfo <- shiny::renderUI({tagList("Site: ",base::gsub("\\_inflow|\\_outflow","",input$siteId), url, "for site description",sep="\n")})
-    
-    # Plotting continuous discharge with uncertainty
+    #__Render continous discharge plot ####
     output$plot1 <- plotly::renderPlotly({
       if(input$qctrFlagScRv == TRUE){
         sciRvwQfInput <- T
@@ -141,9 +157,9 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
                                        mode.dark = darkModeInput,
                                        plot.sci.rvw.QF = sciRvwQfInput,
                                        plot.q.stats = include.q.stats)
-    })# End plot1
+    })# End renderPlotly
     
-    # Plotting rating curve(s) with uncertainty
+    #__Render rating curve plot ####
     output$plot2 <- plotly::renderPlotly({
       #format flags
       if(input$dark_mode == TRUE){
@@ -156,27 +172,36 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
       }else{
         impUnitInput <- F
       }
-      
       # Plot rating curve(s) and store in outputs
       plots$plot.RC <- RC.plot(site.id = input$siteId,
                                start.date = input$dateRange[[1]],
                                end.date = input$dateRange[[2]],
                                plot.imp.unit = impUnitInput,
                                mode.dark = darkModeInput)
-    })# End plot2
+    })# End renderPlotly
   },ignoreInit = T)# End observeEvent
 
-  #download the correct graph according to tab
+  #__Indentify which plot a user wishes to download ####
   shiny::observeEvent(input$selectedTab, {
     whichTab$currentTab = input$selectedTab
   })
   
-  #download handler for plotly download functionality
+  #__Download handler for downloading HTML plotly plots ####
+  #sends the correct plot and data package name to download handler
+  whichPlot <- function(){
+    if(whichTab$currentTab == "Continuous Discharge"){
+      downloadParam <- base::list("plotToWidget" = plots$plot.cont.Q, "dpName" = "DP4.00130")
+    }
+    else{
+      downloadParam <- base::list("plotToWidget" = plots$plot.RC, "dpName" = "DP4.00133")
+    }
+    return(downloadParam)
+  }
   output$downloadPlotly <- shiny::downloadHandler(
     filename = function() {
       downloadParam <- whichPlot()
       #file name format NEON.DOMAIN.SITE.DP4.0013[0,3]_STARTDATE_ENDDATE.html
-      base::paste0("NEON.",domainID,".",siteID,".",downloadParam$dpName,"_",input$dateRange[1],"_",input$dateRange[2],".html")
+      base::paste0("NEON.",input$domainId,".",input$siteId,".",downloadParam$dpName,"_",input$dateRange[1],"_",input$dateRange[2],".html")
     },
     content = function(file) {
       downloadParam <- whichPlot()
@@ -191,17 +216,10 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
         }
       )
     }
-  )
-  #sends the correct plot and data package name to download handler
-  whichPlot <- function(){
-    if(whichTab$currentTab == "Continuous Discharge"){
-      downloadParam <- base::list("plotToWidget" = plots$plot.cont.Q, "dpName" = "DP4.00130")
-    }
-    else{
-      downloadParam <- base::list("plotToWidget" = plots$plot.RC, "dpName" = "DP4.00133")
-    }
-    return(downloadParam)
-  }
+  )# End downloadHandler
+  
+  # TAB: TIMESERIES VIEWER -- BEGIN #####
+  
   
   #####################################################################################################
   #                           Beginnging of Cross Section framework                                   #
