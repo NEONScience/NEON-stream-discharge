@@ -15,9 +15,9 @@ header <- shinydashboard::dashboardHeader(title = "Open Flow"),
 sidebar <- dashboardSidebar(
                           shinydashboard::sidebarMenu(
                                             shinydashboard::menuItem("About the App", tabName = "AbouttheApp", icon = icon("info-circle")),
-                                            shinydashboard::menuItem("Time series viewer", tabName = "OpenFlow", icon = icon("sitemap")),
-                                            shinydashboard::menuItem("Cross section viewer", tabName = "CrossSection", icon = icon("pizza-slice")), #This does not exist yet, JB working on it
-                                            shinydashboard::menuItem( "Calculated Gauge Height", tabName = "gaugeHeight", icon=icon("water"))
+                                            shinydashboard::menuItem("Time Series Viewer", tabName = "OpenFlow", icon = icon("chart-line")),
+                                            shinydashboard::menuItem("Target Gauge Height", tabName = "CrossSection", icon = icon("bullseye")), #This does not exist yet, JB working on it
+                                            shinydashboard::menuItem("Real-Time Data Viewer", tabName = "gaugeHeight", icon=icon("water"))
                                             )
                            ),
  
@@ -46,36 +46,29 @@ body <- shinydashboard::dashboardBody(
      shinydashboard::tabItem(tabName= "OpenFlow",
               #tags$img(src = "app-logo.png",width = 300,height = 150),
               shiny::fluidRow(shiny::column(2,
-                                          shiny::selectInput("domainId","Domain ID",productList$domain),
-                                          shiny::fluidRow(shiny::uiOutput("domainInfo")),
-                                          shiny::br(),
-                                            shiny::fluidRow(
-                                              shiny::selectInput("siteId","Select Site ID",NULL)),
-                                              shiny::fluidRow(shiny::uiOutput("siteInfo")),
-                                              shiny::br(),
-                                              shiny::fluidRow(shiny::dateRangeInput("dateRange","Date range:",
-                                                     startview="month",
-                                                      min="2010-01-01",
-                                                      start=lubridate::floor_date(base::Sys.Date()-14,"month")-base::months(1),
-                                                      end=lubridate::floor_date(base::Sys.Date()-14,"month")-1, format="yyyy-mm-dd")),
-                                                      shiny::br(),
-                                                        shiny::fluidRow(
-                                                        shiny::actionButton(inputId="submit","Submit")),
-                                                        shiny::br(),
-                                                        shiny::fluidRow(# shiny::checkboxInput("qctrFlag", "Include Final Quality Flag for Discharge(light gray)", FALSE),
-                                                          shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
-                                                          # shiny::checkboxInput("precipQctrFlag", "Include Final Quality Flag for Precipitation(gray)", FALSE),
-                                                          # shiny::checkboxInput("precipQctrFlagScRv", "Include Science Review Quality Flag for Precipitation(gray)", FALSE),
-                                                          shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
-                                                          shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
-                                                        shiny::hr(),
-                                                        shiny::fluidRow(shiny::conditionalPanel(
-                                                            #checks that one of the graphs has been loaded
-                                                            condition = "output.plot1 != null || output.plot2 != null",
-                                                            shiny::downloadButton("downloadPlotly", "Download Graph"))),
-                                                          shiny::br(),
-                                                          shiny::fluidRow(shiny::textOutput("title"),
-                                                                                      DT::dataTableOutput("table"))),#end of first col
+                                            shiny::selectInput("domainId","Domain ID",productList$domain),
+                                            shiny::uiOutput("domainInfo"),
+                                            shiny::br(),
+                                            shiny::selectInput("siteId","Select Site ID",NULL),
+                                            shiny::uiOutput("siteInfo"),
+                                            shiny::br(),
+                                            shiny::dateRangeInput("dateRange","Date range:",
+                                                                  startview="month",
+                                                                  min="2016-07-01",
+                                                                  start=lubridate::floor_date(base::Sys.Date(),"month")-base::months(1),
+                                                                  end=base::Sys.Date()-1),
+                                            div(style = "text-align:center",shiny::actionButton(inputId="submit","Submit")),
+                                            shiny::br(),
+                                            shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
+                                            shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
+                                            shiny::checkboxInput("dark_mode", "Show in Dark Mode"),
+                                            div(style = "text-align:center",
+                                                shiny::conditionalPanel(condition = "output.plot1 != null || output.plot2 != null",#checks that one of the graphs has been loaded
+                                                                        shiny::downloadButton("downloadPlotly", "Download Graph"))),
+                                            shiny::br(),
+                                            div(style = "text-align:center",h4("Metadata Table")),
+                                            DT::dataTableOutput("table")
+                                            ),#end of first col
                             shiny::column(10,
                                 shiny::tabsetPanel(type = "tabs",id = "selectedTab",
                                         shiny::tabPanel("Continuous Discharge",

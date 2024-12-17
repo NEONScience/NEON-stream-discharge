@@ -127,8 +127,6 @@ server <- function(input, output, session) {
       tidyr::pivot_longer(c("Upstream watershed area (km^2)","Reach slope (%)","Mean bankfull width (m)","D50 particle size (mm)"),
                           names_to = "MetaData",
                           values_to = "Values")
-    # Enter header for metadata table
-    output$title <- shiny::renderText("Metadata Table")
     # Create metadata table output
     output$table <- DT::renderDataTable({dat <- DT::datatable(metaD,  options = list(dom = 't'))},selection = 'single')
     
