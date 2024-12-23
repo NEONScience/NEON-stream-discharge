@@ -126,7 +126,7 @@ RC.plot <-function(site.id,
 
       if(i==1){
         # Build plot layout
-        rcPlot <- plotly::plot_ly(data=rcData)%>%
+        rcPlot <- plotly::plot_ly(data=rcData, source = "rcHover_source")%>%
           plotly::layout(
             xaxis=base::list(tick=14,
                              automargin=T,

@@ -310,6 +310,20 @@ server <- function(input, output, session) {
   #####################################################################################################
   #                           Beginnging of Blue Heron framework                                      #
   #####################################################################################################
+  observeEvent(input$rtdvSite,{
+    shinyjs::hide("rtdvStageDischargePlotly")
+  })
+  
+  # hoveredPoint <- reactive({
+  #   event_data("plotly_hover", source = "hover_source")
+  # })
+  
+  observeEvent(event_data("plotly_hover", source = "rcHover_source"),{
+    output$hover_info <- renderPrint({
+      event_data("plotly_hover", source = "rcHover_source")
+    })
+    
+  })
   
   #Observe changes in water type selected GW = ground water and SW = surface water
   observeEvent(input$waterType,{ 
@@ -317,16 +331,9 @@ server <- function(input, output, session) {
     {
       #Updates the location values to match GWW locations. 301 represents GWW1 for example.
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = 301:308)
-      shinyjs::show("wellDepth")
-      shinyjs::show("cableLength")
-      shinyjs::show("optionalGWWMessage")
     } else {
       #Updates the location values to match SW locations. 101 represents S1, 131 is also S1 but the selection is site dependent whether its a standalone troll or not.
       updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = c(101,102,110,131,132))
-      shinyjs::show("trollType")
-      shinyjs::hide("optionalGWWMessage")
-      shinyjs::hide("wellDepth")
-      shinyjs::hide("cableLength")
     }
   }) #End observeEvent for waterType
   
@@ -336,23 +343,30 @@ server <- function(input, output, session) {
     #simple if else toggles a textInput that allows a single pressure reading to inputed
     if(input$dataSource == "L0 Data Query")
     {
+      shinyjs::show("rtdvDaterange")
       shinyjs::hide("singlePressure")
       shinyjs::hide("grafanaFile")
     }else if(input$dataSource == "Grafana CSV File"){
       shinyjs::hide("singlePressure")
+      shinyjs::hide("rtdvDaterange")
       shinyjs::show("grafanaFile")
     } else if(input$dataSource == "Instant Pressure Reading")
     {
       shinyjs::show("singlePressure")
+      shinyjs::show("rtdvDaterange")
       shinyjs::hide("grafanaFile")
     }
   }) #end observeEvent for the type of data selection from input$dataSource
   
   observeEvent(input$rtdvRun, {
+    showModal(modalDialog(title = "Loading Data...", fade = TRUE, icon = icon("bars-progress"), easyClose = FALSE, footer = NULL,                                                    
+                          div(id = "LB",progressBar(id = "GaugeHeightLoadBar", value = 0, title = "Initializing...")),  ##******need to update this value input option in order to work*****##
+      ))
     shinyjs::show("GaugeHeightLoadBar")
     updateTabsetPanel(session, "calculatedStageTimeSeries", selected = "CG_timeSeries")
-
-    realTimeDataViewer(input, output, session)
+    dscSurvey <<- realTimeDataViewer(input, output, session)
+    
+    removeModal()
   })
   # Select site ID based on the domain ID chosen
   shiny::observe({x <- productList$siteID[productList$domain == input$rtdvDomain]
