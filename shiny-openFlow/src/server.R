@@ -218,26 +218,17 @@ server <- function(input, output, session) {
   
   # TAB: TIMESERIES VIEWER -- BEGIN #####
   
-  
-  #####################################################################################################
-  #                           Beginnging of Cross Section framework                                   #
-  #####################################################################################################
+  # TAB: TARGET GAUGE HEIGHT -- BEGIN ####
   
   # Select site ID based on the domain ID chosen
   shiny::observe({
     x<-Target_df$Site[Target_df$Domain==input$XS_Domain]
     shiny::updateSelectInput(session, "XS_site", choices= unique(x))
+    output$
     
-  })  
-  #change datatable column names
-  colnames(Target_df)<- c(
-    "Domain",
-    "Site",
-    "TargetGaugeHeight",
-    "TargetGaugeHeight10",
-    "TargetGaugeHeight30",
-    "TypicalHighFlowPeriod"
-  )
+  })
+  
+
   
   
   # observe({
@@ -246,43 +237,48 @@ server <- function(input, output, session) {
   
   
   #Observe row selection and display details
-  observe({
-    if(input$XS_site!= "No Site Selected")
-    {
-      
-      filter_target<- Target_df %>%
-        filter(Site==input$XS_site)
-      
-      
-      
-      if (nrow(filter_target) > 0) {
-        output$TargetGaugeHeights <- renderUI({
-          fluidRow(
-            column(6,
-                   tags$div(
-                     tags$h2("Target Gauge Height (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight,"</b>"))),
-                     tags$h2("Target Gauge Height - 10% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight10,"<b>"))))),
-            column(6,
-                   tags$div( 
-                     tags$h2("Target Gauge Height - 30% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight30, "<b>"))),
-                     tags$h2("Typical High Flow Period:", HTML(paste0("<b>",filter_target$TypicalHighFlowPeriod, "</b>")))))
-          ) 
-        })
+  # observe({
+    # if(input$XS_site!= "No Site Selected")
+    # {
+    #   
+    #   filter_target<- Target_df %>%
+    #     filter(Site==input$XS_site)
+    #   
+    #   
+    #   
+    #   if (nrow(filter_target) > 0) {
+        # output$TargetGaugeHeights <- renderUI({
+        #   shiny::fluidRow(
+        #     shiny::column(6,
+        #                   shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$Domain, selected = "No Domain Selected")),
+        #     shiny::column(6,
+        #                   shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, selected= "No Site Selected"))),
+        #   fluidRow(
+        #     column(6,
+        #            tags$div(
+        #              tags$h2("Target Gauge Height (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight,"</b>"))),
+        #              tags$h2("Target Gauge Height - 10% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight10,"<b>"))))),
+        #     column(6,
+        #            tags$div( 
+        #              tags$h2("Target Gauge Height - 30% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight30, "<b>"))),
+        #              tags$h2("Typical High Flow Period:", HTML(paste0("<b>",filter_target$TypicalHighFlowPeriod, "</b>")))))
+        #   ) 
+        # })
         
-        
-      } else {
-        output$TargetGaugeHeights <- renderUI({
-          tags$h3("Data not available")
-        })
-      }
-    } else {
-      output$TargetGaugeHeights <- renderUI({
-        tags$h3("Please Select a Domain and Site to see Gauge Height Information")
-      })
-    }
-    
-  })
-  
+  #       
+  #     } else {
+  #       output$TargetGaugeHeights <- renderUI({
+  #         tags$h3("Data not available")
+  #       })
+  #     }
+  #   } else {
+  #     output$TargetGaugeHeights <- renderUI({
+  #       tags$h3("Please Select a Domain and Site to see Gauge Height Information")
+  #     })
+  #   }
+  #   
+  # })
+  # 
 ##plotting DSCXS for CUPE
   #Reactive expression that triggers Show Plot button when clicked
   xs_plot<-eventReactive(input$ShowPlot,{
