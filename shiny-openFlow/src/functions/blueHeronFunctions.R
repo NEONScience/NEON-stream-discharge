@@ -205,11 +205,11 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
               summarise(uncertaintyUp_15min = mean(uncertaintyUp, na.rm = TRUE),
                         uncertaintyBottom_15min = mean(uncertaintyBottom, na.rm = TRUE),
                         estimatedDischarge_15min = mean(estimatedDischarge, na.rm = TRUE))
-            waterElevationDF <<- waterElevationDF
+            # waterElevationDF <<- waterElevationDF
             
             sd_discharge <- SharedData$new(waterElevationDF, group = "waterElevation")
 
-            DischargePlotly <- plot_ly(sd_discharge, source = "hover_source")
+            DischargePlotly <- plot_ly(sd_discharge, source = "dischargeHover_source")
             DischargePlotly <- DischargePlotly %>%
               plotly::add_trace(x=~Date_15min,y=~as.numeric(uncertaintyUp_15min),name="Discharge Bottom Uncertainty",type='scatter',mode='line',line=base::list(color='#E69F00'))%>%
               plotly::add_trace(x=~Date_15min,y=~as.numeric(uncertaintyBottom_15min),name="Discharge Upper Uncertainty",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#E69F00') %>%
@@ -221,15 +221,17 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
               DischargePlotly
             )
             
-            # import rating curve graph
+            # import rating curve graph and plot to UI
             rcPlot <- RC.plot(site, startDate, endDate)
-            output$ratingCurvePlotly <- renderPlotly(rcPlot)
+            rcPlotly <- rcPlot %>% layout(hovermode = "x unified")
+            output$ratingCurvePlotly <- renderPlotly({rcPlotly})
             
             # interactive gauge height by scrolling on on any of the two paired graphs 
+            # Currently using GUIL survey data (hard coded) needs to be updated with dynamic query of site surveys
              dscSurvey <- read_csv("data/D04_GUIL_surveyPts_20200312.csv") %>% filter(mapCode == "Transect_DSC") %>% arrange(E)
              output$waterHeightInteractive <- renderPlotly({
                rowTest <- nrow(dscSurvey)
-               hover <- event_data("plotly_hover", source = "hover_source")
+               hover <- event_data("plotly_hover", source = "rcHover_source")
                if(is.null(hover))
                {
                  if(exists("hover_point_pre"))
@@ -237,23 +239,23 @@ realTimeDataViewer <- function(input, output, session, realTimeSingleInput = NUL
                    plot_ly(dscSurvey) %>%
                      add_lines(x = c(0, rowTest), y = as.numeric(hovered_point_pre+min(dscSurvey$H)),name="Estimated Gauge",type='scatter',mode='lines+maarkers',fill = 'tonexty',fillcolor='lightblue') %>%
                      add_trace(y = ~H, type = 'scatter', mode = 'lines+markers', fill = 'tozeroy', fillcolor = 'brown', name = "DSC Transect", text = ~name, hoverinfo = "text+y") %>%
-                     layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)))
+                     layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)), legend = list(x = 0.1, y = 0.9))
             
-                 } else {
-                   plot_ly(dscSurvey) %>%
-                     add_lines(x = c(0, rowTest), y = as.numeric(0.5+min(dscSurvey$H)),name="Estimated Gauge",type='scatter',mode='lines',fill = 'tonexty',fillcolor='lightblue') %>%
-                     add_trace(y = ~H, type = 'scatter', mode = 'lines+markers', fill = 'tozeroy', fillcolor = 'brown', name = "DSC Transect", text = ~name, hoverinfo = "text+y") %>%
-                     layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)))
-                 }
+                 } 
+                 # else {
+                 #   plot_ly(dscSurvey) %>%
+                 #     add_lines(x = c(0, rowTest), y = as.numeric(0.25+min(dscSurvey$H)),name="Estimated Gauge",type='scatter',mode='lines',fill = 'tonexty',fillcolor='lightblue') %>%
+                 #     add_trace(y = ~H, type = 'scatter', mode = 'lines+markers', fill = 'tozeroy', fillcolor = 'brown', name = "DSC Transect", text = ~name, hoverinfo = "text+y") %>%
+                 #     layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)))
+                 # }
             
                } else {
-                 hovered_point <- hover$y[1]
+                 hovered_point <- hover$x[1]
                  hovered_point_pre <<- hovered_point
-                 # print(hovered_point)
                  plot_ly(dscSurvey) %>%
                    add_lines(x = c(0, rowTest), y = as.numeric(hovered_point+min(dscSurvey$H)),name="Estimated Gauge",type='scatter',mode='lines+maarkers',fill = 'tonexty',fillcolor='lightblue') %>%
                    add_trace(y = ~H, type = 'scatter', mode = 'lines+markers', fill = 'tozeroy', fillcolor = 'brown', name = "DSC Transect", text = ~name, hoverinfo = "text+y") %>%
-                   layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)))
+                   layout(xaxis = list(range=c(0,as.numeric(rowTest))), yaxis = list(range = c(min(dscSurvey$H), max(dscSurvey$H)+2)), legend = list(x = 0.1, y = 0.9))
             
                }
 

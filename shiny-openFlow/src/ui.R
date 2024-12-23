@@ -125,12 +125,14 @@ body <- shinydashboard::dashboardBody(
                                                       #   plotlyOutput("ratingCurvePlotly"),
                                                       #   plotlyOutput("waterHeightInteractive")
                                                       # ),
+                                                      
                                                       bscols(widths = c(12, 12,12),
                                                              div(plotlyOutput("rtdvStageDischargePlotly"), style = css(width="100%", height="300px")),
                                                              div(plotlyOutput("ratingCurvePlotly"), style = css(width="100%", height="300px")),
                                                              div(plotlyOutput("waterHeightInteractive"), style = css(width="100%", height="300px"))
                                                       ),
-                                                      verbatimTextOutput("hover_info"),
+                                                      #verbatimTextOutput("hover_info"),
+                                                      
                                                       div( id = "singleOutputBox",
                                                            box( width = 10,
                                                              textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}")),

@@ -299,9 +299,9 @@ server <- function(input, output, session) {     ###**removed the shiny::shinySe
   #   event_data("plotly_hover", source = "hover_source")
   # })
   
-  observeEvent(event_data("plotly_hover", source = "hover_source"),{
+  observeEvent(event_data("plotly_hover", source = "rcHover_source"),{
     output$hover_info <- renderPrint({
-      event_data("plotly_hover", source = "hover_source")
+      event_data("plotly_hover", source = "rcHover_source")
     })
     
   })
