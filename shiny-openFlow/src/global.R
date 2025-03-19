@@ -21,6 +21,7 @@ library(shinydashboard)
 library(XML)
 library(DBI)
 library(RPostgres)
+require(openFlowInternal)
 
 #global ----
 pass <- 0
@@ -44,16 +45,12 @@ file_sources <-
       base::stop()
     }
   )
-source("C:/Users/nickerson/Documents/GitHub/shiny-openFlow-db-code/openFlowInternal/R/get.cal.R")
-source("C:/Users/nickerson/Documents/GitHub/shiny-openFlow-db-code/openFlowInternal/R/gag.offset.R")
-source("C:/Users/nickerson/Documents/GitHub/shiny-openFlow-db-code/openFlowInternal/R/frmt.gauge.name.loc.data.R")
-source("C:/Users/nickerson/Documents/GitHub/shiny-openFlow-db-code/openFlowInternal/R/frmt.reg.R")
 
 # Connect to openflow database
 con<-DBI::dbConnect(
   RPostgres::Postgres(),
   dbname = 'openflow',
-  host = 'nonprod-commondb.gcp.neoninternal.org',
+  host = Sys.getenv("DB_HOST"),
   port = '5432',
   user = 'shiny_openflow_rw',
   password = Sys.getenv('DB_TOKEN')
@@ -69,7 +66,7 @@ osPubDateFormat <- "%Y-%m-%dT%H:%MZ"
 waterDensity <- 999
 gravity <- 9.80665
 convKPatoPa <- 1000
-well_depth_file <- read.csv("data/gw_well_depths.csv", sep = ",") 
+# well_depth_file <- read.csv("data/gw_well_depths.csv", sep = ",") 
 
 #change settings depending on HOST - internal app vs external app
 HOST <- Sys.getenv('HOST')

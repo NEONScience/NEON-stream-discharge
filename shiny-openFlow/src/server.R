@@ -350,12 +350,12 @@ server <- function(input, output, session) {
       startDate <- Sys.Date()
       endDate <- Sys.Date()
       # Attempt to pull calibration data
-      calibrations <- try(get.cal(startDate = startDate,
-                                  endDate = endDate,
-                                  DPID = DPID,
-                                  session,
-                                  input,
-                                  output),silent = T)
+      calibrations <- try(openFlowInternal::get.cal(startDate = startDate,
+                                                    endDate = endDate,
+                                                    DPID = DPID,
+                                                    session,
+                                                    input,
+                                                    output),silent = T)
       # If query was successful, get calibration coefficients
       if(attr(calibrations, "class") == "try-error"){
         # ADD ERROR HANDLING
@@ -376,7 +376,7 @@ server <- function(input, output, session) {
       
       #__Convert water column height data to calculated stage ####
       # For surface water data only
-      regressionData <- frmt.reg(input, output, session)
+      regressionData <- openFlowInternal::frmt.reg(input, output, session)
       regressionData <- regressionData[regressionData$regressionID==max(regressionData$regressionID[grepl(input$rtdvSite,regressionData$regressionID)]),]
       stageHeight <- (as.numeric(regressionData$regressionSlope)*waterColumnHeight)+as.numeric(regressionData$regressionIntercept)
     }else{
@@ -384,10 +384,10 @@ server <- function(input, output, session) {
       stageHeight <- as.numeric(input$singleStaffGauge)
       
       # Get gauge named location offsets
-      gaugeLocData <- gag.offset(input$rtdvSite,
-                                 session,
-                                 input,
-                                 output)
+      gaugeLocData <- openFlowInternal::gag.offset(input$rtdvSite,
+                                                   session,
+                                                   input,
+                                                   output)
       #Error handling if no data or if GET failed
       if(attr(gaugeLocData, "class") == "try-error"){
         failureMessage <- "Gauge location history could not be retrieved"
@@ -401,7 +401,6 @@ server <- function(input, output, session) {
             gaugeLocData <- gaugeLocData[grepl("outflow",gaugeLocData$namedLocation),]
           }else{
             failureMessage <- "No inflow or outflow gauge location history records were retrieved for TOOK"
-            suppressWarnings(stageQInternal::put.trns.fail(failureMessage, searchIntervalStartDate, searchIntervalEndDate))
             stop(failureMessage)
           }
         }
@@ -411,8 +410,8 @@ server <- function(input, output, session) {
         stop(failureMessage)
       }
       # Format the gauge named location data to apply offsets
-      gaugeLocData <- try(suppressWarnings(frmt.gauge.name.loc.data(input$rtdvSite,
-                                                                    dataFrame = gaugeLocData)))
+      gaugeLocData <- try(suppressWarnings(openFlowInternal::frmt.gauge.name.loc.data(input$rtdvSite,
+                                                                                      dataFrame = gaugeLocData)))
       
       # Apply gauge offset
       # Subset to the most recent named location
