@@ -8,9 +8,9 @@ ui<- shinydashboard::dashboardPage(
   #Sidebar menu                
   sidebar <- shinydashboard::dashboardSidebar(
     shinydashboard::sidebarMenu(shinydashboard::menuItem("About the App", tabName = "AbouttheApp", icon = icon("info-circle")),
-                                shinydashboard::menuItem("Time Series Viewer", tabName = "OpenFlow", icon = icon("chart-line")),
-                                shinydashboard::menuItem("Target Gauge Height", tabName = "CrossSection", icon = icon("bullseye")),
-                                shinydashboard::menuItem("Real-Time Data Viewer", tabName = "gaugeHeight", icon=icon("water"))
+                                shinydashboard::menuItem("Time Series Viewer", tabName = "TimeseriesViewer", icon = icon("chart-line")),
+                                shinydashboard::menuItem("Target Gauge Height", tabName = "TargetGAG", icon = icon("bullseye")),
+                                shinydashboard::menuItem("Real-Time Data Viewer", tabName = "RealTime", icon=icon("water"))
                                 )# End of sidebarMenu
     ),# End of dashboardSidebar
  
@@ -33,7 +33,7 @@ ui<- shinydashboard::dashboardPage(
                                ),# End fluid row for about the app
        
        # Tab Item timeseries viewer
-       shinydashboard::tabItem(tabName= "OpenFlow",
+       shinydashboard::tabItem(tabName= "TimeseriesViewer",
                                shiny::fluidRow(shiny::column(2,
                                                              shiny::selectInput("domainId","Domain ID",productList$domain),
                                                              shiny::uiOutput("domainInfo"),
@@ -70,101 +70,59 @@ ui<- shinydashboard::dashboardPage(
                                ),# End timeseries viewer tab
        
        # Tab Item for cross section menu
-       shinydashboard::tabItem(tabName ="CrossSection",
-                               # Summary of Domain target datatable per site selected
-                               shinydashboard::box(
-                                 width=12,
-                                 title= div(style = "text-align:center","Choose Site to View Current Gauge Height Targets for Opportunistic High-Flow Discharge Measurements"),
-                                 solidHeader= TRUE,
-                                 status= "primary",
-                                 shiny::fluidRow(
-                                   shiny::column(6,
-                                                 shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$Domain, selected = NULL)),# End column
-                                   shiny::column(6,
-                                                 shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, selected= NULL))# End column
-                                   
-                                 ),# End fluidRow
-                                 shiny::fluidRow(
-                                   shiny::column(6,
-                                                 tags$h3("Target Gauge Height (m):",shiny::renderText("targetGaugeHeight")),
-                                                 tags$h3("Typrical High Flow Period:",shiny::renderText("highFlowPeriod"))),# End column
-                                   shiny::column(6,
-                                                 tags$h3("Target + 10% (m):",shiny::renderText("targetGaugeHeightPlus10")),
-                                                 tags$h3("Target - 30% (m):",shiny::renderText("targetGaugeHeightMinus30"))),# End column
-                                 )# End fluidRow
-                                 ### LEFT OFF HERE ###
-                               )),
+       shinydashboard::tabItem(tabName ="TargetGAG",
+                               shiny::fluidRow(
+                                 # Summary of Domain target datatable per site selected
+                                 shinydashboard::box(
+                                   width=12,
+                                   title= div(style = "text-align:center","Choose Site to View Current Gauge Height Targets for Opportunistic High-Flow Discharge Measurements"),
+                                   solidHeader= TRUE,
+                                   status= "primary",
+                                   shiny::fluidRow(
+                                     shiny::column(6,
+                                                   shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$domainID)),# End column
+                                     shiny::column(6,
+                                                   shiny::selectInput(input= "XS_site",label = "Select Site ID", NULL))# End column
+                                     ),# End fluidRow
+                                   div(style = "text-align:center",shiny::actionButton("showResultsTargetGAG","Show Results & Plots")),
+                                   shiny::fluidRow(
+                                     shiny::column(6,
+                                                   tags$h3(shiny::htmlOutput("targetGaugeHeight")),
+                                                   tags$h3(shiny::htmlOutput("highFlowPeriod"))),# End column
+                                     shiny::column(6,
+                                                   tags$h3(shiny::htmlOutput("targetGaugeHeightPlus10")),
+                                                   tags$h3(shiny::htmlOutput("targetGaugeHeightMinus30")))# End column
+                                     ),# End fluidRow
+                                   shiny::fluidRow(
+                                     shiny::column(6,
+                                                   plotly::plotlyOutput("rc_targetGAG")),# End column
+                                     shiny::column(6,
+                                                   plotly::plotlyOutput("xs_targetGAG"))# End column
+                                   )# End fluidRow
+                                   )# End box
+                                 )# End fluid row for target gauge height viewer
+                               ),# End TargetGAG tab
        
        #Tab Item for Blue Heron
-       shinydashboard::tabItem(tabName= "gaugeHeight",
-                               #img(src= #"Blue Heron-logo.png", width = 300,height = 150) #needs a comma whenadding Lucas app
-                               #rtdv is shorthand for real-time-data-viewer 
-                               shiny::fluidRow(
-                                 shiny::column(3,
-                                      shinydashboard::box( width = 12, 
-                                          #Input for selecting domain
-                                          selectizeInput(input = "rtdvDomain", label = "Choose a domain", choices = productList$domain),##replaced the choices from unique(domainSite_info$field_domain_id
-                                          #Input for selecting site based off the domain selected
-                                          selectizeInput(input = "rtdvSite", label = "Choose a site", choices = NULL),
-                                          #Input for selecting the type of water GW = Groundwater and SW = Surfacewater
-                                          selectInput(input = "waterType", label = "Choose GW or SW", choices = c("GW","SW")),
-                                          h5("GW is for groundwater and SW is for surface water"),
-                                          #Input for selecting between an AquaTROLL and LevelTROLL depending what is installed at the SW location
-                                          selectInput(input = "trollType", label = "What kind of Troll is it?", choices = c("AquaTroll","LevelTroll")),
-                                          #Input for selecting HOR location, techs will likely know which theirs is
-                                          selectInput(input = "HOR", label = "Choose Location", choices = NULL),
-                                          #Input for selecting a date range of the data desired
-                                          dateRangeInput(inputId = "rtdvDaterange", label = "Select date range of pressure reading(s)", start = Sys.Date()-2, end = Sys.Date()-1, max = Sys.Date()-1),
-                                          #Input for selecting whether L0 data is used for the graph or not
-                                          selectizeInput(input = "dataSource", label = "Where is the data coming from?", choices = c("L0 Data Query", "Grafana CSV File", "Instant Pressure Reading")),
-                                          fileInput(inputId = "grafanaFile", label = "Upload the Grafana .csv file"),
-                                          #Text input for whenever dataSource input is set to not query L0 data
-                                          textInput(inputId = "singlePressure", label = "Insert single pressure reading here", value = ""),
-                                          #Load bar to show progress of gathering spatial data associated with the TROLL
-                                          actionButton(inputId = "rtdvRun", label = "Run")
-                                        )
-                                      ),
-                                   shiny::column(7,
-                                    #Provide general information about the app
-                                    tabsetPanel( id = "calculatedStageTimeSeries",
-                                      tabPanel( title = "About",
-                                                includeHTML("introMaterials/staffGaugeIntroText.html")
-                                                      ),
-                                            tabPanel( id = "CG_timeSeries",
-                                                      title = "Calculated Heights",
-                                                      #Shows plotly output of water depth with time series
-                                                      div(id = "Title_CWE",(h3("Calculated Water Elevation"))),
-                                                      div(id = "Title_CSH",(h3("Calculated Stage Height"))),
-                                                      # plotlyOutput("calculatedStagePlot"),
-                                                      
-                                                      # plotlyOutput("rtdvStageDischargePlotly"),
-                                                      # bscols(
-                                                      #   plotlyOutput("ratingCurvePlotly"),
-                                                      #   plotlyOutput("waterHeightInteractive")
-                                                      # ),
-                                                      
-                                                      bscols(widths = c(12, 12,12),
-                                                             div(plotlyOutput("rtdvStageDischargePlotly"), style = css(width="100%", height="300px")),
-                                                             div(plotlyOutput("ratingCurvePlotly"), style = css(width="100%", height="300px")),
-                                                             div(plotlyOutput("waterHeightInteractive"), style = css(width="100%", height="300px"))
-                                                      ),
-                                                      #verbatimTextOutput("hover_info"),
-                                                      
-                                                      div( id = "singleOutputBox",
-                                                           box( width = 10,
-                                                             textOutput("singleWaterColumnHeight"), tags$head(tags$style("#singleWaterColumnHeight{font-size: 20px;}")),
-                                                             textOutput("EstimatedDischarge"), tags$head(tags$style("#EstimatedDischarge{font-size: 20px;}"))
-                                                           )
-                                                           )
-                                                      
-                                                      )
-                                              )
-                                        )
-                               
-                                    
-          )
-      ) 
-  )
-)
-  
-  
+       shinydashboard::tabItem(tabName= "RealTime",
+                               shiny::fluidRow(shiny::column(2,
+                                                             shiny::selectizeInput("rtdvDomain","Domain ID", choices = productList$domain),##replaced the choices from unique(domainSite_info$field_domain_id
+                                                             shiny::selectizeInput("rtdvSite","Select Site ID", choices = NULL),
+                                                             shinyjs::hidden(shiny::radioButtons("waterType","Surface or Ground?", choices = c("Surface Water","Groundwater"),selected = "Surface Water")),
+                                                             shiny::radioButtons("trollType","Select TROLL Type", choices = c("LevelTroll","AquaTroll")),
+                                                             # shiny::selectInput("HOR","Choose Location (HOR)", choices = NULL),
+                                                             # dateRangeInput(inputId = "rtdvDaterange", label = "Select date range of pressure reading(s)", start = Sys.Date()-2, end = Sys.Date()-1, max = Sys.Date()-1),# ZN 2024-01-03 -- disabling L0 data query because this functionality will exist in the regular timeseries viewer
+                                                             shiny::radioButtons("dataSource","Select Data Input Type",choices = c("Single Staff Gauge Reading","Single Pressure Reading","Grafana CSV File")),
+                                                             shinyjs::hidden(shiny::textInput("singleStaffGauge","Enter Staff Gauge Reading")),
+                                                             shinyjs::hidden(shiny::textInput("singlePressure","Enter Pressure Reading")),
+                                                             shinyjs::hidden(shiny::fileInput("grafanaFile","Upload Grafana CSV file")),
+                                                             actionButton(inputId = "rtdvRun", label = "Submit")
+                                                             ),# End input column
+                                               shiny::column(10,
+                                                             shiny::uiOutput("realTimeUIOutput")
+                                                             )# End output column
+                               )# End of fluid row for real-time data viewer
+                               )# End of real-time data viewer tab item
+       )# End of all shinydashboard tab items
+  )# End of shinydashboard body
+)# End of shinydashboard page

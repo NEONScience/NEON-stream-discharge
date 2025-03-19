@@ -8,9 +8,7 @@
 #' James M. Ross \email{ross.james94@gmail.com} \cr
 
 #' @description  This function will generate a plotly plot of NEON Stage-Discharge Rating
-#' Curves (DP4.00130.001) data to be rendered in the openFlow shiny app. The function can
-#' also be used outside the app, but should only be used with the outputs from
-#' neonStageQPlot::get.cont.Q.NEON.API.
+#' Curves (DP4.00130.001) data to be rendered in the openFlow shiny app. 
 
 #' @param site.id Required: NEON AQU site ID selected by the shiny app user [string]
 #' @param start.date Required: Search interval start date (YYYY-MM-DD) selected by the shiny
@@ -21,6 +19,8 @@
 #' units [boolean]
 #' @param mode.dark Defaults to FALSE: Indicator of plotting data in light or dark mode. NOTE:
 #' This argument is only used in the openFlow shiny app. [boolean]
+#' @param target.gag.range description
+#' @param show.legend description
 
 #' @return Returns a plotly plot object
 
@@ -44,7 +44,13 @@ RC.plot <-function(site.id,
                    start.date,
                    end.date,
                    plot.imp.unit=F,
-                   mode.dark=F
+                   mode.dark=F,
+                   target.gag.range=NULL,
+                   med.3x=NULL,
+                   rtdv.values=NULL,
+                   show.legend=T,
+                   uncertainty.visibility="legendonly",
+                   p.source=NA
                    ){
 
   if(base::missing(site.id)){
@@ -126,7 +132,7 @@ RC.plot <-function(site.id,
 
       if(i==1){
         # Build plot layout
-        rcPlot <- plotly::plot_ly(data=rcData, source = "rcHover_source")%>%
+        rcPlot <- plotly::plot_ly(data=rcData, source = p.source)%>%
           plotly::layout(
             xaxis=base::list(tick=14,
                              automargin=T,
@@ -140,11 +146,18 @@ RC.plot <-function(site.id,
                              titlefont=base::list(size=18),
                              showgrid=T,
                              zeroline=T),
-            legend=base::list(x=-0.2,y=0.87,
+            legend=base::list(orientation = "h",
+                              y=-0.15,
                               font=base::list(size=14)),
             updatemenus=base::list(
               base::list(
                 type='buttons',
+                direction = "right",
+                xanchor = 'center',
+                yanchor = "top",
+                pad = list('r'= 0, 't'= 10, 'b' = 10),
+                x = 0.5,
+                y = 1.17,
                 showactive=FALSE,
                 buttons=base::list(
                   base::list(label='Scale Discharge\n- Linear -',
@@ -178,13 +191,13 @@ RC.plot <-function(site.id,
 
       rcPlot <- rcPlot%>%
         # Total Uncertainty
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=base::list(color='#D55E00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#D55E00',line=base::list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=T,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=base::list(color='#D55E00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible=uncertainty.visibility,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~totalUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#D55E00',line=base::list(color='#D55E00'),hovertemplate = "Stage(m): %{x} <br> Discharge(lps): %{y}",showlegend=show.legend,visible=uncertainty.visibility,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         # Parametric Uncertainty
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=base::list(color='#E69F00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#E69F00',line=base::list(color='#E69F00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible='legendonly',legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUTop,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',line=base::list(color='#E69F00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible=uncertainty.visibility,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~pramUBottom,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nUncertainty"),type='scatter',mode='line',fill='tonexty',fillcolor='#E69F00',line=base::list(color='#E69F00'),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,visible=uncertainty.visibility,legendgroup=base::paste0(currentCurveID," Uncertainty"))%>%
         # Max Post Q
-        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=base::list(color=ratingColor),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=T,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
+        plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=base::list(color=ratingColor),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=show.legend,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
         # Empirical H/Q Pairs
         plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=base::list(color=ratingColor),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
     }
@@ -192,7 +205,7 @@ RC.plot <-function(site.id,
     rcPlot <- plotly::plotly_empty()%>%
       plotly::layout(
         title=base::list(
-          text = "No Stage-discharge rating curves (DP4.00133.001)\n data available for this site.",
+          text = "No Stage-discharge rating curves\n(DP4.00133.001)\n data available for this site.",
           yref = "paper",
           y = 0.5,
           font=base::list(size=28)
@@ -206,6 +219,29 @@ RC.plot <-function(site.id,
                        font = base::list(color = 'white'))
       ratingColor <- "white"
     }
+  }
+  
+  # Add target gauge range if the input list is provided
+  if(!is.null(target.gag.range)){
+    gagRangeTrace <- data.frame(Hgrid=c(0,target.gag.range$min-0.00001,target.gag.range$min-0.00001,target.gag.range$min,target.gag.range$max,target.gag.range$max+0.00001,target.gag.range$max+0.00001,max(rcData$Hgrid)),
+                                rangeRibbon=c(0,0,max(rcData$totalUBottom),max(rcData$totalUBottom),max(rcData$totalUBottom),max(rcData$totalUBottom),0,0))
+    rcPlot <- rcPlot%>%
+      plotly::add_trace(data=gagRangeTrace,x=~Hgrid,y=~rangeRibbon,name="Target Range",type='scatter',mode='none',fill="tozeroy",fillcolor='rgba(172, 255, 115, 0.5)',legendgroup="target",showlegend=show.legend,hoverinfo='none')%>%
+      plotly::add_segments(x=target.gag.range$min,xend=target.gag.range$min,y=0,yend=max(rcData$totalUBottom),name="Target - 30%",line=list(color='darkgreen',dash='dash'),legendgroup="target",showlegend=F,hoverinfo='none')%>%
+      plotly::add_segments(x=target.gag.range$tar,xend=target.gag.range$tar,y=0,yend=max(rcData$totalUBottom),name="Target Gauge",line=list(color='darkgreen',dash='dash'),legendgroup="target",showlegend=F,hoverinfo='none')%>%
+      plotly::add_segments(x=target.gag.range$max,xend=target.gag.range$max,y=0,yend=max(rcData$totalUBottom),name="Target + 10%",line=list(color='darkgreen',dash='dash'),legendgroup="target",showlegend=F,hoverinfo='none')
+  }
+  
+  # Add bar for 3x median Q if the input is provided
+  if(!is.null(med.3x)){
+    rcPlot <- rcPlot%>%
+      plotly::add_segments(x=0,xend=max(rcData$Hgrid),y=med.3x,yend=med.3x,name="3x Median Q",line=list(color='red',dash='dash'),legendgroup="3xmed",showlegend=show.legend)
+  }
+  
+  # Add the current value from the real time data viewer, if provided
+  if(!is.null(rtdv.values)){
+    rcPlot <- rcPlot%>%
+      plotly::add_segments(x=0,xend=max(rcData$Hgrid),y=rtdv.values,yend=rtdv.values,name="Real-Time Q",line=list(color='black',dash='dash'),legendgroup="rtdv",showlegend=show.legend)
   }
 
   return(rcPlot)

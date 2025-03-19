@@ -114,10 +114,13 @@ server <- function(input, output, session) {
 
   #__Observe event to generate outputs ####
   shiny::observeEvent(input$submit,{
+    TS_siteID <- shiny::isolate(input$siteId)
+    TS_startDate <- shiny::isolate(input$dateRange[[1]])
+    TS_endDate <- shiny::isolate(input$dateRange[[2]])
     
     #__Generate metadata table ####
     metaD <-  productList%>%
-      dplyr::filter(siteID == input$siteId)%>%
+      dplyr::filter(siteID == TS_siteID)%>%
       dplyr::select(upstreamWatershedAreaKM2,reachSlopePercent,averageBankfullWidthM,d50ParticleSizeMM)%>%
       dplyr::rename("Upstream watershed area (km^2)"= upstreamWatershedAreaKM2,
                     "Reach slope (%)" = reachSlopePercent,
@@ -148,9 +151,9 @@ server <- function(input, output, session) {
         impUnitInput <- F
       }
       # Plot continuous discharge and store in output
-      plots$plot.cont.Q <- cont.Q.plot(site.id = input$siteId,
-                                       start.date = input$dateRange[[1]],
-                                       end.date = input$dateRange[[2]],
+      plots$plot.cont.Q <- cont.Q.plot(site.id = TS_siteID,
+                                       start.date = TS_startDate,
+                                       end.date = TS_endDate,
                                        plot.imp.unit = impUnitInput,
                                        mode.dark = darkModeInput,
                                        plot.sci.rvw.QF = sciRvwQfInput,
@@ -171,13 +174,13 @@ server <- function(input, output, session) {
         impUnitInput <- F
       }
       # Plot rating curve(s) and store in outputs
-      plots$plot.RC <- RC.plot(site.id = input$siteId,
-                               start.date = input$dateRange[[1]],
-                               end.date = input$dateRange[[2]],
+      plots$plot.RC <- RC.plot(site.id = TS_siteID,
+                               start.date = TS_startDate,
+                               end.date = TS_endDate,
                                plot.imp.unit = impUnitInput,
                                mode.dark = darkModeInput)
     })# End renderPlotly
-  },ignoreInit = T)# End observeEvent
+  },ignoreNULL = T)# End observeEvent
 
   #__Indentify which plot a user wishes to download ####
   shiny::observeEvent(input$selectedTab, {
@@ -199,7 +202,7 @@ server <- function(input, output, session) {
     filename = function() {
       downloadParam <- whichPlot()
       #file name format NEON.DOMAIN.SITE.DP4.0013[0,3]_STARTDATE_ENDDATE.html
-      base::paste0("NEON.",input$domainId,".",input$siteId,".",downloadParam$dpName,"_",input$dateRange[1],"_",input$dateRange[2],".html")
+      base::paste0("NEON.",input$domainId,".",TS_siteID,".",downloadParam$dpName,"_",TS_startDate,"_",TS_endDate,".html")
     },
     content = function(file) {
       downloadParam <- whichPlot()
@@ -216,162 +219,379 @@ server <- function(input, output, session) {
     }
   )# End downloadHandler
   
-  # TAB: TIMESERIES VIEWER -- BEGIN #####
+  # TAB: TIMESERIES VIEWER -- END #####
   
   # TAB: TARGET GAUGE HEIGHT -- BEGIN ####
   
-  # Select site ID based on the domain ID chosen
+  #__Select site ID based on the domain ID chosen ####
   shiny::observe({
-    x<-Target_df$Site[Target_df$Domain==input$XS_Domain]
+    x<-Target_df$siteID[Target_df$domainID==input$XS_Domain]
     shiny::updateSelectInput(session, "XS_site", choices= unique(x))
-    output$
-    
-  })
+  })# End observe
   
+  #__Show results and render plots ####
+  shiny::observeEvent(input$showResultsTargetGAG,{
+    XS_site <- isolate(input$XS_site)
+    shinyWidgets::sendSweetAlert(
+      session = session,
+      title = "Retreiving Target Gauge Heights & Building Plots",
+      type = "info",
+      btn_labels = NA, #prevents any buttons from appearing
+      closeOnEsc = FALSE, #prevents closing the box with the Esc key
+      closeOnClickOutside = FALSE # prevents the user from clicking outside the box
+    )
 
-  
-  
-  # observe({
-  #   req(input$XS_site)
-  #   filter_target<- Target_df[Target_df$Site==input$XS_site, ]
-  
-  
-  #Observe row selection and display details
-  # observe({
-    # if(input$XS_site!= "No Site Selected")
-    # {
-    #   
-    #   filter_target<- Target_df %>%
-    #     filter(Site==input$XS_site)
-    #   
-    #   
-    #   
-    #   if (nrow(filter_target) > 0) {
-        # output$TargetGaugeHeights <- renderUI({
-        #   shiny::fluidRow(
-        #     shiny::column(6,
-        #                   shiny::selectInput(input= "XS_Domain", label= "Choose Domain",  choices = Target_df$Domain, selected = "No Domain Selected")),
-        #     shiny::column(6,
-        #                   shiny::selectInput(input= "XS_site",label = "Select Site ID", choices = Target_df$Site, selected= "No Site Selected"))),
-        #   fluidRow(
-        #     column(6,
-        #            tags$div(
-        #              tags$h2("Target Gauge Height (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight,"</b>"))),
-        #              tags$h2("Target Gauge Height - 10% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight10,"<b>"))))),
-        #     column(6,
-        #            tags$div( 
-        #              tags$h2("Target Gauge Height - 30% (m):", HTML(paste0("<b>",filter_target$TargetGaugeHeight30, "<b>"))),
-        #              tags$h2("Typical High Flow Period:", HTML(paste0("<b>",filter_target$TypicalHighFlowPeriod, "</b>")))))
-        #   ) 
-        # })
-        
-  #       
-  #     } else {
-  #       output$TargetGaugeHeights <- renderUI({
-  #         tags$h3("Data not available")
-  #       })
-  #     }
-  #   } else {
-  #     output$TargetGaugeHeights <- renderUI({
-  #       tags$h3("Please Select a Domain and Site to see Gauge Height Information")
-  #     })
-  #   }
-  #   
-  # })
-  # 
-##plotting DSCXS for CUPE
-  #Reactive expression that triggers Show Plot button when clicked
-  xs_plot<-eventReactive(input$ShowPlot,{
-    dischargePlot
-  #   dischargePlot <- CUPE_XS.plot%>%
-  #     #add_trace(y= c1Gauge,name = 'Control 1 Gauge Height',mode='lines',line = list(width = 3, dash='dash')) %>%
-  #     #add_trace(y= c2Gauge,name = 'Control 2 Gauge Height',mode='lines',line = list(width = 3, dash='dash')) %>%
-  #     add_trace(y= baseFlowGauge,name = 'Baseflow Gauge Height',text = baseFlowGauge,mode='lines',line = list(width = 3, dash='dash')) %>%
-  #     add_trace(y= bankfullGauge,name = 'Bankfull Gauge Height',text = bankfullGauge,mode='lines',line = list(width = 3, dash='dash')) %>%
-  #     add_trace(y= peakStage,name = 'Peak Stage',text = bankfullGauge,mode='lines',line = list(width = 3, dash='dash')))
-  # for(i in 1:nrow(buckets10)){
-  #   (dischargePlot <- dischargePlot%>%
-  #      add_trace(y= c(buckets_10per[i]),name = paste0('10% Bin ',i),mode='lines',line = list(width = 1, dash='dash',color='black')))
-  # }
-  })
-#Render the plot output
-  output$xsdsc<- renderPlotly({
-    xs_plot()
-  
-})
- 
-  
-  # # Render the text outputs based on the reactive values
-  # output$TargetGaugeHeight <- renderText({filter_target$TargetGaugeHeight})
-  # output$TargetGaugeHeight10 <- renderText({filter_target$TargetGaugeHeight10 })
-  # output$TargetGaugeHeight30 <- renderText({filter_target$TargetGaugeHeight30 })
-  # output$TypicalHighFlowPeriod <- renderText({filter_target$TypicalHighFlowPeriod })
- 
-  #####################################################################################################
-  #                           Beginnging of Blue Heron framework                                      #
-  #####################################################################################################
-  observeEvent(input$rtdvSite,{
-    shinyjs::hide("rtdvStageDischargePlotly")
-  })
-  
-  # hoveredPoint <- reactive({
-  #   event_data("plotly_hover", source = "hover_source")
-  # })
-  
-  observeEvent(event_data("plotly_hover", source = "rcHover_source"),{
-    output$hover_info <- renderPrint({
-      event_data("plotly_hover", source = "rcHover_source")
+    #__Pull in target gauge height information to render ####
+    output$targetGaugeHeight <- shiny::renderText({paste0("Target Gauge Height (m): <b>",Target_df$targetGaugeHeight[Target_df$siteID==XS_site],"</b>")})
+    output$highFlowPeriod <- shiny::renderText({paste0("Typical High Flow Period: <b>",Target_df$highFlowPeriod[Target_df$siteID==XS_site],"</b>")})
+    output$targetGaugeHeightPlus10 <- shiny::renderText({paste0("Target + 10% (m): <b>",Target_df$targetGaugeHeightPlus10[Target_df$siteID==XS_site],"</b>")})
+    output$targetGaugeHeightMinus30 <- shiny::renderText({paste0("Target - 30% (m): <b>",Target_df$targetGaugeHeightMinus30[Target_df$siteID==XS_site],"</b>")})
+    
+    #__Render rating curve with target range highlighted ####
+    output$rc_targetGAG <- plotly::renderPlotly({
+      # Build plot
+      p <- RC.plot(site.id = XS_site,
+                   start.date = Sys.Date(),
+                   end.date = Sys.Date(),
+                   plot.imp.unit = F,
+                   mode.dark = F,
+                   target.gag.range = list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==XS_site]),
+                                           tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==XS_site]),
+                                           max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==XS_site])),
+                   show.legend = F,
+                   uncertainty.visibility = T)
+      p
     })
     
-  })
-  
-  #Observe changes in water type selected GW = ground water and SW = surface water
-  observeEvent(input$waterType,{ 
-    if(input$waterType == "GW")
-    {
-      #Updates the location values to match GWW locations. 301 represents GWW1 for example.
-      updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = 301:308)
-    } else {
-      #Updates the location values to match SW locations. 101 represents S1, 131 is also S1 but the selection is site dependent whether its a standalone troll or not.
-      updateSelectInput(session = session, inputId = "HOR", label = "Select location", choices = c(101,102,110,131,132))
-    }
-  }) #End observeEvent for waterType
-  
-  #Observe the what data source is
-  observeEvent(input$dataSource, {
+    #__Render discharge cross-section with target range highlighted ####
+    output$xs_targetGAG <- plotly::renderPlotly({
+      # Build plot
+      p <- XS.plot(site.id = XS_site,
+                   target.gag.range = list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==XS_site]),
+                                           tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==XS_site]),
+                                           max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==XS_site])))
+      p
+    })
     
-    #simple if else toggles a textInput that allows a single pressure reading to inputed
-    if(input$dataSource == "L0 Data Query")
-    {
-      shinyjs::show("rtdvDaterange")
-      shinyjs::hide("singlePressure")
-      shinyjs::hide("grafanaFile")
-    }else if(input$dataSource == "Grafana CSV File"){
-      shinyjs::hide("singlePressure")
-      shinyjs::hide("rtdvDaterange")
-      shinyjs::show("grafanaFile")
-    } else if(input$dataSource == "Instant Pressure Reading")
-    {
-      shinyjs::show("singlePressure")
-      shinyjs::show("rtdvDaterange")
-      shinyjs::hide("grafanaFile")
-    }
-  }) #end observeEvent for the type of data selection from input$dataSource
+    shinyWidgets::closeSweetAlert(session = session)
+  },ignoreNULL = T)# End observeEvent
   
-  observeEvent(input$rtdvRun, {
-    showModal(modalDialog(title = "Loading Data...", fade = TRUE, icon = icon("bars-progress"), easyClose = FALSE, footer = NULL,                                                    
-                          div(id = "LB",progressBar(id = "GaugeHeightLoadBar", value = 0, title = "Initializing...")),  ##******need to update this value input option in order to work*****##
-      ))
-    shinyjs::show("GaugeHeightLoadBar")
-    updateTabsetPanel(session, "calculatedStageTimeSeries", selected = "CG_timeSeries")
-    dscSurvey <<- realTimeDataViewer(input, output, session)
-    
-    removeModal()
-  })
-  # Select site ID based on the domain ID chosen
+  # TAB: TARGET GAUGE HEIGHT -- END ####
+  
+  # TAB: REAL-TIME DATA VIEWER -- BEGIN ####
+  
+  #__Set reactives ####
+  realTimeReactives <- shiny::reactiveValues(estimatedStage=NA,
+                                             estimatedDischarge=NA,
+                                             totalUTop=NA,
+                                             totalUBottom=NA,
+                                             timeToProcess=NA,
+                                             HgridMinMax=NA,
+                                             distanceAdjMinMax=NA,
+                                             stageMin=NA)
+  
+  #__Select site ID based on the domain ID chosen ####
   shiny::observe({x <- productList$siteID[productList$domain == input$rtdvDomain]
   shiny::updateSelectInput(session,"rtdvSite",choices = unique(x))})
   
+  #__Show and hide data inputs based on the data type selected ####
+  shiny::observe({
+    if(input$dataSource=="Single Staff Gauge Reading"){
+      shinyjs::show("singleStaffGauge")
+      shinyjs::hide("singlePressure")
+      shinyjs::hide("grafanaFile")
+    }
+    if(input$dataSource=="Single Pressure Reading"){
+      shinyjs::hide("singleStaffGauge")
+      shinyjs::show("singlePressure")
+      shinyjs::hide("grafanaFile")
+    }
+    if(input$dataSource=="Grafana CSV File"){
+      shinyjs::hide("singleStaffGauge")
+      shinyjs::hide("singlePressure")
+      shinyjs::show("grafanaFile")
+    }
+  })# End observe
+  
+  #__Process the data ####
+  shiny::observeEvent(input$rtdvRun,{
+    shinyWidgets::sendSweetAlert(
+      session = session,
+      title = "Converting Data & Rendering Outputs",
+      type = "info",
+      btn_labels = NA, #prevents any buttons from appearing
+      closeOnEsc = FALSE, #prevents closing the box with the Esc key
+      closeOnClickOutside = FALSE # prevents the user from clicking outside the box
+    )
+    
+    #__Format inputs based on data type ####
+    # Formatting for raw pressure data (formatting for raw staff gauge height will not come in until later)
+    if(input$dataSource=="Single Pressure Reading"){
+      pressureToProcess <- as.numeric(input$singlePressure)
+      timeToProcess <- NA
+    }else{
+      if(input$dataSource=="Grafana CSV File"){
+        grafanaFile <- read.csv(input$grafanaFile$datapath)
+        pressureToProcess <- as.numeric(gsub(" kPa","",grafanaFile[,2]))
+        timeToProcess <- as.POSIXct(grafanaFile[,1],tz="UTC",format="%Y-%m-%d %H:%M:%S")
+      }
+    }
+    
+    # Process pressure data through to stage (only for single pressure value or grafana csv upload)
+    if(input$dataSource%in%c("Single Pressure Reading","Grafana CSV File")){
+      #__Calibrate pressure data and convert to water column height ####
+      # Build DPID
+      L0DPNum <- ifelse(input$waterType=="Groundwater","20015",ifelse(input$trollType=="LevelTroll","20016","20054"))
+      L0TermNum <- ifelse(input$waterType=="Groundwater","01376","01379")
+      VER <- ifelse(input$waterType=="Groundwater","000","100")
+      hormap <- DBI::dbReadTable(con,"hormap")
+      HOR <- hormap$HOR[hormap$siteID==input$rtdvSite&hormap$endDate==max(hormap$endDate[hormap$siteID==input$rtdvSite])]
+      DPID <- paste("NEON",input$rtdvDomain,input$rtdvSite,"DP0",L0DPNum,"001",L0TermNum,HOR,VER,"000",sep=".")
+      startDate <- Sys.Date()
+      endDate <- Sys.Date()
+      # Attempt to pull calibration data
+      calibrations <- try(get.cal(startDate = startDate,
+                                  endDate = endDate,
+                                  DPID = DPID,
+                                  session,
+                                  input,
+                                  output),silent = T)
+      # If query was successful, get calibration coefficients
+      if(attr(calibrations, "class") == "try-error"){
+        # ADD ERROR HANDLING
+      }else{
+        calibration_info <- as.data.frame(rbind(calibrations$value[1:3]))
+        colnames(calibration_info) <- c("calValCP0","calValCP1","calValCP2")
+      }
+      # Apply calibration coefficients
+      calibratedPressure <- as.numeric(calibration_info$calValCP2)*pressureToProcess**2+as.numeric(calibration_info$calValCP1)*pressureToProcess+as.numeric(calibration_info$calValCP0)
+      # Convert to water column height
+      convKPatoPa <- 1000 #Pa per 1 kPa
+      roe = 999 #kg/m^3 density of water
+      grav = 9.80665 #m/s^2 gravity constant
+      waterColumnHeight <- (calibratedPressure/(roe*grav)) * convKPatoPa
+      
+      #__Apply TROLL named location offsets to water column height data ####
+      ## ZN NOTE 2025-01-04: currently, we are not doing this for provisional and unpublished data retrieved from the Pachyderm transition outputs. When this is reintroduced to the pipeline, I will add back into this code. If Lucas's Blue Heron code gets deleted, look back into the commit history to restore his code
+      
+      #__Convert water column height data to calculated stage ####
+      # For surface water data only
+      regressionData <- frmt.reg(input, output, session)
+      regressionData <- regressionData[regressionData$regressionID==max(regressionData$regressionID[grepl(input$rtdvSite,regressionData$regressionID)]),]
+      stageHeight <- (as.numeric(regressionData$regressionSlope)*waterColumnHeight)+as.numeric(regressionData$regressionIntercept)
+    }else{
+      timeToProcess <- NA
+      stageHeight <- as.numeric(input$singleStaffGauge)
+      
+      # Get gauge named location offsets
+      gaugeLocData <- gag.offset(input$rtdvSite,
+                                 session,
+                                 input,
+                                 output)
+      #Error handling if no data or if GET failed
+      if(attr(gaugeLocData, "class") == "try-error"){
+        failureMessage <- "Gauge location history could not be retrieved"
+        stop(failureMessage)
+      }
+      if (input$rtdvSite=="TOOK") {
+        if(grepl("inflow",dischargeNamedLocation)){
+          gaugeLocData <- gaugeLocData[grepl("inflow",gaugeLocData$namedLocation),]
+        }else{
+          if(grepl("outflow",dischargeNamedLocation)){
+            gaugeLocData <- gaugeLocData[grepl("outflow",gaugeLocData$namedLocation),]
+          }else{
+            failureMessage <- "No inflow or outflow gauge location history records were retrieved for TOOK"
+            suppressWarnings(stageQInternal::put.trns.fail(failureMessage, searchIntervalStartDate, searchIntervalEndDate))
+            stop(failureMessage)
+          }
+        }
+      }
+      if(length(gaugeLocData)<1){
+        failureMessage <- "Zero (0) gauge location history records were retrieved"
+        stop(failureMessage)
+      }
+      # Format the gauge named location data to apply offsets
+      gaugeLocData <- try(suppressWarnings(frmt.gauge.name.loc.data(input$rtdvSite,
+                                                                    dataFrame = gaugeLocData)))
+      
+      # Apply gauge offset
+      # Subset to the most recent named location
+      gaugeLocData_nl <- gaugeLocData[gaugeLocData$namedLocation==gaugeLocData$namedLocation[gaugeLocData$endDate==max(gaugeLocData$endDate)],]
+      # If there is only 1 entry, there is no offset, but if more, there is
+      if(nrow(gaugeLocData_nl)>1){
+        offset <- gaugeLocData_nl$refElevPlusZ[nrow(gaugeLocData_nl)] - gaugeLocData_nl$refElevPlusZ[1]
+        stageHeight <- stageHeight+offset
+      }
+    }
+    
+    #__Convert stage to discharge using the most recently-published rating curve ####
+    dbquery <- paste0("SELECT * FROM rcdata WHERE \"curveID\"  = (SELECT MAX(\"curveID\") FROM rcdata WHERE \"curveID\" LIKE ", "'%",input$rtdvSite,"%')")
+    rcdata <- DBI::dbSendQuery(con,dbquery)
+    rcData <- DBI::dbFetch(rcdata)
+    
+    estimatedDischarge <- NULL
+    totalUTop <- NULL
+    totalUBottom <- NULL
+    for(i in 1:length(stageHeight)){
+      estimatedDischarge <- c(estimatedDischarge,rcData$maxPostQ[which(abs(rcData$Hgrid-stageHeight[i])==min(abs(rcData$Hgrid-stageHeight[i])))])
+      totalUTop = c(totalUTop,rcData$totalUTop[which(abs(rcData$Hgrid-stageHeight[i])==min(abs(rcData$Hgrid-stageHeight[i])))])
+      totalUBottom = c(totalUBottom,rcData$totalUBottom[which(abs(rcData$Hgrid-stageHeight[i])==min(abs(rcData$Hgrid-stageHeight[i])))])
+    }
+
+    #__Set the data to reactive values ####
+    realTimeReactives$estimatedStage <- stageHeight
+    realTimeReactives$estimatedDischarge <- estimatedDischarge
+    realTimeReactives$totalUTop <- totalUTop
+    realTimeReactives$totalUBottom <- totalUBottom
+    realTimeReactives$timeToProcess <- timeToProcess
+    shinyWidgets::closeSweetAlert(session = session)
+  },ignoreNULL = T)# End observeEvent
+  
+  #__Render UI for single pressure or staff gauge reading ####
+  shiny::observe({
+    if(all(!is.na(realTimeReactives$estimatedDischarge))&&length(realTimeReactives$estimatedDischarge)==1){
+      # browser()
+      #__Render rating curve with target range highlighted ####
+      output$rc_rtdv <- plotly::renderPlotly({
+        # Build plot
+        p <- RC.plot(site.id = input$rtdvSite,
+                     start.date = Sys.Date(),
+                     end.date = Sys.Date(),
+                     plot.imp.unit = F,
+                     mode.dark = F,
+                     target.gag.range = list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==input$rtdvSite]),
+                                             tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==input$rtdvSite]),
+                                             max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==input$rtdvSite])),
+                     med.3x = productList$threeXMedQPlusUnc[productList$siteID==input$rtdvSite],
+                     rtdv.values = realTimeReactives$estimatedDischarge,
+                     show.legend = F,
+                     uncertainty.visibility = T)
+        p
+      })
+      
+      #__Render discharge cross-section with target range highlighted ####
+      output$xs_rtdv <- plotly::renderPlotly({
+        # Build plot
+        p <- XS.plot(site.id = input$rtdvSite,
+                     rtdv.values=realTimeReactives$estimatedStage)
+        p
+      })
+      output$realTimeUIOutput <- shiny::renderUI({
+        shinydashboard::box(width=12,
+                            title = paste0("Results for ",input$dataSource," = ",ifelse(input$dataSource=="Single Staff Gauge Reading",input$singleStaffGauge,input$singlePressure)," at ",input$rtdvSite),
+                            status = "primary", solidHeader = T,
+                            tags$h3(shiny::HTML("Estimated Discharge = <b>",realTimeReactives$estimatedDischarge,"</b> L/s")),
+                            tags$h3(shiny::HTML("Discharge Range w/ Total Uncertainty: <b>",realTimeReactives$totalUTop,"-",realTimeReactives$totalUBottom,"</b> L/s")),
+                            shinydashboard::box(width=12,
+                                                title = "Rating Curve & Cross Section Plots",
+                                                status = "primary",solidHeader = F,
+                                                plotly::plotlyOutput("rc_rtdv"),
+                                                plotly::plotlyOutput("xs_rtdv")
+                                                )# End shinydashboard box
+                            )# End shinydashboard box
+        })# End renderUI
+    }
+  })# End observe
+  
+  #__Render UI for single pressure or staff gauge reading ####
+  shiny::observe({
+    if(all(!is.na(realTimeReactives$estimatedDischarge))&&length(realTimeReactives$estimatedDischarge)>1){
+      output$timeseries_rtdv <- plotly::renderPlotly({
+        p <- plotly::plot_ly(source="timeseries_rtdv")%>%
+          plotly::add_trace(x=~realTimeReactives$timeToProcess,y=~as.numeric(realTimeReactives$totalUTop),name="Total Discharge\nUncertainty",showlegend=F,legendgroup="unc",type='scatter',mode='line',line=base::list(color='#D55E00'))%>%
+          plotly::add_trace(x=~realTimeReactives$timeToProcess,y=~as.numeric(realTimeReactives$totalUBottom),name="Total Discharge\nUncertainty",showlegend=T,legendgroup="unc",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#D55E00') %>%
+          plotly::add_trace(x=~realTimeReactives$timeToProcess,y=~as.numeric(realTimeReactives$estimatedDischarge),name="Estimated Discharge",type='scatter',mode='lines',line=list(color="black")) %>%
+          #plotly::add_trace(x=~Date,y=~as.numeric(calculatedStage),name="Estimated Gauge",type='scatter',mode='lines',line=list(color="#F0E442"), yaxis = "y2") %>%
+          layout(yaxis = list(title = "Estimated Discharge (L/s)"), 
+                 xaxis = list(title = "Date"),
+                 hovermode = "x unified", 
+                 title = paste("Estimated Discharge for",input$rtdvSite))
+        p
+      })# End render plotly
+      output$rc_timeseries_rtdv <- plotly::renderPlotly({
+        # Build plot
+        p <- RC.plot(site.id = input$rtdvSite,
+                     start.date = Sys.Date(),
+                     end.date = Sys.Date(),
+                     plot.imp.unit = F,
+                     mode.dark = F,
+                     target.gag.range = list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==input$rtdvSite]),
+                                             tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==input$rtdvSite]),
+                                             max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==input$rtdvSite])),
+                     med.3x = productList$threeXMedQPlusUnc[productList$siteID==input$rtdvSite],
+                     rtdv.values = realTimeReactives$estimatedDischarge[1],
+                     show.legend = F,
+                     uncertainty.visibility = T,
+                     p.source="rc_timeseries_rtdv")
+        p_extract <- plotly::plotly_build(p)
+        realTimeReactives$HgridMinMax <- c(min(p_extract$x$data[[1]]$x),
+                                           max(p_extract$x$data[[1]]$x))
+        p
+      })
+      #__Render discharge cross-section with target range highlighted ####
+      output$xs_timeseries_rtdv <- plotly::renderPlotly({
+        # Build plot
+        p <- XS.plot(site.id = input$rtdvSite,
+                     rtdv.values=realTimeReactives$estimatedStage[1],
+                     p.source="xs_timeseries_rtdv")
+        p_extract <- plotly::plotly_build(p)
+        realTimeReactives$distanceAdjMinMax <- p_extract$x$data[[1]]$x
+        realTimeReactives$stageMin <- min(p_extract$x$data[[2]]$y)
+        p
+      })
+      # Observe hover events on the timeseries plot
+      observeEvent(event_data("plotly_hover", source = "timeseries_rtdv"), {
+        hover_data <- event_data("plotly_hover", source = "timeseries_rtdv")
+        if (!is.null(hover_data)) {
+          hover_value <- hover_data$y[1]
+          
+          # Update the scatter plot to move the dashed horizontal line
+          plotlyProxy("rc_timeseries_rtdv", session) %>%
+            plotlyProxyInvoke("deleteTraces", list(as.integer(11))) %>%
+            plotlyProxyInvoke("addTraces", list(x = realTimeReactives$HgridMinMax,
+                                                y = c(hover_value, hover_value),
+                                                type = 'scatter',
+                                                mode = 'lines',
+                                                line = list(dash = 'dash', color = 'black')))
+          
+          # Update the xs plot as well
+          # browser()
+          # Convert hover discharge to stage
+          hover_convertH <- realTimeReactives$estimatedStage[which(abs(realTimeReactives$estimatedDischarge-hover_value)==min(abs(realTimeReactives$estimatedDischarge-hover_value)))[1]]
+          # Update plot
+          plotlyProxy("xs_timeseries_rtdv", session) %>%
+            plotlyProxyInvoke("deleteTraces",
+                              list(as.integer(0)))%>%
+            plotlyProxyInvoke("addTraces",
+                              list(x = realTimeReactives$distanceAdjMinMax,
+                                   y = rep(hover_convertH,length(realTimeReactives$distanceAdjMinMax)),
+                                   type='scatter',mode='line',line=list(color='lightblue'),hoverinfo='none',showlegend=F),
+                              list(as.integer(0)))%>%
+            plotlyProxyInvoke("deleteTraces",
+                              list(as.integer(1)))%>%
+            plotlyProxyInvoke("addTraces",
+                              list(x = realTimeReactives$distanceAdjMinMax,
+                                   y = rep(realTimeReactives$stageMin,length(realTimeReactives$distanceAdjMinMax)),
+                                   type='scatter',mode='line',fill='tonexty',fillcolor='lightblue',line=list(color='lightblue'),hoverinfo='none',showlegend=F),
+                              list(as.integer(1)))
+            
+        }
+        
+      })
+      output$realTimeUIOutput <- shiny::renderUI({
+        shinydashboard::box(width=12,
+                            title = paste0("Results for Grafana CSV File"," at ",input$rtdvSite),
+                            status = "primary", solidHeader = F,
+                            plotly::plotlyOutput("timeseries_rtdv"),
+                            shiny::fluidRow(shiny::column(width = 6,
+                                                          plotly::plotlyOutput("rc_timeseries_rtdv")),
+                                            shiny::column(width = 6,
+                                                          plotly::plotlyOutput("xs_timeseries_rtdv")))
+        )# End shinydashboard box
+      })# End renderUI
+    }
+  })# End observe
+  
+  # TAB: REAL-TIME DATA VIEWER -- END ####
+
 }#end of server
-# Run the app ----
-#shiny::shinyApp(ui = ui, server = server)  ###MV added this according to previous commit
