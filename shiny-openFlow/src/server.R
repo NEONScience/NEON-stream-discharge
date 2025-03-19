@@ -483,7 +483,7 @@ server <- function(input, output, session) {
                             tags$h3(shiny::HTML("Discharge Range w/ Total Uncertainty: <b>",realTimeReactives$totalUTop,"-",realTimeReactives$totalUBottom,"</b> L/s")),
                             shinydashboard::box(width=12,
                                                 title = "Rating Curve & Cross Section Plots",
-                                                status = "primary",solidHeader = F,
+                                                status = "primary",solidHeader = T,
                                                 plotly::plotlyOutput("rc_rtdv"),
                                                 plotly::plotlyOutput("xs_rtdv")
                                                 )# End shinydashboard box
@@ -580,7 +580,7 @@ server <- function(input, output, session) {
       output$realTimeUIOutput <- shiny::renderUI({
         shinydashboard::box(width=12,
                             title = paste0("Results for Grafana CSV File"," at ",input$rtdvSite),
-                            status = "primary", solidHeader = F,
+                            status = "primary", solidHeader = T,
                             plotly::plotlyOutput("timeseries_rtdv"),
                             shiny::fluidRow(shiny::column(width = 6,
                                                           plotly::plotlyOutput("rc_timeseries_rtdv")),

@@ -21,7 +21,7 @@ library(shinydashboard)
 library(XML)
 library(DBI)
 library(RPostgres)
-require(openFlowInternal)
+require(openFlowInternal) # This is an internal package - make sure you have your GITHUB_PAT set: devtools::install_github(repo = 'NEONScience/shiny-openFlow-db-code/openFlowInternal', ref = "dev",dependencies = T, force = T)
 
 #global ----
 pass <- 0
