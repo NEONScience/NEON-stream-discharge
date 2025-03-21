@@ -16,8 +16,6 @@
 #' app user [string]
 #' @param end.date Required: Search interval end date (YYYY-MM-DD) selected by the shiny app
 #' user [string]
-#' @param input.list Required: List containing the data used in plotting; this list should be
-#' the outputs from neonStageQPlot::get.cont.Q.NEON.API [list]
 #' @param plot.imp.unit Defaults to FALSE: Idicator of plotting data in metric or imperial
 #' units [boolean]
 #' @param plot.sci.rvw.QF Dafults to FALSE: Indicator of plotting the finalDischargeQFSciRvw
@@ -48,19 +46,14 @@
 #     updates to add clarity to the identification and interpretation of 3x median discharge
 ##############################################################################################
 base::options(stringsAsFactors = F)
-utils::globalVariables(c('histMedQ','meanURemnUnc','meanLRemnUnc','meanUParaUnc','meanLParaUnc','meanQ','streamDischarge','meanUHUnc','meanLHUnc','meanH','gaugeHeight','gauge_Height','priPrecipBulkLoUnc','priPrecipBulkUpUnc','priPrecipBulk','secPrecipBulkLoUnc','secPrecipBulkUpUnc','secPrecipBulk'))
-
 cont.Q.plot <-function(site.id,
                        start.date,
                        end.date,
-                       input.list,
                        plot.imp.unit=F,
                        mode.dark=F,
-                       # plot.final.QF=F,
                        plot.sci.rvw.QF=F,
-                       # plot.precip.final.QF=F,
-                       # plot.precip.sci.rvw.QF=F,
-                       plot.q.stats=F){
+                       plot.q.stats=F
+                       ){
   
   if(base::missing(site.id)){
     stop('must provide site.id for plotting continuous discharge')
@@ -71,23 +64,52 @@ cont.Q.plot <-function(site.id,
   if(base::missing(end.date)){
     stop('must provide end.date for plotting continuous discharge')
   }
-  if(base::missing(input.list)){
-    stop('must provide input.list for plotting continuous discharge')
-  }
+  # if(base::missing(input.list)){
+  #   stop('must provide input.list for plotting continuous discharge')
+  # }
+  
+  # Connect to openflow database
+  con<-DBI::dbConnect(
+    RPostgres::Postgres(),
+    dbname = 'openflow',
+    host = 'nonprod-commondb.gcp.neoninternal.org',
+    port = '5432',
+    user = 'shiny_openflow_rw',
+    password = Sys.getenv('DB_TOKEN')
+  )
+  
+  # Read in metadata table from openflow database 
+  productList <- DBI::dbReadTable(con,"sitelist")
   
   # Get data
-  continuousDischarge_sum <- input.list$continuousDischarge_sum%>%
-    dplyr::filter(!is.na(meanQ))
-  isPrimaryPtp <- input.list$precipitationSite$isPrimaryPtp
-  precipSiteID <- input.list$precipitationSite$gaugeID
-  histMedQMinYear <- input.list$histMedQYearRange$minYear
-  histMedQMaxYear <- input.list$histMedQYearRange$maxYear
+  startDateFormat <- format(as.POSIXct(start.date),"%Y-%m-%d 00:00:00")
+  endDateFormat <- format(as.POSIXct(end.date)+86400,"%Y-%m-%d 00:00:00")
+  dbquery <- sprintf("SELECT * FROM contqsum WHERE \"siteID\" = '%s' AND \"date\" > timestamp '%s' AND \"date\" < timestamp '%s'",site.id,startDateFormat,endDateFormat)
+  contqsum <- DBI::dbSendQuery(con,dbquery)
+  contqsum <- DBI::dbFetch(contqsum)
+  if(sum(!is.na(contqsum$priPrecipBulk))){
+    isPrimaryPtp <- T
+  }else{
+    isPrimaryPtp <- F
+  }
+  precipSiteID <- productList$ptpSite[productList$siteID==site.id]
+  dbquery <- sprintf("SELECT * FROM histmedq WHERE \"siteID\" = '%s'",site.id)
+  histmedq <- DBI::dbSendQuery(con,dbquery)
+  histmedq <- DBI::dbFetch(histmedq)
+  contqsum <- dplyr::left_join(contqsum,histmedq,by="monthDay")
+  histMedQMinYear <- unique(contqsum$minYear)
+  histMedQMaxYear <- unique(contqsum$maxYear)
+  continuousDischarge_sum <- contqsum
+  continuousDischarge_sum <- continuousDischarge_sum[order(continuousDischarge_sum$date),]
+  continuousDischarge_sum$dischargeFinalQFSciRvw <- as.numeric(continuousDischarge_sum$dischargeFinalQFSciRvw)
+  continuousDischarge_sum$dischargeFinalQFSciRvw[continuousDischarge_sum$dischargeFinalQFSciRvw>0] <- max(continuousDischarge_sum$meanQ,na.rm = T)
   
   #3x internal dataGet#
   if(plot.q.stats){
-    medQ <- base::as.numeric(input.list$dischargeStats$threeXMedQ)
-    medQPlusUnc <- base::as.numeric(input.list$dischargeStats$threeXMedQPlusUnc)
-    medQUnc <- base::as.numeric(input.list$dischargeStats$threeXMedQUnc)
+    medQ <- productList$threeXMedQ[productList$siteID==site.id]
+    medQPlusUnc <- productList$threeXMedQPlusUnc[productList$siteID==site.id]
+    medQUnc <- productList$threeXMedQUnc[productList$siteID==site.id]
+    usgsProxy <- productList$usgsProxy[productList$siteID==site.id]
   }
   
   #axis units
@@ -103,20 +125,18 @@ cont.Q.plot <-function(site.id,
   if(plot.imp.unit){
     continuousDischarge_sum <- continuousDischarge_sum %>%
       dplyr::mutate(#Discharge
-                    histMedQ = histMedQ*convLPStoCFS,
                     meanURemnUnc = meanURemnUnc*convLPStoCFS,
                     meanLRemnUnc = meanLRemnUnc*convLPStoCFS,
                     meanUParaUnc = meanUParaUnc*convLPStoCFS,
                     meanLParaUnc = meanLParaUnc*convLPStoCFS,
                     meanQ = meanQ*convLPStoCFS,
                     streamDischarge = streamDischarge*convLPStoCFS,
-                    dischargeFinalQFSciRvw = dischargeFinalQFSciRvw*convLPStoCFS,
                     #Stage
                     meanUHUnc = meanUHUnc*convMtoFt,
                     meanLHUnc = meanLHUnc*convMtoFt,
                     meanH = meanH*convMtoFt,
-                    gaugeHeight = gaugeHeight*convMtoFt,
-                    gauge_Height = gauge_Height*convMtoFt)
+                    gaugeHeight = gaugeHeight*convMtoFt)
+    histmedq$medianQ <- histmedq$medianQ*convLPStoCFS
 
     #Precipitation
     if(!base::is.null(isPrimaryPtp)){
@@ -175,7 +195,7 @@ cont.Q.plot <-function(site.id,
                    position=0.98)
   
   # Build plot layout
-  method <- plotly::plot_ly(data=continuousDischarge_sum, source = "phenoDate")%>%
+  method <- plotly::plot_ly(data=continuousDischarge_sum,source="timeseries_viewer")%>%
     plotly::layout(
       yaxis = y1, yaxis2 = y2, yaxis3 = y3,
       xaxis=base::list(domain=c(0,.9),
@@ -184,7 +204,8 @@ cont.Q.plot <-function(site.id,
                        title="Date",
                        tickfont=base::list(size=16),
                        titlefont=base::list(size=18)),
-      legend=base::list(x=-0.2,y=0.87,
+      legend=base::list(orientation = "h",
+                        y=-0.15,
                         font=base::list(size=14)),
       updatemenus=base::list(
         base::list(
@@ -259,10 +280,9 @@ cont.Q.plot <-function(site.id,
     # Empirical H and Q
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = base::list(color = '#009E73',size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group6')%>%
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group7')%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gauge_Height,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group7')%>%
-    
+
     #Historical Med Q
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~histMedQ, name=stringr::str_c("Historic Median\nDischarge: ","\n",base::min(histMedQMinYear),"-",base::max(histMedQMaxYear)),type='scatter',mode='lines',line = base::list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group8',visible = "legendonly")
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~medianQ, name=paste0("Historic Median\nDischarge: ","\n",base::min(histMedQMinYear,na.rm = T),"-",base::max(histMedQMaxYear,na.rm = T)),type='scatter',mode='lines',line = base::list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group8',visible = "legendonly")
   
   #Precipitation Data
   #plots whichever data is available using isPrimaryPtp bool
@@ -303,10 +323,10 @@ cont.Q.plot <-function(site.id,
         
       }
     }else{
-      if(!base::is.na(input.list$dischargeStats$usgsProxy)){
+      if(!base::is.na(usgsProxy)){
         statMessage <- base::paste0('Due to issues with data completeness/validity, no discharge stats are currently calculated for this site.<br>For comparable data, view the <a href="',
-                                    paste0("https://waterdata.usgs.gov/monitoring-location/",base::gsub("ID","",input.list$dischargeStats$usgsProxy),"/"),
-                                    '">USGS station (ID: ',base::gsub("ID","",input.list$dischargeStats$usgsProxy),
+                                    paste0("https://waterdata.usgs.gov/monitoring-location/",base::gsub("ID","",usgsProxy),"/"),
+                                    '">USGS station (ID: ',base::gsub("ID","",usgsProxy),
                                     ')</a> closest in proximity to this site.<br>Use <b>',
                                     base::round(medQ,digits = 2),
                                     ' cfs </b> as 3x Median USGS Discharge.')
@@ -322,5 +342,32 @@ cont.Q.plot <-function(site.id,
     }
   }
   
-  return(method)
+  # releaseTerm <- unique(continuousDischarge_sum$csd_release)[!unique(continuousDischarge_sum$csd_release)%in%c("PROVISIONAL","UNPUBLISHED")]
+  # category_colors <- list("PROVISIONAL" = "orange",
+  #                         "UNPUBLISHED" = "red")
+  # if(length(releaseTerm)>0){
+  #   category_colors[[releaseTerm]] <- "green"
+  # }
+  category <- plotly::plot_ly(data=continuousDischarge_sum,source="timeseries_viewer")%>%
+    plotly::add_trace(x = ~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y = ~1,name = ~csd_release,
+                      type = 'scatter', mode = 'lines', fill = 'tozeroy',showlegend = FALSE,
+                      hovertemplate = 'DP4.00130.001 Publication\nStatus: <b>%{fullData.name}</b><extra></extra>')%>%
+    layout(yaxis = list(title = "", showticklabels = FALSE))
+  combined_plot <- subplot(method, category, 
+                           nrows = 2, heights = c(0.95,0.05), 
+                           shareX = TRUE, titleX = TRUE)%>%
+    plotly::layout(
+      yaxis = y1, yaxis2 = y2, yaxis3 = y3,
+      xaxis=base::list(domain=c(0,.9),
+                       tick=14,
+                       automargin=T,
+                       title="Date",
+                       tickfont=base::list(size=16),
+                       titlefont=base::list(size=18)))%>%
+    plotly::event_register("plotly_click")
+
+  
+  
+  
+  return(combined_plot)
 }
