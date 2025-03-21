@@ -71,7 +71,7 @@ convKPatoPa <- 1000
 #change settings depending on HOST - internal app vs external app
 HOST <- Sys.getenv('HOST')
 message(paste('HOST =',HOST))
-if(grepl('internal',HOST)){
+if(grepl('internal',HOST)|HOST==""){
   apiToken <- Sys.getenv('NEON_TOKEN')
   readmeFile <- 'about_internal.Rmd'
   include.q.stats <- TRUE
