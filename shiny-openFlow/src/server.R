@@ -47,10 +47,10 @@ server <- function(input, output, session) {
   })
 
   #__Click event to render PhenoCam image ####
-  shiny::observe({
-    new_clickEvent <- plotly::event_data(event = "plotly_click")
-    
+  shiny::observeEvent(plotly::event_data(event = "plotly_click",source="timeseries_viewer"),{
+    new_clickEvent <- plotly::event_data(event = "plotly_click",source="timeseries_viewer")
     if (!base::is.null(new_clickEvent)) {
+      # phenoCamReactives$phenoURL <- NULL
       #formats date & time for phenocamGet
       dateTime <- stringr::str_replace(new_clickEvent$x, " ","T")
       dateTime <- base::paste0(dateTime,":00Z")
@@ -63,7 +63,6 @@ server <- function(input, output, session) {
       usrDateTime <- dateTime
       usrDateTime <- stringr::str_replace(usrDateTime, "T"," ")
       usrDateTime <- base::substr(usrDateTime,1,base::nchar(usrDateTime)-4)
-      
       tookInfo <- ""
       #took handling
       if(input$siteId == "TOOK_inflow" || input$siteId == "TOOK_outflow"){
@@ -452,15 +451,20 @@ server <- function(input, output, session) {
       # browser()
       #__Render rating curve with target range highlighted ####
       output$rc_rtdv <- plotly::renderPlotly({
+        if(!input$rtdvSite%in%c("FLNT","BLWA","TOMB")){
+          targets <- list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==input$rtdvSite]),
+                          tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==input$rtdvSite]),
+                          max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==input$rtdvSite]))
+        }else{
+          targets <- NULL
+        }
         # Build plot
         p <- RC.plot(site.id = input$rtdvSite,
                      start.date = Sys.Date(),
                      end.date = Sys.Date(),
                      plot.imp.unit = F,
                      mode.dark = F,
-                     target.gag.range = list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==input$rtdvSite]),
-                                             tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==input$rtdvSite]),
-                                             max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==input$rtdvSite])),
+                     target.gag.range = targets,
                      med.3x = productList$threeXMedQPlusUnc[productList$siteID==input$rtdvSite],
                      rtdv.values = realTimeReactives$estimatedDischarge,
                      show.legend = F,
@@ -508,15 +512,20 @@ server <- function(input, output, session) {
         p
       })# End render plotly
       output$rc_timeseries_rtdv <- plotly::renderPlotly({
+        if(!input$rtdvSite%in%c("FLNT","BLWA","TOMB")){
+          targets <- list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==input$rtdvSite]),
+                          tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==input$rtdvSite]),
+                          max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==input$rtdvSite]))
+        }else{
+          targets <- NULL
+        }
         # Build plot
         p <- RC.plot(site.id = input$rtdvSite,
                      start.date = Sys.Date(),
                      end.date = Sys.Date(),
                      plot.imp.unit = F,
                      mode.dark = F,
-                     target.gag.range = list(min=as.numeric(Target_df$targetGaugeHeightMinus30[Target_df$siteID==input$rtdvSite]),
-                                             tar=as.numeric(Target_df$targetGaugeHeight[Target_df$siteID==input$rtdvSite]),
-                                             max=as.numeric(Target_df$targetGaugeHeightPlus10[Target_df$siteID==input$rtdvSite])),
+                     target.gag.range = targets,
                      med.3x = productList$threeXMedQPlusUnc[productList$siteID==input$rtdvSite],
                      rtdv.values = realTimeReactives$estimatedDischarge[1],
                      show.legend = F,

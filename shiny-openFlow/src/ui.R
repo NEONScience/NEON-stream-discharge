@@ -1,7 +1,3 @@
-#Xs Section branch
-######Maria Viggiano###
-    #skin= "green",
-    #theme = bslib::bs_theme(),
 ui<- shinydashboard::dashboardPage(
   hader <- shinydashboard::dashboardHeader(title = "Open Flow"),
 
@@ -50,7 +46,7 @@ ui<- shinydashboard::dashboardPage(
                                                              shiny::br(),
                                                              shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
                                                              shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
-                                                             shiny::checkboxInput("dark_mode", "Show in Dark Mode"),
+                                                             shinyjs::hidden(shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
                                                              div(style = "text-align:center",
                                                                  shiny::conditionalPanel(condition = "output.plot1 != null || output.plot2 != null",#checks that one of the graphs has been loaded
                                                                                          shiny::downloadButton("downloadPlotly", "Download Graph"))),

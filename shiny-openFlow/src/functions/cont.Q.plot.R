@@ -195,7 +195,7 @@ cont.Q.plot <-function(site.id,
                    position=0.98)
   
   # Build plot layout
-  method <- plotly::plot_ly(data=continuousDischarge_sum)%>%
+  method <- plotly::plot_ly(data=continuousDischarge_sum,source="timeseries_viewer")%>%
     plotly::layout(
       yaxis = y1, yaxis2 = y2, yaxis3 = y3,
       xaxis=base::list(domain=c(0,.9),
@@ -348,14 +348,10 @@ cont.Q.plot <-function(site.id,
   # if(length(releaseTerm)>0){
   #   category_colors[[releaseTerm]] <- "green"
   # }
-  category <- plotly::plot_ly(data=continuousDischarge_sum)%>%
-    plotly::add_trace(
-      x = ~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),
-      y = ~1,
-      name = ~paste0("DP4.00130.001 Pub<br>Status: ",csd_release),
-      type = 'bar',
-      showlegend = TRUE,
-      hoverinfo = 'none')%>%
+  category <- plotly::plot_ly(data=continuousDischarge_sum,source="timeseries_viewer")%>%
+    plotly::add_trace(x = ~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y = ~1,name = ~csd_release,
+                      type = 'scatter', mode = 'lines', fill = 'tozeroy',showlegend = FALSE,
+                      hovertemplate = 'DP4.00130.001 Publication\nStatus: <b>%{fullData.name}</b><extra></extra>')%>%
     layout(yaxis = list(title = "", showticklabels = FALSE))
   combined_plot <- subplot(method, category, 
                            nrows = 2, heights = c(0.95,0.05), 
