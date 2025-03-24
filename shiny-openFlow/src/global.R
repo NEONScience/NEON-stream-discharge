@@ -75,11 +75,11 @@ convKPatoPa <- 1000
 HOST <- Sys.getenv('HOST')
 message(paste('HOST =',HOST))
 if(grepl('internal',HOST)|HOST==""){
-  readmeFile <- 'about_internal.Rmd'
+  # readmeFile <- 'about_internal.Rmd'
   include.q.stats <- TRUE
   # constrain.dates <- FALSE
 }else{
-  readmeFile <- '../about.Rmd'
+  # readmeFile <- '../about.Rmd'
   include.q.stats <- FALSE
   # constrain.dates <- TRUE
 }
