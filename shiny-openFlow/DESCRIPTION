@@ -20,12 +20,14 @@ License: Private
 URL: https://github.com/NEONScience/NEON-stream-discharge/shiny-openFlow
 BugReports: https://github.com/NEONScience/NEON-stream-discharge/issues
 Imports:
+  XML,
   shinyjs,
   plotly,  
   DT,
   shinycssloaders,
   shinyWidgets,
   shinyalert,
+  shinydashboard,
   markdown,
   openFlowInternal
 Remotes:
@@ -40,7 +42,10 @@ AlreadyInstalled:
   htmlwidgets,
   bslib,
   devtools,
-  shiny
+  shiny,
+  httr,
+  DBI,
+  RPostgres
  
   
 
