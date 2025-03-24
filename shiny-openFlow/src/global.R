@@ -75,13 +75,10 @@ convKPatoPa <- 1000
 HOST <- Sys.getenv('HOST')
 message(paste('HOST =',HOST))
 if(grepl('internal',HOST)|HOST==""){
-  apiToken <- Sys.getenv('NEON_TOKEN')
   readmeFile <- 'about_internal.Rmd'
   include.q.stats <- TRUE
   # constrain.dates <- FALSE
 }else{
-  #external 
-  #don't set apiToken here as input$apiToken doesn't exist yet - see in server
   readmeFile <- '../about.Rmd'
   include.q.stats <- FALSE
   # constrain.dates <- TRUE
