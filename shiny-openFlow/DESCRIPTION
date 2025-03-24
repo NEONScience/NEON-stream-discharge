@@ -26,7 +26,10 @@ Imports:
   shinycssloaders,
   shinyWidgets,
   shinyalert,
-  markdown
+  markdown,
+  openFlowInternal
+Remotes:
+  NEONScience/shiny-openFlow-db-code/openFlowInternal
 AlreadyInstalled:
   lubridate,
   stringr,
