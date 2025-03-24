@@ -26,8 +26,10 @@ require(openFlowInternal) # This is an internal package - make sure you have you
 #global ----
 pass <- 0
 
-# Set the working directory to the current files location
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+message("INFO! Launching openFlow")
+message("Current working directory:" getwd())
+# # Set the working directory to the current files location
+# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Gather list of function files to be sourced
 file_sources <- list.files(
