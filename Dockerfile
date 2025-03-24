@@ -20,17 +20,6 @@ COPY entrypoint.sh /
     #&& apt-get clean \
     #&& rm -rf /var/lib/apt/lists/*
 
-# Install Linux libraries
-RUN apt-get update && apt-get install -y \
-    libxml2-dev \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libgit2-dev \
-    libpq-dev
-
-# Install R packages
-RUN R -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
-
 # remotes::install_deps relies on the contents of src/DESCRIPTION
 # and it must be copied to the container before running this command
 RUN Rscript -e "remotes::install_deps('/srv/shiny-server/',repos='https://packagemanager.posit.co/cran/__linux__/jammy/latest')"
