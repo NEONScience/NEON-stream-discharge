@@ -1,3 +1,4 @@
+message("INFO! Launching openFlow... global line 1")
 options(stringsAsFactors = F)
 
 library(shiny)
@@ -27,7 +28,7 @@ require(openFlowInternal) # This is an internal package - make sure you have you
 pass <- 0
 
 message("INFO! Launching openFlow")
-message("Current working directory:" getwd())
+message("Current working directory: ",getwd())
 # # Set the working directory to the current files location
 # setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
