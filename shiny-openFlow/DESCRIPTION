@@ -25,12 +25,8 @@ Imports:
   DT,
   shinycssloaders,
   shinyWidgets,
-  neonUtilities,
   shinyalert,
-  markdown,
-  neonStageQplot
-Remotes:
-  NEONScience/NEON-stream-discharge/neonStageQPlot
+  markdown
 AlreadyInstalled:
   lubridate,
   stringr,
