@@ -1,4 +1,5 @@
-FROM rocker/shiny-verse:latest
+# FROM rocker/shiny-verse:latest
+FROM rocker/shiny:latest
 
 ARG GITHUB_PAT
 ENV GITHUB_PAT=$GITHUB_PAT
@@ -19,6 +20,14 @@ COPY entrypoint.sh /
 	#libstdc++6 \
     #&& apt-get clean \
     #&& rm -rf /var/lib/apt/lists/*
+
+# Install Linux libraries
+RUN apt-get update && apt-get install -y \
+    libxml2-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libgit2-dev \
+    libpq-dev
 
 # remotes::install_deps relies on the contents of src/DESCRIPTION
 # and it must be copied to the container before running this command
