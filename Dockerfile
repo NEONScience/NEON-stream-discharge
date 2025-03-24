@@ -1,5 +1,4 @@
-# FROM rocker/shiny-verse:latest
-FROM rocker/shiny:latest
+FROM rocker/shiny-verse:latest
 
 ARG GITHUB_PAT
 ENV GITHUB_PAT=$GITHUB_PAT
@@ -8,7 +7,7 @@ RUN rm -rf /srv/shiny-server/* && \
     touch /srv/shiny-server/.Renviron && \
     chown shiny:shiny /srv/shiny-server/.Renviron
 
-COPY --chown=shiny:shiny shiny-openFlow/ /srv/shiny-server/
+COPY --chown=shiny:shiny shiny-openFlow/src/ /srv/shiny-server/
 COPY entrypoint.sh /
 
 # use packagemanager.rstudio.com to determine necessary non-R system prerequisites to install 
@@ -28,6 +27,9 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libgit2-dev \
     libpq-dev
+
+# Install R packages
+RUN R -e "install.packages(c('remotes'), repos='https://cloud.r-project.org/')"
 
 # remotes::install_deps relies on the contents of src/DESCRIPTION
 # and it must be copied to the container before running this command
