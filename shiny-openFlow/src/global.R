@@ -1,3 +1,4 @@
+message("INFO! Launching openFlow... global line 1")
 options(stringsAsFactors = F)
 
 library(shiny)
