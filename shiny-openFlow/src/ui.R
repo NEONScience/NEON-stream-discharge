@@ -1,5 +1,5 @@
 ui<- shinydashboard::dashboardPage(
-  hader <- shinydashboard::dashboardHeader(title = "Open Flow"),
+  hader <- shinydashboard::dashboardHeader(title = "openFlow"),
 
   #Sidebar menu                
   sidebar <- shinydashboard::dashboardSidebar(
@@ -89,12 +89,29 @@ ui<- shinydashboard::dashboardPage(
                                                    tags$h3(shiny::htmlOutput("targetGaugeHeightPlus10")),
                                                    tags$h3(shiny::htmlOutput("targetGaugeHeightMinus30")))# End column
                                      ),# End fluidRow
+                                   tags$br(),
                                    shiny::fluidRow(
                                      shiny::column(6,
                                                    plotly::plotlyOutput("rc_targetGAG")),# End column
                                      shiny::column(6,
                                                    plotly::plotlyOutput("xs_targetGAG"))# End column
-                                   )# End fluidRow
+                                   ),# End fluidRow
+                                   shinydashboard::box(
+                                     width = 12,
+                                     title= "Click To View Guide for Interpreting the 'Target Gauge Height' Tab",
+                                     solidHeader= F,
+                                     status= "primary",
+                                     collapsible = T,
+                                     collapsed = T,
+                                     tags$h4(shiny::HTML('<b>Background: </b>')),
+                                     tags$p(shiny::HTML("The required number of annual discharge bouts at AQU stream and lake inflow/outflow sites has been reduced from 24 to 22.  With this change, Domains are to attempt to collect 2 additional measurements each year during periods of high flow, when water levels are within +10% to -30% of the designated target stage. Targeted discharge bouts are a high priority when a site is experiencing high flows (see <a href=\"https://neoninc.sharepoint.com/:x:/s/IntegratedProductTeams/ERYReQKu0I9OgxvY9jmpo5UBkNz_cc86rABGnCLVNcKhZA?e=DZFNXL\" target=\"_blank\">Field Prioritization Matrix, OSProcedure-specific-priorities</a> for details).")),
+                                     tags$p("High flows near bankfull stage historically occur on 1.5 year intervals, though this frequency is expected to change as extreme weather events (e.g. heat waves and large storms) become more frequent and more intense. Field Science staff should not enter the channel when high flows are present; ADCP instrumentation should always be used to measure high flow discharge as it can be safely deployed from the floodplain. Contact Science with any questions regarding the target gauge height values, the time periods in which they historically occur, and/or strategies to assist with forecasting these stochastic events."),
+                                     tags$h4(shiny::HTML('<b>Reported Values: </b>')),
+                                     tags$p("The reported values provides the range of staff gauge heights at which high flow discharge measurements should be targeted and the time period in which they have historically occurred. Note that target gauge height values will change if staff gauges are replaced (Science will then update the values following a total station survey of the staff gauge and the discharge cross-section)."),
+                                     tags$h4(shiny::HTML('<b>The Visuals: </b>')),
+                                     tags$p(shiny::HTML("<b>Rating Curve Plot</b> - The lefthand plot shows the most recently-published stage discharge rating curve with the target gauge range higlighted in <b><span style=\"color: darkgreen;\">green</span></b> showing (from lower to higher stage) the -30% threshold, the target gauge height, and the +10% threshold.")),
+                                     tags$p(shiny::HTML("<b>Discharge Cross Section Plot</b> - The righthand plot shows the most recently-surveyed discharge cross-section. The cross section is 'filled' to the target gauge height, with the horizontal black bars showing the -30% - +10% range of gauge heights."))
+                                   )# End box
                                    )# End box
                                  )# End fluid row for target gauge height viewer
                                ),# End TargetGAG tab

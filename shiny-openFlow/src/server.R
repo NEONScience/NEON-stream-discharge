@@ -345,7 +345,11 @@ server <- function(input, output, session) {
       VER <- ifelse(input$waterType=="Groundwater","000","100")
       hormap <- DBI::dbReadTable(con,"hormap")
       HOR <- hormap$HOR[hormap$siteID==input$rtdvSite&hormap$endDate==max(hormap$endDate[hormap$siteID==input$rtdvSite])]
-      DPID <- paste("NEON",input$rtdvDomain,input$rtdvSite,"DP0",L0DPNum,"001",L0TermNum,HOR,VER,"000",sep=".")
+      siteID_cal <- input$rtdvSite
+      if(siteID_cal%in%c("TOOK_inflow","TOOK_outflow")){
+        siteID_cal <- "TOOK"
+      }
+      DPID <- paste("NEON",input$rtdvDomain,siteID_cal,"DP0",L0DPNum,"001",L0TermNum,HOR,VER,"000",sep=".")
       startDate <- Sys.Date()
       endDate <- Sys.Date()
       # Attempt to pull calibration data
@@ -356,8 +360,16 @@ server <- function(input, output, session) {
                                                     input,
                                                     output),silent = T)
       # If query was successful, get calibration coefficients
-      if(attr(calibrations, "class") == "try-error"){
-        # ADD ERROR HANDLING
+      if(isTRUE(attr(calibrations, "class") == "try-error")){
+        shinyWidgets::closeSweetAlert(session = session)
+        shinyWidgets::sendSweetAlert(
+          session = session,
+          title = "No Calibration Files Available",
+          text = "Unable to pull current calibration files for these inputs. Please check inputs and try again. If the problem persists, contact the app author.",
+          type = "error",
+          btn_labels = "OK"
+        )
+        shiny::validate(shiny::need(!isTRUE(attr(calibrations, "class") == "try-error"), label = "Could not pull current calibration files"))
       }else{
         calibration_info <- as.data.frame(rbind(calibrations$value[1:3]))
         colnames(calibration_info) <- c("calValCP0","calValCP1","calValCP2")
@@ -423,7 +435,14 @@ server <- function(input, output, session) {
     }
     
     #__Convert stage to discharge using the most recently-published rating curve ####
-    dbquery <- paste0("SELECT * FROM rcdata WHERE \"curveID\"  = (SELECT MAX(\"curveID\") FROM rcdata WHERE \"curveID\" LIKE ", "'%",input$rtdvSite,"%')")
+    siteID_rc <- input$rtdvSite
+    if(siteID_rc=="TOOK_inflow"){
+      siteID_rc <- "TKIN"
+    }
+    if(siteID_rc=="TOOK_outflow"){
+      siteID_rc <- "TKOT"
+    }
+    dbquery <- paste0("SELECT * FROM rcdata WHERE \"curveID\"  = (SELECT MAX(\"curveID\") FROM rcdata WHERE \"curveID\" LIKE ", "'%",siteID_rc,"%')")
     rcdata <- DBI::dbSendQuery(con,dbquery)
     rcData <- DBI::dbFetch(rcdata)
     
@@ -483,14 +502,31 @@ server <- function(input, output, session) {
         shinydashboard::box(width=12,
                             title = paste0("Results for ",input$dataSource," = ",ifelse(input$dataSource=="Single Staff Gauge Reading",input$singleStaffGauge,input$singlePressure)," at ",input$rtdvSite),
                             status = "primary", solidHeader = T,
-                            tags$h3(shiny::HTML("Estimated Discharge = <b>",realTimeReactives$estimatedDischarge,"</b> L/s")),
-                            tags$h3(shiny::HTML("Discharge Range w/ Total Uncertainty: <b>",realTimeReactives$totalUTop,"-",realTimeReactives$totalUBottom,"</b> L/s")),
+                            tags$h3(shiny::HTML("Estimated Discharge = <b>",round(as.numeric(realTimeReactives$estimatedDischarge),digits = 0),"</b> L/s")),
+                            tags$h3(shiny::HTML("Discharge Range w/ Total Uncertainty: <b>",round(as.numeric(realTimeReactives$totalUTop),digits = 0),"-",round(as.numeric(realTimeReactives$totalUBottom),digits = 0),"</b> L/s")),
                             shinydashboard::box(width=12,
                                                 title = "Rating Curve & Cross Section Plots",
                                                 status = "primary",solidHeader = T,
                                                 plotly::plotlyOutput("rc_rtdv"),
                                                 plotly::plotlyOutput("xs_rtdv")
-                                                )# End shinydashboard box
+                                                ),# End shinydashboard box
+                            shinydashboard::box(
+                              width = 12,
+                              title= "Click To View Guide for Interpreting the 'Real-Time Data Viewer' Outputs for A Single Reading Input",
+                              solidHeader= F,
+                              status= "primary",
+                              collapsible = T,
+                              collapsed = T,
+                              tags$h4(shiny::HTML('<b>Reported Values: </b>')),
+                              tags$p(shiny::HTML("If the user provides a <b>Single Staff Gauge Reading</b>, the raw gauge height is offset according to the current named location data and coverted directly to estimated discharge")),
+                              tags$p(shiny::HTML("If the user provides a <b>Single Pressure Reading</b>, the raw pressure is first calibrated using the most recent calibration files, converted to water column height using a constant equation, converted to estimated stage using the most recent gauge~water column height regression, and converted to estimated discharge.")),
+                              tags$h4(shiny::HTML('<b>The Visuals: </b>')),
+                              tags$p(shiny::HTML("<b>Rating Curve Plot</b> - The upper plot shows the most recently-published stage discharge rating curve with the following additions:
+                                                 <li>The estimated output discharge plotted as a horizontal <b>dashed black line</b></li>
+                                                 <li>The current 3x median discharge value plotted as a horizontal <b><span style=\"color: red;\">dashed red line</span></b></li>
+                                                 <li>The target gauge range (See the 'Target Gauge Height' tab) higlighted in <b><span style=\"color: darkgreen;\">green</span></b> showing (from lower to higher stage) the -30% threshold, the target gauge height, and the +10% threshold</li>")),
+                              tags$p(shiny::HTML("<b>Discharge Cross Section Plot</b> - The lower plot shows the most recently-surveyed discharge cross-section. The cross section is 'filled' to the level of the estimated discharge output."))
+                            )# End shinydashboard  box
                             )# End shinydashboard box
         })# End renderUI
     }
@@ -594,7 +630,29 @@ server <- function(input, output, session) {
                             shiny::fluidRow(shiny::column(width = 6,
                                                           plotly::plotlyOutput("rc_timeseries_rtdv")),
                                             shiny::column(width = 6,
-                                                          plotly::plotlyOutput("xs_timeseries_rtdv")))
+                                                          plotly::plotlyOutput("xs_timeseries_rtdv"))),
+                            tags$br(),
+                            shinydashboard::box(
+                              width = 12,
+                              title= "Click To View Guide for Interpreting the 'Real-Time Data Viewer' Outputs for A Grafana CSV Input",
+                              solidHeader= F,
+                              status= "primary",
+                              collapsible = T,
+                              collapsed = T,
+                              tags$h4(shiny::HTML('<b>Reported Values: </b>')),
+                              tags$p(shiny::HTML("If the user provides a <b>Grafana CSV File</b>, the raw pressure is first calibrated using the most recent calibration files, converted to water column height using a constant equation, converted to estimated stage using the most recent gauge~water column height regression, and converted to estimated discharge.")),
+                              tags$h4(shiny::HTML('<b>The Visuals: </b>')),
+                              tags$p(shiny::HTML("<b>Discharge Timeseries Plot</b> - The upper plot shows a timeseries of the estimated output discharge (w/ upper and lower total uncertainty) from the Grafana CSV upload.")),
+                              tags$p(shiny::HTML("<b>Rating Curve Plot</b> - The lower lefthand plot shows the most recently-published stage discharge rating curve with the following additions:
+                                                 <li>The estimated output discharge plotted as a horizontal <b>dashed black line</b></li>
+                                                 <li>The current 3x median discharge value plotted as a horizontal <b><span style=\"color: red;\">dashed red line</span></b></li>
+                                                 <li>The target gauge range (See the 'Target Gauge Height' tab) higlighted in <b><span style=\"color: darkgreen;\">green</span></b> showing (from lower to higher stage) the -30% threshold, the target gauge height, and the +10% threshold</li>")),
+                              tags$p(shiny::HTML("<b>Discharge Cross Section Plot</b> - The lower righthand plot shows the most recently-surveyed discharge cross-section. The cross section is 'filled' to the level of the estimated discharge output.")),
+                              tags$h4(shiny::HTML('<b>Linked Plots: </b>')),
+                              tags$p(shiny::HTML("When hovering on the timeseries plot along the x-axis, the two lower plots will change the highlighted output discharge estimate as the position on the timeseries x-axis changes.
+                                                 In the rating curve plot, the black dashed line will move up and down the y-axis (discharge) as the users hovers along the timeseries.
+                                                 Equivalently, the cross-section plot will 'fill' and 'empty' as the user hovers along the timeseries."))
+                            )# End shinydashboard box
         )# End shinydashboard box
       })# End renderUI
     }
