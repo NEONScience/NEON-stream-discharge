@@ -62,16 +62,13 @@ RC.plot <-function(site.id,
   if(base::missing(end.date)){
     stop('must provide end.date for plotting continuous discharge')
   }
-
-  # Connect to openflow database
-  con<-DBI::dbConnect(
-    RPostgres::Postgres(),
-    dbname = 'openflow',
-    host = 'nonprod-commondb.gcp.neoninternal.org',
-    port = '5432',
-    user = 'shiny_openflow_rw',
-    password = Sys.getenv('DB_TOKEN')
-  )
+  
+  if(site.id=="TOOK_inflow"){
+    site.id <- "TKIN"
+  }
+  if(site.id=="TOOK_outflow"){
+    site.id <- "TKOT"
+  }
   
   # Get data
   startDateFormat <- format(as.POSIXct(start.date),"%Y-%m-%d 00:00:00")
@@ -92,12 +89,13 @@ RC.plot <-function(site.id,
     curveIDs <- curveIDs[!is.na(curveIDs)]
     rcData <- rcData[rcData$curveID%in%curveIDs,]
     rcGaugings <- rcGaugings[rcGaugings$curveID%in%curveIDs,]
+    p.title <- "Rating Curve(s)"
   }else{
     curveIDs <- max(unique(rcData$curveID[grepl(site.id,rcData$curveID)]))
     rcData <- rcData[rcData$curveID%in%curveIDs,]
     rcGaugings <- rcGaugings[rcGaugings$curveID%in%curveIDs,]
+    p.title <- paste("Rating Curve: ",curveIDs)
   }
-  
 
   if(base::all(!base::is.na(curveIDs))){
     # Add each rating curve based on the vector of unique rating curve IDs
@@ -134,6 +132,9 @@ RC.plot <-function(site.id,
         # Build plot layout
         rcPlot <- plotly::plot_ly(data=rcData, source = p.source)%>%
           plotly::layout(
+            title = list(text=p.title,
+                         x=0,
+                         xanchor="left"),
             xaxis=base::list(tick=14,
                              automargin=T,
                              title=stringr::str_c("Stage ", x1Units),
@@ -153,11 +154,11 @@ RC.plot <-function(site.id,
               base::list(
                 type='buttons',
                 direction = "right",
-                xanchor = 'center',
+                xanchor = 'right',
                 yanchor = "top",
-                pad = list('r'= 0, 't'= 10, 'b' = 10),
-                x = 0.5,
-                y = 1.17,
+                # pad = list('r'= 0, 't'= 10, 'b' = 10),
+                x = 1,
+                y = 1.15,
                 showactive=FALSE,
                 buttons=base::list(
                   base::list(label='Scale Discharge\n- Linear -',
@@ -199,7 +200,7 @@ RC.plot <-function(site.id,
         # Max Post Q
         plotly::add_trace(data=rcData_curveID,x=~Hgrid,y=~maxPostQ,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='line',line=base::list(color=ratingColor),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=show.legend,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))%>%
         # Empirical H/Q Pairs
-        plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=base::list(color=ratingColor),hovertemplate = "Stage: %{x} <br> Discharge: %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
+        plotly::add_trace(data=rcGaugings_curveID,x=~H,y=~Q,text=~eventID,name=base::paste0(base::gsub("\\."," WY",currentCurveID),"\nRating Curve\nw/ Gaugings"),type='scatter',mode='markers',marker=base::list(color=ratingColor),hovertemplate = "%{text} <br> Stage: %{x} <br> Discharge: %{y}",showlegend=F,legendgroup=base::paste0(currentCurveID," Rating Curve w/ Gaugings"))
     }
   }else{
     rcPlot <- plotly::plotly_empty()%>%

@@ -7,7 +7,7 @@ RUN rm -rf /srv/shiny-server/* && \
     touch /srv/shiny-server/.Renviron && \
     chown shiny:shiny /srv/shiny-server/.Renviron
 
-COPY --chown=shiny:shiny shiny-openFlow/src/ /srv/shiny-server/
+COPY --chown=shiny:shiny src/ /srv/shiny-server/
 COPY entrypoint.sh /
 
 # use packagemanager.rstudio.com to determine necessary non-R system prerequisites to install 

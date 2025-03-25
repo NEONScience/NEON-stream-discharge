@@ -1,3 +1,4 @@
+# devtools::install("C:/Users/nickerson/Documents/GitHub/shiny-openFlow-db-code/openFlowInternal")
 options(stringsAsFactors = F)
 
 library(shiny)
