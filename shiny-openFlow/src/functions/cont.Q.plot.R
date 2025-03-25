@@ -67,17 +67,7 @@ cont.Q.plot <-function(site.id,
   # if(base::missing(input.list)){
   #   stop('must provide input.list for plotting continuous discharge')
   # }
-  
-  # Connect to openflow database
-  con<-DBI::dbConnect(
-    RPostgres::Postgres(),
-    dbname = 'openflow',
-    host = 'nonprod-commondb.gcp.neoninternal.org',
-    port = '5432',
-    user = 'shiny_openflow_rw',
-    password = Sys.getenv('DB_TOKEN')
-  )
-  
+
   # Read in metadata table from openflow database 
   productList <- DBI::dbReadTable(con,"sitelist")
   
