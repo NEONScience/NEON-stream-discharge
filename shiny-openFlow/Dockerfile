@@ -9,6 +9,7 @@ RUN rm -rf /srv/shiny-server/* && \
 
 COPY --chown=shiny:shiny src/ /srv/shiny-server/
 COPY entrypoint.sh /
+RUN chmod +x entrypoint.sh
 
 # use packagemanager.rstudio.com to determine necessary non-R system prerequisites to install 
 # If the above tool doesn't have any SystemRequirements listed, use
@@ -19,7 +20,6 @@ COPY entrypoint.sh /
 	#libstdc++6 \
     #&& apt-get clean \
     #&& rm -rf /var/lib/apt/lists/*
-
 
 # remotes::install_deps relies on the contents of src/DESCRIPTION
 # and it must be copied to the container before running this command
