@@ -23,10 +23,10 @@ ui<- shinydashboard::dashboardPage(
   
      shinydashboard::tabItems(
        
-       #Tab Item for About the App
-       shinydashboard::tabItem(tabName= "AbouttheApp",
-                               shiny::fluidRow(shiny::includeMarkdown('../README.md'))
-                               ),# End fluid row for about the app
+       # #Tab Item for About the App
+       # shinydashboard::tabItem(tabName= "AbouttheApp",
+       #                         shiny::fluidRow(shiny::includeMarkdown('../README.md'))
+       #                         ),# End fluid row for about the app
        
        # Tab Item timeseries viewer
        shinydashboard::tabItem(tabName= "TimeseriesViewer",
