@@ -30,7 +30,7 @@ pass <- 0
 message("INFO! Launching openFlow")
 message("INFO! Current working directory: ",getwd())
 message("INFO! DB_HOST = ",Sys.getenv("DB_HOST"))
-message("INFO! DB_TOKEN = ",Sys.getenv("DB_TOKEN"))
+# message("INFO! DB_TOKEN = ",Sys.getenv("DB_TOKEN"))
 # # Set the working directory to the current files location
 # setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -57,7 +57,7 @@ con<-DBI::dbConnect(
   dbname = 'openflow',
   host = Sys.getenv("DB_HOST"),
   port = '5432',
-  user = 'shiny_openflow_rw',
+  user = 'shiny_openflow_ro',
   password = Sys.getenv('DB_TOKEN')
 )
 
