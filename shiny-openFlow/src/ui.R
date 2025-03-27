@@ -20,13 +20,13 @@ ui<- shinydashboard::dashboardPage(
     tags$head(tags$style(HTML(".small-box {height: 90px}"))),
     tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),
     useShinyjs(),
-  
-     shinydashboard::tabItems(
+    
+    shinydashboard::tabItems(
        
-       # #Tab Item for About the App
-       # shinydashboard::tabItem(tabName= "AbouttheApp",
-       #                         shiny::fluidRow(shiny::includeMarkdown('../README.md'))
-       #                         ),# End fluid row for about the app
+       #Tab Item for About the App
+       shinydashboard::tabItem(tabName= "AbouttheApp",
+                               shiny::includeMarkdown('about_internal.Rmd')
+                               ),# End fluid row for about the app
        
        # Tab Item timeseries viewer
        shinydashboard::tabItem(tabName= "TimeseriesViewer",
@@ -103,9 +103,6 @@ ui<- shinydashboard::dashboardPage(
                                      status= "primary",
                                      collapsible = T,
                                      collapsed = T,
-                                     tags$h4(shiny::HTML('<b>Background: </b>')),
-                                     tags$p(shiny::HTML("The required number of annual discharge bouts at AQU stream and lake inflow/outflow sites has been reduced from 24 to 22.  With this change, Domains are to attempt to collect 2 additional measurements each year during periods of high flow, when water levels are within +10% to -30% of the designated target stage. Targeted discharge bouts are a high priority when a site is experiencing high flows (see <a href=\"https://neoninc.sharepoint.com/:x:/s/IntegratedProductTeams/ERYReQKu0I9OgxvY9jmpo5UBkNz_cc86rABGnCLVNcKhZA?e=DZFNXL\" target=\"_blank\">Field Prioritization Matrix, OSProcedure-specific-priorities</a> for details).")),
-                                     tags$p("High flows near bankfull stage historically occur on 1.5 year intervals, though this frequency is expected to change as extreme weather events (e.g. heat waves and large storms) become more frequent and more intense. Field Science staff should not enter the channel when high flows are present; ADCP instrumentation should always be used to measure high flow discharge as it can be safely deployed from the floodplain. Contact Science with any questions regarding the target gauge height values, the time periods in which they historically occur, and/or strategies to assist with forecasting these stochastic events."),
                                      tags$h4(shiny::HTML('<b>Reported Values: </b>')),
                                      tags$p("The reported values provides the range of staff gauge heights at which high flow discharge measurements should be targeted and the time period in which they have historically occurred. Note that target gauge height values will change if staff gauges are replaced (Science will then update the values following a total station survey of the staff gauge and the discharge cross-section)."),
                                      tags$h4(shiny::HTML('<b>The Visuals: </b>')),
