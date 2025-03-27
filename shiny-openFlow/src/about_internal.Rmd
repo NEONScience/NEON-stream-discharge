@@ -1,33 +1,31 @@
 ---
 output: html_document
 ---
+<center><img src="www/applogo.png" width="400px" /></center>
 
-<font size="10">**Welcome to openFlow!**</font> 
+## <span style="color: #2F5597;"><b>Overview</b></span>
 
-## Overview
-
-This application allows you view and interact with select hydrologic data collected at 29 stream,  river, and lake inflow/outflow sites across the National Ecological Observatory Network (NEON).  NEON spans the continential United States and includes monitoring sites in Alaska and Puerto Rico. In this app you can visually explore data from the following NEON Data Products:
+Welcome to openFlow! This application allows you view and interact with select hydrologic data collected at 29 stream,  river, and lake inflow/outflow sites across the National Ecological Observatory Network (NEON).  NEON spans the continential United States and includes monitoring sites in Alaska and Puerto Rico. In this app you can visually explore data from the following NEON Data Products:
 
 * Stage-discharge rating curves [(DP4.00133.001)](https://data.neonscience.org/data-products/DP4.00133.001)
 * Continuous discharge [(DP4.00130.001)](https://data.neonscience.org/data-products/DP4.00130.001)
 * Precipitation [(DP1.00006.001)](https://data.neonscience.org/data-products/DP1.00006.001)
 * Land-water interface images [(DP1.20002.001)](https://data.neonscience.org/data-products/DP1.20002.001)
+* Stream morphology maps [(DP4.00131.001)](https://data.neonscience.org/data-products/DP4.00131.001)
 
 To learn more about each data product, follow the links above to data product landing pages and navigate to the 'Documents' section to find either Data Product User Guides (DPUG) or Algorithm Theoretical Basis Documents (ATBD) for each data product.
 
-## Using the App
+The openFlow app consists of three separate tabs that work separately and together to be a one-stop-shop for interpreting NEON hydrology data.
+
+1. Timeseries Viewer
+2. Target Gauge Height
+3. Real-Time Data Viewer
+
+## <span style="color: #2F5597;"><b>Time Series Viewer</b></span>
 
 ### Inputs
 
-#### Before 'Submit'
-
-To run the app, users must select a NEON **Domain ID** and **Site ID** from dropdown menus and specify a **Date Range** to download and plot data. Visit the NEON website to learn more [About Field Sites and Domains](https://www.neonscience.org/field-sites/about-field-sites) and [Explore Field Sites](https://www.neonscience.org/field-sites/explore-field-sites).
-
-_**Note:**_ The openFlow app uses the [_neonUtilities_ R package](https://cran.r-project.org/web/packages/neonUtilities/index.html) to download data from the NEON API. Users that select larger date ranges (> 6 months) will experience longer wait times.
-
-Users also have the option to enter their **NEON API Token** before running the app to link their app activity to their user account and enable faster download speeds. Learn more about the benefits of using an API token [here](https://www.neonscience.org/resources/learning-hub/tutorials/neon-api-tokens-tutorial).
-
-#### Independent of 'Submit'
+To run the timeseries viewer, users must select a NEON **Domain ID** and **Site ID** from dropdown menus and specify a **Date Range** to download and plot data. Visit the NEON website to learn more [About Field Sites and Domains](https://www.neonscience.org/field-sites/about-field-sites) and [Explore Field Sites](https://www.neonscience.org/field-sites/explore-field-sites).
 
 The following checkbox inputs can be toggled either before or after a user selects 'Submit'.
 
@@ -39,7 +37,7 @@ The following checkbox inputs can be toggled either before or after a user selec
 * Stage (meters, feet)
 * Precipitation (millimeters, inches)
 
-**Show in Dark Mode** - If selected, the app will have a global dark theme.
+<!-- **Show in Dark Mode** - If selected, the app will have a global dark theme. -->
 
 ### Outputs
 
@@ -47,13 +45,10 @@ The following checkbox inputs can be toggled either before or after a user selec
 
 The metadata table contains the following reach-scale variables that characterize the site that was selected:
 
-**Upstream watershed area (km^2^)** - The area of land that drains water into the aquatic site.
-
-**Reach slope (%)** - The gradient of the streambed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
-
-**Mean bankfull width (m)** - The mean bankfull width of the channel measured at transects throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.
-
-**D50 particle size (mm)** - The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured at transects throughout the monitoring reach using 200-point pebble count methods.
+* **Upstream watershed area (km^2^)** - The area of land that drains water into the aquatic site.
+* **Reach slope (%)** - The gradient of the streambed from the upstream to downstream reach boundary of the aquatic site. Slope is measured using a total station during topographic site surveys.
+* **Mean bankfull width (m)** - The mean bankfull width of the channel measured at transects throughout the monitoring reach. At bankfull stage water is just beginning to spill out of the channel and into the floodplain. Bankfull flows typically occur at 1.5-year recurrence intervals.
+* **D50 particle size (mm)** - The diameter of bed substrate corresponding to 50% finer in the particle-size distribution. Substrate is measured at transects throughout the monitoring reach using 200-point pebble count methods.
 
 _**Note:**_  At NEON river sites (BLWA, FLNT, TOMB), reach slope, mean bankfull width, and D50 particle size are not measured. Also, at the Toolik Lake (TOOK) inflow and outflow locations, D50 particle size is not measured.
 
@@ -63,12 +58,12 @@ In the 'Continuous Discharge' tab, a timeseries plot is generated that plots thr
 
 **Discharge**
 
-* Continuous discharge (black line) - derived from DP4.00130.001:csd\_continuousDischarge:maxpostDischarge
+* Continuous discharge (black line) - derived from DP4.00130.001:csd\_continuousDischarge:maxpostDischarge and DP4.00130.001:csd\_continuousDischarge:continuousDischarge
 * Discharge Parametric Uncertainty (orange ribbon) - derived from DP4.00130.001:csd\_continuousDischarge:withParaUncQLower2Std and DP4.00130.001:csd\_continuousDischarge:withParaUncQUpper2Std
 * Discharge Remnant Uncertainy (dark orange ribbon) - derived from DP4.00130.001:csd\_continuousDischarge:withRemnUncQLower2Std and DP4.00130.001:csd\_continuousDischarge:withRemnUncQUpper2Std
 * Measured Discharge (green point) - derived from DP4.00133.001:sdrc\_gaugeDischargeMeas:streamDischarge
-* Historic Median Discharge\* (grey line) - derived from DP4.00130.001:csd\_continuousDischarge:maxpostDischarge.
-* Three Times Median Discharge\*\* (dashed grey line) - derived from DP4.00130.001:csd\_continuousDischarge:maxpostDischarge
+* Historic Median Discharge\* (grey line) - derived from DP4.00130.001:csd\_continuousDischarge:maxpostDischarge and DP4.00130.001:csd\_continuousDischarge:continuousDischarge
+* Three Times Median Discharge\*\* (dashed grey line) - derived from DP4.00130.001:csd\_continuousDischarge:maxpostDischarge and DP4.00130.001:csd\_continuousDischarge:continuousDischarge
 
 **Stage**
 
@@ -81,48 +76,15 @@ In the 'Continuous Discharge' tab, a timeseries plot is generated that plots thr
 * Continuous Precipitation (blue line) - DP1.00006.001:PRIPRE\_5min:priPrecipBulk *or* DP1.00006.001:SECPRE\_1min:secPrecipBulk
 * Precipitation Uncertainty (purple ribbon) - DP1.00006.001:PRIPRE\_5min:priPrecipExpUncert *or* DP1.00006.001:SECPRE\_1min:secPrecipExpUncert
 
-<font size="2">\* - Historic Median Discharge is calculated from all RELEASED data at a given site. [Click here](https://www.neonscience.org/data-samples/data-management/data-revisions-releases) to learn more about NEON data releases.</font> 
+<font size="1">\* - Historic Median Discharge is calculated from all RELEASED data at a given site. [Click here](https://www.neonscience.org/data-samples/data-management/data-revisions-releases) to learn more about NEON data releases.</font> 
 
-<font size="2">\*\* - Three Times Historic Median Discharge is also calculated from all RELEASED data at a given site. The discharge value (\+\/\- uncertainty) is reported at the top of the plot. The grey dashed line plotted is 3x median discharge plus uncertainty. If data completeness and/or validity is lacking for a site, users can view comparable USGS data. If available, the app will provide a link to the closest USGS proxy site and a 3x median discharge to use.</font> 
+<font size="1">\*\* - Three Times Historic Median Discharge is also calculated from all RELEASED data at a given site. The discharge value (\+\/\- uncertainty) is reported at the top of the plot. The grey dashed line plotted is 3x median discharge plus uncertainty. If data completeness and/or validity is lacking for a site, users can view comparable USGS data. If available, the app will provide a link to the closest USGS proxy site and a 3x median discharge to use.</font> 
 
-<font size="2">\*\*\* - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE\_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE\_1min).</font> 
-
-**Table:** The Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a NEON aquatic site, the _neonUtilities_ R package will pull data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.  [Click here](https://www.neonscience.org/field-sites/about-field-sites) to learn more about co-located NEON sites.
-
-NEON Domain ID|	NEON Aquatics Site ID|	Precipitation Data Source Site ID
---------------|----------------------|-----------------------------------
-D01|	HOPB|	HARV|
-D02|	LEWI|	BLAN|
-D02|	POSE|	SCBI|
-D03|	FLNT|	JERC|
-D04|	CUPE|	CUPE|
-D04|	GUIL|	GUIL|
-D06|	KING|	KONZ|
-D06|	MCDI|	MCDI|
-D07|	LECO|	GRSM|
-D07|	WALK|	ORNL|
-D08|	BLWA|	DELA|
-D08|	MAYF|	TALL|
-D08|	TOMB|	LENO|
-D10|	ARIK|	ARIK|
-D11|	BLUE|	BLUE|
-D11|	PRIN|	PRIN|
-D12|	BLDE|	YELL|
-D13|	COMO|	NIWO|
-D13|	WLOU|	WLOU|
-D14|	SYCA|	SYCA|
-D15|	REDB|	REDB|
-D16|	MART|	WREF|
-D16|	MCRA|	ABBY|
-D17|	BIGC|	BIGC|
-D17|	TECR|	TEAK|
-D18|	OKSR|	TOOL|
-D18|	TOOK_inflow|	TOOK|
-D18|	TOOK_outflow|	TOOK|
-D19|	CARI|	BONA|
-<br>
+<font size="1">\*\*\* - The app defaults to primary prcipitation (DP1.00006.001:PRIPRE\_5min) when plotting data from the Precipitation data product. If no primary precipitation data is available for a site, the app will plot secondary precipitation (DP1.00006.001:SECPRE\_1min). Preciptiation data product is not published for all NEON aquatic sites. If precipitation data is not published for a NEON aquatic site, openFlow will report data from the nearest co-located NEON terrestrial site. The site ID from which the precipitation data is pulled is included in the legend.  [Click here](https://www.neonscience.org/field-sites/about-field-sites) to learn more about co-located NEON sites.</font> 
 
 All continuous data and uncertainties are averaged and plotted at a 20 minute temporal resolution regardless of the temporal resolution at which an attribute is published.
+
+Users can view the publication status of the timeseries viewed by hovering over the shaded bars rendered just above the x-axis. Users can view and identify data that has been RELEASED, that is currently PROVISIONAL, and data that is UNPUBLISHED.
 
 If there are no data published for an attribute in a given time range, the attribute will not be visible in the legend. 
 
@@ -153,9 +115,89 @@ Plotting in the openFlow app is done using the [_plotly_ R package](https://cran
 
 * Users can also download PhenoCam images. When PhenoCam images render in a new window, users can click the 'Download Phenocam Image' button to save the image as a PNG file.
 
-## Change Log
+## <span style="color: #2F5597;"><b>Target Gauge Height</b></span>
 
-2024-03-04: Updates to identification and interpredation of 3x median discharge in the plotting field; updated multiple data sources through NEON data release RELEASE-2024
+### Background
+
+The required number of annual discharge bouts at AQU stream and lake inflow/outflow sites has been reduced from 24 to 22. With this change, Domains are to attempt to collect 2 additional measurements each year during periods of high flow, when water levels are within +10% to -30% of the designated target stage. Targeted discharge bouts are a high priority when a site is experiencing high flows (see Field Prioritization Matrix, OSProcedure-specific-priorities for details).
+
+High flows near bankfull stage historically occur on 1.5 year intervals, though this frequency is expected to change as extreme weather events (e.g. heat waves and large storms) become more frequent and more intense. Field Science staff should not enter the channel when high flows are present; ADCP instrumentation should always be used to measure high flow discharge as it can be safely deployed from the floodplain. Contact Science with any questions regarding the target gauge height values, the time periods in which they historically occur, and/or strategies to assist with forecasting these stochastic events.
+
+### Reported Values
+
+The reported values provides the range of staff gauge heights at which high flow discharge measurements should be targeted and the time period in which they have historically occurred. Note that target gauge height values will change if staff gauges are replaced (Science will then update the values following a total station survey of the staff gauge and the discharge cross-section).
+
+### The Visuals
+
+#### Rating Curve Plot
+
+The lefthand plot shows the most recently-published stage discharge rating curve with the target gauge range higlighted in <b><span style="color: darkgreen;">green</span></b> showing (from lower to higher stage) the \-30\% threshold, the target gauge height, and the \+10\% threshold.
+
+#### Discharge Cross Section Plot
+
+The righthand plot shows the most recently-surveyed discharge cross-section. The cross section is 'filled' to the target gauge height, with the horizontal black bars showing the \-30\% - \+10\% range of gauge heights.
+
+<center><img src="www/targetgaginterp.png" width="800px" /></center>
+
+<center><font size="2">Interpreting the Target Gauge Height outputs: The plots reveal where the target gauge range fall within the rating curve and the discharge cross section. The blue arrows point to the -30% threshold, the yellow arrows point to the target gague height, and the red arrows point to the +10% threshold</font></center>
+
+## <span style="color: #2F5597;"><b>Real-Time Data Viewer</b></span>
+
+### Inputs
+
+In addition to selecting a NEON Domain ID and Site ID, users must **'Select TROLL Type'** that is used to collect data at the staff gauge and discharge location (all domains except D18/19 use LevelTroll). 
+
+There are three data input options that allow users to get a near-real time discharge estimate:
+
+* **Single Staff Gauge Reading** - Users can enter a raw staff gauge reading, which is then offset and converted to estimated discharge.
+* **Single Pressure Reading** - Users can enter a raw pressure reading, which is calibrated, converted to water column height, modeled to estimated stage, and converted to estimated discharge.
+* **Grafana CSV File** - Users can enter a timeseries of raw staff gauge readings downloaded from a Grafana dashboard visualization. The timeseries is then calibrated, converted to water column height, modeled to estimated stage, and converted to estimated discharge.
+
+Users are referred to the [Guide to Assessing 3x Median Discharge at NEON Sites](https://neoninc.sharepoint.com/sites/fopscollaboration/AQU%20Only%20Documents/Forms/Active%20Docs.aspx?id=%2Fsites%2Ffopscollaboration%2FAQU%20Only%20Documents%2FdischargeToolsFor3xMedian%5F20230315%2Epdf&parent=%2Fsites%2Ffopscollaboration%2FAQU%20Only%20Documents) for more details on how to enter different data types into openFlow's Real-Time Data Viewer.
+
+### Outputs
+
+#### Single Readings
+
+If users enter a single reading (gauge height or raw pressure), the outputs will be a snapshot with static values and plot. 
+
+#### Raw Pressure Timeseries
+
+If users upload a raw pressure timeseries, the output visuals will be dynamic and linked to provide a holistic view of how stage and discharge are changing at a site in real time.
+
+#### The Visuals
+
+**Rating Curve Plot**
+
+The upper plot shows the most recently-published stage discharge rating curve with the following additions:
+
+* The estimated output discharge plotted as a horizontal <b><span style="color: black;">dashed black line</span></b>
+* The current 3x median discharge value plotted as a horizontal <b><span style="color: red;">dashed red line</span></b>
+* The target gauge range (See the 'Target Gauge Height' tab) higlighted in <b><span style="color: darkgreen;">green</span></b> showing (from lower to higher stage) the -30% threshold, the target gauge height, and the +10% threshold
+
+**Discharge Cross Section Plot**
+
+The lower plot shows the most recently-surveyed discharge cross-section. The cross section is 'filled' to the level of the estimated discharge output.
+
+**Linked Plots**
+
+When hovering on the timeseries plot along the x-axis, the two lower plots will change the highlighted output discharge estimate as the position on the timeseries x-axis changes. In the rating curve plot, the black dashed line will move up and down the y-axis (discharge) as the users hovers along the timeseries. Equivalently, the cross-section plot will 'fill' and 'empty' as the user hovers along the timeseries.
+
+<center><img src="www/rtdvinterp.png" width="800px" /></center>
+
+<center><font size="2">Interpreting the Real-Time Data Viewer outputs: The discharge value that is reported from a single reading or that is currently highlighted in the timeseries will render in the rating curve plot as a horizontal dashed black line. The stream stage that that discharge corresponds to will be shown as how 'full' the channel is in the discharge cross section plot.</font></center>
+
+## <span style="color: #2F5597;"><b>Change Log</b></span>
+
+2025-03-27: Major updates include:
+
+* 3x median discharge and historic median discharge updated through RELEASE-2025 and WY2024 (PROVISIONAL but internally approved).
+* No longer getting data using the neonUtilities R package, which speeds up the app dramatically.
+* UNPUBLISHED data now reported in the Timeseries Viewer, plus the publication status bar is now plotted just above the x-axis.
+* Target Gauge Height tab added.
+* Real-Time Data Viewer tab added.
+
+2024-03-04: Updates to identification and interpretation of 3x median discharge in the plotting field; updated multiple data sources through NEON data release RELEASE-2024
 
 2023-02-13: Updates to include 3x median discharge in the internal version of the app
 
@@ -185,13 +227,17 @@ Is the app not working as expected? Do you have an enhancement request for the a
 
 ### Credits & Acknowledgements
 
-Authors:
+Author: Zachary Nickerson, NEON Ecologist II - email: nickerson@battelleecology.org
 
-James Ross - email: ross.james94@gmail.com
+Contributors:
 
-Divine Aseaku - email: divineaseaku@gmail.com
-
-Zachary L. Nickerson - email: nickerson@battelleecology.org
+* Nick Harrison, NEON Environmental Scientist III
+* Divine Aseaku, 2021 NEON Data Science Intern, Bowie State University
+* James Ross, 2022 NEON Data Science Intern, St. Edwards University
+* Bola Abioye, 2024 NEON Data Science Intern, Morgan State University
+* Lucas Smith, NEON Technician Specialist, Domain 07
+* Maria Viggiano Beltrocco, NEON Technician Specialist, Domain 04
+* Jason Brown, NEON Technician Specialist, Domain 03
 
 <a href="http://www.neonscience.org/">
 <img src="logo.png" width="300px" />
@@ -207,4 +253,4 @@ GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
 *Information and documents contained within this package are available as-is. Codes or documents, or their use, may not be supported or maintained under any program or service and may not be compatible with data currently available from the NEON Data Portal.*
 
-_Last Updated: 2023-02-13_
+_Last Updated: 2025-03-27_

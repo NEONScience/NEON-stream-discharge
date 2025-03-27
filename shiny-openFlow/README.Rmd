@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 
 ```
-<center><img src="www/app-logo.png" width="400px" /></center>
+<center><img src="src/www/app-logo.png" width="400px" /></center>
 
 This application allows you view and interact with select hydrologic data collected at 29 stream,  river, and lake inflow/outflow sites across the National Ecological Observatory Network (NEON).  NEON spans the continential United States and includes monitoring sites in Alaska and Puerto Rico. In this app you can visually explore data from the following NEON Data Products:
 
