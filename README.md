@@ -35,11 +35,6 @@ The /shiny-openFlow/ folder contains the openFlow shiny application,
 which allows users to plot and interact with NEON hydrology data
 products.
 
-The **neonStageQPlot** package contains function that allow the openFlow
-app to run. The functions can also be used independently of the shiny
-app to download and plot NEON hydrology data, and generate URLs in order
-to render PhenoCam images in R.
-
 <!-- ****** Acknowledgements ****** -->
 
 ## Credits & Acknowledgements
