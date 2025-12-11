@@ -39,7 +39,7 @@ dataFromAPI <- neonUtilities::loadByProduct(streamMorphoDPID,siteID,startdate="2
 list2env(dataFromAPI,.GlobalEnv)
 
 #' Specify end date of the geomorphology survey (YYYY-MM-DD)
-surveyDate<-'2025-05-20' 
+surveyDate<-'2025-05-28' 
 
 #' Specify date when survey become active (YYYY-MM-DD. Default is start of water year)
 surveyActiveDate <- "2025-05-19"
