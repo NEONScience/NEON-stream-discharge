@@ -15,18 +15,11 @@ RUN chmod +x entrypoint.sh
 # If the above tool doesn't have any SystemRequirements listed, use
 #   maketools::package_sysdeps("package_name")
 # on a linux system with the required R package already installed
-
 # the dependencies below already included in the shiny-verse image
-RUN apt-get update && apt-get install -y --no-install-recommends \ 
-    libgdal-dev \
-    gdal-bin \
-    libgeos-dev \
-    libabsl-dev \
-    cmake \
-    libproj-dev \
-    libudunits2-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y --no-install-recommends \ 
+	#libstdc++6 \
+    #&& apt-get clean \
+    #&& rm -rf /var/lib/apt/lists/*
 
 # remotes::install_deps relies on the contents of src/DESCRIPTION
 # and it must be copied to the container before running this command
