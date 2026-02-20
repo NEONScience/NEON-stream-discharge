@@ -189,6 +189,8 @@ When hovering on the timeseries plot along the x-axis, the two lower plots will 
 
 ## <span style="color: #2F5597;"><b>Change Log</b></span>
 
+2026-02-20: Updates to combine legacy 1-minute resolution and current 15-min resolution data tables to produce a single continuous period of record; 3x median discharge and historic median discharge updated through RELEASE-2026.
+
 2025-03-27: Major updates include:
 
 * 3x median discharge and historic median discharge updated through RELEASE-2025 and WY2024 (PROVISIONAL but internally approved).
@@ -253,4 +255,4 @@ GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
 *Information and documents contained within this package are available as-is. Codes or documents, or their use, may not be supported or maintained under any program or service and may not be compatible with data currently available from the NEON Data Portal.*
 
-_Last Updated: 2025-03-27_
+_Last Updated: 2026-02-20_
