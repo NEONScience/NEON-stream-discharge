@@ -62,14 +62,7 @@ RC.plot <-function(site.id,
   if(base::missing(end.date)){
     stop('must provide end.date for plotting continuous discharge')
   }
-  
-  if(site.id=="TOOK_inflow"){
-    site.id <- "TKIN"
-  }
-  if(site.id=="TOOK_outflow"){
-    site.id <- "TKOT"
-  }
-  
+
   # Get data
   startDateFormat <- format(as.POSIXct(start.date),"%Y-%m-%d 00:00:00")
   endDateFormat <- format(as.POSIXct(end.date)+86400,"%Y-%m-%d 00:00:00")

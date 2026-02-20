@@ -57,9 +57,9 @@ ui<- shinydashboard::dashboardPage(
                                                shiny::column(10,
                                                              shiny::tabsetPanel(type = "tabs",id = "selectedTab",
                                                                                 shiny::tabPanel("Continuous Discharge",
-                                                                                                plotly::plotlyOutput("plot1",height="800px")),
+                                                                                                shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
                                                                                 shiny::tabPanel("Rating Curve(s)",
-                                                                                                plotly::plotlyOutput("plot2",height="800px"))
+                                                                                                shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px")))
                                                                                 )# End tabsetPanel
                                                              )# End second column
                                                )# End fluid row for timeseries viewer,

@@ -86,6 +86,8 @@ if(grepl('internal',HOST)|HOST==""){
   # constrain.dates <- TRUE
 }
 
+readmeFile <- 'about.Rmd'
+
 # include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
 # constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
 # readmeFile <- "about_internal.Rmd"
