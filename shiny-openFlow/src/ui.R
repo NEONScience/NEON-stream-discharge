@@ -1,3 +1,17 @@
+##############################################################################################
+#' @title 
+
+#' @author
+#' Zachary Nickerson \email{nickerson@battelleecology.org} \cr
+
+#' @description 
+
+#' @return 
+
+# changelog and author contributions / copyrights
+#   Zachary Nickerson (YYYY - MM - DD)
+#     original creation
+##############################################################################################
 ui<- shinydashboard::dashboardPage(
   hader <- shinydashboard::dashboardHeader(title = "openFlow"),
 
