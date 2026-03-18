@@ -23,7 +23,7 @@ RUN chmod +x entrypoint.sh
 
 # remotes::install_deps relies on the contents of src/DESCRIPTION
 # and it must be copied to the container before running this command
-RUN Rscript -e "remotes::install_deps('/srv/shiny-server/',repos='https://packagemanager.posit.co/cran/__linux__/jammy/latest')"
+RUN Rscript -e "remotes::install_deps('/srv/',repos='https://packagemanager.posit.co/cran/__linux__/noble/latest', force = TRUE)"
 
 USER shiny:shiny
 EXPOSE 3838
