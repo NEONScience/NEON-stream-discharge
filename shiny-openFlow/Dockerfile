@@ -1,6 +1,5 @@
 FROM rocker/shiny-verse:latest
 
-
 ARG GITHUB_PAT
 ENV GITHUB_PAT=$GITHUB_PAT
 
