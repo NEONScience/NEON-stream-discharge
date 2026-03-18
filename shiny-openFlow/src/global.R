@@ -1,6 +1,22 @@
-# devtools::install("C:/Users/nickerson/Documents/GitHub/shiny-openFlow-db-code/openFlowInternal")
+##############################################################################################
+#' @title 
+
+#' @author
+#' Zachary Nickerson \email{nickerson@battelleecology.org} \cr
+
+#' @description 
+
+#' @return 
+
+# changelog and author contributions / copyrights
+#   Zachary Nickerson (YYYY - MM - DD)
+#     original creation
+##############################################################################################
+
+# Set options
 options(stringsAsFactors = F)
 
+# Load libraries
 library(shiny)
 library(shinyjs)
 library(plotly)
@@ -24,15 +40,11 @@ library(DBI)
 library(RPostgres)
 require(openFlowInternal) # This is an internal package - make sure you have your GITHUB_PAT set: devtools::install_github(repo = 'NEONScience/shiny-openFlow-db-code/openFlowInternal', ref = "dev",dependencies = T, force = T)
 
-#global ----
 pass <- 0
 
 message("INFO! Launching openFlow")
 message("INFO! Current working directory: ",getwd())
 message("INFO! DB_HOST = ",Sys.getenv("DB_HOST"))
-# message("INFO! DB_TOKEN = ",Sys.getenv("DB_TOKEN"))
-# # Set the working directory to the current files location
-# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 # Gather list of function files to be sourced
 file_sources <- list.files(
@@ -71,26 +83,4 @@ osPubDateFormat <- "%Y-%m-%dT%H:%MZ"
 waterDensity <- 999
 gravity <- 9.80665
 convKPatoPa <- 1000
-# well_depth_file <- read.csv("data/gw_well_depths.csv", sep = ",") 
-
-#change settings depending on HOST - internal app vs external app
-HOST <- Sys.getenv('HOST')
-message(paste('HOST =',HOST))
-if(grepl('internal',HOST)|HOST==""){
-  # readmeFile <- 'about_internal.Rmd'
-  include.q.stats <- TRUE
-  # constrain.dates <- FALSE
-}else{
-  # readmeFile <- '../about.Rmd'
-  include.q.stats <- FALSE
-  # constrain.dates <- TRUE
-}
-
-readmeFile <- 'about.Rmd'
-
-# include.q.stats <- T # Include Q Stats: Set to TRUE if on internal server, and FALSE if on external server
-# constrain.dates <- F # Constrain Dates: Set to TRUE if on external serer, and FALSE if in Github or on internal server
-# readmeFile <- "about_internal.Rmd"
-
-# light <- bslib::bs_theme(version = 4,bootswatch = "flatly")
-# dark <- bslib::bs_theme(version = 4,bootswatch = "darkly")
+include.q.stats <- TRUE
