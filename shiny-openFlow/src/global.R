@@ -84,6 +84,3 @@ waterDensity <- 999
 gravity <- 9.80665
 convKPatoPa <- 1000
 include.q.stats <- TRUE
-
-# Set path to README file
-readmeFile <- 'about.Rmd'

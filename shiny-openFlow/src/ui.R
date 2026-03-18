@@ -39,7 +39,7 @@ ui<- shinydashboard::dashboardPage(
        
        #Tab Item for About the App
        shinydashboard::tabItem(tabName= "AbouttheApp",
-                               shiny::includeMarkdown('about_internal.Rmd')
+                               shiny::includeMarkdown('about.Rmd')
                                ),# End fluid row for about the app
        
        # Tab Item timeseries viewer
