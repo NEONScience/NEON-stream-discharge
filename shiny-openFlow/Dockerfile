@@ -25,6 +25,7 @@ RUN chmod +x entrypoint.sh
 # and it must be copied to the container before running this command
 RUN Rscript -e "remotes::install_deps('/srv/shiny-server/',repos='https://packagemanager.posit.co/cran/__linux__/noble/latest', force = TRUE)"
 
+
 USER shiny:shiny
 EXPOSE 3838
 ENTRYPOINT [ "/entrypoint.sh" ]
