@@ -64,20 +64,7 @@ cont.Q.plot <-function(site.id,
   if(base::missing(end.date)){
     stop('must provide end.date for plotting continuous discharge')
   }
-  # if(base::missing(input.list)){
-  #   stop('must provide input.list for plotting continuous discharge')
-  # }
-  
-  # Connect to openflow database
-  con<-DBI::dbConnect(
-    RPostgres::Postgres(),
-    dbname = 'openflow',
-    host = 'nonprod-commondb.gcp.neoninternal.org',
-    port = '5432',
-    user = 'shiny_openflow_rw',
-    password = Sys.getenv('DB_TOKEN')
-  )
-  
+
   # Read in metadata table from openflow database 
   productList <- DBI::dbReadTable(con,"sitelist")
   
@@ -87,11 +74,6 @@ cont.Q.plot <-function(site.id,
   dbquery <- sprintf("SELECT * FROM contqsum WHERE \"siteID\" = '%s' AND \"date\" > timestamp '%s' AND \"date\" < timestamp '%s'",site.id,startDateFormat,endDateFormat)
   contqsum <- DBI::dbSendQuery(con,dbquery)
   contqsum <- DBI::dbFetch(contqsum)
-  if(sum(!is.na(contqsum$priPrecipBulk))){
-    isPrimaryPtp <- T
-  }else{
-    isPrimaryPtp <- F
-  }
   precipSiteID <- productList$ptpSite[productList$siteID==site.id]
   dbquery <- sprintf("SELECT * FROM histmedq WHERE \"siteID\" = '%s'",site.id)
   histmedq <- DBI::dbSendQuery(con,dbquery)
@@ -135,24 +117,14 @@ cont.Q.plot <-function(site.id,
                     meanUHUnc = meanUHUnc*convMtoFt,
                     meanLHUnc = meanLHUnc*convMtoFt,
                     meanH = meanH*convMtoFt,
-                    gaugeHeight = gaugeHeight*convMtoFt)
+                    gaugeHeight = gaugeHeight*convMtoFt,
+                    #Precip
+                    precipBulkLoUnc = precipBulkLoUnc*convMMtoIN,
+                    precipBulkUpUnc = precipBulkUpUnc*convMMtoIN,
+                    precipBulk = precipBulk*convMMtoIN
+                    )
     histmedq$medianQ <- histmedq$medianQ*convLPStoCFS
 
-    #Precipitation
-    if(!base::is.null(isPrimaryPtp)){
-      if(isPrimaryPtp){
-        continuousDischarge_sum <- continuousDischarge_sum %>%
-          dplyr::mutate(priPrecipBulkLoUnc = priPrecipBulkLoUnc*convMMtoIN,
-                        priPrecipBulkUpUnc = priPrecipBulkUpUnc*convMMtoIN,
-                        priPrecipBulk = priPrecipBulk*convMMtoIN)
-      }else{
-        continuousDischarge_sum <- continuousDischarge_sum %>%
-          dplyr::mutate(secPrecipBulkLoUnc = secPrecipBulkLoUnc*convMMtoIN,
-                        secPrecipBulkUpUnc = secPrecipBulkUpUnc*convMMtoIN,
-                        secPrecipBulk = secPrecipBulk*convMMtoIN)
-      }
-    }
-    
     #3x internal
     if(plot.q.stats){
       medQ <- medQ*convLPStoCFS
@@ -195,7 +167,7 @@ cont.Q.plot <-function(site.id,
                    position=0.98)
   
   # Build plot layout
-  method <- plotly::plot_ly(data=continuousDischarge_sum)%>%
+  method <- plotly::plot_ly(data=continuousDischarge_sum,source="timeseries_viewer")%>%
     plotly::layout(
       yaxis = y1, yaxis2 = y2, yaxis3 = y3,
       xaxis=base::list(domain=c(0,.9),
@@ -279,27 +251,16 @@ cont.Q.plot <-function(site.id,
     
     # Empirical H and Q
     plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~streamDischarge,name="Measured\nDischarge", type='scatter', mode='markers',marker = base::list(color = '#009E73',size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group6')%>%
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group7')%>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~gaugeHeight,name='Measured\nGauge\nHeight',type='scatter',mode='markers',yaxis='y2',marker=base::list(color="#F0E442",size=8,line = base::list(color = "black",width = 1)),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group7')%>%
 
     #Historical Med Q
-    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~medianQ, name=stringr::str_c("Historic Median\nDischarge: ","\n",base::min(histMedQMinYear),"-",base::max(histMedQMaxYear)),type='scatter',mode='lines',line = base::list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group8',visible = "legendonly")
-  
-  #Precipitation Data
-  #plots whichever data is available using isPrimaryPtp bool
-  if(!base::is.null(isPrimaryPtp)){
-    if(isPrimaryPtp){
-      method <- method %>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulkLoUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='line',line=base::list(color='#431A74'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group9',visible = "legendonly")%>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulkUpUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#431A74',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group9',visible = "legendonly") %>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~priPrecipBulk,name=stringr::str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = base::list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group10',visible = "legendonly")
-    }else{
-      method <- method %>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulkLoUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='line',line=base::list(color='#431A74'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group9',visible = "legendonly")%>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulkUpUnc,name="Continuous\nPrecipitation\nUncertainty",yaxis = "y3",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#431A74',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group9',visible = "legendonly") %>%
-        plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~secPrecipBulk,name=stringr::str_c("Continuous\nPrecipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='lines',line = base::list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group10',visible = "legendonly")
-    }
-  }
-  
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~medianQ, name=paste0("Historic Median\nDischarge","\n",min(histMedQMinYear,na.rm = T),"-",max(histMedQMaxYear,na.rm = T)),type='scatter',mode='lines',line = base::list(color = 'grey'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group8',visible = "legendonly")%>%
+    
+    # Precipitation
+    # plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~precipBulkLoUnc,name="Precipitation\nUncertainty",yaxis = "y3",type='scatter',mode='line',line=base::list(color='#431A74'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=F,legendgroup='group9',visible = "legendonly")%>%
+    # plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~precipBulkUpUnc,name="Precipitation\nUncertainty",yaxis = "y3",type='scatter',mode='none',fill = 'tonexty',fillcolor = '#431A74',hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",showlegend=T,legendgroup='group9',visible = "legendonly") %>%
+    plotly::add_trace(x=~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y=~precipBulk,name=stringr::str_c("Precipitation\nSite: ",precipSiteID),yaxis = "y3",type='scatter',mode='line',line = base::list(color = '#0072B2'),hovertemplate = "Date/UTC-Time: %{x}<br>Value: %{y}<br>Click to view image of stream",legendgroup='group10',visible = "legendonly")
+
   # Add the internal parameters
   if(plot.q.stats){
     if(!base::is.na(medQPlusUnc)){
@@ -348,14 +309,10 @@ cont.Q.plot <-function(site.id,
   # if(length(releaseTerm)>0){
   #   category_colors[[releaseTerm]] <- "green"
   # }
-  category <- plotly::plot_ly(data=continuousDischarge_sum)%>%
-    plotly::add_trace(
-      x = ~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),
-      y = ~1,
-      name = ~paste0("DP4.00130.001 Pub<br>Status: ",csd_release),
-      type = 'bar',
-      showlegend = TRUE,
-      hoverinfo = 'none')%>%
+  category <- plotly::plot_ly(data=continuousDischarge_sum,source="timeseries_viewer")%>%
+    plotly::add_trace(x = ~base::as.POSIXct(date,format="%Y-%m-%d %H:%M:%S"),y = ~1,name = ~csd_release,
+                      type = 'scatter', mode = 'lines', fill = 'tozeroy',showlegend = FALSE,
+                      hovertemplate = 'DP4.00130.001 Publication\nStatus: <b>%{fullData.name}</b><extra></extra>')%>%
     layout(yaxis = list(title = "", showticklabels = FALSE))
   combined_plot <- subplot(method, category, 
                            nrows = 2, heights = c(0.95,0.05), 

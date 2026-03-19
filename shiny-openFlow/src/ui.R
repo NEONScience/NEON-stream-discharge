@@ -1,9 +1,19 @@
-#Xs Section branch
-######Maria Viggiano###
-    #skin= "green",
-    #theme = bslib::bs_theme(),
+##############################################################################################
+#' @title 
+
+#' @author
+#' Zachary Nickerson \email{nickerson@battelleecology.org} \cr
+
+#' @description 
+
+#' @return 
+
+# changelog and author contributions / copyrights
+#   Zachary Nickerson (YYYY - MM - DD)
+#     original creation
+##############################################################################################
 ui<- shinydashboard::dashboardPage(
-  hader <- shinydashboard::dashboardHeader(title = "Open Flow"),
+  hader <- shinydashboard::dashboardHeader(title = "openFlow"),
 
   #Sidebar menu                
   sidebar <- shinydashboard::dashboardSidebar(
@@ -24,12 +34,12 @@ ui<- shinydashboard::dashboardPage(
     tags$head(tags$style(HTML(".small-box {height: 90px}"))),
     tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),
     useShinyjs(),
-  
-     shinydashboard::tabItems(
+    
+    shinydashboard::tabItems(
        
        #Tab Item for About the App
        shinydashboard::tabItem(tabName= "AbouttheApp",
-                               shiny::fluidRow(shiny::includeMarkdown('../README.md'))
+                               shiny::includeMarkdown('about.Rmd')
                                ),# End fluid row for about the app
        
        # Tab Item timeseries viewer
@@ -50,7 +60,7 @@ ui<- shinydashboard::dashboardPage(
                                                              shiny::br(),
                                                              shiny::checkboxInput("qctrFlagScRv", "Include Discharge Science Review Quality Flags", FALSE),
                                                              shiny::checkboxInput("impUnitFlag", "Convert to Imperial Units", FALSE),
-                                                             shiny::checkboxInput("dark_mode", "Show in Dark Mode"),
+                                                             shinyjs::hidden(shiny::checkboxInput("dark_mode", "Show in Dark Mode")),
                                                              div(style = "text-align:center",
                                                                  shiny::conditionalPanel(condition = "output.plot1 != null || output.plot2 != null",#checks that one of the graphs has been loaded
                                                                                          shiny::downloadButton("downloadPlotly", "Download Graph"))),
@@ -61,9 +71,9 @@ ui<- shinydashboard::dashboardPage(
                                                shiny::column(10,
                                                              shiny::tabsetPanel(type = "tabs",id = "selectedTab",
                                                                                 shiny::tabPanel("Continuous Discharge",
-                                                                                                plotly::plotlyOutput("plot1",height="800px")),
+                                                                                                shinycssloaders::withSpinner(plotly::plotlyOutput("plot1",height="800px"))),
                                                                                 shiny::tabPanel("Rating Curve(s)",
-                                                                                                plotly::plotlyOutput("plot2",height="800px"))
+                                                                                                shinycssloaders::withSpinner(plotly::plotlyOutput("plot2",height="800px")))
                                                                                 )# End tabsetPanel
                                                              )# End second column
                                                )# End fluid row for timeseries viewer,
@@ -93,12 +103,26 @@ ui<- shinydashboard::dashboardPage(
                                                    tags$h3(shiny::htmlOutput("targetGaugeHeightPlus10")),
                                                    tags$h3(shiny::htmlOutput("targetGaugeHeightMinus30")))# End column
                                      ),# End fluidRow
+                                   tags$br(),
                                    shiny::fluidRow(
                                      shiny::column(6,
                                                    plotly::plotlyOutput("rc_targetGAG")),# End column
                                      shiny::column(6,
                                                    plotly::plotlyOutput("xs_targetGAG"))# End column
-                                   )# End fluidRow
+                                   ),# End fluidRow
+                                   shinydashboard::box(
+                                     width = 12,
+                                     title= "Click To View Guide for Interpreting the 'Target Gauge Height' Tab",
+                                     solidHeader= F,
+                                     status= "primary",
+                                     collapsible = T,
+                                     collapsed = T,
+                                     tags$h4(shiny::HTML('<b>Reported Values: </b>')),
+                                     tags$p("The reported values provides the range of staff gauge heights at which high flow discharge measurements should be targeted and the time period in which they have historically occurred. Note that target gauge height values will change if staff gauges are replaced (Science will then update the values following a total station survey of the staff gauge and the discharge cross-section)."),
+                                     tags$h4(shiny::HTML('<b>The Visuals: </b>')),
+                                     tags$p(shiny::HTML("<b>Rating Curve Plot</b> - The lefthand plot shows the most recently-published stage discharge rating curve with the target gauge range higlighted in <b><span style=\"color: darkgreen;\">green</span></b> showing (from lower to higher stage) the -30% threshold, the target gauge height, and the +10% threshold.")),
+                                     tags$p(shiny::HTML("<b>Discharge Cross Section Plot</b> - The righthand plot shows the most recently-surveyed discharge cross-section. The cross section is 'filled' to the target gauge height, with the horizontal black bars showing the -30% - +10% range of gauge heights."))
+                                   )# End box
                                    )# End box
                                  )# End fluid row for target gauge height viewer
                                ),# End TargetGAG tab

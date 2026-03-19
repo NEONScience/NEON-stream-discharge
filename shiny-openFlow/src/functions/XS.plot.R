@@ -40,13 +40,18 @@ XS.plot <-function(site.id,
   dsctransect <- DBI::dbReadTable(con,"dsctransect")
   dsctransect <- dsctransect[dsctransect$siteID==site.id,]
   dsctransect <- dsctransect[order(dsctransect$distanceAdjusted),]
+  p.title <- paste(site.id,unique(dsctransect$surveyEndDate),"Survey")
   
   # Create the base plot
   xsPlot <- plotly::plot_ly(data=dsctransect,source=p.source)%>%
     plotly::layout(
+      title = list(text=p.title,
+                   x=0,
+                   xanchor="left"),
       xaxis=base::list(tick=14,
                        automargin=T,
-                       title="Adjusted Distance from Right Bank Pin (m)",
+                       zeroline=F,
+                       title="Adjusted Distance (m)",
                        tickfont=base::list(size=16),
                        titlefont=base::list(size=18)),
       yaxis=base::list(automargin=T,
@@ -72,7 +77,7 @@ XS.plot <-function(site.id,
   xsPlot <- xsPlot%>%
     plotly::add_trace(x=~distanceAdjusted,y=~stage.fill,type='scatter',mode='line',line=list(color='lightblue'),hoverinfo='none',showlegend=F)%>%
     plotly::add_trace(x=~distanceAdjusted,y=min(dsctransect$gaugeHeight),type='scatter',mode='line',fill='tonexty',fillcolor='lightblue',line=list(color='lightblue'),hoverinfo='none',showlegend=F)%>%
-    plotly::add_trace(x=~distanceAdjusted,y=~gaugeHeight,type='scatter',mode='line',line=list(color='brown'),hoverinfo='none',showlegend=F)%>%
+    plotly::add_trace(x=~distanceAdjusted,y=~gaugeHeight,text=~surveyPointID,name="Survey\nPoint ID",type='scatter',mode='line',line=list(color='brown'),hovertemplate = "Distance: %{x} <br> Gauge Height: %{y} <br> %{text}",showlegend=F)%>%
     plotly::add_trace(x=~distanceAdjusted,y=min(dsctransect$gaugeHeight)-((max(dsctransect$gaugeHeight)-min(dsctransect$gaugeHeight))*.10),type='scatter',mode='line',fill='tonexty',fillcolor='brown',line=list(color='black'),hoverinfo='none',showlegend=F)
   
   # Add target gauge ranges if the targets are entered
