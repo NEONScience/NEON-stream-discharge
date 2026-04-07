@@ -44,6 +44,10 @@ ui<- shinydashboard::dashboardPage(
        
        # Tab Item timeseries viewer
        shinydashboard::tabItem(tabName= "TimeseriesViewer",
+                               tags$h2(shiny::HTML('<span style="color: #2F5597;"><b>Time Series Viewer</b></span> - Interact With NEON Hydrology Data')),
+                               tags$h5("Visualize a period of record from the beginning of time for a site up to the most recent month of UNPUBLISHED data. 
+                                       Users can interact with stage, discharge, and precipitation data, dive deeper into data quality and historic metrics, and view PhemoCam images by clicking a point on any time series.
+                                       For more information about inputs and outputs, see the 'About the App' tab."),
                                shiny::fluidRow(shiny::column(2,
                                                              shiny::selectInput("domainId","Domain ID",productList$domain),
                                                              shiny::uiOutput("domainInfo"),
@@ -81,6 +85,10 @@ ui<- shinydashboard::dashboardPage(
        
        # Tab Item for cross section menu
        shinydashboard::tabItem(tabName ="TargetGAG",
+                               tags$h2(shiny::HTML('<span style="color: #2F5597;"><b>Target Gauge Height</b></span> - Assess High Flow Measurement Goals')),
+                               tags$h5("Each year, NEON Field Scientists are tasked with collecting discharge measurements within a site specific range of gauge heights that represent -30% to +10% bankfull stage.
+                                       Choose domain and site to observe the target gauge height range and where the target range falls on the most recent rating curve model and discharge cross-section survey.
+                                       For more information about inputs and outputs, see the 'About the App' tab."),
                                shiny::fluidRow(
                                  # Summary of Domain target datatable per site selected
                                  shinydashboard::box(
@@ -129,6 +137,10 @@ ui<- shinydashboard::dashboardPage(
        
        #Tab Item for Blue Heron
        shinydashboard::tabItem(tabName= "RealTime",
+                               tags$h2(shiny::HTML('<span style="color: #2F5597;"><b>Real-Time Data Viewer</b></span> - Estimate Discharge From Raw Inputs')),
+                               tags$h5("This tab is mainly used by NEON Field Scientists who have boots-on-the-ground access to real-time raw staff gauge and pressure-transducer measurements.
+                                       Enter domain, site, and the specific reading input to estimate discharge from raw measurements based on the most recently-developed rating curve and gauge-water column height models.
+                                       For more information about inputs and outputs, see the 'About the App' tab."),
                                shiny::fluidRow(shiny::column(2,
                                                              shiny::selectizeInput("rtdvDomain","Domain ID", choices = productList$domain),##replaced the choices from unique(domainSite_info$field_domain_id
                                                              shiny::selectizeInput("rtdvSite","Select Site ID", choices = NULL),
