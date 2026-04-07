@@ -334,29 +334,11 @@ server <- function(input, output, session) {
     if(input$dataSource%in%c("Single Pressure Reading","Grafana CSV File")){
       
       #. . . 4.2.1 Calibrate pressure data and convert to water column height ####
-      L0DPNum <- ifelse(input$waterType=="Groundwater","20015",ifelse(input$trollType=="LevelTroll","20016","20054"))
-      L0TermNum <- ifelse(input$waterType=="Groundwater","01376","01379")
-      VER <- ifelse(input$waterType=="Groundwater","000","100")
-      hormap <- DBI::dbReadTable(con,"hormap")
-      HOR <- hormap$HOR[hormap$siteID==input$rtdvSite&hormap$endDate==max(hormap$endDate[hormap$siteID==input$rtdvSite])]
-      siteID_cal <- input$rtdvSite
-      if(siteID_cal%in%c("TOOK_inflow","TOOK_outflow")){
-        siteID_cal <- "TOOK"
-      }
-      DPID <- paste("NEON",input$rtdvDomain,siteID_cal,"DP0",L0DPNum,"001",L0TermNum,HOR,VER,"000",sep=".")
-      startDate <- Sys.Date()
-      endDate <- Sys.Date()
-      
-      #. . . 4.2.2 Attempt to pull calibration data ####
-      calibrations <- try(openFlowInternal::get.cal(startDate = startDate,
-                                                    endDate = endDate,
-                                                    DPID = DPID,
-                                                    session,
-                                                    input,
-                                                    output),silent = T)
+      calibrations <- DBI::dbReadTable(con,"calibration")
+      calibrations <- calibrations[calibrations$siteid==input$rtdvSite,]
       
       #. . . 4.2.3 If query was successful, get calibration coefficients ####
-      if(isTRUE(attr(calibrations, "class") == "try-error")){
+      if(nrow(calibrations)!=1){
         shinyWidgets::closeSweetAlert(session = session)
         shinyWidgets::sendSweetAlert(
           session = session,
@@ -366,13 +348,10 @@ server <- function(input, output, session) {
           btn_labels = "OK"
         )
         shiny::validate(shiny::need(!isTRUE(attr(calibrations, "class") == "try-error"), label = "Could not pull current calibration files"))
-      }else{
-        calibration_info <- as.data.frame(rbind(calibrations$value[1:3]))
-        colnames(calibration_info) <- c("calValCP0","calValCP1","calValCP2")
       }
       
       #. . . 4.2.4 Apply calibration coefficients ####
-      calibratedPressure <- as.numeric(calibration_info$calValCP2)*pressureToProcess**2+as.numeric(calibration_info$calValCP1)*pressureToProcess+as.numeric(calibration_info$calValCP0)
+      calibratedPressure <- as.numeric(calibrations$calvalcp2)*pressureToProcess**2+as.numeric(calibrations$calvalcp1)*pressureToProcess+as.numeric(calibrations$calvalcp0)
       
       #. . . 4.2.5 Convert to water column height ####
       convKPatoPa <- 1000 #Pa per 1 kPa
@@ -381,9 +360,9 @@ server <- function(input, output, session) {
       waterColumnHeight <- (calibratedPressure/(roe*grav)) * convKPatoPa
       
       #. . . 4.2.6 Convert water column height data to calculated stage ####
-      regressionData <- openFlowInternal::frmt.reg(input, output, session)
-      regressionData <- regressionData[regressionData$regressionID==max(regressionData$regressionID[grepl(input$rtdvSite,regressionData$regressionID)]),]
-      stageHeight <- (as.numeric(regressionData$regressionSlope)*waterColumnHeight)+as.numeric(regressionData$regressionIntercept)
+      regressionData <- DBI::dbReadTable(con,"regression")
+      regressionData <- regressionData[regressionData$regressionid==max(regressionData$regressionid[grepl(input$rtdvSite,regressionData$regressionid)]),]
+      stageHeight <- (as.numeric(regressionData$regressionslope)*waterColumnHeight)+as.numeric(regressionData$regressionintercept)
       
     }else{
       #. . 4.3 Process gauge heights through to stage ####
@@ -391,43 +370,19 @@ server <- function(input, output, session) {
       stageHeight <- as.numeric(input$singleStaffGauge)
       
       #. . . 4.3.1 Get gauge named location offsets ####
-      gaugeLocData <- openFlowInternal::gag.offset(input$rtdvSite,
-                                                   session,
-                                                   input,
-                                                   output)
+      gaugeLocData <- DBI::dbReadTable(con,"hormap")
+      gaugeLocData <- gaugeLocData[gaugeLocData$siteID==input$rtdvSite,]
       
       #. . . 4.3.2 Error handling if no data or if GET failed ####
-      if(attr(gaugeLocData, "class") == "try-error"){
-        failureMessage <- "Gauge location history could not be retrieved"
-        stop(failureMessage)
-      }
-      if(length(gaugeLocData)<1){
+      if(nrow(gaugeLocData)<1){
         failureMessage <- "Zero (0) gauge location history records were retrieved"
         stop(failureMessage)
       }
       
-      #. . . 4.3.3 TOOK location handling ####
-      if (input$rtdvSite=="TOOK") {
-        if(grepl("inflow",dischargeNamedLocation)){
-          gaugeLocData <- gaugeLocData[grepl("inflow",gaugeLocData$namedLocation),]
-        }else{
-          if(grepl("outflow",dischargeNamedLocation)){
-            gaugeLocData <- gaugeLocData[grepl("outflow",gaugeLocData$namedLocation),]
-          }else{
-            failureMessage <- "No inflow or outflow gauge location history records were retrieved for TOOK"
-            stop(failureMessage)
-          }
-        }
-      }
-      
-      #. . . 4.3.4 Format the gauge named location data to apply offsets ####
-      gaugeLocData <- try(suppressWarnings(openFlowInternal::frmt.gauge.name.loc.data(input$rtdvSite,
-                                                                                      dataFrame = gaugeLocData)))
-      
       #. . . 4.3.5 Apply gauge offset ####
-      gaugeLocData_nl <- gaugeLocData[gaugeLocData$namedLocation==gaugeLocData$namedLocation[gaugeLocData$endDate==max(gaugeLocData$endDate)],]
+      gaugeLocData_nl <- gaugeLocData[gaugeLocData$namedlocation==gaugeLocData$namedlocation[gaugeLocData$endDate==max(gaugeLocData$endDate)],]
       if(nrow(gaugeLocData_nl)>1){
-        offset <- gaugeLocData_nl$refElevPlusZ[nrow(gaugeLocData_nl)] - gaugeLocData_nl$refElevPlusZ[1]
+        offset <- gaugeLocData_nl$refelevplusz[nrow(gaugeLocData_nl)] - gaugeLocData_nl$refelevplusz[1]
         stageHeight <- stageHeight+offset
       }
     }

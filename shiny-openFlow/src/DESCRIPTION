@@ -29,10 +29,7 @@ Imports:
   shinyWidgets,
   shinyalert,
   shinydashboard,
-  markdown,
-  openFlowInternal
-Remotes:
-  NEONScience/shiny-openFlow-db-code/openFlowInternal
+  markdown
 AlreadyInstalled:
   lubridate,
   stringr,
@@ -47,9 +44,3 @@ AlreadyInstalled:
   httr,
   DBI,
   RPostgres
- 
-  
-
-
-
-  
