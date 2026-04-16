@@ -39,6 +39,14 @@ server <- function(input, output, session) {
 
   # 4 Process inputs & generate outputs ####
   shiny::observeEvent(input$submit,{
+    shinyWidgets::sendSweetAlert(
+      session = session,
+      title = "Building Plot Based on Inputs",
+      text = "Click 'OK' when plot appears to start exploring NEON hydrology data!",
+      type = "info",
+      closeOnEsc = FALSE, #prevents closing the box with the Esc key
+      closeOnClickOutside = FALSE # prevents the user from clicking outside the box
+    )
     
     #. . 4.1 Isolate inputs ####
     TS_siteID <- shiny::isolate(input$siteId)
