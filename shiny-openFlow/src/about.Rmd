@@ -189,7 +189,13 @@ When hovering on the timeseries plot along the x-axis, the two lower plots will 
 
 <center><font size="2">Interpreting the Real-Time Data Viewer outputs: The discharge value that is reported from a single reading or that is currently highlighted in the timeseries will render in the rating curve plot as a horizontal dashed black line. The stream stage that that discharge corresponds to will be shown as how 'full' the channel is in the discharge cross section plot.</font></center>
 
+## <span style="color: #2F5597;"><b>Citing openFlow & Downloaded Figures</b></span>
+
+The NEON program details citation guidelines of various forms of NEON products on the NEON webpage ["Acknowledging and Citing NEON"](https://www.neonscience.org/data/guidelines-policies/citing). Users that cite the use of the openFlow app, or use downloaded plots and/or figures, should follow NEON citation guidelines. See the "Webpages and Blogs" section for citing the openFlow app itself. See "Images and Graphics" for citing downloaded plots/figures.
+
 ## <span style="color: #2F5597;"><b>Change Log</b></span>
+
+2026-04-15: Added citation information to user guide.
 
 2026-04-07: Remove dependency on non-CRAN openFlowInternal package, which was causing public app to crash. Migrate functionality of openFlowInternal to populate external DB tables. Update UI to provide title and short description of each tab.
 
@@ -235,7 +241,7 @@ Is the app not working as expected? Do you have an enhancement request for the a
 
 ### Credits & Acknowledgements
 
-Author: Zachary Nickerson, NEON Ecologist II - email: nickerson@battelleecology.org
+Author: Zachary Nickerson, NEON Ecologist II - [_Contact author_](https://www.neonscience.org/about/contact-us)
 
 Contributors:
 
@@ -261,4 +267,4 @@ GNU AFFERO GENERAL PUBLIC LICENSE Version 3, 19 November 2007
 
 *Information and documents contained within this package are available as-is. Codes or documents, or their use, may not be supported or maintained under any program or service and may not be compatible with data currently available from the NEON Data Portal.*
 
-_Last Updated: 2026-04-07_
+_Last Updated: 2026-04-15_
