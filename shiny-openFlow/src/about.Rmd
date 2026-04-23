@@ -1,11 +1,11 @@
 ---
 output: html_document
 ---
-<center><img src="www/applogo.png" width="400px" /></center>
+<center><img src="www/applogo.png" width="300px" /><img src="www/logo-NEON-NSF.png" width="300px" /></center>
 
 ## <span style="color: #2F5597;"><b>Overview</b></span>
 
-Welcome to openFlow! This application allows you view and interact with select hydrologic data collected at 29 stream,  river, and lake inflow/outflow sites across the National Ecological Observatory Network (NEON).  NEON spans the continental United States and includes monitoring sites in Alaska and Puerto Rico. In this app you can visually explore data from the following NEON Data Products:
+Welcome to NEON openFlow! This application allows you view and interact with select hydrologic data collected at 29 stream,  river, and lake inflow/outflow sites across the National Ecological Observatory Network (NEON).  NEON spans the continental United States and includes monitoring sites in Alaska and Puerto Rico. In this app you can visually explore data from the following NEON Data Products:
 
 * Stage-discharge rating curves [(DP4.00133.001)](https://data.neonscience.org/data-products/DP4.00133.001)
 * Continuous discharge [(DP4.00130.001)](https://data.neonscience.org/data-products/DP4.00130.001)

@@ -191,14 +191,21 @@ server <- function(input, output, session) {
       #. . 6.5 Render PhenoCam image in dialog box ####
       if(!base::is.null(phenoURL)){
         phenoInfo <<- createPhenoInfo(phenoURL,usrDateTime)
-        shiny::showModal(shiny::modalDialog(
-          title = "Phenocam Image",
-          size = "l",
-          tookInfo,
-          tags$img(
-            src = phenoURL),
-          footer = shiny::downloadButton("downloadPheno",label = "Download Phenocam Image"),
-          easyClose = TRUE))
+        
+        shinyWidgets::sendSweetAlert(
+          session = session,
+          title = NULL,
+          text = tags$span(
+            tags$img(src = phenoURL,
+                     width="600"),
+            tags$br(),
+            tags$br(),
+            shiny::downloadButton("downloadPheno",label = "Download Phenocam Image")
+          ),
+          closeOnEsc = T,
+          closeOnClickOutside = T,
+          width = "70%"
+        )
       }
       else{
         shiny::showModal(shiny::modalDialog(
