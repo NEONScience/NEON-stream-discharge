@@ -13,10 +13,31 @@
 #     original creation
 ##############################################################################################
 ui<- shinydashboard::dashboardPage(
-  hader <- shinydashboard::dashboardHeader(title = "openFlow"),
+  # Browser tab title
+  title = "openFlow",
+  
+  # Format a custom top banner
+  dashboardHeader(
+    title = tags$div(
+      class = "custom-banner",
+      tags$div(
+        style = "display: flex; justify-content: space-between; align-items: center; width: 100%;",
+        # Left logo and title
+        tags$div(
+          style = "display: flex; align-items: center;",
+          tags$img(src = "applogo_whiteback.png", height = "60px", style = "margin-right:10px;"),
+        ),
+        # Right logo
+        tags$img(src = "logo-NEON-NSF.png", height = "60px")
+      )
+    )
+  ),
 
   #Sidebar menu                
   sidebar <- shinydashboard::dashboardSidebar(
+    # Adjust the sidebar
+    width = '200px',
+    tags$style(".left-side, .main-sidebar {padding-top: 75px}"),
     shinydashboard::sidebarMenu(shinydashboard::menuItem("About the App", tabName = "AbouttheApp", icon = icon("info-circle")),
                                 shinydashboard::menuItem("Time Series Viewer", tabName = "TimeseriesViewer", icon = icon("chart-line")),
                                 shinydashboard::menuItem("Target Gauge Height", tabName = "TargetGAG", icon = icon("bullseye")),
@@ -26,14 +47,32 @@ ui<- shinydashboard::dashboardPage(
  
   #Body of each menu item
   body <- shinydashboard::dashboardBody(
+    # Format the custom top banner
     tags$head(
-      tags$style(HTML(
-        " .custom-box { border: 2px solid #007bff; 
-        padding: 10px; margin-bottom: 20px; box-shadow: 2px 2px 10px #888888; 
-        } .custom-input { width: 100%; margin-bottom: 10px; } ")) ),
-    tags$head(tags$style(HTML(".small-box {height: 90px}"))),
-    tags$head(tags$style("#shiny-modal img { max-width: 100%; }")),
-    useShinyjs(),
+      tags$style(HTML("
+    /* Override default blue bar */
+    .main-header .logo {
+      background-color: #3c8dbc !important;
+      width: 100% !important;
+      padding: 0 !important;
+      height: 80px !important; /* Set desired height */
+    }
+    .main-header .navbar {
+      display: none;
+    }
+    .custom-banner {
+      background-color: #3c8dbc;
+      height: 60px; /* Match the height */
+      padding: 10px 10px;
+    }
+    .custom-banner img {
+      height: 60px; /* Keep image size consistent */
+    }
+  "))
+    ),
+    
+    shinyjs::useShinyjs(),
+    style = "padding:25px;",
     
     shinydashboard::tabItems(
        
